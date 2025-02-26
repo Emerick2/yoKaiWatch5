@@ -10,14 +10,18 @@ public class mouvementDuJoueur : MonoBehaviour
 
 
     void Update(){
-        if(Input.GetKeyDown(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)){
+        if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)){
             transform.Translate(directionDroit * vitesse * Time.deltaTime);
-        }else if(Input.GetKeyDown(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)){
+            transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+        }else if(Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)){
             transform.Translate(directionGauche * vitesse * Time.deltaTime);
-        }else if(Input.GetKeyDown(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)){
+            transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+        }else if(Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)){
             transform.Translate(directionHaut * vitesse * Time.deltaTime);
-        }else if(Input.GetKeyDown(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)){
+            transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        }else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)){
             transform.Translate(directionBas * vitesse * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0f, -90f, 0f);
         }
     }
 }
