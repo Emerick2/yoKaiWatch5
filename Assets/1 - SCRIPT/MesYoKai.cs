@@ -7,6 +7,7 @@ public class MesYoKai : MonoBehaviour
     private static MesYoKai _instance;
 
     public List<ListeDeMesYoKai> maListe;
+    public bool finDuChargement;
     
     // Singleton : la propriété Instance est du même type que _instance
     public static MesYoKai Instance {
@@ -50,11 +51,13 @@ public class MesYoKai : MonoBehaviour
     private void ChargerLesYoKai(){
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         for (int i = 0; i < monIDActuel; i++){
-            maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));
+            maListe.Add(new ListeDeMesYoKai());
+            maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
             maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
             maListe[i].personnalité  =  NewDataCenter.Instance.Lire(i.ToString()+"_personalité");
             maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
         }
+        finDuChargement=true;
     }
 }
 

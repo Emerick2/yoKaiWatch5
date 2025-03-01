@@ -7,9 +7,9 @@ using System.Reflection;
 
 public class medaliumDictionnaire : MonoBehaviour{
     public List<MedaliumNonPersonel> dictionnaire;
-    void Start(){
-        MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-    }
+    /*void Start(){
+        //MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
+    }*/
 }
 
 

@@ -4,15 +4,26 @@ using UnityEngine;
 
 public class GestionnaireDeCombas : MonoBehaviour
 {
+    public medaliumDictionnaire medaliumDictionnaire;
+    public int[] IDDesYoKaiDeEquipe;//identifient unique "mesYoKai"
+    public int[] IDDesYoKaiDeEnnemie;//identifient globeau "médalium"
     public Gestionnaire g;
     public float tempsAttanteEntreLesTours=0.5f;
     private int numéroDuTour = 1;
     private GameObject yoKaiUtiliser;
     private SliderValue yoKaiUtiliser_Vie;
-    void Start()
-    {
+    void Start(){
+        chargementDesPersonnage();
         StartCoroutine(boucleDuJeu());
     }
+
+    void chargementDesPersonnage(){
+        int ID = MesYoKai.Instance.maListe[IDDesYoKaiDeEquipe[0]].ID;
+        print(ID);
+        g.J1=medaliumDictionnaire.dictionnaire[ID].yoKai;
+        GameObject TV = Instantiate(g.J1);
+    }
+
     IEnumerator boucleDuJeu(){
         while (true){
             trouverPersonnage();
