@@ -8,7 +8,7 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
     public int IDduYoKaiSpécifique=2;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
     public int pointDeVie = 100;//c'est sur un pourcentage
-    public Text monNom;
+    //public Text monNom;
 
     //yo-kai en général :
     [HideInInspector] public string nom;
@@ -98,6 +98,6 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         surnom = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_surnom");
     }
     void suiteDeOuverture(){
-        monNom.text=surnom;
+        //monNom.text=surnom;
     }
 }
