@@ -14,7 +14,6 @@ public class GestionnaireDeCombas : MonoBehaviour
     public Transform[] positionJ;
     public Gestionnaire g;
     public float tempsAttanteEntreLesTours=0.5f;
-    private int numéroDuTour = 1;
     private GameObject yoKaiUtiliser;
     private SliderValue yoKaiUtiliser_Vie;
     public List<GameObject> lesJoueurs;
@@ -31,6 +30,9 @@ public class GestionnaireDeCombas : MonoBehaviour
             GameObject TV = Instantiate(g.J[i]);
             TV.transform.localScale = new Vector3(100, 100, 100);
             TV.transform.position = new Vector3(positionJ[i].position.x,positionJ[i].position.y,positionJ[i].position.z);
+            Vector3 rotation = TV.transform.eulerAngles;
+            rotation.y += 180;
+            TV.transform.eulerAngles = rotation;
             TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().medaliumDictionnaire=medaliumDictionnaire;
             TV.GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().IDduYoKaiMedalium=ID;
             TV.GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().IDduYoKaiSpécifique=IDDesYoKaiDeEquipe[i];
@@ -118,23 +120,61 @@ public class GestionnaireDeCombas : MonoBehaviour
 
     IEnumerator boucleDuJeu(){
         int numéro=0;
+        int random=0;
+        bool leJoueurJoue = true;
+        print (leJoueurJoue);
         while (true){
-            if (numéro >= g.barreDeVie.Count){numéro=0;}
-            if (numéroDuTour==1 && g.J[numéro] != null && g.barreDeVie[numéro] != null){
-                //récupérer l'ID du personnage, sa force etc... tous doit être charger au début de la partie dans un script que tien le gameObject du personnage (ce script lui est assigner par le gestionnaire de combat)
-                g.barreDeVie[numéro].value-=10;
-                StartCoroutine(annimation(numéro,"coup"));//coup, mort, attaque
-            }if (g.barreDeVie[numéro].value<=0){
-                StartCoroutine(annimation(numéro,"mort"));//coup, mort, attaque
+            numéro=0;
+            if (numéro >= g.barreDeVie.Count){
+                if (leJoueurJoue){
+                    leJoueurJoue=false;
+                }else{
+                    if (numéro >= g.E_Vie.Count){
+                        leJoueurJoue=true;
+                    }
+                }
             }
+            if (!leJoueurJoue){//c'est un ennemie qui va attaquer
+                random = Random.Range(0,g.J.Count);
+                g.barreDeVie[random].value-=10;
+                if (g.barreDeVie[random].value<=0){
+                    StartCoroutine(annimation(lesJoueurs[random],"mort"));//coup, mort, attaque
+                }
+                StartCoroutine(annimation(lesJoueurs[random],"coup"));//coup, mort, attaque
+                StartCoroutine(annimation(g.E[numéro],"attaque"));//coup, mort, attaque
+
+            }else{//c'est le joueur qui attaque
+                random = Random.Range(0,g.E.Count);
+                g.E_Vie[random].value-=10;
+                if (g.E_Vie[random].value<=0){
+                    StartCoroutine(annimation(g.E[random],"mort"));//coup, mort, attaque
+                }
+                StartCoroutine(annimation(g.E[random],"coup"));//coup, mort, attaque
+                StartCoroutine(annimation(lesJoueurs[numéro],"attaque"));//coup, mort, attaque
+            }
+            
+
+            /* proptotipe fonctionnel mais qui ne prend pas en compte les ennemie
+            if (numéro >= g.barreDeVie.Count){numéro=0;}
+            if (g.J[numéro] != null && g.barreDeVie[numéro] != null){
+                //récupérer l'ID du personnage, sa force etc...
+                g.barreDeVie[numéro].value-=10;
+                StartCoroutine(annimation(lesJoueurs[numéro],"coup"));//coup, mort, attaque
+            }if (g.barreDeVie[numéro].value<=0){
+                StartCoroutine(annimation(lesJoueurs[numéro],"mort"));//coup, mort, attaque
+            }*/
             numéro++;
             yield return new WaitForSeconds(tempsAttanteEntreLesTours);
         }
     }
-    IEnumerator annimation(int ID, string nom){//coup, mort, attaque
-        lesJoueurs[ID].GetComponent<Animator>().SetBool(nom,true);
-        yield return new WaitForSeconds(0.1f);
-        lesJoueurs[ID].GetComponent<Animator>().SetBool(nom,false);
+    IEnumerator annimation(GameObject objet, string nom){//coup, mort, attaque
+        if (objet.GetComponent<Animator>() != null){
+            objet.GetComponent<Animator>().SetBool(nom,true);
+            yield return new WaitForSeconds(0.1f);
+            objet.GetComponent<Animator>().SetBool(nom,false);
+        }else{
+            Debug.LogWarning("Attention l'annimator du joueur avec l'ID"+objet+"du gestionnaire de combat n'est pas activé et donc il ne peut pas jouer son annimation de "+nom);
+        }
     }
 }
 [System.Serializable]
