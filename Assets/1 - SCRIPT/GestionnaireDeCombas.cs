@@ -7,6 +7,10 @@ using System.Linq;
 
 public class GestionnaireDeCombas : MonoBehaviour
 {
+    public GameObject panneauDeVictoire;
+    public GameObject panneauDeDéfaite;
+    public bool finDuCombat=false;
+    public bool leJoeurAGagner=false;
     public RuntimeAnimatorController animController;
     public medaliumDictionnaire medaliumDictionnaire;
     public int[] IDDesYoKaiDeEquipe;//identifient unique "mesYoKai"
@@ -43,137 +47,122 @@ public class GestionnaireDeCombas : MonoBehaviour
             CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
         }
     }
+    void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai) {
+        if (animator == null) { Debug.LogError("Animator passé en paramètre est null.");return;}
+        if (modèle3DDuYoKai == null) {Debug.LogError("Le GameObject modèle3DDuYoKai est null.");return;}
+        Animator modeleAnimator = modèle3DDuYoKai.GetComponent<Animator>();
+        if (modeleAnimator == null) {Debug.LogError("Aucun composant Animator trouvé sur le modèle3DDuYoKai.");return;}
+        RuntimeAnimatorController animController = modeleAnimator.runtimeAnimatorController;
+        if (animController == null) {Debug.LogError("Aucun RuntimeAnimatorController trouvé sur le modèle3DDuYoKai.");return;}
+        AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
+        AnimationClip[] clips = animController.animationClips;
+        bool animationTrouvée = false;
+
+        for (int i = 0; i < clips.Length; i++) {
+            string nomAnimationTrouvée = clips[i].name;
+            if (nomAnimationTrouvée.Contains("_p20_25000s_ati")) {
+                AnimationClip monAnimation = yoKaiName+"_p20_25000s_ati";//cette annimation est contenu dans le fichier fbx du modèle "modèle3DDuYoKai"
+                overrideController[nomAnimationTrouvée] = monAnimation;
+                animationTrouvée=true;
+                break;
+            }
+        }
+
+        if (!animationTrouvée) {
+            Debug.LogWarning("Aucune animation correspondante trouvée");
+        }
+        animator.runtimeAnimatorController = overrideController;
+    }
+
+    /*
     void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai) { 
-        print("début");
         AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
         AnimationClip[] clips = modèle3DDuYoKai.GetComponent<Animator>().runtimeAnimatorController.animationClips;
         string nomAnimation = "_p20_25000s_ati";
         for (int i = 0; i < clips.Length; i++){
-            print(clips[i]);
-            if (clips[i].name.Replace(yoKaiName,"") == nomAnimation) {
-                print ("clipTrouvé qui doit être modifier");
-                AnimationClip newClip = null;/*
-                //recherche du remplacent
-                AnimationClip[] dansLeYoKai
-                for (int x = 0; x < clips.Length; x++){
-                    if (clips[x].name == yoKaiName + "_p20_25000s_ati") {
-                        print ("clipTrouvé qui va le remplacer");
-                        newClip = clips[x];
-                        break;
-                    }
-                }
-
-                if (newClip != null) {
-                    overrideController[clips[i].name] = newClip;
-                } else {
-                    Debug.LogWarning("Animation clip non trouvée : " + yoKaiName + "_p20_25000s_ati");
-                }*/
-            }
-        }
-        animator.runtimeAnimatorController = overrideController;
-        /*
-        if (animator == null) {
-            Debug.LogError("L'Animator est null pour " + yoKaiName);
-            return;
-        }
-
-        // Vérifier que le modèle 3D a bien une animation intégrée
-        AnimationClip[] clips = modèle3DDuYoKai.GetComponent<Animator>().runtimeAnimatorController.animationClips;
-        if (clips == null || clips.Length == 0) {
-            Debug.LogError("Aucune animation trouvée dans le modèle 3D : " + modèle3DDuYoKai.name);
-            return;
-        }
-
-        // Créer un AnimatorOverrideController basé sur le controller de base
-        AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
-
-        // Dictionnaire des animations
-        Dictionary<string, string> animations = new Dictionary<string, string> {
-            { "coup", yoKaiName + "_p20_25000s_ati" },
-            { "danse", yoKaiName + "_p10_10000s_dan" },
-            { "gagner", yoKaiName + "_p15_20000s_win" },
-            { "perdu", yoKaiName + "_p10_15000s_lose" }
-        };
-
-        // Associer chaque animation si elle est trouvée dans le modèle
-        foreach (var entry in animations) {
-            string etatAnimator = entry.Key;
-            string nomAnimation = entry.Value;
-
-            AnimationClip clipTrouvé = null;
-            foreach (AnimationClip clip in clips) {
-                if (clip.name == nomAnimation) {
-                    clipTrouvé = clip;
-                    break;
-                }
-            }
-
-            if (clipTrouvé != null) {
-                overrideController[etatAnimator] = clipTrouvé;
-            } else {
-                Debug.LogWarning("Animation non trouvée dans le modèle : " + nomAnimation);
-            }
-        }
-        animator.runtimeAnimatorController = overrideController;
-        */
-    }
+            nomAnnimationATrouverDansLeFichierFBXDuModèle3DDuYoKai=yoKaiName+(clips[i].name.Replace(yoKaiName,""));
+            //trouver l'annimation qui est dans le fichier FBX du game object modèle3DDuYoKai et l'utiliser pour remplacer le clips[i]
+            animator.runtimeAnimatorController = overrideController; 
+        }   
+    }*/
 
     IEnumerator boucleDuJeu(){
         int numéro=0;
         int random=0;
         bool leJoueurJoue = true;
         print (leJoueurJoue);
-        while (true){
-            numéro=0;
-            if (numéro >= g.barreDeVie.Count){
-                if (leJoueurJoue){
-                    leJoueurJoue=false;
-                }else{
-                    if (numéro >= g.E_Vie.Count){
-                        leJoueurJoue=true;
+
+        while (!finDuCombat){
+            if (g.barreDeVie.Count == 0 || g.E_Vie.Count == 0 || g.E.Count == 0 || g.J.Count == 0){
+                Debug.LogError("Erreur : Une des listes est vide !");
+                yield break;
+            }
+
+            if ((leJoueurJoue && numéro >= g.barreDeVie.Count) || (!leJoueurJoue && numéro >= g.E_Vie.Count)){
+                numéro=0;
+                leJoueurJoue = !leJoueurJoue;
+            }
+            vérifieSiUnJoueurEstEnVie();
+
+            if (!leJoueurJoue){ // C'est un ennemi qui attaque
+                if (g.J.Count > 0 && g.E_Vie[numéro].value>0) {
+                    random = Random.Range(0, g.J.Count);int stoper=100;
+                    while(g.barreDeVie[random].value<=0 && stoper >0){random = Random.Range(0, g.J.Count);stoper--;}
+                    if (random < g.barreDeVie.Count) {
+                        g.barreDeVie[random].value -= 10;
+                        if (g.barreDeVie[random].value <= 0){
+                            annimation(lesJoueurs[random], "mort");
+                        }
+                        annimation(lesJoueurs[random], "coup");
+                        annimation(g.E[numéro], "attaque");
+                    }
+                }
+            } else { // C'est le joueur qui attaque
+                if (g.E.Count > 0 && g.barreDeVie[random].value>0) {
+                    random = Random.Range(0, g.E.Count);int stoper=100;
+                    while(g.E_Vie[random].value<=0 && stoper >0){random = Random.Range(0, g.E.Count);stoper--;}
+                    if (random < g.E_Vie.Count) {
+                        g.E_Vie[random].value -= 10;
+                        if (g.E_Vie[random].value <= 0){
+                           annimation(g.E[random], "mort");
+                        }
+                        annimation(g.E[random], "coup");
+                        annimation(lesJoueurs[numéro], "attaque");
                     }
                 }
             }
-            if (!leJoueurJoue){//c'est un ennemie qui va attaquer
-                random = Random.Range(0,g.J.Count);
-                g.barreDeVie[random].value-=10;
-                if (g.barreDeVie[random].value<=0){
-                    StartCoroutine(annimation(lesJoueurs[random],"mort"));//coup, mort, attaque
-                }
-                StartCoroutine(annimation(lesJoueurs[random],"coup"));//coup, mort, attaque
-                StartCoroutine(annimation(g.E[numéro],"attaque"));//coup, mort, attaque
 
-            }else{//c'est le joueur qui attaque
-                random = Random.Range(0,g.E.Count);
-                g.E_Vie[random].value-=10;
-                if (g.E_Vie[random].value<=0){
-                    StartCoroutine(annimation(g.E[random],"mort"));//coup, mort, attaque
-                }
-                StartCoroutine(annimation(g.E[random],"coup"));//coup, mort, attaque
-                StartCoroutine(annimation(lesJoueurs[numéro],"attaque"));//coup, mort, attaque
-            }
-            
-
-            /* proptotipe fonctionnel mais qui ne prend pas en compte les ennemie
-            if (numéro >= g.barreDeVie.Count){numéro=0;}
-            if (g.J[numéro] != null && g.barreDeVie[numéro] != null){
-                //récupérer l'ID du personnage, sa force etc...
-                g.barreDeVie[numéro].value-=10;
-                StartCoroutine(annimation(lesJoueurs[numéro],"coup"));//coup, mort, attaque
-            }if (g.barreDeVie[numéro].value<=0){
-                StartCoroutine(annimation(lesJoueurs[numéro],"mort"));//coup, mort, attaque
-            }*/
             numéro++;
             yield return new WaitForSeconds(tempsAttanteEntreLesTours);
         }
     }
-    IEnumerator annimation(GameObject objet, string nom){//coup, mort, attaque
-        if (objet.GetComponent<Animator>() != null){
-            objet.GetComponent<Animator>().SetBool(nom,true);
-            yield return new WaitForSeconds(0.1f);
-            objet.GetComponent<Animator>().SetBool(nom,false);
+    void annimation(GameObject objet, string nom){//coup, mort, attaque
+        if (objet.GetComponent<Animator>() != null && objet != null){
+            objet.GetComponent<Animator>().SetTrigger(nom);
         }else{
             Debug.LogWarning("Attention l'annimator du joueur avec l'ID"+objet+"du gestionnaire de combat n'est pas activé et donc il ne peut pas jouer son annimation de "+nom);
+        }
+    }
+    void vérifieSiUnJoueurEstEnVie(){
+        int conteur = 0;
+        for (int i = 0; i < g.E_Vie.Count; i++){
+            if (g.E_Vie[i].value <=0){conteur++;}
+        }
+        if (conteur == g.E_Vie.Count){
+            print("fin de la partie, le joueur à gagner");
+            finDuCombat = true;
+            leJoeurAGagner = true;
+            panneauDeVictoire.SetActive(true);
+        }
+        conteur = 0;
+        for (int i = 0; i < g.barreDeVie.Count; i++){
+            if (g.barreDeVie[i].value <=0){conteur++;}
+        }
+        if (conteur == g.barreDeVie.Count){
+            print("fin de la partie, l'ennemie à gagner");
+            finDuCombat = true;
+            leJoeurAGagner = false;
+            panneauDeDéfaite.SetActive(true);
         }
     }
 }
