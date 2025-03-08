@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+// faire la vie
 
 public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
 {
     public medaliumDictionnaire medaliumDictionnaire;
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
     public int IDduYoKaiSpécifique=2;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
-    public int pointDeVie = 100;//c'est sur un pourcentage
+    [Range(1,100)] public int pointDeVie = 100;//c'est sur un pourcentage
     //public Text monNom;
 
     //yo-kai en général :
@@ -29,7 +29,8 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     //[Header("Paramètres à rensegner si c'est une ammultime d'attaque :")]
     [HideInInspector] [Range(0,5)] public int multiplicationDeLaForceParRapportAUneAttaqueNormal;
     [HideInInspector] [Range(0,3)] public int nombreDeAnnemieToucher;
-    //attaque:
+
+    //attaque: --------------------------------------------------------------
     [HideInInspector] public bool attaqueDeSoin;
     [HideInInspector] public bool attaqueDeDégât;
     [HideInInspector] public bool attaqueEnvoutement;//pas encor fini
@@ -38,11 +39,10 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     [HideInInspector] public bool soigneAléatoirementUnDesYoKaiDeLaRanger;
     [HideInInspector] [Range(0,100)] public int pourcentageDeSoitRendu; 
     //[Header("Paramètres à rensegner si c'est une attaque d'attaque :")]
-    [HideInInspector] [Range(0,100)] public int dégatInfligé;
-
+    [HideInInspector] [Range(0,100)] public int dégatInfligé=50;
 
     //yo-kai en particulier :
-    [HideInInspector] public int niveau;
+    [Range(1,120)]public int niveau;
     [HideInInspector] public string personnalité;
     [HideInInspector] public string surnom;
 
