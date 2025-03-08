@@ -8,6 +8,10 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
     public int IDduYoKaiSpécifique=2;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
     [Range(1,100)] public int pointDeVie = 100;//c'est sur un pourcentage
+    [Range(0,100)] public int dégatInfligé=50;
+    [Range(0,100)] public int esprit;
+    [Range(0,100)] public int vitesse;
+
     //public Text monNom;
 
     //yo-kai en général :
@@ -39,10 +43,10 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     [HideInInspector] public bool soigneAléatoirementUnDesYoKaiDeLaRanger;
     [HideInInspector] [Range(0,100)] public int pourcentageDeSoitRendu; 
     //[Header("Paramètres à rensegner si c'est une attaque d'attaque :")]
-    [HideInInspector] [Range(0,100)] public int dégatInfligé=50;
 
     //yo-kai en particulier :
     [Range(1,120)]public int niveau;
+    
     [HideInInspector] public string personnalité;
     [HideInInspector] public string surnom;
 
@@ -96,6 +100,15 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         niveau = int.Parse(NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_niveau"));
         personnalité = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_personalité");
         surnom = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_surnom");
+
+        float taux=1f;
+        if (rang == Rang.D) taux+=0.3f*1f;
+        if (rang == Rang.C) taux+=0.3f*2f;
+        if (rang == Rang.B) taux+=0.3f*3f;
+        if (rang == Rang.A) taux+=0.3f*4f;
+        if (rang == Rang.S) taux+=0.3f*5f;
+        dégatInfligé=(int)(dégatInfligé*taux);
+        esprit=(int)(esprit*taux);
     }
     void suiteDeOuverture(){
         //monNom.text=surnom;

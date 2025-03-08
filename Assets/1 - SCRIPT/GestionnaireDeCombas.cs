@@ -45,12 +45,7 @@ public class GestionnaireDeCombas : MonoBehaviour
             lesJoueurs.Add(TV);
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
             CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
-        }/*
-        for (int i = 0; i < g.barreDeVie.Count; i++){
-            g.barreDeVie[i].value=100;
-        }for (int i = 0; i < g.E_Vie.Count; i++){
-            g.E_Vie[i].value=100;
-        }*/
+        }
     }
     void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai){
         if (animator == null || modèle3DDuYoKai == null){
@@ -137,6 +132,7 @@ public class GestionnaireDeCombas : MonoBehaviour
                     random = Random.Range(0, g.J.Count);int stoper=100;
                     while(g.barreDeVie[random].value<=0 && stoper >0){random = Random.Range(0, g.J.Count);stoper--;}
                     if (random < g.barreDeVie.Count) {
+                        //if (g.barreDeVie[random].value == 0){g.barreDeVie[random].value=100;}
                         g.barreDeVie[random].value -= calculerDégâts(lesJoueurs[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
                         annimation(g.E[numéro], "attaque");
                         yield return new WaitForSeconds(0.5f);
