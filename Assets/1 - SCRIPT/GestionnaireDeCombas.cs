@@ -115,6 +115,8 @@ public class GestionnaireDeCombas : MonoBehaviour
         int numéro=0;
         int random=0;
         bool leJoueurJoue = true;
+        int initialisation = calculerDégâts(lesJoueurs[0].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[0].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
+
         while (!finDuCombat){
             if (g.barreDeVie.Count == 0 || g.E_Vie.Count == 0 || g.E.Count == 0 || g.J.Count == 0){
                 Debug.LogError("Erreur : Une des listes est vide !");
@@ -132,10 +134,9 @@ public class GestionnaireDeCombas : MonoBehaviour
                     random = Random.Range(0, g.J.Count);int stoper=100;
                     while(g.barreDeVie[random].value<=0 && stoper >0){random = Random.Range(0, g.J.Count);stoper--;}
                     if (random < g.barreDeVie.Count) {
-                        //if (g.barreDeVie[random].value == 0){g.barreDeVie[random].value=100;}
-                        g.barreDeVie[random].value -= calculerDégâts(lesJoueurs[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
                         annimation(g.E[numéro], "attaque");
                         yield return new WaitForSeconds(0.5f);
+                        g.barreDeVie[random].value -= calculerDégâts(g.E[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),lesJoueurs[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
                         if (g.barreDeVie[random].value <= 0){
                             annimation(lesJoueurs[random], "mort");
                         }else{
@@ -149,9 +150,9 @@ public class GestionnaireDeCombas : MonoBehaviour
                     random = Random.Range(0, g.E.Count);int stoper=100;
                     while(g.E_Vie[random].value<=0 && stoper >0){random = Random.Range(0, g.E.Count);stoper--;}
                     if (random < g.E_Vie.Count) {
-                        g.E_Vie[random].value -= calculerDégâts(lesJoueurs[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
                         annimation(lesJoueurs[numéro], "attaque");
                         yield return new WaitForSeconds(0.5f);
+                        g.E_Vie[random].value -= calculerDégâts(lesJoueurs[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
                         if (g.E_Vie[random].value <= 0){
                            annimation(g.E[random], "mort");
                         }else{
@@ -166,16 +167,13 @@ public class GestionnaireDeCombas : MonoBehaviour
         }
     }
     int calculerDégâts(gestionnaireDeMonPetitYoKaiPourUnCombat lanceur, gestionnaireDeMonPetitYoKaiPourUnCombat cible){
-        int puissance = lanceur.dégatInfligé * lanceur.niveau;
-        int vieTotal = cible.pointDeVie * lanceur.niveau;
-        if (vieTotal == 0){vieTotal=1;}
-        if (puissance == 0){puissance=1;}
-        return (puissance/vieTotal)*100;
+        float total = lanceur.dégatInfligé/cible.pointDeVie;
+        print(total*100);
+        return (int)(total*100);
     }
     void annimation(GameObject objet, string nom){//coup, mort, attaque
         if (objet.GetComponent<Animator>() != null && objet != null){
             objet.GetComponent<Animator>().SetTrigger(nom);
-            print(nom);
         }else{
             Debug.LogWarning("Attention l'annimator du joueur avec l'ID"+objet+"du gestionnaire de combat n'est pas activé et donc il ne peut pas jouer son annimation de "+nom);
         }

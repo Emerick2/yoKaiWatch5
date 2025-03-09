@@ -109,6 +109,14 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         if (rang == Rang.S) taux+=0.3f*5f;
         dégatInfligé=(int)(dégatInfligé*taux);
         esprit=(int)(esprit*taux);
+
+        if (dégatInfligé == 0){dégatInfligé=1;}
+        if (pointDeVie == 0){pointDeVie=1;}
+        if (esprit == 0){esprit=1;}
+
+        dégatInfligé = dégatInfligé * niveau;
+        pointDeVie = pointDeVie * niveau;
+        esprit = esprit * niveau;
     }
     void suiteDeOuverture(){
         //monNom.text=surnom;
