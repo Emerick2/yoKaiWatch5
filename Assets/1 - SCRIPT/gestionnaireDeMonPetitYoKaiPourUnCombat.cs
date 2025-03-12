@@ -7,42 +7,29 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     public medaliumDictionnaire medaliumDictionnaire;
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
     public int IDduYoKaiSpécifique=2;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
-    [Range(1,100)] public int pointDeVie = 100;//c'est sur un pourcentage
-    [Range(0,100)] public int dégatInfligé=50;
-    [Range(0,100)] public int esprit;
-    [Range(0,100)] public int vitesse;
+    /*[Range(1,100)]*/ public int pointDeVie = 100;//c'est sur un pourcentage
+    /*[Range(0,100)]*/ public int dégatInfligé=50;
+    /*[Range(0,100)]*/ public int esprit;
+    /*[Range(0,100)]*/ public int vitesse;
 
     //public Text monNom;
 
     //yo-kai en général :
     [HideInInspector] public string nom;
     [HideInInspector] public GameObject yoKai;
-    [HideInInspector] public Tribue tribue;
-    [HideInInspector] public Rang rang;
-    //amultime :
+    [HideInInspector] public string tribue;
+    [HideInInspector] public string rang;
+    [HideInInspector] public string description;
+    [HideInInspector] public string personalité;
+    [HideInInspector] public string talent;
+    [HideInInspector] public string technique;
+    [HideInInspector] public string platPréféré;
+    [HideInInspector] public string type;
+    [HideInInspector] public string amultime;
+    [HideInInspector] public string envoutement;
     [HideInInspector] public string nomDeAmultime;
-    [HideInInspector] public bool amultimeDeSoin;
-    [HideInInspector] public bool amultimeDeAttaque;
-    [HideInInspector] public bool amultimeEnvoutement;//pas encor fini
-    //[Header("Paramètres à rensegner si c'est une ammultime de soin :")]
-    [HideInInspector] public bool soigneUniquementLeLanceurAmu;
-    [HideInInspector] public bool soigneUniquementLeYoKaiÀSaDroite;
-    [HideInInspector] public bool soigneUniquementLesDeuxYoKaiAutoursDeLui;
-    [HideInInspector] public bool soingneTousLesYoKaiDeLaRanger;
-    [HideInInspector] [Range(0,100)] public int pourcentageDeSoitRenduAmu; 
-    //[Header("Paramètres à rensegner si c'est une ammultime d'attaque :")]
-    [HideInInspector] [Range(0,5)] public int multiplicationDeLaForceParRapportAUneAttaqueNormal;
-    [HideInInspector] [Range(0,3)] public int nombreDeAnnemieToucher;
-
-    //attaque: --------------------------------------------------------------
-    [HideInInspector] public bool attaqueDeSoin;
-    [HideInInspector] public bool attaqueDeDégât;
-    [HideInInspector] public bool attaqueEnvoutement;//pas encor fini
-    //[Header("Paramètres à rensegner si c'est une attaque de soin :")]
-    [HideInInspector] public bool soigneUniquementLeLanceur;
-    [HideInInspector] public bool soigneAléatoirementUnDesYoKaiDeLaRanger;
-    [HideInInspector] [Range(0,100)] public int pourcentageDeSoitRendu; 
-    //[Header("Paramètres à rensegner si c'est une attaque d'attaque :")]
+    [HideInInspector] public int multiplicationDeLaPuissance;
+    [HideInInspector] public string catégorieÂmultime;
 
     //yo-kai en particulier :
     [Range(1,120)]public int niveau;
@@ -66,53 +53,43 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         if (IDduYoKaiMedalium < 0 || IDduYoKaiMedalium >= medaliumDictionnaire.dictionnaire.Count){
             Debug.LogError("Index hors limites ! IDduYoKaiMedalium = " + IDduYoKaiMedalium);
         }
-        nom = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].nom;
-        yoKai = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].yoKai;
-        tribue = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].tribue;
-        rang = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].rang;
-        
-        //amultime :
-        nomDeAmultime = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.nomDeAmultime;
-        amultimeDeSoin = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.amultimeDeSoin;
-        amultimeDeAttaque = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.amultimeDeAttaque;
-        amultimeEnvoutement = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.amultimeEnvoutement;
-        //[Header("Paramètres à rensegner si c'est une ammultime de soin :")]
-        soigneUniquementLeLanceurAmu = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.soigneUniquementLeLanceur;
-        soigneUniquementLeYoKaiÀSaDroite = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.soigneUniquementLeYoKaiÀSaDroite;
-        soigneUniquementLesDeuxYoKaiAutoursDeLui = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.soigneUniquementLesDeuxYoKaiAutoursDeLui;
-        soingneTousLesYoKaiDeLaRanger = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.soingneTousLesYoKaiDeLaRanger;
-        pourcentageDeSoitRenduAmu = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.pourcentageDeSoitRendu; 
-        //[Header("Paramètres à rensegner si c'est une ammultime d'attaque :")]
-        multiplicationDeLaForceParRapportAUneAttaqueNormal = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.multiplicationDeLaForceParRapportAUneAttaqueNormal;
-        nombreDeAnnemieToucher = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].amultime.nombreDeAnnemieToucher;
-        //attaque:
-        attaqueDeSoin = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.attaqueDeSoin;
-        attaqueDeDégât = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.attaqueDeDégât;
-        attaqueEnvoutement = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.attaqueEnvoutement;//pas encor fini
-        //[Header("Paramètres à rensegner si c'est une attaque de soin :")]
-        soigneUniquementLeLanceur = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.soigneUniquementLeLanceur;
-        soigneAléatoirementUnDesYoKaiDeLaRanger = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.soigneAléatoirementUnDesYoKaiDeLaRanger;
-        pourcentageDeSoitRendu = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.pourcentageDeSoitRendu; 
-        //[Header("Paramètres à rensegner si c'est une attaque d'attaque :")]
-        dégatInfligé = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium].attaqueNormal.dégatInfligé;
+        MedaliumNonPersonel mimi = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium];
+        nom = mimi.nom.ToString();
+        yoKai = mimi.yoKai;
+        tribue = mimi.tribue.ToString();
+        rang = mimi.rang.ToString();
+        description = mimi.description.ToString();
+        personalité = mimi.personalité.ToString();
+        talent = mimi.talent.ToString();
+        technique = mimi.technique.ToString();
+        platPréféré = mimi.platPréféré.ToString();
+        type = mimi.type.ToString();
+        envoutement = mimi.envoutement.ToString();
+        dégatInfligé = mimi.force;
+        vitesse = mimi.vitesse;
+        esprit = mimi.esprit;
+        pointDeVie = mimi.vie;
+
+        nomDeAmultime = mimi.amultime.nomDeAmultime.ToString();
+        multiplicationDeLaPuissance = mimi.amultime.multiplicationDeLaPuissance;
+        catégorieÂmultime = mimi.amultime.catégorieÂmultime.ToString();
 
         //yo-kai en particulier :
         niveau = int.Parse(NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_niveau"));
         personnalité = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_personalité");
-        surnom = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_surnom");
-
-        float taux=1f;
-        if (rang == Rang.D) taux+=0.3f*1f;
-        if (rang == Rang.C) taux+=0.3f*2f;
-        if (rang == Rang.B) taux+=0.3f*3f;
-        if (rang == Rang.A) taux+=0.3f*4f;
-        if (rang == Rang.S) taux+=0.3f*5f;
-        dégatInfligé=(int)(dégatInfligé*taux);
-        esprit=(int)(esprit*taux);
-
+        
         if (dégatInfligé == 0){dégatInfligé=1;}
         if (pointDeVie == 0){pointDeVie=1;}
         if (esprit == 0){esprit=1;}
+
+        float taux=1f;
+        if (rang == "D") taux+=0.3f*1f;
+        if (rang == "C") taux+=0.3f*2f;
+        if (rang == "B") taux+=0.3f*3f;
+        if (rang == "A") taux+=0.3f*4f;
+        if (rang == "S") taux+=0.3f*5f;
+        dégatInfligé=(int)((float)dégatInfligé*taux);
+        esprit=(int)((float)esprit*taux);
 
         dégatInfligé = dégatInfligé * niveau;
         pointDeVie = pointDeVie * niveau;

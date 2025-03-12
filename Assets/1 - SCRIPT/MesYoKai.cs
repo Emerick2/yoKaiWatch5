@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MesYoKai : MonoBehaviour
-{
+public class MesYoKai : MonoBehaviour{
     private static MesYoKai _instance;
 
     public List<ListeDeMesYoKai> maListe;

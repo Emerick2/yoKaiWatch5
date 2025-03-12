@@ -16,63 +16,66 @@ public class medaliumDictionnaire : MonoBehaviour{
 [System.Serializable]
 public class MedaliumNonPersonel{
     public string nom;
+    public string description;
     public GameObject yoKai;
     public Tribue tribue;
     public Rang rang;
-    //public Personnalité personnalité; la personnalité sera aléatoire
+    public Personnalité personalité;
+    public Talent talent;
+    public Technique technique;
+    public PlatPréféré platPréféré;
+    public Type type;
     public Ammultime amultime;
-    public AttaqueNormal attaqueNormal;
+    public Envoutement envoutement;
+    [Range(1,100)] public int force;
+    [Range(1,100)] public int vitesse;
+    [Range(1,100)] public int esprit;
+    [Range(1,100)] public int vie;
 }
 
 public enum Tribue{
-    [Description("vaillant")]       Vaillant,
-    [Description("mystérieu")]      Mystérieu,
-    [Description("costaud")]        Costaud,
-    [Description("mignon")]         Mignon,
-    [Description("bienveillant")]   Bienveillant,
-    [Description("sombre")]         Sombre,
-    [Description("sinistre")]       Sinistre,
-    [Description("insaisissable")]  Insaisissable,
-    [Description("perfide")]        Perfide,
-    [Description("enma")]           Enma,
-    [Description("wandroïd")]       Wandroïd
+    Vaillant,
+    Mystérieu,
+    Costaud,
+    Mignon,
+    Bienveillant,
+    Sombre,
+    Sinistre,
+    Insaisissable,
+    Perfide,
+    Enma,
+    Wandroïd
 }
 
 public enum Personnalité{
     //1
-    [Description("flâneur")]        flâneur,
-    [Description("frivole")]        frivole,
-    [Description("ferme")]          ferme,
-    [Description("sérieux")]        sérieux,
+    flâneur,
+    frivole,
+    ferme,
+    sérieux,
     //2
-    [Description("grognon")]        grognon,
-    [Description("dur")]            dur,
-    [Description("logique")]        logique,
-    [Description("futé")]           futé,
-    [Description("prudent")]        prudent,
-    [Description("calme")]          calme,
-    [Description("gentil")]         gentil,
-    [Description("tendre")]         tendre,
-    [Description("bizarre")]        bizarre,
-    [Description("cruel")]          cruel,
-    [Description("altruiste")]      altruiste,
-    [Description("dévoué")]         dévoué,
-    [Description("violant")]        violant,
+    grognon,
+    dur,
+    logique,
+    futé,
+    prudent,
+    calme,
+    gentil,
+    tendre,
+    bizarre,
+    cruel,
+    altruiste,
+    dévoué,
+    violant,
 }
 
 public enum Rang{
-    [Description("E")]  E,
-    [Description("D")]  D,
-    [Description("C")]  C,
-    [Description("B")]  B,
-    [Description("A")]  A,
-    [Description("S")]  S,
-    [Description("SS")] SS,
-    [Description("SSS")]SSS,
-    [Description("Z")]  Z,
-    [Description("ZZ")] ZZ,
-    [Description("ZZZ")]ZZZ,
-    [Description("UZ")] UZ
+    E,
+    D,
+    C,
+    B,
+    A,
+    S
 }
 
 public static class EnumExtensions{
@@ -85,6 +88,10 @@ public static class EnumExtensions{
 [System.Serializable]
 public class Ammultime{
     public string nomDeAmultime;
+    [Range(0,5)] public int multiplicationDeLaPuissance;
+    public CatégorieÂmultime catégorieÂmultime;
+
+    /*
     public bool amultimeDeSoin;
     public bool amultimeDeAttaque;
     public bool amultimeEnvoutement;//pas encor fini
@@ -98,18 +105,137 @@ public class Ammultime{
     [Range(0,5)] public int multiplicationDeLaForceParRapportAUneAttaqueNormal;
     [Range(0,3)] public int nombreDeAnnemieToucher;
     //[Header("Paramètres à rensegner si c'est une ammultime d'envoutement (ce n'est pas fini désolé) :")]
+    */
+}
+public enum CatégorieÂmultime{
+    envoutementAllier,
+    envoutementEnnemie,
+    soin,
+    attaque
 }
 
-[System.Serializable]
-public class AttaqueNormal{
-    public bool attaqueDeSoin;
-    public bool attaqueDeDégât;
-    public bool attaqueEnvoutement;//pas encor fini
-    [Header("Paramètres à rensegner si c'est une attaque de soin :")]
-    public bool soigneUniquementLeLanceur;
-    public bool soigneAléatoirementUnDesYoKaiDeLaRanger;
-    [Range(0,100)] public int pourcentageDeSoitRendu; 
-    [Header("Paramètres à rensegner si c'est une attaque d'attaque :")]
-    [Range(0,100)] public int dégatInfligé;
-    //[Header("Paramètres à rensegner si c'est une attaque d'envoutement (ce n'est pas fini désolé) :")]
+public enum Talent{
+    Absorption,// Récupère des PV proportionnellement aux dégâts infligés.
+    Anticipation,//    Esquive les attaques ennemies plus facilement.
+    Antigel,// Protège contre les effets de gel.
+    Antipoison,// : Immunise contre les empoisonnements.
+    AuraProtectrice,// : Réduit les dégâts subis par les alliés adjacents.
+    AutoRégénération,// : Régénère progressivement des PV pendant le combat.
+    Blocage,// : Augmente la résistance aux attaques physiques.
+    BouclierMagique,// : Augmente la résistance aux attaques magiques.
+    Camouflage,// : Réduit les chances d'être ciblé par les ennemis.
+    ContreAttaque,// : Riposte automatiquement après avoir subi une attaque.
+    CoupCritique,// : Augmente la probabilité de réaliser un coup critique.
+    Courage,// : Empêche la peur ou la confusion en combat.
+    DéfenseAccrue,// : Augmente la défense globale du Yo-kai.
+    Détournement,// : Attire les attaques ennemies vers soi pour protéger les alliés.
+    Esquive,// Augmente la capacité à éviter les attaques ennemies.
+    Expertise,// : Améliore l'efficacité des techniques spécifiques.
+    FrappeDouble,// : Permet d'attaquer deux fois consécutivement.
+    GuérisonRapide,// : Réduit le temps nécessaire pour se remettre des altérations d'état.
+    Immunité,// : Protège contre certaines altérations d'état.
+    Initiative,// : Augmente la vitesse, permettant d'agir plus tôt en combat.
+    Inspiration,// : Augmente les chances d'inspirer les ennemis, les rendant inactifs.
+    Intimidation,// : Réduit l'attaque des ennemis adjacents.
+    MoralDeAcier,// : Empêche la baisse de statistiques en combat.
+    Motivation,// : Augmente l'efficacité des encouragements envers les alliés.
+    Paralysie,// : Peut paralyser les ennemis lors d'attaques.
+    PerceDéfense,// : Ignore partiellement la défense de l'ennemi.
+    Persévérance,// : Permet de survivre avec 1 PV après une attaque fatale.
+    PiqûreToxique,// : Peut empoisonner l'ennemi lors d'attaques.
+    Provocation,// : Augmente les chances d'être ciblé par l'ennemi.
+    Récupération,// : Restaure des PV après avoir vaincu un ennemi.
+    Renforcement,// : Augmente l'attaque globale du Yo-kai.
+    Résistance,// : Réduit les dégâts subis de certaines sources.
+    Sérénité,// : Protège contre la confusion et la panique.
+    Soutien,// : Augmente l'efficacité des actions de soutien envers les alliés.
+    Vampirisme,// : Transfère une partie des PV de l'ennemi au Yo-kai lors d'attaques.
+    Vengeance,// : Augmente l'attaque après avoir subi des dégâts.
+    Vitalité// : Augmente les points de vie maximum du Yo-kai.
 }
+
+public enum Technique{
+    Feu,
+    Incendie,
+    Brasier,
+    Torrent,
+    Rapides,
+    Cascade,
+    Décharge,
+    Foudre,
+    HauteTension,
+    Galet,
+    Éboulement,
+    Météore,
+    Tourbillon,
+    Tornade,
+    Ouragan,
+    Grêle,
+    Gel,
+    Blizzard,
+    Absorption,
+    Vortex,
+    Récolte,
+    Guérison,
+    Restauration,
+    Paradis
+}
+public enum PlatPréféré{
+    Riz,
+    Pain,
+    Bonbons,
+    Lait,
+    Jus,
+    Hamburgers,
+    Ramen,
+    SpécialitésChinoises,
+    Légumes,
+    Viande,
+    FruitsDeMer,
+    Chocolat,
+    SuperMégaBarres,
+    Curry,
+    Douceurs,
+    Odens,
+    Soda,
+    Encas,
+    Sushis,
+    Glaces,
+    Beignets,
+    Pizza,
+    HotDog,
+    Pâtes,
+    Tempuras,
+    Sukiyaki,
+    spécial
+}
+public enum Type{
+    Attaque,
+    Sabotage,
+    Technique,
+    Défense,
+    Soutien,
+    Guérison 
+}
+public enum Envoutement{
+    ennemie,
+    allié
+}
+/*
+talant*
+attaque 
+!! charge amultime
+technique* : feu
+!! envoutement : imprudent / sans but
+type* : attaque / sabotage / technique / défense / soutien / guérison / 
+plat préféré* : 
+description :
+nom :
+tribut
+rang
+
+
+
+
+
+*/
