@@ -23,8 +23,8 @@ public class GestionnaireDeCombas : MonoBehaviour
     public List<GameObject> lesJoueurs;
 
 
-    private List<int> joueurSurLeTerrin = new List<int>();
-    private List<int> ennemieSurLeTerrin = new List<int>();
+    public List<int> joueurSurLeTerrin = new List<int>();
+    public List<int> ennemieSurLeTerrin = new List<int>();
     void Start(){
         chargementDesPersonnage();
         StartCoroutine(boucleDuJeu());
@@ -50,6 +50,8 @@ public class GestionnaireDeCombas : MonoBehaviour
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
             CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
         }
+        joueurSurLeTerrin.Clear();
+        ennemieSurLeTerrin.Clear();
         if (g.J.Count > 0) joueurSurLeTerrin.Add(0);
         if (g.J.Count > 1) joueurSurLeTerrin.Add(1);
         if (g.J.Count > 2) joueurSurLeTerrin.Add(2);
@@ -141,6 +143,8 @@ public class GestionnaireDeCombas : MonoBehaviour
 
             if (!leJoueurJoue){ // C'est un ennemi qui attaque
                 if (g.J.Count > 0 && g.E_Vie[numéro].value>0) {
+                    //random = Random.Range(0, g.J.Count);int stoper=100;
+                    //while(g.barreDeVie[random].value<=0 && stoper >0){random = Random.Range(0, g.J.Count);stoper--;}
                     random = Random.Range(0, joueurSurLeTerrin.Count);random=joueurSurLeTerrin[random];int stoper=100;
                     while(g.barreDeVie[random].value<=0 && stoper >0){random = Random.Range(0, joueurSurLeTerrin.Count);stoper--;random=joueurSurLeTerrin[random];}
                     if (random < g.barreDeVie.Count) {
@@ -151,7 +155,7 @@ public class GestionnaireDeCombas : MonoBehaviour
                             annimation(lesJoueurs[random], "mort");
                             for (int i = 0; i < joueurSurLeTerrin.Count; i++){
                                 if (joueurSurLeTerrin[i]==random) joueurSurLeTerrin.RemoveAt(i);
-                                else print("erreur, le joueurSurLeTerrin qui devait être retirer n'a pu l'être");
+                                break;
                             }
                         }else{
                             annimation(lesJoueurs[random], "coup");
@@ -161,6 +165,8 @@ public class GestionnaireDeCombas : MonoBehaviour
             } else { // C'est le joueur qui attaque
                 if (g.E.Count > 0 && g.barreDeVie[random].value>0) {
                     g.barreDeAmultime[numéro].value+=(100/3);
+                    //random = Random.Range(0, g.E.Count);int stoper=100;
+                    //while(g.E_Vie[random].value<=0 && stoper >0){random = Random.Range(0, g.E.Count);stoper--;}
                     random = Random.Range(0, ennemieSurLeTerrin.Count);int stoper=100;random=ennemieSurLeTerrin[random];
                     while(g.E_Vie[random].value<=0 && stoper >0){random = Random.Range(0, g.E.Count);stoper--;random=ennemieSurLeTerrin[random];}
                     if (random < g.E_Vie.Count) {
@@ -171,7 +177,7 @@ public class GestionnaireDeCombas : MonoBehaviour
                            annimation(g.E[random], "mort");
                             for (int i = 0; i < ennemieSurLeTerrin.Count; i++){
                                 if (ennemieSurLeTerrin[i]==random) ennemieSurLeTerrin.RemoveAt(i);
-                                else print("erreur, le ennemieSurLeTerrin qui devait être retirer n'a pu l'être");
+                                break;
                             }
                         }else{
                             annimation(g.E[random], "coup");

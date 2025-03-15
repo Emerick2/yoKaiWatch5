@@ -36,6 +36,9 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     
     [HideInInspector] public string personnalité;
     [HideInInspector] public string surnom;
+    [Range(0,100)] public int probabilitéDeFlâner=30;
+    [Range(0,100)] public int probabilitéEsquiver=3;
+    [Range(0,100)] public int probabilitéDeCritique=3;
 
     //personel :
     private bool déjaActiver;
@@ -82,6 +85,34 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         if (pointDeVie == 0){pointDeVie=1;}
         if (esprit == 0){esprit=1;}
 
+        dégatInfligé = dégatInfligé * niveau;
+        pointDeVie = pointDeVie * niveau;
+        esprit = esprit * niveau;
+        
+        PrendreEnCompteLaTribue();
+        PrendreEnCompteLeRang();
+        PrendreEnCompteLaPersonalité();
+        PrendreEnCompteLeTalent();
+        PrendreEnCompteLaTechnique();
+        PrendreEnCompteLeType();
+    }
+    void suiteDeOuverture(){
+        //monNom.text=surnom;
+    }
+
+
+    void PrendreEnCompteLaTribue(){
+        if (tribue=="Vaillants") dégatInfligé = (int)((float)dégatInfligé*1.5);
+        if (tribue=="Mystérieux") esprit = (int)((float)esprit*1.5);
+        if (tribue=="Costauds") pointDeVie = (int)((float)pointDeVie*1.5);
+        if (tribue=="Mignons") vitesse = (int)((float)vitesse*1.5);
+        if (tribue=="Bienveillants") esprit = (int)((float)esprit*1.5);
+        if (tribue=="Sombres") esprit = (int)((float)esprit*1.5);
+        if (tribue=="Sinistres") vitesse = (int)((float)vitesse*1.5);
+        if (tribue=="Insaisissables") vitesse = (int)((float)vitesse*1.5);
+        if (tribue=="Perfides") dégatInfligé = (int)((float)dégatInfligé*1.5);
+    }
+    void PrendreEnCompteLeRang(){
         float taux=1f;
         if (rang == "D") taux+=0.3f*1f;
         if (rang == "C") taux+=0.3f*2f;
@@ -90,12 +121,55 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         if (rang == "S") taux+=0.3f*5f;
         dégatInfligé=(int)((float)dégatInfligé*taux);
         esprit=(int)((float)esprit*taux);
+        probabilitéDeFlâner=(int)((float)probabilitéDeFlâner/taux);
+    }
+    void PrendreEnCompteLaPersonalité(){
+        if(personalité == "AuraProtectrice") pointDeVie = (float)pointDeVie*1.5f;
+        if(personalité == "CoupCritique") probabilitéDeCritique = probabilitéDeCritique=30;
+        if(personalité == "DéfenseAccrue") pointDeVie = (float)DéfenseAccrue * 1.3f;
+        if(personalité == "Anticipation") probabilitéEsquiver = probabilitéEsquiver=10;
+        if(personalité == "Esquive") probabilitéEsquiver = probabilitéEsquiver=20;
+        //probabilitéDeFlâner
+        /*
+        Absorption,// Récupère des PV proportionnellement aux dégâts infligés.
+        Antigel,// Protège contre les effets de gel.
+        Antipoison,// : Immunise contre les empoisonnements.
+        AutoRégénération,// : Régénère progressivement des PV pendant le combat.
+        Blocage,// : Augmente la résistance aux attaques physiques.
+        BouclierMagique,// : Augmente la résistance aux attaques magiques.
+        Camouflage,// : Réduit les chances d'être ciblé par les ennemis.
+        ContreAttaque,// : Riposte automatiquement après avoir subi une attaque.
+        CoupCritique,// : Augmente la probabilité de réaliser un coup critique.
+        Courage,// : Empêche la peur ou la confusion en combat.
 
-        dégatInfligé = dégatInfligé * niveau;
-        pointDeVie = pointDeVie * niveau;
-        esprit = esprit * niveau;
+        Détournement,// : Attire les attaques ennemies vers soi pour protéger les alliés.
+
+        Expertise,// : Améliore l'efficacité des techniques spécifiques.
+        FrappeDouble,// : Permet d'attaquer deux fois consécutivement.
+        GuérisonRapide,// : Réduit le temps nécessaire pour se remettre des altérations d'état.
+        Immunité,// : Protège contre certaines altérations d'état.
+        Initiative,// : Augmente la vitesse, permettant d'agir plus tôt en combat.
+        Inspiration,// : Augmente les chances d'inspirer les ennemis, les rendant inactifs.
+        Intimidation,// : Réduit l'attaque des ennemis adjacents.
+        MoralDeAcier,// : Empêche la baisse de statistiques en combat.
+        Motivation,// : Augmente l'efficacité des encouragements envers les alliés.
+        Paralysie,// : Peut paralyser les ennemis lors d'attaques.
+        PerceDéfense,// : Ignore partiellement la défense de l'ennemi.
+        Persévérance,// : Permet de survivre avec 1 PV après une attaque fatale.
+        PiqûreToxique,// : Peut empoisonner l'ennemi lors d'attaques.
+        Provocation,// : Augmente les chances d'être ciblé par l'ennemi.
+        Récupération,// : Restaure des PV après avoir vaincu un ennemi.
+        Renforcement,// : Augmente l'attaque globale du Yo-kai.
+        Résistance,// : Réduit les dégâts subis de certaines sources.
+        Sérénité,// : Protège contre la confusion et la panique.
+        Soutien,// : Augmente l'efficacité des actions de soutien envers les alliés.
+        Vampirisme,// : Transfère une partie des PV de l'ennemi au Yo-kai lors d'attaques.
+        Vengeance,// : Augmente l'attaque après avoir subi des dégâts.
+        Vitalité// : Augmente les points de vie maximum du Yo-kai.
+        */
     }
-    void suiteDeOuverture(){
-        //monNom.text=surnom;
-    }
+    void PrendreEnCompteLeTalent(){}
+    void PrendreEnCompteLaTechnique(){}
+    void PrendreEnCompteLeType(){}
+
 }
