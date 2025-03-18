@@ -126,7 +126,7 @@ public class tousEstDéplasable : MonoBehaviour{
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision){
+    private void OnCollisionEnter(Collision collision){
         if (leJoueurEstAsserProcheDeMoi){
             if(destroyQuandIlToucheUnMur){
                 Destroy(gameObject);
@@ -139,9 +139,9 @@ public class tousEstDéplasable : MonoBehaviour{
         STOP=false;
     }
 
-    void OnCollisionStay2D(Collision2D maCollision){
+    void OnCollisionStay(Collision maCollision){
         if (leJoueurEstAsserProcheDeMoi){
-            foreach (ContactPoint2D contact in maCollision.contacts) {
+            foreach (ContactPoint contact in maCollision.contacts) {
 	            Vector2 normal = contact.normal;
                 if (normal.x>0){
                     droitePourParEtNeRevientPas = true;

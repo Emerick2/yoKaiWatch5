@@ -1,0 +1,17 @@
+{
+    "dialogues": [
+        {
+            "numéro": "1",
+            "nom":"pnj",
+            "texte": "<t>Que veut tu ?</t><choix>bonjour<choix1>miam</choix1><choix2>croc</choix2><choix3>ROMAIN</choix3></choix>   <if>bonjour=miam%<t>toi, tu a faim !</t></if><else><t>Cela ne veut rien dire !! Comment ça 'mimam' ?!</t></else>"
+        },{
+            "numéro": "2",
+            "nom" : "Un yo-kai pas rare",
+            "texte": "<t>bonjour !</t><sauv>dataPièce=10000</sauv><t>Je suis un yo-kai légendaire !</t><t>J'ai vu l'agent X courire par là ! Tu devrais y aller si tu le cherche !</t>"
+        },{
+            "numéro":"3",
+            "nom":"pnj",
+            "texte": "<if>pain]0    <t>Désolé Puscle, mais tu à déjàt un pain en ta posesion... Reviens me voir quand tu l'auras mangé !</t></if>     <elif>dataPièce=10000 <t>Tu veux m'acheter du pain ? Cella te fera 200 pièce !</t>     <choix>monChoix<choix1>OUI</choix1> <choix2>NON</choix2></choix>     <if>monChoix=OUI<t>Voila pour toi !</t><sauv>pain=+1</sauv> <sauv>dataPièce=-200</sauv></if>  <else><t>Comme tu veux...</t></else></elif>         <else><t>Désoler mais mon pain coute 200 pièce, revient quand tu en aura asser...</t></else>"
+        }
+    ]
+}

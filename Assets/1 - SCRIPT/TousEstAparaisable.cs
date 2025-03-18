@@ -18,7 +18,7 @@ public class TousEstAparaisable : MonoBehaviour
             GameObject TV = Instantiate(Prefab);
             Vector3 newPosition1 = new Vector3(positionDeApparition.position.x, positionDeApparition.position.y, 0f);
             TV.transform.position = newPosition1;
-            //TV.GetComponent<CircleCollider2D>().enabled=true;
+            //TV.GetComponent<CircleCollider>().enabled=true;
             //TV.GetComponent<SpriteRenderer>().enabled=true;
             //TV.GetComponent<toutsEstDéplasable>().vitesse=vitesseADonné;
         }

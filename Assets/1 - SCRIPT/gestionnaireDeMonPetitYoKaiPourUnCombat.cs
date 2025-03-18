@@ -124,9 +124,9 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         probabilitéDeFlâner=(int)((float)probabilitéDeFlâner/taux);
     }
     void PrendreEnCompteLaPersonalité(){
-        if(personalité == "AuraProtectrice") pointDeVie = (float)pointDeVie*1.5f;
+        if(personalité == "AuraProtectrice") pointDeVie = (int)((float)pointDeVie*1.5f);
         if(personalité == "CoupCritique") probabilitéDeCritique = probabilitéDeCritique=30;
-        if(personalité == "DéfenseAccrue") pointDeVie = (float)DéfenseAccrue * 1.3f;
+        if(personalité == "DéfenseAccrue") pointDeVie = (int)((float)pointDeVie * 1.3f);
         if(personalité == "Anticipation") probabilitéEsquiver = probabilitéEsquiver=10;
         if(personalité == "Esquive") probabilitéEsquiver = probabilitéEsquiver=20;
         //probabilitéDeFlâner
