@@ -264,6 +264,7 @@ public class PNJ_script : MonoBehaviour {
                         while (index < lesInstructions.Count && lesInstructions[index]!="</if>" && compteur>0) {
                             if (lesInstructions[index]=="<if>"){compteur++;}
                             if (lesInstructions[index]=="</if>"){compteur--;}
+                            print
                             index++;
                         }
                     }
