@@ -18,8 +18,8 @@ public class PNJ_script : MonoBehaviour {
     private bool pauseDansLaLecture;
     private int index=0;
     private Dialogue dialogue;
-    private Dictionary<string, object> monDictionnaire = new Dictionary<string, object>();
-    private bool jeSuisDansAttanteDeUnIf;
+    public Dictionary<string, object> monDictionnaire = new Dictionary<string, object>();
+    private bool jeSuisDansAttanteDeUnIf=true;
 
     void ComplétéLesIntructions(){
         lesInstructions.Clear();
@@ -249,6 +249,9 @@ public class PNJ_script : MonoBehaviour {
                 index+=5;
             }else if (lesInstructions[index]=="</if>" || lesInstructions[index]=="</elif>" || lesInstructions[index]=="</else>"){
                 index++;
+                if (index<lesInstructions.Count && (lesInstructions[index]!="<elif>" && lesInstructions[index]!="<else>")){
+                    jeSuisDansAttanteDeUnIf=true;
+                }
             }else if (lesInstructions[index]=="<if>" || lesInstructions[index]=="<elif>" || lesInstructions[index]=="<else>"){
                 string v=lesInstructions[index];
                 print(lesInstructions[index+1]);
@@ -261,28 +264,24 @@ public class PNJ_script : MonoBehaviour {
                     }else{
                         jeSuisDansAttanteDeUnIf = true;
                         int compteur = 0;
-                        while (index < lesInstructions.Count && lesInstructions[index]!="</if>" && compteur>0) {
+                        while (index < lesInstructions.Count && (lesInstructions[index]!="</if>" || compteur>0)) {
                             if (lesInstructions[index]=="<if>"){compteur++;}
                             if (lesInstructions[index]=="</if>"){compteur--;}
-                            print
                             index++;
                         }
                     }
                 }//prendre en compte les if dans les if quand je passe
-                else if (jeSuisDansAttanteDeUnIf){
-                    if (autorisation || v=="<else>"){
-                        jeSuisDansAttanteDeUnIf=false;
-                    }else{
-                        jeSuisDansAttanteDeUnIf = true;
-                        string rechercher="";
-                        if (v=="<elif>"){rechercher="</elif>";}
-                        if (v=="<else>"){rechercher="</else>";}
-                        int compteur=0;
-                        while (index < lesInstructions.Count && lesInstructions[index]!=rechercher && compteur>0) {
-                            if (lesInstructions[index]==v){compteur++;}
-                            if (lesInstructions[index]==rechercher){compteur--;}
-                            index++;
-                        }
+                else if (jeSuisDansAttanteDeUnIf && (autorisation || v=="<else>")){
+                    jeSuisDansAttanteDeUnIf=false;
+                }else{
+                    string rechercher="";
+                    if (v=="<elif>"){rechercher="</elif>";}
+                    if (v=="<else>"){rechercher="</else>";}
+                    int compteur=0;
+                    while (index < lesInstructions.Count && (lesInstructions[index]!=rechercher || compteur>0)) {
+                        if (lesInstructions[index]==v){compteur++;}
+                        if (lesInstructions[index]==rechercher){compteur--;}
+                        index++;
                     }
                 }
             }else if (lesInstructions[index]=="<choix>"){
