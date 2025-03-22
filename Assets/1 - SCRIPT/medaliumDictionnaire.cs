@@ -6,9 +6,13 @@ using System.ComponentModel;
 using System.Reflection;
 
 public class medaliumDictionnaire : MonoBehaviour{
-    public List<MedaliumNonPersonel> dictionnaire;
-    /*void Start(){
-        //MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
+    public List<MedaliumNonPersonel> dictionnaire;/*
+    void Start(){
+        if (int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"))<3){
+            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
+            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
+            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
+        }
     }*/
 }
 

@@ -97,10 +97,6 @@ public class lechoixExtension : MonoBehaviour
                 pauseDeApparition=true;
                 jeSuisUtile=false;
                 messager.GetComponent<PNJ_script>().enregistrerUneValeur(clef, choix[position], true);
-                print(choix[position]);
-                if (choix[position]=="OUI"){
-                    print("coucou");
-                }
                 messager.GetComponent<PNJ_script>().atendUneRéponceALaQuestion=false;
                 fermeture();
             }else if (Input.GetKeyUp(KeyCode.E)){
