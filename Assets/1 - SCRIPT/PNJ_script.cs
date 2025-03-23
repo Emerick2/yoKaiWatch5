@@ -42,18 +42,15 @@ public class PNJ_script : MonoBehaviour {
         if (canevas == null){
             canevas = Instantiate(canevasPrefab);
         }
-
+        bool pasSinon = true;
         bool ilFautMettreUnEspace=false;
         string lectureTemps = "";
         string cc = "cc";
         string cc2 = "cc2";
         for (int i = 0; i < instruction.Length; i++){
-            if (lesInstructions.Count > 0){
-                cc = lesInstructions[lesInstructions.Count-1];
-            }
-            if (lesInstructions.Count >= 3){
-                cc2 = lesInstructions[lesInstructions.Count-3];
-            }
+            pasSinon = true;
+            if (lesInstructions.Count > 0){cc = lesInstructions[lesInstructions.Count-1];}
+            if (lesInstructions.Count >= 3){cc2 = lesInstructions[lesInstructions.Count-3];}
             if (instruction[i]=='<'){
                 lesInstructions.Add(lectureTemps);
                 lectureTemps="<";
@@ -62,48 +59,47 @@ public class PNJ_script : MonoBehaviour {
                 lesInstructions.Add(lectureTemps);
                 lectureTemps="";
             }
-            else if (instruction[i]=='=' && (cc=="<if>" || cc=="< if>" || cc=="<elif>"||cc=="< elif>")){
-                lesInstructions.Add(lectureTemps);
-                lesInstructions.Add("=");
-                lectureTemps="";
-            }else if (instruction[i]=='%'&& (cc2=="<if>" || cc2=="< if>" || cc2=="<elif>"||cc2=="< elif>")){
-                lesInstructions.Add(lectureTemps);
-                lectureTemps="";
-            }
-            else{
-                bool rienDeSpécialNeSaitPasser=true;
-                if (lesInstructions.Count>0){
-                    string va = lesInstructions[lesInstructions.Count-1];
-                    //cas de la sauvgarde
-                    if (va=="<sauv>" && instruction[i]=='='){
-                        lesInstructions.Add(lectureTemps);//valeur de la clef
-                        lesInstructions.Add("=");//valeur du =
-                        lectureTemps="";//commencer à lire la valeur à mettre dans la clef
-                        rienDeSpécialNeSaitPasser=false;
-                    }
-                    //cas du if/elif/else
-                    if (va=="<if>" || va=="<elif>" || va=="<else>"){
-                        if (instruction[i]==']' || instruction[i]=='[' || instruction[i]=='='){
-                            if (instruction[i+1]==']' || instruction[i+1]=='[' || instruction[i+1]=='=') {Debug.LogWarning("Une boîte de dialogue est mal configuer, il y a une tentative de <= ou >= ou une autre erreur dans se style !");}
-                            else{
-                                lesInstructions.Add(lectureTemps);//valeur de la clef
-                                lesInstructions.Add(instruction[i].ToString());//valeur de l'oppérateur
-                                lectureTemps="";//commencer à lire la valeur à mettre dans la clef
-                                rienDeSpécialNeSaitPasser=false;
-                            }
-                        }
-                    }
+            else if ((cc=="<if>" || cc=="< if>" || cc=="<elif>"||cc=="< elif>") || (cc2=="<if>" || cc2=="< if>" || cc2=="<elif>"||cc2=="< elif>")){
+                if ((instruction[i]=='=' || instruction[i]==']' || instruction[i]=='[' || instruction[i]=='!') && instruction[i+1]=='='){
+                    lesInstructions.Add(lectureTemps);
+                    lesInstructions.Add((instruction[i]+instruction[i+1]).ToString());
+                    i+=1;
+                    lectureTemps="";
+                }else if (instruction[i]=='=' || instruction[i]==']' || instruction[i]=='[' || instruction[i]=='!'){
+                    lesInstructions.Add(lectureTemps);
+                    lesInstructions.Add(instruction[i].ToString());
+                    lectureTemps="";
+                }else if (instruction[i]==')') {
+                    lesInstructions.Add(lectureTemps);
+                    print ("ici en"+lectureTemps+ "!");
+                    lectureTemps="";
                 }
-                if(rienDeSpécialNeSaitPasser) {
-                    if (instruction[i]==' '){ilFautMettreUnEspace=true;}
-                    else {
-                        if (ilFautMettreUnEspace){
-                            lectureTemps+=" ";
-                            ilFautMettreUnEspace=false;
-                        }
+                else{
+                    if (instruction[i]!='('){
                         lectureTemps+=instruction[i];
                     }
-                }else{ilFautMettreUnEspace=false;}
+                }
+            }
+            else if (cc=="<sauv>"){
+                if (instruction[i]=='='){
+                    lesInstructions.Add(lectureTemps);//valeur de la clef
+                    lesInstructions.Add("=");//valeur du =
+                    lectureTemps="";//commencer à lire la valeur à mettre dans la clef
+                }
+            }
+            else{
+                pasSinon = false;
+                if (instruction[i]==' '){ilFautMettreUnEspace=true;}
+                else {
+                    if (ilFautMettreUnEspace){
+                        lectureTemps+=" ";
+                        ilFautMettreUnEspace=false;
+                    }
+                    lectureTemps+=instruction[i];
+                }
+            }
+            if (pasSinon){
+                ilFautMettreUnEspace=false;
             }
         }
         for (int i = 0; i < lesInstructions.Count; i++){
@@ -143,14 +139,29 @@ public class PNJ_script : MonoBehaviour {
             }
         }
     }
-
-    private void OnTriggerEnter(Collider collision){
+    /*
+    //si le jeu est cours larvuce (en 2D) : (suivez "la plume numérique d'émerick" sur YouTube pour en savoir plus !)
+    void OnTriggerEnter2D(Collider2D collision){
         if(collision.CompareTag("Player")){
             isInRange = true;
         }
     }
 
-    private void OnTriggerExit(Collider collision){
+    void OnTriggerExit2D(Collider2D collision){
+        if (collision.CompareTag("Player")){
+            isInRange = false;
+            atendUneRéponceALaQuestion=false;
+            DialogueManager.instance.EndDialogue();
+        }
+    }*/
+    //si le jeu est yo-kai watch 5 (en 3D) :
+    void OnTriggerEnter(Collider collision){
+        if(collision.CompareTag("Player")){
+            isInRange = true;
+        }
+    }
+
+    void OnTriggerExit(Collider collision){
         if (collision.CompareTag("Player")){
             isInRange = false;
             atendUneRéponceALaQuestion=false;
@@ -331,8 +342,8 @@ les instruction :
 <choix>acheter le pain<choix1>oui</choix1><choix2>non</choix2></choix> : permet de demander à l'utilisateur qu'elque chose et de l'enregistre localement, le nombre de choix peut varier de 1 à 4
 <sauv>pain=+1</sauv> : permet de sauvegarder une donné dans une clef (cela peut être un calcule simple pour ajouter ou retirer une valeur ou un texte (si c'est un texte il ne faut pas commencer par + ou -))
 <sauvLocal>pain=+1</sauvLocal>
-<if>pain]=2<t>tu à beaucoup de pain.</t></if> : le if doit rester ouvert tous le long de la conversation de discusion, la valeur regarder peut être local ou sauvegarder, il peut y avoir des if dans un if ou tous ce que l'on veut dans les if
-<elif>pain[=<t>tu n'a pas de pain !</t></elif> : comme le if mais il s'exécute si l'est if précédent n'ont pas été valider et les elif précédent n'ont pas été valider.
+<if>(pain=2)<t>tu à beaucoup de pain.</t></if> : le if doit rester ouvert tous le long de la conversation de discusion, la valeur regarder peut être local ou sauvegarder, il peut y avoir des if dans un if ou tous ce que l'on veut dans les if
+<elif>(pain[0)<t>tu n'a pas de pain !</t></elif> : comme le if mais il s'exécute si l'est if précédent n'ont pas été valider et les elif précédent n'ont pas été valider.
 <else><t>bonjour</t></else> : si ni les if ni les elif n'ont été valider, fonctionne comme un if
 
 pas encor créé : 
