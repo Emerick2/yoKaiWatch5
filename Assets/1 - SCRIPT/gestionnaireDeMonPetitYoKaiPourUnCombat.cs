@@ -6,11 +6,11 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
 {
     public medaliumDictionnaire medaliumDictionnaire;
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
-    public int IDduYoKaiSpécifique=2;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
-    /*[Range(1,100)]*/ public int pointDeVie = 100;//c'est sur un pourcentage
-    /*[Range(0,100)]*/ public int dégatInfligé=50;
-    /*[Range(0,100)]*/ public int esprit;
-    /*[Range(0,100)]*/ public int vitesse;
+    [HideInInspector]public int IDduYoKaiSpécifique=-1;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
+    /*[Range(1,100)]*/ [HideInInspector]public int pointDeVie = 100;//c'est sur un pourcentage
+    /*[Range(0,100)]*/ [HideInInspector]public int dégatInfligé=50;
+    /*[Range(0,100)]*/ [HideInInspector]public int esprit;
+    /*[Range(0,100)]*/ [HideInInspector]public int vitesse;
 
     //public Text monNom;
 
@@ -36,9 +36,9 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     
     [HideInInspector] public string personnalité;
     [HideInInspector] public string surnom;
-    [Range(0,100)] public int probabilitéDeFlâner=30;
-    [Range(0,100)] public int probabilitéEsquiver=3;
-    [Range(0,100)] public int probabilitéDeCritique=3;
+    [HideInInspector][Range(0,100)] public int probabilitéDeFlâner=30;
+    [HideInInspector][Range(0,100)] public int probabilitéEsquiver=3;
+    [HideInInspector][Range(0,100)] public int probabilitéDeCritique=3;
 
     //personel :
     private bool déjaActiver;
@@ -57,7 +57,11 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
             Debug.LogError("Index hors limites ! IDduYoKaiMedalium = " + IDduYoKaiMedalium);
         }
         MedaliumNonPersonel mimi = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium];
-        nom = mimi.nom.ToString();
+        if (IDduYoKaiSpécifique!=-1){
+            nom = mimi.nom.ToString();
+        }else {
+            nom=mimi.nom.ToString();
+        }
         yoKai = mimi.yoKai;
         tribue = mimi.tribue.ToString();
         rang = mimi.rang.ToString();
@@ -78,9 +82,10 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         catégorieÂmultime = mimi.amultime.catégorieÂmultime.ToString();
 
         //yo-kai en particulier :
-        niveau = int.Parse(NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_niveau"));
-        personnalité = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_personalité");
-        
+        if (IDduYoKaiSpécifique>=0){
+            niveau = int.Parse(NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_niveau"));
+            personnalité = NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_personalité");
+        }
         if (dégatInfligé == 0){dégatInfligé=1;}
         if (pointDeVie == 0){pointDeVie=1;}
         if (esprit == 0){esprit=1;}
