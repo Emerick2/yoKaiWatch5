@@ -5,20 +5,15 @@ using UnityEngine.UI;
 
 public class lesObjet : MonoBehaviour{
     public List<ITEM> item;
+    private List<Transform> emplacementPourItem = new List<Transform>();
     public Transform contenu;
     public mouvementSacObjet sac;
-    public int numéro = 3;
+    private int numéro = 3;
+    private int indiceDeMaPosition = 0;
     void Start(){
         foreach (Transform child in contenu){
-            Transform imageChild = child.Find("Image");
-            Transform nombreChild = child.Find("nombre");
             Transform sélectionChild = child.Find("sélection");
-            if (imageChild != null){
-                imageChild.GetComponent<Image>().sprite = item[0].image;
-            }
-            if (nombreChild != null){
-                nombreChild.GetComponent<Text>().text = "1";
-            }
+            emplacementPourItem.Add(child);
             if (sélectionChild != null){
                 if (numéro == 3){
                     sac.sélectionnéHaut.Add(sélectionChild.gameObject);
@@ -30,6 +25,20 @@ public class lesObjet : MonoBehaviour{
                     sac.sélectionnéBas.Add(sélectionChild.gameObject);
                     numéro=3;
                 }
+            }
+        }
+        for (int i = 0; i < item.Count; i++){
+            if (NewDataCenter.Instance.Lire(item[i].nom) != "0"){
+                Transform imageChild = emplacementPourItem[indiceDeMaPosition].Find("Image");
+                Transform nombreChild = emplacementPourItem[indiceDeMaPosition].Find("nombre");
+                Transform sélectionChild = emplacementPourItem[indiceDeMaPosition].Find("sélection");
+                if (imageChild != null){
+                    imageChild.GetComponent<Image>().sprite = item[i].image;
+                }
+                if (nombreChild != null){
+                    nombreChild.GetComponent<Text>().text = NewDataCenter.Instance.Lire(item[i].nom);
+                }
+                indiceDeMaPosition++;
             }
         }
     }

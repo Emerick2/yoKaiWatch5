@@ -8,13 +8,13 @@ public class mouvementSacObjet : MonoBehaviour
     public RectTransform bloc;
     private int IDduPlusVisibleàGauche=5;
     private bool pause = false;
-    public List<GameObject> sélectionnéHaut;
-    public List<GameObject> sélectionnéMoyen;
-    public List<GameObject> sélectionnéBas;
+    /*[HideInInspector]*/ public List<GameObject> sélectionnéHaut;
+    /*[HideInInspector]*/ public List<GameObject> sélectionnéMoyen;
+    /*[HideInInspector]*/ public List<GameObject> sélectionnéBas;
     private int indexHaut = 2;
     private int indexGauche = 0;
     private GameObject objetActuel;
-    public RectTransform cible;
+    [HideInInspector] public RectTransform cible;
     void Update(){   
         if (!pause){
             if (Input.GetKeyDown(KeyCode.RightArrow)){

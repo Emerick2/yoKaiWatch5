@@ -7,6 +7,7 @@ NewDataCenter.Instance.Lire("monScore");
 
 using UnityEngine;
 using System.IO;
+using System.Collections;
 using System.Collections.Generic;
 
 public class NewDataCenter : MonoBehaviour{
@@ -25,6 +26,13 @@ public class NewDataCenter : MonoBehaviour{
             }
             return _instance;
         }
+    }
+    void Start(){
+        StartCoroutine(compterLeTempsDeJeu());
+    }
+    IEnumerator compterLeTempsDeJeu(){
+        yield return new WaitForSeconds(60f);
+        SauvegarderINT("tempsDeJeu", 1);
     }
 
     private Dictionary<string, string> dataDict = new Dictionary<string, string>();
