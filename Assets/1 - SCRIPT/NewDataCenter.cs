@@ -31,8 +31,10 @@ public class NewDataCenter : MonoBehaviour{
         StartCoroutine(compterLeTempsDeJeu());
     }
     IEnumerator compterLeTempsDeJeu(){
-        yield return new WaitForSeconds(60f);
-        SauvegarderINT("tempsDeJeu", 1);
+        while (true){
+            yield return new WaitForSeconds(60f);
+            SauvegarderINT("tempsDeJeu", 1);
+        }
     }
 
     private Dictionary<string, string> dataDict = new Dictionary<string, string>();

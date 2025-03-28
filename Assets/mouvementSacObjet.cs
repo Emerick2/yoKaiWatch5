@@ -47,6 +47,13 @@ public class mouvementSacObjet : MonoBehaviour
                 else {indexHaut=2;}
                 changerDePosition();
             }
+            if (indexGauche>IDduPlusVisibleàGauche || indexGauche<IDduPlusVisibleàGauche-IDduPlusVisibleàGauche){
+                Vector2 direction;
+                if (Vector2.Distance(bloc.anchoredPosition, cible.anchoredPosition) < 5f){
+                    direction = (cible.anchoredPosition - bloc.anchoredPosition).normalized;
+                    bloc.anchoredPosition += direction * 1000 * Time.deltaTime;
+                }
+            }
         }
     }
     void changerDePosition(){
@@ -70,13 +77,6 @@ public class mouvementSacObjet : MonoBehaviour
         BougerLeBloc();
     }
     void BougerLeBloc(){
-        if (indexGauche>IDduPlusVisibleàGauche || indexGauche<IDduPlusVisibleàGauche-IDduPlusVisibleàGauche){
-            Vector2 direction;
-            print("ici");
-            while (Vector2.Distance(bloc.anchoredPosition, cible.anchoredPosition) < 5f){
-                direction = (cible.anchoredPosition - bloc.anchoredPosition).normalized;
-                bloc.anchoredPosition += direction * 1000 * Time.deltaTime;
-            }
-        }
+        
     }
 }

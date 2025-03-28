@@ -49,6 +49,9 @@ public class sacMouvement : MonoBehaviour
                     pause=true;
                 }
             }
+            if (Input.GetKeyDown(KeyCode.B)){
+                gameObject.SetActive(false);
+            }
         }else if (Input.GetKeyDown(KeyCode.B)){
             pause=false;    
             int numéro=indexGauche;

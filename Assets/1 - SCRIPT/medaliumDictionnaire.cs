@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.ComponentModel;
+using UnityEngine.UI;
 using System.Reflection;
 
 public class medaliumDictionnaire : MonoBehaviour{
@@ -19,6 +20,7 @@ public class medaliumDictionnaire : MonoBehaviour{
 
 [System.Serializable]
 public class MedaliumNonPersonel{
+    public Sprite médaillon;
     public string nom;
     public string description;
     public GameObject yoKai;

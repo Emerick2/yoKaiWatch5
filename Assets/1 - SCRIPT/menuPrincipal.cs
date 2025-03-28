@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-
 public class menuPrincipal : MonoBehaviour{
+    bool jeSuisSurLeDéplacementMouvementPrincipal = true;
     public GameObject continuerNonSélectionner;
     public GameObject continuerSélectionner;
     public GameObject nouvellePartieNonSélectionner;
@@ -19,43 +19,61 @@ public class menuPrincipal : MonoBehaviour{
     private bool STOP;
     public int vitesse=1000;
     public string leJeu;
+    public GameObject choisirLeNom;
+    public GameObject menuPrincipalBloc;
     void Start(){
         cible = positionFlameContinuer;
     }
     void Update(){
-        if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)){
-            if (jeSuisSurContinuer){//je vais viser la nouvelle partie
-                jeSuisSurContinuer = false;
-                cible = positionFlameNouvellePartie;
-                STOP = false;
-                continuerNonSélectionner.SetActive(true);
-                continuerSélectionner.SetActive(false);
-                nouvellePartieNonSélectionner.SetActive(false);
-                nouvellePartieSélectionner.SetActive(true);
+        if (jeSuisSurLeDéplacementMouvementPrincipal){
+            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)){
+                if (jeSuisSurContinuer){//je vais viser la nouvelle partie
+                    jeSuisSurContinuer = false;
+                    cible = positionFlameNouvellePartie;
+                    STOP = false;
+                    continuerNonSélectionner.SetActive(true);
+                    continuerSélectionner.SetActive(false);
+                    nouvellePartieNonSélectionner.SetActive(false);
+                    nouvellePartieSélectionner.SetActive(true);
+                }
+                else if (!jeSuisSurContinuer){//je vais viser continuer
+                    jeSuisSurContinuer = true;
+                    cible = positionFlameContinuer;
+                    STOP = false;
+                    continuerNonSélectionner.SetActive(false);
+                    continuerSélectionner.SetActive(true);
+                    nouvellePartieNonSélectionner.SetActive(true);
+                    nouvellePartieSélectionner.SetActive(false);
+                }
             }
-            else if (!jeSuisSurContinuer){//je vais viser continuer
-                jeSuisSurContinuer = true;
-                cible = positionFlameContinuer;
-                STOP = false;
-                continuerNonSélectionner.SetActive(false);
-                continuerSélectionner.SetActive(true);
-                nouvellePartieNonSélectionner.SetActive(true);
-                nouvellePartieSélectionner.SetActive(false);
+            if (Input.GetKeyDown(KeyCode.E)){
+                if (jeSuisSurContinuer){
+                    SceneManager.LoadScene(leJeu);//plus tard il faudra mettre ici un déplassement vers la scène ou le joueur à sauvgarder
+                }else{
+                    NouvellePartie();
+                }
+            }
+            if (!STOP){
+                direction = (cible.anchoredPosition - petitFlame.anchoredPosition).normalized;
+                petitFlame.anchoredPosition += direction * vitesse * Time.deltaTime;
+                if (Vector2.Distance(petitFlame.anchoredPosition, cible.anchoredPosition) < 5f){
+                    STOP = true;    
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.E)){
-            if (jeSuisSurContinuer){
-                SceneManager.LoadScene(leJeu);//plus tard il faudra mettre ici un déplassement vers la scène ou le joueur à sauvgarder
-            }else{
-                SceneManager.LoadScene(leJeu);//plus tard il faudra ici initialiser la sauvgarde du joueur
-            }
+    }
+    void NouvellePartie(){
+        choisirLeNom.SetActive(true);
+        jeSuisSurLeDéplacementMouvementPrincipal = false;
+        menuPrincipalBloc.SetActive(false);
+        string filePath = Application.persistentDataPath + "/mesData.json";
+        if (System.IO.File.Exists(filePath)){
+            System.IO.File.Delete(filePath);
         }
-        if (!STOP){
-            direction = (cible.anchoredPosition - petitFlame.anchoredPosition).normalized;
-            petitFlame.anchoredPosition += direction * vitesse * Time.deltaTime;
-            if (Vector2.Distance(petitFlame.anchoredPosition, cible.anchoredPosition) < 5f){
-                STOP = true;    
-            }
-        }
+        GameObject dataCenter = NewDataCenter.Instance.gameObject;
+        dataCenter.SetActive(false);
+        GameObject TV = Instantiate(dataCenter);
+        Destroy(dataCenter);
+        TV.SetActive(true);
     }
 }
