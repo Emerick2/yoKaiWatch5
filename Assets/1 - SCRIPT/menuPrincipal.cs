@@ -22,7 +22,9 @@ public class menuPrincipal : MonoBehaviour{
     public GameObject choisirLeNom;
     public GameObject menuPrincipalBloc;
     void Start(){
-        cible = positionFlameContinuer;
+        if (NewDataCenter.Instance.Lire("nomDuJoueur") != "0"){
+            cible = positionFlameContinuer;
+        }else{NouvellePartie();}
     }
     void Update(){
         if (jeSuisSurLeDéplacementMouvementPrincipal){

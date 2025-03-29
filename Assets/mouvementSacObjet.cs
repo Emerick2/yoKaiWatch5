@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class mouvementSacObjet : MonoBehaviour
 {
+    public GameObject cible;
+    public UI_Déplacement monDéplacementScript;
     public RectTransform bloc;
     private int IDduPlusVisibleàGauche=5;
     private bool pause = false;
@@ -14,7 +16,13 @@ public class mouvementSacObjet : MonoBehaviour
     private int indexHaut = 2;
     private int indexGauche = 0;
     private GameObject objetActuel;
-    [HideInInspector] public RectTransform cible;
+    private int positionDeDépart;
+    private float valeur;
+    private int dernierIndice;
+    void Start(){
+        positionDeDépart = Mathf.RoundToInt(transform.position.x);
+        valeur = positionDeDépart;
+    }
     void Update(){   
         if (!pause){
             if (Input.GetKeyDown(KeyCode.RightArrow)){
@@ -47,13 +55,6 @@ public class mouvementSacObjet : MonoBehaviour
                 else {indexHaut=2;}
                 changerDePosition();
             }
-            if (indexGauche>IDduPlusVisibleàGauche || indexGauche<IDduPlusVisibleàGauche-IDduPlusVisibleàGauche){
-                Vector2 direction;
-                if (Vector2.Distance(bloc.anchoredPosition, cible.anchoredPosition) < 5f){
-                    direction = (cible.anchoredPosition - bloc.anchoredPosition).normalized;
-                    bloc.anchoredPosition += direction * 1000 * Time.deltaTime;
-                }
-            }
         }
     }
     void changerDePosition(){
@@ -74,9 +75,26 @@ public class mouvementSacObjet : MonoBehaviour
             objetActuel = sélectionnéBas[indexGauche];
             objetActuel.SetActive(true);
         }
-        BougerLeBloc();
+        if (IDduPlusVisibleàGauche<=indexGauche){
+            print("droite");
+            BougerLeBloc("droite");
+            IDduPlusVisibleàGauche++;
+        }else if (IDduPlusVisibleàGauche/2>=indexGauche){
+            print("gauche");
+            BougerLeBloc("gauche");
+            IDduPlusVisibleàGauche--;
+        }
     }
-    void BougerLeBloc(){
-        
+    void BougerLeBloc(string poisiton){
+        float distanceEntreChaquePoint=80f;
+        dernierIndice=indexGauche;
+        if(poisiton=="gauche"){
+            valeur+=distanceEntreChaquePoint;
+        }else{
+            valeur-=distanceEntreChaquePoint;
+        }
+
+        monDéplacementScript.STOP = false;
+        cible.transform.position = new Vector2(valeur, cible.transform.position.y);
     }
 }

@@ -7,7 +7,7 @@ public class UI_Déplacement : MonoBehaviour
     [Header("Paramètres spécifiques")]
     public RectTransform imageSiDoitFlip;
     public bool uneFoisArrivéJeNeParPlus;
-    private bool STOP;
+    public bool STOP;
     public bool pauseQuandJArriveSurLaPosition;
     public float tempsDAttente = 0f;
     private bool coroutineDéjaActivé = false;
@@ -52,14 +52,15 @@ public class UI_Déplacement : MonoBehaviour
     }
 
     void Update(){
-        if (!STOP && pointDePassage != null){
+        if (!STOP){
             direction = (cible.anchoredPosition - rectTransform.anchoredPosition).normalized;
             rectTransform.anchoredPosition += direction * vitesse * Time.deltaTime;
 
-            if (Vector2.Distance(rectTransform.anchoredPosition, cible.anchoredPosition) < 5f){
-                pointDeDestination = (pointDeDestination + 1) % pointDePassage.Length;
-                cible = pointDePassage[pointDeDestination];
-                
+            if (Vector2.Distance(rectTransform.anchoredPosition, cible.anchoredPosition) < 10f){
+                if (pointDePassage.Length != 0){
+                    pointDeDestination = (pointDeDestination + 1) % pointDePassage.Length;
+                    cible = pointDePassage[pointDeDestination];
+                }
                 if (uneFoisArrivéJeNeParPlus){
                     STOP = true;    
                 }
