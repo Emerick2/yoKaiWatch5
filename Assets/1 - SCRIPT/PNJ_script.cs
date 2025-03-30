@@ -80,12 +80,10 @@ public class PNJ_script : MonoBehaviour {
                     }
                 }
             }
-            else if (cc=="<sauv>"){
-                if (instruction[i]=='='){
-                    lesInstructions.Add(lectureTemps);//valeur de la clef
-                    lesInstructions.Add("=");//valeur du =
-                    lectureTemps="";//commencer à lire la valeur à mettre dans la clef
-                }
+            else if (cc=="<sauv>" && instruction[i]=='='){
+                lesInstructions.Add(lectureTemps);//valeur de la clef
+                lesInstructions.Add("=");//valeur du =
+                lectureTemps="";//commencer à lire la valeur à mettre dans la clef
             }
             else{
                 pasSinon = false;
@@ -122,18 +120,22 @@ public class PNJ_script : MonoBehaviour {
     void Update(){
         if(isInRange && Input.GetKeyDown(KeyCode.E)){
             if (lesInstructions.Count==0){//premier passage}
+                mouvementDuJoueur.droitDeMarcher = false;
                 numéroDeDialogueSauvgarder=numéroDeDialogue;
                 ComplétéLesIntructions();
             }
             if (numéroDeDialogueSauvgarder!=numéroDeDialogue){
+                mouvementDuJoueur.droitDeMarcher = false;
                 numéroDeDialogueSauvgarder=numéroDeDialogue;
                 index=0;
                 ComplétéLesIntructions();
             }
             pauseDansLaLecture=false;
             if (index < lesInstructions.Count){
+                mouvementDuJoueur.droitDeMarcher = false;
                 lecture();
             }else{
+                mouvementDuJoueur.droitDeMarcher = true;
                 index=0;
                 DialogueManager.instance.EndDialogue();
             }
@@ -257,8 +259,13 @@ public class PNJ_script : MonoBehaviour {
                 enregistrerUneValeur(lesInstructions[index+1], lesInstructions[index+3], true);
                 index+=5;
             }else if (lesInstructions[index]=="<nom>"){
-                dialogue.name = lesInstructions[index+1];
-                index+=3;
+                if (lesInstructions[index+1]=="%"){
+                    dialogue.name = récupéréValeur("nomDuJoueur");
+                    index+=3;
+                }else{
+                    dialogue.name = lesInstructions[index+1];
+                    index+=3;
+                }
             }
             else if (lesInstructions[index]=="</if>" || lesInstructions[index]=="</elif>" || lesInstructions[index]=="</else>"){
                 index++;

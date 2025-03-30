@@ -5,10 +5,7 @@ using UnityEngine.UI;
 
 public class mouvementSacObjet : MonoBehaviour
 {
-    public GameObject cible;
-    public UI_Déplacement monDéplacementScript;
-    public RectTransform bloc;
-    private int IDduPlusVisibleàGauche=5;
+    //private int IDduPlusVisibleàGauche=5;
     private bool pause = false;
     /*[HideInInspector]*/ public List<GameObject> sélectionnéHaut;
     /*[HideInInspector]*/ public List<GameObject> sélectionnéMoyen;
@@ -19,6 +16,13 @@ public class mouvementSacObjet : MonoBehaviour
     private int positionDeDépart;
     private float valeur;
     private int dernierIndice;
+
+    private int IDVisibleLaPlusBasse=0;//nombre de fois ou je suis décendu, se nombre pourait aller jusqua -5
+    public GameObject cible;
+    public GameObject cibleDeDépart;
+    public UI_Déplacement monDéplacementScript;
+    public RectTransform bloc;
+    private int nombreMaximumDeArcticleAfficher = 5;
     void Start(){
         positionDeDépart = Mathf.RoundToInt(transform.position.x);
         valeur = positionDeDépart;
@@ -74,27 +78,28 @@ public class mouvementSacObjet : MonoBehaviour
         if (indexHaut==0){
             objetActuel = sélectionnéBas[indexGauche];
             objetActuel.SetActive(true);
-        }
+        }/*
         if (IDduPlusVisibleàGauche<=indexGauche){
             print("droite");
             BougerLeBloc("droite");
-            IDduPlusVisibleàGauche++;
+            //IDduPlusVisibleàGauche++;
         }else if (IDduPlusVisibleàGauche/2>=indexGauche){
             print("gauche");
             BougerLeBloc("gauche");
-            IDduPlusVisibleàGauche--;
+            //IDduPlusVisibleàGauche--;
+        }*/
+        int temps = IDVisibleLaPlusBasse;
+        IDVisibleLaPlusBasse = indexGauche-nombreMaximumDeArcticleAfficher;
+        if (IDVisibleLaPlusBasse<0){IDVisibleLaPlusBasse=0;}
+        if (IDVisibleLaPlusBasse>sélectionnéHaut.Count-1){IDVisibleLaPlusBasse=sélectionnéHaut.Count-nombreMaximumDeArcticleAfficher-3;}
+        if (temps != IDVisibleLaPlusBasse){
+            BougerLeBloc();
         }
     }
-    void BougerLeBloc(string poisiton){
-        float distanceEntreChaquePoint=80f;
-        dernierIndice=indexGauche;
-        if(poisiton=="gauche"){
-            valeur+=distanceEntreChaquePoint;
-        }else{
-            valeur-=distanceEntreChaquePoint;
-        }
-
+    void BougerLeBloc(){
+        float décalageVersLeBas = sélectionnéHaut[0].transform.position.x - sélectionnéHaut[1].transform.position.x;
+        float positionDeDépart = cibleDeDépart.transform.position.x;
+        cible.transform.position = new Vector2((IDVisibleLaPlusBasse*décalageVersLeBas)+positionDeDépart, bloc.transform.position.y);
         monDéplacementScript.STOP = false;
-        cible.transform.position = new Vector2(valeur, cible.transform.position.y);
     }
 }

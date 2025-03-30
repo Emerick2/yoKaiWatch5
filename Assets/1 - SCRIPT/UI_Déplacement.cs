@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 public class UI_Déplacement : MonoBehaviour
 {
+    public float droitAErreur = 5f;
+    public bool queSurAxeX;
+    public bool queSurAxeY;
     [Header("Paramètres spécifiques")]
     public RectTransform imageSiDoitFlip;
     public bool uneFoisArrivéJeNeParPlus;
@@ -14,7 +17,7 @@ public class UI_Déplacement : MonoBehaviour
     private Vector2 direction;
     
     [Header("Obligatoire")]
-    [Range(0, 400)] public float vitesse=100;
+    [Range(0, 1000)] public float vitesse=100;
     public RectTransform[] pointDePassage;
 
     private RectTransform rectTransform;
@@ -22,11 +25,14 @@ public class UI_Déplacement : MonoBehaviour
     private int pointDeDestination = 0;
     public bool autoDestructionAuBoutDe15s=true;
 
-    void Awake()
-    {
+    void Awake(){
+        if (queSurAxeY){
+            cible.transform.position = new Vector2(cible.transform.position.x, transform.position.y);
+        }else if (queSurAxeX){
+            cible.transform.position = new Vector2(transform.position.x, cible.transform.position.y);
+        }
         rectTransform = GetComponent<RectTransform>();
-        if (pointDePassage != null && pointDePassage.Length > 0)
-        {
+        if (pointDePassage != null && pointDePassage.Length > 0){
             cible = pointDePassage[0];
         }
         if (autoDestructionAuBoutDe15s){Destroy(gameObject,15f);}
@@ -56,7 +62,7 @@ public class UI_Déplacement : MonoBehaviour
             direction = (cible.anchoredPosition - rectTransform.anchoredPosition).normalized;
             rectTransform.anchoredPosition += direction * vitesse * Time.deltaTime;
 
-            if (Vector2.Distance(rectTransform.anchoredPosition, cible.anchoredPosition) < 10f){
+            if (Vector2.Distance(rectTransform.anchoredPosition, cible.anchoredPosition) < droitAErreur){
                 if (pointDePassage.Length != 0){
                     pointDeDestination = (pointDeDestination + 1) % pointDePassage.Length;
                     cible = pointDePassage[pointDeDestination];

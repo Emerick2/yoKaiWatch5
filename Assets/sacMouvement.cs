@@ -50,6 +50,7 @@ public class sacMouvement : MonoBehaviour
                 }
             }
             if (Input.GetKeyDown(KeyCode.B)){
+                mouvementDuJoueur.droitDeMarcher = true;
                 gameObject.SetActive(false);
             }
         }else if (Input.GetKeyDown(KeyCode.B)){

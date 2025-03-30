@@ -14,6 +14,12 @@ public class vendreDesProduits : MonoBehaviour{
     public bool acheter = false;
     public GameObject blocDeAchat;
     public Transform conteneur;
+    private int IDVisibleLaPlusBasse=0;//nombre de fois ou je suis décendu, se nombre pourait aller jusqua -5
+    public GameObject cible;
+    public GameObject cibleDeDépart;
+    public UI_Déplacement monDéplacementScript;
+    public RectTransform bloc;
+    private int nombreMaximumDeArcticleAfficher = 4;
     void Start(){
         monArgent.text = NewDataCenter.Instance.Lire("€");
         for (int i = 0; i < IDDesObjetAVendre.Count; i++){
@@ -45,6 +51,12 @@ public class vendreDesProduits : MonoBehaviour{
                 blocDeAchat.GetComponent<AcheterUnProduit>().Réinitialiser();
                 blocDeAchat.GetComponent<AcheterUnProduit>().nom = scriptDesItem.lesObjets[IDDesObjetAVendre[sélection]].nom;
                 blocDeAchat.GetComponent<AcheterUnProduit>().vdp = transform.GetComponent<vendreDesProduits>();
+            }else if (Input.GetKeyDown(KeyCode.B)){
+                espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+                sélection=0;
+                Choisir();
+                mouvementDuJoueur.droitDeMarcher = true;
+                gameObject.SetActive(false);
             }
         }else{
             if (Input.GetKeyDown(KeyCode.B)){
@@ -79,8 +91,23 @@ public class vendreDesProduits : MonoBehaviour{
         }else if (va=="ObjetClef"){
             blocDeAffichage.transform.Find("catégorie").GetComponent<Image>().sprite = scriptDesItem.imageDesCatégorie[IDDesObjetAVendre[5]];
         }
+        int temps = IDVisibleLaPlusBasse;
+        IDVisibleLaPlusBasse = sélection-nombreMaximumDeArcticleAfficher;
+        if (IDVisibleLaPlusBasse<0){IDVisibleLaPlusBasse=0;}
+        if (IDVisibleLaPlusBasse>espaceDeVante.Count-1){IDVisibleLaPlusBasse=espaceDeVante.Count-nombreMaximumDeArcticleAfficher-3;}
+        if (temps != IDVisibleLaPlusBasse){
+            mouvementDesArcticle();
+        }
     }
     public void ReChargerMonArgent(){
         monArgent.text = NewDataCenter.Instance.Lire("€");
+    }
+
+    void mouvementDesArcticle(){
+        int nombreMaximumDeArcticleAfficher = 4;
+        float décalageVersLeBas = espaceDeVante[0].transform.position.y - espaceDeVante[1].transform.position.y;
+        float positionDeDépart = cibleDeDépart.transform.position.y;
+        cible.transform.position = new Vector2(bloc.transform.position.x, (IDVisibleLaPlusBasse*décalageVersLeBas)+positionDeDépart);
+        monDéplacementScript.STOP = false;
     }
 }

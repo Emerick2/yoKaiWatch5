@@ -27,6 +27,9 @@ public class AcheterUnProduit : MonoBehaviour{
     }
 
     void Update(){
+        //if (Input.GetKeyDown(KeyCode.+)) AugmenterQuantité(1);
+        //if (Input.GetKeyDown(KeyCode.-)) DiminuerQuantité(1);
+        if (Input.GetKeyDown(KeyCode.A)) payer();
         total = (int)prixDeUnProduit*int.Parse(nombre.text);
         if(monArgent<total){
             int x = 0;
@@ -40,11 +43,13 @@ public class AcheterUnProduit : MonoBehaviour{
         espaceDePrix.text = (int.Parse(nombre.text) * prixDeUnProduit).ToString()+"€";
     }
     public void AugmenterQuantité(int i){
-        int valeur;
-        if (int.TryParse(nombre.text, out valeur)){
-            valeur += i;
-            valeur = Mathf.Clamp(valeur, 0, 99);
-            nombre.text = valeur.ToString();
+        if ((int)prixDeUnProduit*(int.Parse(nombre.text)+1) <= monArgent){
+            int valeur;
+            if (int.TryParse(nombre.text, out valeur)){
+                valeur += i;
+                valeur = Mathf.Clamp(valeur, 0, 99);
+                nombre.text = valeur.ToString();
+            }
         }
     }
 
