@@ -7,7 +7,12 @@ using UnityEngine.UI;
 using System.Reflection;
 
 public class medaliumDictionnaire : MonoBehaviour{
-    public List<MedaliumNonPersonel> dictionnaire;/*
+    public List<MedaliumNonPersonel> dictionnaire;
+    public List<Sprite> imageDesRang;
+    public ImageDesTribue imageDesTribue;
+    
+    
+    /*
     void Start(){
         if (int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"))<3){
             MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
@@ -17,6 +22,20 @@ public class medaliumDictionnaire : MonoBehaviour{
     }*/
 }
 
+[System.Serializable]
+public class ImageDesTribue{
+    public Sprite Vaillant;
+    public Sprite Mystérieu;
+    public Sprite Costaud;
+    public Sprite Mignon;
+    public Sprite Bienveillant;
+    public Sprite Sombre;
+    public Sprite Sinistre;
+    public Sprite Insaisissable;
+    public Sprite Perfide;
+    public Sprite Enma;
+    public Sprite Wandroïd;
+}
 
 [System.Serializable]
 public class MedaliumNonPersonel{

@@ -7,8 +7,9 @@ public class assignerImageDeYoKai : MonoBehaviour
 {
     public List<GameObject> médaille;
     public List<Image> icôneMédaille;
-    public medaliumDictionnaire médailum;
+    private medaliumDictionnaire médailum;
     void Start(){
+        médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         string yoKaiDansEquipe = NewDataCenter.Instance.Lire("yoKaiDansEquipe");
         if (yoKaiDansEquipe != "0"){
             for (int i = 0; i < yoKaiDansEquipe.Length; i++){

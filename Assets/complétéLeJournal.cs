@@ -10,9 +10,10 @@ public class complétéLeJournal : MonoBehaviour{
     public Text Date;
     public List<GameObject> médaille;
     public List<Image> icôneMédaille;
-    public medaliumDictionnaire médailum;
+    private medaliumDictionnaire médailum;
 
     void Start(){
+        médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         nomDuJoueur.text = NewDataCenter.Instance.Lire("nomDuJoueur");
 
         DateTime maintenant = DateTime.Now;

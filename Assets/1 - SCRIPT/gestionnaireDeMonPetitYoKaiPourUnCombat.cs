@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
 {
-    public medaliumDictionnaire medaliumDictionnaire;
+    private medaliumDictionnaire MedaliumDictionnaire;
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
     [HideInInspector]public int IDduYoKaiSpécifique=-1;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
     /*[Range(1,100)]*/ [HideInInspector]public int pointDeVie = 100;//c'est sur un pourcentage
@@ -42,6 +42,9 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
 
     //personel :
     private bool déjaActiver;
+    void Start(){
+        MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
+    }
     void Update(){
         if (!déjaActiver){
             if (MesYoKai.Instance.finDuChargement == true){
@@ -53,10 +56,10 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     }
     void OuvrirLeYoKai(){
         //yo-kai en général :
-        if (IDduYoKaiMedalium < 0 || IDduYoKaiMedalium >= medaliumDictionnaire.dictionnaire.Count){
+        if (IDduYoKaiMedalium < 0 || IDduYoKaiMedalium >= MedaliumDictionnaire.dictionnaire.Count){
             Debug.LogError("Index hors limites ! IDduYoKaiMedalium = " + IDduYoKaiMedalium);
         }
-        MedaliumNonPersonel mimi = medaliumDictionnaire.dictionnaire[IDduYoKaiMedalium];
+        MedaliumNonPersonel mimi = MedaliumDictionnaire.dictionnaire[IDduYoKaiMedalium];
         if (IDduYoKaiSpécifique!=-1){
             nom = mimi.nom.ToString();
         }else {

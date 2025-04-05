@@ -11,6 +11,7 @@ public class sacMouvement : MonoBehaviour
     private int indexHaut = 1;
     private int indexGauche = 0;
     private GameObject objetActuel;
+    public GameObject boiteDeMenuDeJeu;
     void Update(){   
         if (!pause){
             if (Input.GetKeyDown(KeyCode.RightArrow)){
@@ -51,14 +52,19 @@ public class sacMouvement : MonoBehaviour
             }
             if (Input.GetKeyDown(KeyCode.B)){
                 mouvementDuJoueur.droitDeMarcher = true;
+                boiteDeMenuDeJeu.SetActive(true);
                 gameObject.SetActive(false);
             }
         }else if (Input.GetKeyDown(KeyCode.B)){
-            pause=false;    
-            int numéro=indexGauche;
-            if (indexHaut==0){numéro+=sélectionnéHaut.Count-1;}
-            windows[numéro].SetActive(false);
+            StartCoroutine(FermetureDeLaFenêtre());
         }
+    }
+    IEnumerator FermetureDeLaFenêtre(){
+        yield return new WaitForSeconds(0.01f);
+        pause=false;    
+        int numéro=indexGauche;
+        if (indexHaut==0){numéro+=sélectionnéHaut.Count-1;}
+        windows[numéro].SetActive(false);
     }
     void changerDePosition(){
         if (objetActuel!=null){

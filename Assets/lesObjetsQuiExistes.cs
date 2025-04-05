@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class lesObjetsQuiExistes : MonoBehaviour
-{
+public class lesObjetsQuiExistes : MonoBehaviour{
     public List<LesObjets> lesObjets;
     public List<Sprite> imageDesCatégorie;
 }

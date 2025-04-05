@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class vendreDesProduits : MonoBehaviour{
-    public lesObjetsQuiExistes scriptDesItem;
+    private lesObjetsQuiExistes scriptDesItem;
     public Text monArgent;
     public List<int> IDDesObjetAVendre = new List<int>();
     private List<GameObject> espaceDeVante = new List<GameObject>();
@@ -20,7 +20,10 @@ public class vendreDesProduits : MonoBehaviour{
     public UI_Déplacement monDéplacementScript;
     public RectTransform bloc;
     private int nombreMaximumDeArcticleAfficher = 4;
+    public GameObject boiteDeMenuDeJeu;
+
     void Start(){
+        scriptDesItem = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<lesObjetsQuiExistes>();
         monArgent.text = NewDataCenter.Instance.Lire("€");
         for (int i = 0; i < IDDesObjetAVendre.Count; i++){
             GameObject TV = Instantiate(espaceDeVantePrefabe);
@@ -35,6 +38,7 @@ public class vendreDesProduits : MonoBehaviour{
     }
 
     void Update(){
+        boiteDeMenuDeJeu.SetActive(false);
         if (!acheter){
             if (Input.GetKeyDown(KeyCode.UpArrow)){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
@@ -56,6 +60,7 @@ public class vendreDesProduits : MonoBehaviour{
                 sélection=0;
                 Choisir();
                 mouvementDuJoueur.droitDeMarcher = true;
+                boiteDeMenuDeJeu.SetActive(true);
                 gameObject.SetActive(false);
             }
         }else{

@@ -12,7 +12,7 @@ public class GestionnaireDeCombas : MonoBehaviour
     public bool finDuCombat=false;
     public bool leJoeurAGagner=false;
     public RuntimeAnimatorController animController;
-    public medaliumDictionnaire medaliumDictionnaire;
+    private medaliumDictionnaire MedaliumDictionnaire;
     public int[] IDDesYoKaiDeEquipe;//identifient unique "mesYoKai"
     public int[] IDDesYoKaiDeEnnemie;//identifient globeau "médalium"
     public Transform[] positionJ;
@@ -26,6 +26,7 @@ public class GestionnaireDeCombas : MonoBehaviour
     public int joueurSurLeTerrin;
     public int ennemieSurLeTerrin;
     void Start(){
+        MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         chargementDesPersonnage();
         StartCoroutine(boucleDuJeu());
     }
@@ -35,15 +36,15 @@ public class GestionnaireDeCombas : MonoBehaviour
         for (int i = 0; i < IDDesYoKaiDeEquipe.Length; i++){
             int ID = MesYoKai.Instance.maListe[IDDesYoKaiDeEquipe[i]].ID;
             print(ID);
-            if (medaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
-            g.J.Add(medaliumDictionnaire.dictionnaire[ID].yoKai);
+            if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
+            g.J.Add(MedaliumDictionnaire.dictionnaire[ID].yoKai);
             GameObject TV = Instantiate(g.J[i]);
             TV.transform.localScale = new Vector3(100, 100, 100);
             TV.transform.position = new Vector3(positionJ[i].position.x,positionJ[i].position.y,positionJ[i].position.z);
             Vector3 rotation = TV.transform.eulerAngles;
             rotation.y += 180;
             TV.transform.eulerAngles = rotation;
-            TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().medaliumDictionnaire=medaliumDictionnaire;
+            TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>();
             TV.GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().IDduYoKaiMedalium=ID;
             TV.GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().IDduYoKaiSpécifique=IDDesYoKaiDeEquipe[i];
             g.nom[i].text=NewDataCenter.Instance.Lire(IDDesYoKaiDeEquipe[i].ToString()+"_surnom");

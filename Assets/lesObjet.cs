@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class lesObjet : MonoBehaviour{
-    public lesObjetsQuiExistes objet;
+    private lesObjetsQuiExistes objet;
     //public List<ITEM> item;
     private List<Transform> emplacementPourItem = new List<Transform>();
     public Transform contenu;
@@ -12,6 +12,7 @@ public class lesObjet : MonoBehaviour{
     private int numéro = 3;
     private int indiceDeMaPosition = 0;
     void Start(){
+        objet = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<lesObjetsQuiExistes>();
         foreach (Transform child in contenu){
             Transform sélectionChild = child.Find("sélection");
             emplacementPourItem.Add(child);
