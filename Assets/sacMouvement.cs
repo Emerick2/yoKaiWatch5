@@ -2,8 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class sacMouvement : MonoBehaviour
-{
+public class sacMouvement : MonoBehaviour{
     private bool pause = false;
     public List<GameObject> sélectionnéHaut;
     public List<GameObject> sélectionnéBas;

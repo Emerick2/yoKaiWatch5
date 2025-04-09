@@ -61,7 +61,7 @@ public class MesYoKai : MonoBehaviour{
 }
 
 [System.Serializable]
-public class ListeDeMesYoKai{
+public class ListeDeMesYoKai{//maListe
     public int ID;
     public string surnom;
     public int niveau;

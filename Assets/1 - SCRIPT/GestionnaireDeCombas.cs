@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using UnityEditor;
 
 
 public class GestionnaireDeCombas : MonoBehaviour
@@ -57,68 +58,47 @@ public class GestionnaireDeCombas : MonoBehaviour
         ennemieSurLeTerrin = g.E.Count;
     }
     void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai){
-        if (animator == null || modèle3DDuYoKai == null){
-            Debug.LogError("Animator passé en paramètre est null.");
-            Debug.LogError("Le GameObject modèle3DDuYoKai est null.");
-            return;
-        }
-
         Animator modeleAnimator = modèle3DDuYoKai.GetComponent<Animator>();
-        if (modeleAnimator == null){
-            Debug.LogError("Aucun composant Animator trouvé sur le modèle3DDuYoKai.");
-            return;
-        }
         RuntimeAnimatorController animController = modeleAnimator.runtimeAnimatorController;
-        if (animController == null){
-            Debug.LogError("Aucun RuntimeAnimatorController trouvé sur le modèle3DDuYoKai.");
-            return;
-        }
-
-        AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
         AnimationClip[] clips = animController.animationClips;
-        bool animationTrouvée = false;
+        AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
+        string nomDuYoKaiDeAnimatorParDéfaut = "y105010";
+        List<string> aRemplacer = new List<string>{
+            "_p20_27001d_del",
+            "_p20_27000d_dei",
+            "_p20_26500d_dmi",
+            "_p20_25000s_ati",
+            "_p20_21001d_stl",
+            "_p20_21001d_stl_1"
+        };
 
-        string nouveauNomAnimation = yoKaiName + "_p20_25000s_ati";
-        AnimationClip monAnimation = null;
+        // Dictionnaire pour stocker les correspondances entre anciennes et nouvelles animations
+        List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
 
-        for (int i = 0; i < clips.Length; i++){
-            if (clips[i].name.Equals(nouveauNomAnimation)){
-                monAnimation = clips[i];
-                break;
+        for (int i = 0; i < aRemplacer.Count; i++){
+            string suffixe = aRemplacer[i];
+            string nomAnimationOrigine = nomDuYoKaiDeAnimatorParDéfaut + suffixe;
+
+            // Trouve l'animation existante dans le contrôleur d'origine
+            AnimationClip clipOrigine = clips.FirstOrDefault(c => c.name == nomAnimationOrigine);
+
+            // Charge la nouvelle animation dans le projet
+            string nomAnimationRemplacement = yoKaiName + suffixe;
+            AnimationClip clipRemplacement = Resources.Load<AnimationClip>("AnimationsExtraites/" + yoKaiName + "/" + nomAnimationRemplacement);
+            //print (clipRemplacement.ToString());
+            if (clipOrigine != null && clipRemplacement != null){
+                AnimationClip clip = clipRemplacement;
+                SerializedObject serializedClip = new SerializedObject(clip);
+                serializedClip.FindProperty("m_AnimationClipSettings.m_LoopTime").boolValue = true;
+                serializedClip.ApplyModifiedProperties();
+                overrides.Add(new KeyValuePair<AnimationClip, AnimationClip>(clipOrigine, clipRemplacement));
+            }else{
+                Debug.LogWarning($"Animation introuvable : {nomAnimationOrigine} ou {nomAnimationRemplacement}");
             }
         }
-
-        if (monAnimation == null){
-            Debug.LogError("Animation clip '" + nouveauNomAnimation + "' non trouvée dans le modèle3DDuYoKai.");
-            return;
-        }
-
-        for (int i = 0; i < clips.Length; i++){
-            string nomAnimationTrouvée = clips[i].name;
-            if (nomAnimationTrouvée.Contains("_p20_25000s_ati")){
-                overrideController[nomAnimationTrouvée] = monAnimation;
-                animationTrouvée = true;
-                break;
-            }
-        }
-
-        if (!animationTrouvée){
-            Debug.LogWarning("Aucune animation correspondante trouvée pour être remplacée dans l'override.");
-        }
+        overrideController.ApplyOverrides(overrides);
         animator.runtimeAnimatorController = overrideController;
     }
-
-    /*
-    void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai) { 
-        AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
-        AnimationClip[] clips = modèle3DDuYoKai.GetComponent<Animator>().runtimeAnimatorController.animationClips;
-        string nomAnimation = "_p20_25000s_ati";
-        for (int i = 0; i < clips.Length; i++){
-            nomAnnimationATrouverDansLeFichierFBXDuModèle3DDuYoKai=yoKaiName+(clips[i].name.Replace(yoKaiName,""));
-            //trouver l'annimation qui est dans le fichier FBX du game object modèle3DDuYoKai et l'utiliser pour remplacer le clips[i]
-            animator.runtimeAnimatorController = overrideController; 
-        }   
-    }*/
 
     IEnumerator boucleDuJeu(){
         int numéro=0;
