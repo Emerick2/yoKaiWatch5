@@ -15,86 +15,88 @@ public class fonctionnementMédalium : MonoBehaviour{
     [Range(0,11)] public int ID;
     public int IDTotal;
     public int nombreTotalDeCase;
-    private List<MedaliumNonPersonel> IDTableaux = new List<MedaliumNonPersonel>();
     void Start(){
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-        for (int i = 0; i < médailum.dictionnaire.Count; i++){
-            IDTableaux.Add(médailum.dictionnaire[i]);
-        }
         nombreTotalDeCase = Mathf.CeilToInt((médailum.dictionnaire.Count) / 12f);
         PlacerLesMédailles();
-        MouvementDansLaPage(0,0);
+        MouvementDansLaPage(0);
 
     }
     void Update(){
         if (Input.GetKeyDown(KeyCode.DownArrow)){
-            MouvementDansLaPage(ID+3,IDTotal+3);
+            MouvementDansLaPage(3);
         }else if (Input.GetKeyDown(KeyCode.UpArrow)){
-            MouvementDansLaPage(ID-3,IDTotal-3);
+            MouvementDansLaPage(-3);
         }else if (Input.GetKeyDown(KeyCode.RightArrow)){
-            MouvementDansLaPage(ID+1,IDTotal+1);
+            MouvementDansLaPage(1);
         }else if (Input.GetKeyDown(KeyCode.LeftArrow)){
-            MouvementDansLaPage(ID-1,IDTotal-1);
+            MouvementDansLaPage(-1);
         }else if (Input.GetKey(KeyCode.B)){
             numéroDeLaPage = 1;
             PlacerLesMédailles();
-            MouvementDansLaPage(0,0);
+            MouvementDansLaPage(0);
             gameObject.SetActive(false);
         }
     }
+    void ChangerDePage(int nouveau){
+        int pageVoulu = numéroDeLaPage + nouveau;
 
-    void MouvementDansLaPage(int nombre, int nombreTotal){
-        //if ((numéroDeLaPage<=1 && nombre+ID<0 && nombre+ID != 0) || (nombreTotalDeCase > IDTotal+nombreTotal))return;
-        int titi = nombre+ID;
-        print(titi);
-        if (numéroDeLaPage<=1 && titi<0) return;
-        if (titi > 12 && numéroDeLaPage>=nombreTotalDeCase) return;
-        //int titi = IDTotal+nombreTotal;
-        //if (nombreTotalDeCase >= titi){print("x="+titi);print("ici");return;}
-        espaceDesMédailles[ID].GetComponent<Image>().color = new Color(0f, 0f, 0f, 1f);
-        ID = nombre;
-        /*
-        //cas dans lequel on va de la première page à la dernière :
-        if (nombreTotal<0){
-            int v = 1;
-            bool réussie = false;
-            nombreTotal = médailum.dictionnaire.Count-1;
-            while (réussie == false){
-                v = v+12;
-                if (v>=nombreTotal){
-                    réussie=true;
-                    nombreTotal=v-2;
-                    IDTotal = nombreTotal;
-                }
-            }
-        }*/
-        if (nombreTotal<0) nombreTotal=0;
-        IDTotal = nombreTotal;
-        if (ID>11){
-            ID=0;//avence
-            if (médailum.dictionnaire.Count-1 >= 12*numéroDeLaPage){
+        // Sécurité : si la page demandée n’existe pas, on arrête tout
+        if (pageVoulu < 1 || pageVoulu > nombreTotalDeCase) return;
+
+        if (nouveau == 0){
+            numéroDeLaPage = 1;
+            IDTotal = 0;
+            ID = 0;
+            PlacerLesMédailles();
+        }
+        else if (nouveau == 1){
+            // Aller à la page suivante
+            if (médailum.dictionnaire.Count > 12 * numéroDeLaPage){
                 numéroDeLaPage++;
+                ID = 0;
+                IDTotal = (numéroDeLaPage - 1) * 12;
                 PlacerLesMédailles();
-            } else {
-                IDTotal=0;
-                numéroDeLaPage=1;
-                PlacerLesMédailles();
-            }
-        } else if (ID<0){
-            ID=11;//recule
-            if (numéroDeLaPage>1){
-                numéroDeLaPage--;
-                PlacerLesMédailles();
-            } else {
-                numéroDeLaPage=(médailum.dictionnaire.Count)/12;
-                if (médailum.dictionnaire.Count-1 >= 12*numéroDeLaPage){
-                    numéroDeLaPage++;
-                    PlacerLesMédailles();
-                }
             }
         }
-        if (IDTotal<0) IDTotal = médailum.dictionnaire.Count-1;
-        //else if (IDTotal>médailum.dictionnaire.Count-1) IDTotal = 0;
+        else if (nouveau == -1){
+            // Revenir à la page précédente
+            if (numéroDeLaPage > 1){
+                numéroDeLaPage--;
+                ID = 11;
+                IDTotal = (numéroDeLaPage - 1) * 12;
+                PlacerLesMédailles();
+            }
+        }
+    }
+
+    void MouvementDansLaPage(int nombre){
+        if (numéroDeLaPage == 1 && ID+nombre<0) return;
+        if (numéroDeLaPage == nombreTotalDeCase && ID+nombre>11) return;
+        int x=0;
+        espaceDesMédailles[ID].GetComponent<Image>().color = new Color(0f, 0f, 0f, 1f);
+        if (nombre == 0){
+            ID=0;
+            IDTotal=0;
+            ChangerDePage(0);
+        }else {
+            x = ID+nombre;
+            ID += nombre;
+            IDTotal += nombre;
+            if (IDTotal<0) IDTotal=0;
+        }
+        
+        if (x < 0){
+            ChangerDePage(-1);
+            ID = 11;
+            IDTotal = (numéroDeLaPage - 1) * 12 + ID;
+        }else if (x > 11){
+            ChangerDePage(1);
+            ID = 0;
+            IDTotal = (numéroDeLaPage - 1) * 12 + ID;
+        }
+
+        
         texteDuNuméro.text = numéroDeLaPage.ToString();
         RemplirLeBloc();
         espaceDesMédailles[ID].GetComponent<Image>().color = new Color(0.79f, 0.55f, 0.55f, 1f);
@@ -110,7 +112,7 @@ public class fonctionnementMédalium : MonoBehaviour{
             }
         }
         flècheVersLeHaut.SetActive(numéroDeLaPage>1);
-        flècheVersLeBas.SetActive(médailum.dictionnaire.Count > IDTotal);
+        flècheVersLeBas.SetActive(numéroDeLaPage < nombreTotalDeCase);
     }
 
     void RemplirLeBloc(){
