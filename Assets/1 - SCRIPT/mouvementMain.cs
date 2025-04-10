@@ -15,36 +15,28 @@ public class MouvementMain : MonoBehaviour
 
     private RectTransform rectTransform;
 
-    void Start()
-    {
+    void Start(){
         rectTransform = GetComponent<RectTransform>();
     }
 
-    void Update()
-    {
-        if (!bloquer)
-        {
+    void Update(){
+        if (!bloquer){
             Vector2 position = rectTransform.anchoredPosition;
 
-            if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && position.x < maxXPosition)
-            {
+            if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && position.x < maxXPosition){
                 position.x += vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)) && position.x > minXPosition)
-            {
+            if ((Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)) && position.x > minXPosition){
                 position.x -= vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) && position.y < maxYPosition)
-            {
+            if ((Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) && position.y < maxYPosition){
                 position.y += vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && position.y > minYPosition)
-            {
+            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && position.y > minYPosition){
                 position.y -= vitesse * Time.deltaTime;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
+            if (Input.GetKeyDown(KeyCode.Space)){
                 StartCoroutine(StopClic());
             }
 
@@ -58,13 +50,10 @@ public class MouvementMain : MonoBehaviour
         List<RectTransform> autreObjet = new List<RectTransform>();
 
         // Cherche tous les enfants ayant le tag "Finish"
-        foreach (Transform child in lePapa.transform)
-        {
-            if (child.gameObject.CompareTag("Finish"))
-            {
+        foreach (Transform child in lePapa.transform){
+            if (child.gameObject.CompareTag("Finish")){
                 RectTransform rect = child.GetComponent<RectTransform>();
-                if (rect != null)
-                {
+                if (rect != null){
                     autreObjet.Add(rect);
                 }
             }
@@ -75,13 +64,10 @@ public class MouvementMain : MonoBehaviour
 
         gameObject.GetComponent<Animator>().SetBool("clic", true);
 
-        if (autreObjet.Count > 0)
-        {
-            while (!stoper && i > 0)
-            {
+        if (autreObjet.Count > 0){
+            while (!stoper && i > 0){
                 i--;
-                if (RectsSeChevauchent(rectTransform, autreObjet[i]))
-                {
+                if (RectsSeChevauchent(rectTransform, autreObjet[i])){
                     stoper = true;
                     Debug.Log("Collision avec l'objet Finish !");
                 }
@@ -94,8 +80,7 @@ public class MouvementMain : MonoBehaviour
         bloquer = false;
     }
 
-    bool RectsSeChevauchent(RectTransform a, RectTransform b)
-    {
+    bool RectsSeChevauchent(RectTransform a, RectTransform b){
         Vector3[] aCorners = new Vector3[4];
         Vector3[] bCorners = new Vector3[4];
 
