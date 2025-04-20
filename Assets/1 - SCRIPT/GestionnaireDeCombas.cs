@@ -6,57 +6,92 @@ using System.Linq;
 using UnityEditor;
 
 
-public class GestionnaireDeCombas : MonoBehaviour
-{
+public class GestionnaireDeCombas : MonoBehaviour{
+    public List<Image> médaillon;
     public GameObject panneauDeVictoire;
     public GameObject panneauDeDéfaite;
-    public bool finDuCombat=false;
-    public bool leJoeurAGagner=false;
+    [HideInInspector]public bool finDuCombat=false;
+    [HideInInspector]public bool leJoeurAGagner=false;
     public RuntimeAnimatorController animController;
     private medaliumDictionnaire MedaliumDictionnaire;
     public int[] IDDesYoKaiDeEquipe;//identifient unique "mesYoKai"
-    public int[] IDDesYoKaiDeEnnemie;//identifient globeau "médalium"
     public Transform[] positionJ;
+    public Transform[] positionE;
     public Gestionnaire g;
-    public float tempsAttanteEntreLesTours=1f;
-    private GameObject yoKaiUtiliser;
-    private SliderValue yoKaiUtiliser_Vie;
-    public List<GameObject> lesJoueurs;
-
+    private float tempsAttanteEntreLesTours=1.5f;
 
     public int joueurSurLeTerrin;
-    public int ennemieSurLeTerrin;
+    int random;
+    
+    public List<(int vitesse, Personnage source, string origine, int index)> listeVitesse = new();
+
     void Start(){
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         chargementDesPersonnage();
         StartCoroutine(boucleDuJeu());
+        for (int i = 0; i < IDDesYoKaiDeEquipe.Length ; i++){
+            médaillon[i].sprite = MedaliumDictionnaire.dictionnaire[IDDesYoKaiDeEquipe[i]].médaillon;
+        }
     }
 
     void chargementDesPersonnage(){
-        lesJoueurs = new List<GameObject>();
+        //joeur :
         for (int i = 0; i < IDDesYoKaiDeEquipe.Length; i++){
             int ID = MesYoKai.Instance.maListe[IDDesYoKaiDeEquipe[i]].ID;
-            print(ID);
             if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
-            g.J.Add(MedaliumDictionnaire.dictionnaire[ID].yoKai);
-            GameObject TV = Instantiate(g.J[i]);
+            GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[ID].yoKai);
+            
+            var script = TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>();
+            script.IDduYoKaiMedalium = ID;
+            script.IDduYoKaiSpécifique = IDDesYoKaiDeEquipe[i];
+            Personnage nouveau = new Personnage {
+                objet = TV,
+                script = script,
+                vie = 100//revenir ici quand je sovgarderais les vie
+            };
+            g.J.Add(nouveau);
+
             TV.transform.localScale = new Vector3(100, 100, 100);
             TV.transform.position = new Vector3(positionJ[i].position.x,positionJ[i].position.y,positionJ[i].position.z);
             Vector3 rotation = TV.transform.eulerAngles;
             rotation.y += 180;
             TV.transform.eulerAngles = rotation;
-            TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>();
-            TV.GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().IDduYoKaiMedalium=ID;
-            TV.GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>().IDduYoKaiSpécifique=IDDesYoKaiDeEquipe[i];
             g.nom[i].text=NewDataCenter.Instance.Lire(IDDesYoKaiDeEquipe[i].ToString()+"_surnom");
             TV.AddComponent<Animator>().runtimeAnimatorController = animController;
-            lesJoueurs.Add(TV);
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
             CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
         }
-        joueurSurLeTerrin = g.J.Count;
-        ennemieSurLeTerrin = g.E.Count;
+        //ennemie :
+        livraison Livraison = GameObject.Find("livraison").GetComponent<livraison>();
+        for (int i = 0; i < Livraison.numéroDesYoKaiPourLeCombat.Count; i++){
+            Instantiate(MedaliumDictionnaire.dictionnaire[Livraison.numéroDesYoKaiPourLeCombat[i].ID].yoKai);
+            //Livraison.numéroDesYoKaiPourLeCombat[i].ID
+
+            int ID = Livraison.numéroDesYoKaiPourLeCombat[i].ID;
+            if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
+            //g.E.Add(MedaliumDictionnaire.dictionnaire[ID].yoKai);
+            GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[ID].yoKai);
+            
+            var script = TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>();
+            script.niveau=Livraison.numéroDesYoKaiPourLeCombat[i].niveau;
+            script.IDduYoKaiMedalium = ID;
+            Personnage nouveau = new Personnage {
+                objet = TV,
+                script = script,
+                vie = 100
+            };
+            g.E.Add(nouveau);
+
+
+            TV.transform.localScale = new Vector3(200, 200, 200);
+            TV.transform.position = new Vector3(positionE[i].position.x,positionE[i].position.y,positionE[i].position.z);
+            TV.AddComponent<Animator>().runtimeAnimatorController = animController;
+            TV.transform.name = TV.transform.name.Replace("(Clone)", "");
+            CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
+        }
+        Destroy(GameObject.Find("livraison"));
     }
+    
     void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai){
         Animator modeleAnimator = modèle3DDuYoKai.GetComponent<Animator>();
         RuntimeAnimatorController animController = modeleAnimator.runtimeAnimatorController;
@@ -100,67 +135,146 @@ public class GestionnaireDeCombas : MonoBehaviour
         animator.runtimeAnimatorController = overrideController;
     }
 
-    IEnumerator boucleDuJeu(){
-        int numéro=0;
-        int random=0;
-        bool leJoueurJoue = true;
-        int initialisation = calculerDégâts(lesJoueurs[0].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[0].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
+    IEnumerator MouvementYoKai(GameObject élément, Transform positionCible,bool annimationFluide){
+        Vector2 vectorCible = new Vector2(positionCible.position.x, positionCible.position.y);
+        float vitesse = 200;
+        if (!annimationFluide){
+            élément.transform.position = vectorCible;
+        }else{
+            Vector2 currentPos = élément.transform.position;
+            float t = 0f;
+            while (t < 1){
+                t += Time.deltaTime / vitesse;
+                élément.transform.position = Vector2.Lerp(currentPos, vectorCible, t);
+                yield return null;
+            }
+        }
+    }
 
+
+    public void RotationDeLaRoue(int mouvement){
+        if (mouvement>0){//j'avance
+            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant-1)%6].objet, positionJ[0],true));
+            StartCoroutine(MouvementYoKai(g.J[g.numéroPrésentDevant].objet, positionJ[1],true));
+            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+1)%6].objet, positionJ[2],true));
+            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+2)%6].objet, positionJ[3],true));
+            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+3)%6].objet, positionJ[4],true));
+            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+4)%6].objet, positionJ[5],false));
+
+        }
+
+
+
+        g.numéroPrésentDevant += mouvement;
+        if (g.numéroPrésentDevant>=6){
+            g.numéroPrésentDevant=0;
+        }else if (g.numéroPrésentDevant<0){
+            g.numéroPrésentDevant=6;
+        }
+        
+        listeVitesse.Clear();
+        for (int i = 0; i < g.J.Count; i++){
+            if (g.J[i] != null){
+                listeVitesse.Add((g.J[i].script.vitesse, g.J[i], "g.J", i));
+            }
+        }
+        for (int i = 0; i < g.E.Count; i++){
+            if (g.E[i] != null){
+                listeVitesse.Add((g.E[i].script.vitesse, g.E[i], "g.E", i));
+            }
+        }
+        listeVitesse.Sort((a, b) => b.vitesse.CompareTo(a.vitesse));
+    }
+
+
+    IEnumerator boucleDuJeu(){//g.J[0].vie  g.E[0].vie
+        RotationDeLaRoue(0);
+        Personnage lanceur = null;
+        Personnage cible = null;
         while (!finDuCombat){
-            if (g.barreDeVie.Count == 0 || g.E_Vie.Count == 0 || g.E.Count == 0 || g.J.Count == 0){
-                Debug.LogError("Erreur : Une des listes est vide !");
-                yield break;
-            }
+            int STOP = 1000;
+            //ne plus être dans un for parce que cela bloque le retournement de la roue
+            //int nombreDeTour = g.J.Count+g.E.Count;
+            for (int i = 0; i < listeVitesse.Count; i++){//six fois parce que 3 pour les ennemie et trois pour les joeur
+                lanceur = listeVitesse[i].source;
+                if (listeVitesse[i].source.ToString()[2] == 'J'){
+                    int cibleNuméro = Random.Range(0, g.E.Count-1);
+                    while (g.E[cibleNuméro].vie > 0 && STOP > 0){
+                        cibleNuméro = Random.Range(0, g.E.Count-1);
+                        STOP--;
+                    }
+                    cible = g.E[cibleNuméro];
+                }else{//c'est un 'E'
+                    List<int> indicesVisibles = new List<int>();
 
-            if ((leJoueurJoue && numéro >= joueurSurLeTerrin) || (!leJoueurJoue && numéro >= ennemieSurLeTerrin)){
-                numéro=0;
-                leJoueurJoue = !leJoueurJoue;
+                    for (int j = 0; j < 3; j++){
+                        int index = (g.numéroPrésentDevant + j) % g.J.Count;
+                        if (g.J[index].vie > 0)
+                            indicesVisibles.Add(index);
+                    }
+
+                    if (indicesVisibles.Count > 0){
+                        int cibleNuméro = indicesVisibles[Random.Range(0, indicesVisibles.Count)];
+                        cible = g.J[cibleNuméro];
+                    }
+                }
+
+                annimation(lanceur.objet, "attaque");
+                yield return new WaitForSecondsRealtime(tempsAttanteEntreLesTours);
+                        
+                g.E_Vie[0/*cibleNuméro*/].value -= calculerDégâts(lanceur.script, cible.script);//problème
+                
+                if (cible.vie <= 0) annimation(cible.objet, "mort");
+                else annimation(cible.objet, "coup");
             }
+            /*
+            for (int i = 0; i < g.J.Count; i++){//le joueur attaque l'ennemie
+                lanceur = g.J;
+                cible = g.E;
+                if (g.J[i].vie > 0){
+                    annimation(g.J[i].objet, "attaque");
+                    yield return new WaitForSecondsRealtime(tempsAttanteEntreLesTours);
+                        
+                    int cibleNuméro = Random.Range(0, g.E.Count-1);
+                    while (g.E_Vie[cibleNuméro].value > 0 && STOP > 0){
+                        cibleNuméro = Random.Range(0, g.E.Count-1);
+                        STOP--;
+                    }
+                    g.E_Vie[cibleNuméro].value -= calculerDégâts(g.J[i].script, g.E[cibleNuméro].script);
+                    
+                    if (g.E[cibleNuméro].vie <= 0) annimation(g.E[cibleNuméro].objet, "mort");
+                    else annimation(g.E[cibleNuméro].objet, "coup");
+                }
+            }
+            for (int i = 0; i < g.E.Count; i++){//l'ennemie attaque le joueur
+                if (g.E[i].vie > 0){
+                    annimation(g.E[i].objet, "attaque");
+                    yield return new WaitForSecondsRealtime(tempsAttanteEntreLesTours);
+                    int cibleNuméro = Random.Range(0, g.J.Count-1);
+                    while (g.J[cibleNuméro].vie > 0 && STOP > 0){
+                        cibleNuméro = Random.Range(0, g.J.Count-1);
+                        STOP--;
+                    }
+                    g.J[cibleNuméro].vie -= calculerDégâts(g.E[i].script, g.J[cibleNuméro].script);
+
+                    if (g.J[cibleNuméro].vie <= 0) annimation(g.J[cibleNuméro].objet, "mort");
+                    else annimation(g.J[cibleNuméro].objet, "coup");
+                }
+            }*/
             vérifieSiUnJoueurEstEnVie();
-
-            if (!leJoueurJoue){ // C'est un ennemi qui attaque
-                if (g.J.Count > 0 && g.E_Vie[numéro].value>0) {
-                    random = Random.Range(0, g.J.Count);int stoper=100;
-                    while(g.barreDeVie[random].value<=0 && stoper >0){random = Random.Range(0, g.J.Count);stoper--;}
-                    if (random < g.barreDeVie.Count) {
-                        annimation(g.E[numéro], "attaque");
-                        yield return new WaitForSeconds(0.5f);
-                        g.barreDeVie[random].value -= calculerDégâts(g.E[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),lesJoueurs[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
-                        if (g.barreDeVie[random].value <= 0){
-                            annimation(lesJoueurs[random], "mort");
-                            joueurSurLeTerrin--;
-                        }else{
-                            annimation(lesJoueurs[random], "coup");
-                        }
-                    }
-                }
-            } else { // C'est le joueur qui attaque
-                if (g.E.Count > 0 && g.barreDeVie[random].value>0) {
-                    g.barreDeAmultime[numéro].value+=(100/3);
-                    random = Random.Range(0, g.E.Count);int stoper=100;
-                    while(g.E_Vie[random].value<=0 && stoper >0){random = Random.Range(0, g.E.Count);stoper--;}
-                    if (random < g.E_Vie.Count) {
-                        annimation(lesJoueurs[numéro], "attaque");
-                        yield return new WaitForSeconds(0.5f);
-                        g.E_Vie[random].value -= calculerDégâts(lesJoueurs[numéro].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>(),g.E[random].GetComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>());
-                        if (g.E_Vie[random].value <= 0){
-                           annimation(g.E[random], "mort");
-                           ennemieSurLeTerrin--;
-                        }else{
-                            annimation(g.E[random], "coup");
-                        }
-                    }
-                }
-            }
-
-            numéro++;
-            yield return new WaitForSeconds(tempsAttanteEntreLesTours);
+            yield return new WaitForSeconds(0.1f);
         }
     }
     int calculerDégâts(gestionnaireDeMonPetitYoKaiPourUnCombat lanceur, gestionnaireDeMonPetitYoKaiPourUnCombat cible){
+        if (lanceur == null || cible == null){
+            Debug.LogError("Lanceur ou cible est null dans calculerDégâts !");
+            return 0;
+        }
         float total = ((float)lanceur.dégatInfligé/(float)cible.pointDeVie)*100;
+        //Debug.Log($"{lanceur.nom} inflige {total} à {cible.nom} !");
         return (int)(total);
     }
+
     void annimation(GameObject objet, string nom){//coup, mort, attaque
         if (objet.GetComponent<Animator>() != null && objet != null){
             objet.GetComponent<Animator>().SetTrigger(nom);
@@ -180,10 +294,10 @@ public class GestionnaireDeCombas : MonoBehaviour
             panneauDeVictoire.SetActive(true);
         }
         conteur = 0;
-        for (int i = 0; i < g.barreDeVie.Count; i++){
-            if (g.barreDeVie[i].value <=0){conteur++;}
+        for (int i = 0; i < g.J.Count; i++){
+            if (g.J[i].vie <=0){conteur++;}
         }
-        if (conteur == g.barreDeVie.Count){
+        if (conteur == g.J.Count){
             print("fin de la partie, l'ennemie à gagner");
             finDuCombat = true;
             leJoeurAGagner = false;
@@ -193,10 +307,21 @@ public class GestionnaireDeCombas : MonoBehaviour
 }
 [System.Serializable]
 public class Gestionnaire{
-    public List<GameObject> J;
-    public List<GameObject> E;
-    public List<SliderValue> E_Vie;
+    [HideInInspector] public List<Personnage> J = new List<Personnage>();
+    [HideInInspector] public List<Personnage> E = new List<Personnage>();
+    public int numéroPrésentDevant = 0;//se ne sont pas les id mais les numéro de 0 à 5
+    //si c'est 3 se sera |3,4,5|
     public List<Text> nom;
-    public List<SliderValue> barreDeVie;
+    public List<SliderValue> J_Vie;
+    public List<SliderValue> E_Vie;
     public List<SliderValue> barreDeAmultime;
+}
+
+[System.Serializable]
+public class Personnage{
+    public GameObject objet;
+    public int vie;
+    public int amûltime;
+    public string nom;
+    public gestionnaireDeMonPetitYoKaiPourUnCombat script;
 }

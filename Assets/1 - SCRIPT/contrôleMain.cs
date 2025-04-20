@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class contrôleMain : MonoBehaviour
-{
+public class contrôleMain : MonoBehaviour{
+    public GestionnaireDeCombas gestionnaireDeCombas;
     public GameObject MainDroiteHaut;//1
     public GameObject MainGaucheHaut;//2
     public GameObject MainDroiteBas;//3
@@ -52,9 +52,11 @@ public class contrôleMain : MonoBehaviour
             //rotation.z += 60;
             //roue.transform.eulerAngles = rotation;
             finDeAttanteDeRotation=false;
+            gestionnaireDeCombas.RotationDeLaRoue(1);
             StartCoroutine(RotateSmoothly(-60f));
         } else if (Input.GetKeyDown(KeyCode.R) && finDeAttanteDeRotation){
             finDeAttanteDeRotation=false;
+            gestionnaireDeCombas.RotationDeLaRoue(-1);
             StartCoroutine(RotateSmoothly(60f));
         }
     }

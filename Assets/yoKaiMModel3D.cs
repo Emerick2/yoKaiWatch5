@@ -7,7 +7,11 @@ using UnityEditor;
 public class yoKaiMModel3D : MonoBehaviour{
     [HideInInspector] public RuntimeAnimatorController animController1;
     private Animator animator;
+    public bool neBougeraPas;
+    public float vitesseDeRechargement=0.02f;
     void Start(){
+        gameObject.name = gameObject.name.Replace("(Clone)", "");
+        if (neBougeraPas){vitesseDeRechargement=1;}
         if (animController1 != null){
             animator = gameObject.AddComponent<Animator>();
             animator.runtimeAnimatorController = animController1;
@@ -63,7 +67,7 @@ public class yoKaiMModel3D : MonoBehaviour{
         while (animator != null){
             float p1x = transform.position.x;
             float p1z = transform.position.z;
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(vitesseDeRechargement);
             float p2x = transform.position.x;
             float p2z = transform.position.z;
             float rx = p2x-p1x;
