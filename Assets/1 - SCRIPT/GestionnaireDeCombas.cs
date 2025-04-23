@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEditor;
+using System;
 
 
 public class GestionnaireDeCombas : MonoBehaviour{
@@ -137,7 +138,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
 
     IEnumerator MouvementYoKai(GameObject élément, Transform positionCible,bool annimationFluide){
         Vector2 vectorCible = new Vector2(positionCible.position.x, positionCible.position.y);
-        float vitesse = 200;
+        float vitesse = 20;
         if (!annimationFluide){
             élément.transform.position = vectorCible;
         }else{
@@ -151,33 +152,45 @@ public class GestionnaireDeCombas : MonoBehaviour{
         }
     }
 
+    int Mod(int x, int m){
+        return (x % m + m) % m;
+    }
 
     public void RotationDeLaRoue(int mouvement){
-        if (mouvement>0){//j'avance
-            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant-1)%6].objet, positionJ[0],true));
-            StartCoroutine(MouvementYoKai(g.J[g.numéroPrésentDevant].objet, positionJ[1],true));
-            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+1)%6].objet, positionJ[2],true));
-            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+2)%6].objet, positionJ[3],true));
-            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+3)%6].objet, positionJ[4],true));
-            StartCoroutine(MouvementYoKai(g.J[(g.numéroPrésentDevant+4)%6].objet, positionJ[5],false));
+        mouvement = Math.Sign(mouvement);
+        // Prépare la nouvelle disposition des Yo-kai selon le sens
+        int[] offsets;
+        int[] positions;
 
+        if (mouvement < 0){
+            offsets = new int[] { -1, 0, 1, 2, 3, 4 };
+            positions = new int[] { 0, 1, 2, 3, 4, 5 };
+        }else if (mouvement > 0){
+            offsets = new int[] { -1, 0, 1, 2, 3, 4 };
+            positions = new int[] { 5, 4, 3, 2, 1, 0 };
+        }else{
+            offsets = new int[] { -1, 0, 1, 2, 3, 4 };
+            positions = new int[] { -1, 0, 1, 2, 3, 4 };
         }
 
-
-
-        g.numéroPrésentDevant += mouvement;
-        if (g.numéroPrésentDevant>=6){
-            g.numéroPrésentDevant=0;
-        }else if (g.numéroPrésentDevant<0){
-            g.numéroPrésentDevant=6;
+        for (int i = 0; i < offsets.Length; i++){
+            int index = Mod(g.numéroPrésentDevant + offsets[i], 6);
+            if (index < g.J.Count){
+                print("ici ici !");
+                StartCoroutine(MouvementYoKai(g.J[index].objet, positionJ[positions[i]], false));
+            }
         }
-        
+
+        // Met à jour l'index du Yo-kai actuellement devant
+        g.numéroPrésentDevant = Mod(g.numéroPrésentDevant + mouvement, 6);
+
         listeVitesse.Clear();
         for (int i = 0; i < g.J.Count; i++){
             if (g.J[i] != null){
                 listeVitesse.Add((g.J[i].script.vitesse, g.J[i], "g.J", i));
             }
         }
+
         for (int i = 0; i < g.E.Count; i++){
             if (g.E[i] != null){
                 listeVitesse.Add((g.E[i].script.vitesse, g.E[i], "g.E", i));
@@ -187,20 +200,22 @@ public class GestionnaireDeCombas : MonoBehaviour{
     }
 
 
+
     IEnumerator boucleDuJeu(){//g.J[0].vie  g.E[0].vie
         RotationDeLaRoue(0);
         Personnage lanceur = null;
         Personnage cible = null;
         while (!finDuCombat){
+            System.Random rng = new System.Random();
             int STOP = 1000;
             //ne plus être dans un for parce que cela bloque le retournement de la roue
             //int nombreDeTour = g.J.Count+g.E.Count;
             for (int i = 0; i < listeVitesse.Count; i++){//six fois parce que 3 pour les ennemie et trois pour les joeur
                 lanceur = listeVitesse[i].source;
                 if (listeVitesse[i].source.ToString()[2] == 'J'){
-                    int cibleNuméro = Random.Range(0, g.E.Count-1);
+                    int cibleNuméro = rng.Next(0, g.E.Count-1);
                     while (g.E[cibleNuméro].vie > 0 && STOP > 0){
-                        cibleNuméro = Random.Range(0, g.E.Count-1);
+                        cibleNuméro = rng.Next(0, g.E.Count-1);
                         STOP--;
                     }
                     cible = g.E[cibleNuméro];
@@ -214,7 +229,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
                     }
 
                     if (indicesVisibles.Count > 0){
-                        int cibleNuméro = indicesVisibles[Random.Range(0, indicesVisibles.Count)];
+                        int cibleNuméro = indicesVisibles[rng.Next(0, indicesVisibles.Count)];
                         cible = g.J[cibleNuméro];
                     }
                 }
