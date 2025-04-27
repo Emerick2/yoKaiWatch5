@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset />
+  <library_images>
+    <image id="f_21">
+      <init_from>f_21.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="f.f_21-add_p39_ba-">
+      <instance_effect url="#Effect_f.f_21-add_p39_ba-" />
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Effect_f.f_21-add_p39_ba-">
+      <profile_COMMON>
+        <newparam sid="surface_f.f_21-add_p39_ba-">
+          <surface type="2D">
+            <init_from>f_21</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_f.f_21-add_p39_ba-">
+          <sampler2D>
+            <source>surface_f.f_21-add_p39_ba-</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_f.f_21-add_p39_ba-" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="f25.bs01--mesh" name="f25.bs01-">
+      <mesh>
+        <source id="f25.bs01--position">
+          <float_array id="f25.bs01--position-array" count="15">-200 120 0 200 -120 0 200 120 0 -200 -120 0 111.883 -67.201 0</float_array>
+          <technique_common>
+            <accessor source="#f25.bs01--position-array" count="5" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="f25.bs01--normal">
+          <float_array id="f25.bs01--normal-array" count="15">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#f25.bs01--normal-array" count="5" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="f25.bs01--texcoord">
+          <float_array id="f25.bs01--texcoord-array" count="10">0.033835 1 0.365821 0.828865 0.365821 1 0.033835 0.828865 0.213553 1</float_array>
+          <technique_common>
+            <accessor source="#f25.bs01--texcoord-array" count="5" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="f25.bs01--color">
+          <float_array id="f25.bs01--color-array" count="20">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#f25.bs01--color-array" count="5" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="f25.bs01--vertex">
+          <input semantic="POSITION" source="#f25.bs01--position" />
+        </vertices>
+        <triangles material="f.f_21-add_p39_ba-" count="12">
+          <input semantic="VERTEX" source="#f25.bs01--vertex" offset="0" />
+          <input semantic="NORMAL" source="#f25.bs01--normal" offset="1" />
+          <input semantic="TEXCOORD" source="#f25.bs01--texcoord" offset="2" />
+          <input semantic="COLOR" source="#f25.bs01--color" offset="3" />
+          <p>3 3 3 3 4 4 4 4 0 0 0 0 0 0 0 0 4 4 4 4 2 2 2 2 2 2 2 2 4 4 4 4 1 1 1 1 4 4 4 4 3 3 3 3 1 1 1 1 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="Armature_f25.bs01--mesh">
+      <skin source="#f25.bs01--mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="f25.bs01--mesh-joint">
+          <Name_array id="f25.bs01--mesh-joint-array" count="2">f25 bs01-</Name_array>
+          <technique_common>
+            <accessor source="#f25.bs01--mesh-joint-array" count="2" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="f25.bs01--mesh-inv_bind_matrix">
+          <float_array id="f25.bs01--mesh-inv_bind_matrix-array" count="32">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#f25.bs01--mesh-inv_bind_matrix-array" count="2" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="f25.bs01--mesh-weight">
+          <float_array id="f25.bs01--mesh-weight-array" count="0" />
+          <technique_common>
+            <accessor source="#f25.bs01--mesh-weight-array" count="0" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#f25.bs01--mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#f25.bs01--mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="5">
+          <input semantic="JOINT" source="#f25.bs01--mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#f25.bs01--mesh-weight" offset="1" />
+          <vcount>0 0 0 0 0 </vcount>
+          <v />
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="Armature_f25" name="f25" sid="f25" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          <node id="Armature_bs01-" name="bs01-" sid="bs01-" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+        </node>
+      </node>
+      <node id="f25.bs01-" name="f25.bs01-" type="NODE">
+        <instance_controller url="#Armature_f25.bs01--mesh">
+          <skeleton>#Armature_f25</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="f.f_21-add_p39_ba-" target="#f.f_21-add_p39_ba-" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene" />
+  </scene>
+</COLLADA>

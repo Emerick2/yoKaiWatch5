@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset />
+  <library_images>
+    <image id="sky03_d">
+      <init_from>sky03_d.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="t401d11.sky03_d-add-">
+      <instance_effect url="#Effect_t401d11.sky03_d-add-" />
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Effect_t401d11.sky03_d-add-">
+      <profile_COMMON>
+        <newparam sid="surface_t401d11.sky03_d-add-">
+          <surface type="2D">
+            <init_from>sky03_d</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_t401d11.sky03_d-add-">
+          <sampler2D>
+            <source>surface_t401d11.sky03_d-add-</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_t401d11.sky03_d-add-" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="sky03d.lgt--mesh" name="sky03d.lgt-">
+      <mesh>
+        <source id="sky03d.lgt--position">
+          <float_array id="sky03d.lgt--position-array" count="48">-282.5369 133.7161 0 -282.5369 -59.88623 0 282.5369 133.7161 0 282.5369 -59.88623 0 -141.2684 -59.88623 0 -141.2684 133.7161 0 141.2684 133.7161 0 141.2684 -59.88623 0 -282.5369 65.00533 0 -282.5369 -3.70544 0 282.5369 -3.70544 0 282.5369 65.00533 0 -141.2684 -3.70544 0 -141.2684 65.00533 0 141.2684 65.00533 0 141.2684 -3.70544 0</float_array>
+          <technique_common>
+            <accessor source="#sky03d.lgt--position-array" count="16" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="sky03d.lgt--normal">
+          <float_array id="sky03d.lgt--normal-array" count="48">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#sky03d.lgt--normal-array" count="16" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="sky03d.lgt--texcoord">
+          <float_array id="sky03d.lgt--texcoord-array" count="32">0.131763 0.933739 0.131763 0.791487 0.521721 0.933739 0.521721 0.791487 0.229252 0.791487 0.229252 0.933739 0.424231 0.933739 0.424231 0.791487 0.131763 0.886321 0.131763 0.838904 0.521721 0.838904 0.521721 0.886321 0.229252 0.838904 0.229252 0.886321 0.424231 0.886321 0.424231 1</float_array>
+          <technique_common>
+            <accessor source="#sky03d.lgt--texcoord-array" count="16" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="sky03d.lgt--color">
+          <float_array id="sky03d.lgt--color-array" count="64">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#sky03d.lgt--color-array" count="16" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="sky03d.lgt--vertex">
+          <input semantic="POSITION" source="#sky03d.lgt--position" />
+        </vertices>
+        <triangles material="t401d11.sky03_d-add-" count="54">
+          <input semantic="VERTEX" source="#sky03d.lgt--vertex" offset="0" />
+          <input semantic="NORMAL" source="#sky03d.lgt--normal" offset="1" />
+          <input semantic="TEXCOORD" source="#sky03d.lgt--texcoord" offset="2" />
+          <input semantic="COLOR" source="#sky03d.lgt--color" offset="3" />
+          <p>0 0 0 0 8 8 8 8 5 5 5 5 5 5 5 5 8 8 8 8 13 13 13 13 8 8 8 8 9 9 9 9 13 13 13 13 13 13 13 13 9 9 9 9 12 12 12 12 9 9 9 9 1 1 1 1 12 12 12 12 1 1 1 1 4 4 4 4 12 12 12 12 12 12 12 12 4 4 4 4 15 15 15 15 4 4 4 4 7 7 7 7 15 15 15 15 7 7 7 7 3 3 3 3 15 15 15 15 3 3 3 3 10 10 10 10 15 15 15 15 10 10 10 10 11 11 11 11 15 15 15 15 15 15 15 15 11 11 11 11 14 14 14 14 11 11 11 11 2 2 2 2 14 14 14 14 2 2 2 2 6 6 6 6 14 14 14 14 6 6 6 6 5 5 5 5 14 14 14 14 5 5 5 5 13 13 13 13 14 14 14 14 13 13 13 13 12 12 12 12 14 14 14 14 14 14 14 14 12 12 12 12 15 15 15 15 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="Armature_sky03d.lgt--mesh">
+      <skin source="#sky03d.lgt--mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="sky03d.lgt--mesh-joint">
+          <Name_array id="sky03d.lgt--mesh-joint-array" count="2">sky03d lgt-</Name_array>
+          <technique_common>
+            <accessor source="#sky03d.lgt--mesh-joint-array" count="2" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="sky03d.lgt--mesh-inv_bind_matrix">
+          <float_array id="sky03d.lgt--mesh-inv_bind_matrix-array" count="32">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 21.228 0 1 0 0 0 0 1 0 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#sky03d.lgt--mesh-inv_bind_matrix-array" count="2" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="sky03d.lgt--mesh-weight">
+          <float_array id="sky03d.lgt--mesh-weight-array" count="0" />
+          <technique_common>
+            <accessor source="#sky03d.lgt--mesh-weight-array" count="0" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#sky03d.lgt--mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#sky03d.lgt--mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="16">
+          <input semantic="JOINT" source="#sky03d.lgt--mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#sky03d.lgt--mesh-weight" offset="1" />
+          <vcount>0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </vcount>
+          <v />
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="Armature_sky03d" name="sky03d" sid="sky03d" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          <node id="Armature_lgt-" name="lgt-" sid="lgt-" type="JOINT">
+            <matrix sid="transform">1 0 0 -21.228 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+        </node>
+      </node>
+      <node id="sky03d.lgt-" name="sky03d.lgt-" type="NODE">
+        <instance_controller url="#Armature_sky03d.lgt--mesh">
+          <skeleton>#Armature_sky03d</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="t401d11.sky03_d-add-" target="#t401d11.sky03_d-add-" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene" />
+  </scene>
+</COLLADA>

@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
 {
+    bool onUtiliseLesMultiplication = false;
     private medaliumDictionnaire MedaliumDictionnaire;
     public int IDduYoKaiMedalium=1;//c'est un woko par exemple
     [HideInInspector]public int IDduYoKaiSpécifique=-1;//permet d'identifier précisément le woko, c'est le 631 yo-kai obtenu par exemple
@@ -93,16 +94,18 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         if (pointDeVie == 0){pointDeVie=1;}
         if (esprit == 0){esprit=1;}
 
-        dégatInfligé = dégatInfligé * niveau;
-        pointDeVie = pointDeVie * niveau;
-        esprit = esprit * niveau;
         
-        PrendreEnCompteLaTribue();
-        PrendreEnCompteLeRang();
-        PrendreEnCompteLaPersonalité();
-        PrendreEnCompteLeTalent();
-        PrendreEnCompteLaTechnique();
-        PrendreEnCompteLeType();
+        if (onUtiliseLesMultiplication){
+            dégatInfligé = dégatInfligé * niveau;
+            pointDeVie = pointDeVie * niveau;
+            esprit = esprit * niveau;
+            PrendreEnCompteLaTribue();
+            PrendreEnCompteLeRang();
+            PrendreEnCompteLaPersonalité();
+            PrendreEnCompteLeTalent();
+            PrendreEnCompteLaTechnique();
+            PrendreEnCompteLeType();
+        }
     }
     void suiteDeOuverture(){
         //monNom.text=surnom;

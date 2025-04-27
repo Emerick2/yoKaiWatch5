@@ -8,6 +8,7 @@ using System;
 
 
 public class GestionnaireDeCombas : MonoBehaviour{
+    public Transform flèche;
     public List<Image> médaillon;
     public GameObject panneauDeVictoire;
     public GameObject panneauDeDéfaite;
@@ -20,9 +21,8 @@ public class GestionnaireDeCombas : MonoBehaviour{
     public Transform[] positionE;
     public Gestionnaire g;
     private float tempsAttanteEntreLesTours=1.5f;
-
-    public int joueurSurLeTerrin;
     int random;
+    private int numéroDuTour = 0;
     
     public List<(int vitesse, Personnage source, string origine, int index)> listeVitesse = new();
 
@@ -48,7 +48,8 @@ public class GestionnaireDeCombas : MonoBehaviour{
             Personnage nouveau = new Personnage {
                 objet = TV,
                 script = script,
-                vie = 100//revenir ici quand je sovgarderais les vie
+                vie = 100,//revenir ici quand je sovgarderais les vie
+                positionActuel = i
             };
             g.J.Add(nouveau);
 
@@ -135,22 +136,29 @@ public class GestionnaireDeCombas : MonoBehaviour{
         overrideController.ApplyOverrides(overrides);
         animator.runtimeAnimatorController = overrideController;
     }
+    IEnumerator MouvementYoKai(GameObject élément, Transform positionCible, bool animationFluide){
+        Vector2 vectorCible = positionCible.position;
+        float vitesse = 5f; // Valeur ajustée pour un mouvement fluide
 
-    IEnumerator MouvementYoKai(GameObject élément, Transform positionCible,bool annimationFluide){
-        Vector2 vectorCible = new Vector2(positionCible.position.x, positionCible.position.y);
-        float vitesse = 20;
-        if (!annimationFluide){
+        if (!animationFluide){
             élément.transform.position = vectorCible;
         }else{
-            Vector2 currentPos = élément.transform.position;
+            Vector2 depart = élément.transform.position;
+            float distance = Vector2.Distance(depart, vectorCible);
+            float duree = distance / vitesse;
             float t = 0f;
-            while (t < 1){
-                t += Time.deltaTime / vitesse;
-                élément.transform.position = Vector2.Lerp(currentPos, vectorCible, t);
+
+            while (t < 1f){
+                t += Time.deltaTime / duree;
+                élément.transform.position = Vector2.Lerp(depart, vectorCible, Mathf.SmoothStep(0, 1, t));
                 yield return null;
             }
+
+            // Pour s'assurer que la position finale est exacte (éviter des arrêts approximatifs)
+            élément.transform.position = vectorCible;
         }
     }
+
 
     int Mod(int x, int m){
         return (x % m + m) % m;
@@ -158,32 +166,21 @@ public class GestionnaireDeCombas : MonoBehaviour{
 
     public void RotationDeLaRoue(int mouvement){
         mouvement = Math.Sign(mouvement);
-        // Prépare la nouvelle disposition des Yo-kai selon le sens
-        int[] offsets;
-        int[] positions;
 
-        if (mouvement < 0){
-            offsets = new int[] { -1, 0, 1, 2, 3, 4 };
-            positions = new int[] { 0, 1, 2, 3, 4, 5 };
-        }else if (mouvement > 0){
-            offsets = new int[] { -1, 0, 1, 2, 3, 4 };
-            positions = new int[] { 5, 4, 3, 2, 1, 0 };
-        }else{
-            offsets = new int[] { -1, 0, 1, 2, 3, 4 };
-            positions = new int[] { -1, 0, 1, 2, 3, 4 };
+        for (int nb = 0; nb < g.J.Count; nb++){
+            g.J[nb].positionActuel=Mod(g.J[nb].positionActuel+mouvement,6);
+            StartCoroutine(MouvementYoKai(g.J[nb].objet, positionJ[g.J[nb].positionActuel], true));
+            /*if (g.J[nb].positionActuel < 5){
+                StartCoroutine(MouvementYoKai(g.J[nb].objet, positionJ[g.J[nb].positionActuel], true));
+            }else{
+                StartCoroutine(MouvementYoKai(g.J[nb].objet, positionJ[g.J[nb].positionActuel], false));
+            }*/
         }
-
-        for (int i = 0; i < offsets.Length; i++){
-            int index = Mod(g.numéroPrésentDevant + offsets[i], 6);
-            if (index < g.J.Count){
-                print("ici ici !");
-                StartCoroutine(MouvementYoKai(g.J[index].objet, positionJ[positions[i]], false));
-            }
-        }
-
-        // Met à jour l'index du Yo-kai actuellement devant
         g.numéroPrésentDevant = Mod(g.numéroPrésentDevant + mouvement, 6);
+        CalculerLaVitesse();
+    }
 
+    void CalculerLaVitesse(){
         listeVitesse.Clear();
         for (int i = 0; i < g.J.Count; i++){
             if (g.J[i] != null){
@@ -206,77 +203,53 @@ public class GestionnaireDeCombas : MonoBehaviour{
         Personnage lanceur = null;
         Personnage cible = null;
         while (!finDuCombat){
+            numéroDuTour++;
             System.Random rng = new System.Random();
             int STOP = 1000;
             //ne plus être dans un for parce que cela bloque le retournement de la roue
             //int nombreDeTour = g.J.Count+g.E.Count;
-            for (int i = 0; i < listeVitesse.Count; i++){//six fois parce que 3 pour les ennemie et trois pour les joeur
+            for (int i = 0; i < listeVitesse.Count; i++){//six fois parce que 3 pour les ennemie et trois pour les joueur
+                cible = null;
                 lanceur = listeVitesse[i].source;
                 if (listeVitesse[i].source.ToString()[2] == 'J'){
-                    int cibleNuméro = rng.Next(0, g.E.Count-1);
-                    while (g.E[cibleNuméro].vie > 0 && STOP > 0){
-                        cibleNuméro = rng.Next(0, g.E.Count-1);
-                        STOP--;
+                    if (lanceur.vie > 0 && lanceur.numéroDuDernierTourJouer < numéroDuTour){
+                        lanceur.numéroDuDernierTourJouer = numéroDuTour;
+                        int cibleNuméro = rng.Next(0, g.E.Count-1);
+                        while (g.E[cibleNuméro].vie > 0 && STOP > 0){
+                            cibleNuméro = rng.Next(0, g.E.Count-1);
+                            STOP--;
+                        }
+                        cible = g.E[cibleNuméro];
+                        flèche.position = new Vector2(cible.objet.transform.position.x,cible.objet.transform.position.y+4);
                     }
-                    cible = g.E[cibleNuméro];
                 }else{//c'est un 'E'
-                    List<int> indicesVisibles = new List<int>();
-
-                    for (int j = 0; j < 3; j++){
-                        int index = (g.numéroPrésentDevant + j) % g.J.Count;
-                        if (g.J[index].vie > 0)
-                            indicesVisibles.Add(index);
-                    }
-
-                    if (indicesVisibles.Count > 0){
-                        int cibleNuméro = indicesVisibles[rng.Next(0, indicesVisibles.Count)];
-                        cible = g.J[cibleNuméro];
+                    if (lanceur.vie > 0 && lanceur.numéroDuDernierTourJouer < numéroDuTour){
+                        lanceur.numéroDuDernierTourJouer = numéroDuTour;
+                        List<int> indicesVisibles = new List<int>();
+                        for (int j = 0; j < 3; j++){
+                            int index = (g.numéroPrésentDevant + j) % 6;
+                            if (g.J.Count > index){
+                                if (g.J[index].vie > 0)
+                                    indicesVisibles.Add(index);
+                            }
+                        }
+                        if (indicesVisibles.Count > 0){
+                            int cibleNuméro = indicesVisibles[rng.Next(0, indicesVisibles.Count)];
+                            cible = g.J[cibleNuméro];
+                            flèche.position = new Vector2(cible.objet.transform.position.x,cible.objet.transform.position.y+1);
+                        }
                     }
                 }
-
-                annimation(lanceur.objet, "attaque");
-                yield return new WaitForSecondsRealtime(tempsAttanteEntreLesTours);
-                        
-                g.E_Vie[0/*cibleNuméro*/].value -= calculerDégâts(lanceur.script, cible.script);//problème
-                
-                if (cible.vie <= 0) annimation(cible.objet, "mort");
-                else annimation(cible.objet, "coup");
-            }
-            /*
-            for (int i = 0; i < g.J.Count; i++){//le joueur attaque l'ennemie
-                lanceur = g.J;
-                cible = g.E;
-                if (g.J[i].vie > 0){
-                    annimation(g.J[i].objet, "attaque");
+                if (cible != null){
+                    annimation(lanceur.objet, "attaque");
                     yield return new WaitForSecondsRealtime(tempsAttanteEntreLesTours);
-                        
-                    int cibleNuméro = Random.Range(0, g.E.Count-1);
-                    while (g.E_Vie[cibleNuméro].value > 0 && STOP > 0){
-                        cibleNuméro = Random.Range(0, g.E.Count-1);
-                        STOP--;
-                    }
-                    g.E_Vie[cibleNuméro].value -= calculerDégâts(g.J[i].script, g.E[cibleNuméro].script);
-                    
-                    if (g.E[cibleNuméro].vie <= 0) annimation(g.E[cibleNuméro].objet, "mort");
-                    else annimation(g.E[cibleNuméro].objet, "coup");
+                    cible.vie -= calculerDégâts(lanceur.script, cible.script);
+                    if (cible.vie <= 0) annimation(cible.objet, "mort");
+                    else annimation(cible.objet, "coup");
+                    RafraichireLeCanvas();
+                    vérifieSiUnJoueurEstEnVie();
                 }
             }
-            for (int i = 0; i < g.E.Count; i++){//l'ennemie attaque le joueur
-                if (g.E[i].vie > 0){
-                    annimation(g.E[i].objet, "attaque");
-                    yield return new WaitForSecondsRealtime(tempsAttanteEntreLesTours);
-                    int cibleNuméro = Random.Range(0, g.J.Count-1);
-                    while (g.J[cibleNuméro].vie > 0 && STOP > 0){
-                        cibleNuméro = Random.Range(0, g.J.Count-1);
-                        STOP--;
-                    }
-                    g.J[cibleNuméro].vie -= calculerDégâts(g.E[i].script, g.J[cibleNuméro].script);
-
-                    if (g.J[cibleNuméro].vie <= 0) annimation(g.J[cibleNuméro].objet, "mort");
-                    else annimation(g.J[cibleNuméro].objet, "coup");
-                }
-            }*/
-            vérifieSiUnJoueurEstEnVie();
             yield return new WaitForSeconds(0.1f);
         }
     }
@@ -288,6 +261,17 @@ public class GestionnaireDeCombas : MonoBehaviour{
         float total = ((float)lanceur.dégatInfligé/(float)cible.pointDeVie)*100;
         //Debug.Log($"{lanceur.nom} inflige {total} à {cible.nom} !");
         return (int)(total);
+    }
+
+    void RafraichireLeCanvas(){
+        for (int i = 0; i < g.J_Vie.Count; i++){
+            g.J_Vie[i].value = g.J[i].vie;
+            g.J[i].amûltime += 5;
+            g.barreDeAmultime[i].value=g.J[i].amûltime;
+        }
+        for (int i = 0; i < g.E_Vie.Count; i++){
+            g.E_Vie[i].value = g.E[i].vie;
+        }
     }
 
     void annimation(GameObject objet, string nom){//coup, mort, attaque
@@ -324,7 +308,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
 public class Gestionnaire{
     [HideInInspector] public List<Personnage> J = new List<Personnage>();
     [HideInInspector] public List<Personnage> E = new List<Personnage>();
-    public int numéroPrésentDevant = 0;//se ne sont pas les id mais les numéro de 0 à 5
+    [Range(0,5)]public int numéroPrésentDevant = 0;//se ne sont pas les id mais les numéro de 0 à 5
     //si c'est 3 se sera |3,4,5|
     public List<Text> nom;
     public List<SliderValue> J_Vie;
@@ -338,5 +322,7 @@ public class Personnage{
     public int vie;
     public int amûltime;
     public string nom;
+    [Range(0,5)]public int positionActuel;
     public gestionnaireDeMonPetitYoKaiPourUnCombat script;
+    public int numéroDuDernierTourJouer = 0;
 }

@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset />
+  <library_images>
+    <image id="m040000_01al">
+      <init_from>m040000_01al.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="DefaultLib.m040000_01al_01">
+      <instance_effect url="#Effect_DefaultLib.m040000_01al_01" />
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Effect_DefaultLib.m040000_01al_01">
+      <profile_COMMON>
+        <newparam sid="surface_DefaultLib.m040000_01al_01">
+          <surface type="2D">
+            <init_from>m040000_01al</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_DefaultLib.m040000_01al_01">
+          <sampler2D>
+            <source>surface_DefaultLib.m040000_01al_01</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_DefaultLib.m040000_01al_01" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="m040000_output.skin1s1-mesh" name="m040000_output.skin1s1">
+      <mesh>
+        <source id="m040000_output.skin1s1-position">
+          <float_array id="m040000_output.skin1s1-position-array" count="45">4.157828 1.058486 -1.735851 -0.555283 5.390809 -1.136919 -3.475572 1.058486 2.610714 3.65627 1.058486 2.480588 0.601297 5.390809 -1.157994 -4.130595 1.058486 -1.58465 0.096833 1.272316 6.365686 6.365686 3.983011 -0.096833 -0.096833 1.272316 -6.365686 5.923293 2.11631 5.745786 0 -0.203754 0 -5.745786 2.11631 5.923293 5.745786 2.11631 -5.923293 -5.923293 2.11631 -5.745786 -6.365686 3.983011 0.096833</float_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-position-array" count="15" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="m040000_output.skin1s1-normal">
+          <float_array id="m040000_output.skin1s1-normal-array" count="45">0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0 0 1 0</float_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-normal-array" count="15" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="m040000_output.skin1s1-texcoord">
+          <float_array id="m040000_output.skin1s1-texcoord-array" count="30">0.947407 0.07112998 0.817417 0.223106 0.682209 0.07069302 0.947407 0.07112998 0.817417 0.223106 0.682209 0.07069302 0.980123 0.572846 0.980123 0.911116 0.63551 0.911116 0.980123 0.572846 0.807817 0.738809 0.63551 0.572846 0.980123 0.911116 0.63551 0.911116 0.63551 0.572846</float_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-texcoord-array" count="15" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="m040000_output.skin1s1-color">
+          <float_array id="m040000_output.skin1s1-color-array" count="60">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-color-array" count="15" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="m040000_output.skin1s1-vertex">
+          <input semantic="POSITION" source="#m040000_output.skin1s1-position" />
+        </vertices>
+        <triangles material="DefaultLib.m040000_01al_01" count="24">
+          <input semantic="VERTEX" source="#m040000_output.skin1s1-vertex" offset="0" />
+          <input semantic="NORMAL" source="#m040000_output.skin1s1-normal" offset="1" />
+          <input semantic="TEXCOORD" source="#m040000_output.skin1s1-texcoord" offset="2" />
+          <input semantic="COLOR" source="#m040000_output.skin1s1-color" offset="3" />
+          <p>0 0 0 0 1 1 1 1 2 2 2 2 7 7 7 7 8 8 8 8 6 6 6 6 6 6 6 6 8 8 8 8 14 14 14 14 9 9 9 9 10 10 10 10 11 11 11 11 11 11 11 11 10 10 10 10 13 13 13 13 13 13 13 13 10 10 10 10 12 12 12 12 10 10 10 10 9 9 9 9 12 12 12 12 3 3 3 3 4 4 4 4 5 5 5 5 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="Armature_m040000_output.skin1s1-mesh">
+      <skin source="#m040000_output.skin1s1-mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="m040000_output.skin1s1-mesh-joint">
+          <Name_array id="m040000_output.skin1s1-mesh-joint-array" count="5">m040000_output c_gbl c_c1 c_c2 skin1s1</Name_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-mesh-joint-array" count="5" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="m040000_output.skin1s1-mesh-inv_bind_matrix">
+          <float_array id="m040000_output.skin1s1-mesh-inv_bind_matrix-array" count="80">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-mesh-inv_bind_matrix-array" count="5" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="m040000_output.skin1s1-mesh-weight">
+          <float_array id="m040000_output.skin1s1-mesh-weight-array" count="1">1 </float_array>
+          <technique_common>
+            <accessor source="#m040000_output.skin1s1-mesh-weight-array" count="1" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#m040000_output.skin1s1-mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#m040000_output.skin1s1-mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="15">
+          <input semantic="JOINT" source="#m040000_output.skin1s1-mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#m040000_output.skin1s1-mesh-weight" offset="1" />
+          <vcount>1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 </vcount>
+          <v>3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 3 0 2 0 2 0 2 0 2 0 2 0 3 0 </v>
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="Armature_m040000_output" name="m040000_output" sid="m040000_output" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          <node id="Armature_c_gbl" name="c_gbl" sid="c_gbl" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+            <node id="Armature_c_c1" name="c_c1" sid="c_c1" type="JOINT">
+              <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+              <node id="Armature_c_c2" name="c_c2" sid="c_c2" type="JOINT">
+                <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+              </node>
+            </node>
+          </node>
+          <node id="Armature_skin1s1" name="skin1s1" sid="skin1s1" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+        </node>
+      </node>
+      <node id="m040000_output.skin1s1" name="m040000_output.skin1s1" type="NODE">
+        <instance_controller url="#Armature_m040000_output.skin1s1-mesh">
+          <skeleton>#Armature_m040000_output</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="DefaultLib.m040000_01al_01" target="#DefaultLib.m040000_01al_01" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene" />
+  </scene>
+</COLLADA>

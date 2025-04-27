@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset />
+  <library_images>
+    <image id="i048000_01">
+      <init_from>i048000_01.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="DefaultLib.i048000_01_01">
+      <instance_effect url="#Effect_DefaultLib.i048000_01_01" />
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Effect_DefaultLib.i048000_01_01">
+      <profile_COMMON>
+        <newparam sid="surface_DefaultLib.i048000_01_01">
+          <surface type="2D">
+            <init_from>i048000_01</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_DefaultLib.i048000_01_01">
+          <sampler2D>
+            <source>surface_DefaultLib.i048000_01_01</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_DefaultLib.i048000_01_01" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="i048000_output.skin1-mesh" name="i048000_output.skin1">
+      <mesh>
+        <source id="i048000_output.skin1-position">
+          <float_array id="i048000_output.skin1-position-array" count="12">2.924559 23.2595 0 -2.924559 29.10862 0 -2.924559 23.2595 0 2.924559 29.10862 0</float_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-position-array" count="4" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i048000_output.skin1-normal">
+          <float_array id="i048000_output.skin1-normal-array" count="12">0 0 1 0 0 1 0 0 1 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-normal-array" count="4" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i048000_output.skin1-texcoord">
+          <float_array id="i048000_output.skin1-texcoord-array" count="8">0.246094 0.753906 0.003906 0.996094 0.003906 0.753906 0.246094 0.996094</float_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-texcoord-array" count="4" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i048000_output.skin1-color">
+          <float_array id="i048000_output.skin1-color-array" count="16">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-color-array" count="4" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="i048000_output.skin1-vertex">
+          <input semantic="POSITION" source="#i048000_output.skin1-position" />
+        </vertices>
+        <triangles material="DefaultLib.i048000_01_01" count="6">
+          <input semantic="VERTEX" source="#i048000_output.skin1-vertex" offset="0" />
+          <input semantic="NORMAL" source="#i048000_output.skin1-normal" offset="1" />
+          <input semantic="TEXCOORD" source="#i048000_output.skin1-texcoord" offset="2" />
+          <input semantic="COLOR" source="#i048000_output.skin1-color" offset="3" />
+          <p>2 2 2 2 0 0 0 0 3 3 3 3 2 2 2 2 3 3 3 3 1 1 1 1 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="Armature_i048000_output.skin1-mesh">
+      <skin source="#i048000_output.skin1-mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="i048000_output.skin1-mesh-joint">
+          <Name_array id="i048000_output.skin1-mesh-joint-array" count="4">i048000_output c_gbl c_c1 skin1</Name_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-mesh-joint-array" count="4" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i048000_output.skin1-mesh-inv_bind_matrix">
+          <float_array id="i048000_output.skin1-mesh-inv_bind_matrix-array" count="64">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-mesh-inv_bind_matrix-array" count="4" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i048000_output.skin1-mesh-weight">
+          <float_array id="i048000_output.skin1-mesh-weight-array" count="1">1 </float_array>
+          <technique_common>
+            <accessor source="#i048000_output.skin1-mesh-weight-array" count="1" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#i048000_output.skin1-mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#i048000_output.skin1-mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="4">
+          <input semantic="JOINT" source="#i048000_output.skin1-mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#i048000_output.skin1-mesh-weight" offset="1" />
+          <vcount>1 1 1 1 </vcount>
+          <v>2 0 2 0 2 0 2 0 </v>
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="Armature_i048000_output" name="i048000_output" sid="i048000_output" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          <node id="Armature_c_gbl" name="c_gbl" sid="c_gbl" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+            <node id="Armature_c_c1" name="c_c1" sid="c_c1" type="JOINT">
+              <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+            </node>
+          </node>
+          <node id="Armature_skin1" name="skin1" sid="skin1" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+        </node>
+      </node>
+      <node id="i048000_output.skin1" name="i048000_output.skin1" type="NODE">
+        <instance_controller url="#Armature_i048000_output.skin1-mesh">
+          <skeleton>#Armature_i048000_output</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="DefaultLib.i048000_01_01" target="#DefaultLib.i048000_01_01" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene" />
+  </scene>
+</COLLADA>

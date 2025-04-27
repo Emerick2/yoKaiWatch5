@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset />
+  <library_images>
+    <image id="i432000_01">
+      <init_from>i432000_01.png</init_from>
+    </image>
+    <image id="i432000_02">
+      <init_from>i432000_02.png</init_from>
+    </image>
+    <image id="i432000_03">
+      <init_from>i432000_03.png</init_from>
+    </image>
+    <image id="i432000_04">
+      <init_from>i432000_04.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="DefaultLib.i432000_01_01">
+      <instance_effect url="#Effect_DefaultLib.i432000_01_01" />
+    </material>
+    <material id="DefaultLib.i432000_02_01">
+      <instance_effect url="#Effect_DefaultLib.i432000_02_01" />
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Effect_DefaultLib.i432000_01_01">
+      <profile_COMMON>
+        <newparam sid="surface_DefaultLib.i432000_01_01">
+          <surface type="2D">
+            <init_from>i432000_01</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_DefaultLib.i432000_01_01">
+          <sampler2D>
+            <source>surface_DefaultLib.i432000_01_01</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_DefaultLib.i432000_01_01" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Effect_DefaultLib.i432000_02_01">
+      <profile_COMMON>
+        <newparam sid="surface_DefaultLib.i432000_02_01">
+          <surface type="2D">
+            <init_from>i432000_04</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_DefaultLib.i432000_02_01">
+          <sampler2D>
+            <source>surface_DefaultLib.i432000_02_01</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_DefaultLib.i432000_02_01" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="i432000_output.skin1-mesh" name="i432000_output.skin1">
+      <mesh>
+        <source id="i432000_output.skin1-position">
+          <float_array id="i432000_output.skin1-position-array" count="33">-4.2 0 -4.2 0 7 0 4.2 0 -4.2 4.2 0 4.2 -4.2 0 -4.2 -4.2 0 4.2 4.2 0 4.2 4.2 0 -4.2 -4.2 0 -4.2 4.2 0 4.2 -4.2 0 4.2</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-position-array" count="11" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin1-normal">
+          <float_array id="i432000_output.skin1-normal-array" count="33">-0.706905 0.0239 -0.706905 0 1 0 0.706905 0.0239 -0.706905 0.706905 0.0239 0.706905 -0.706905 0.0239 -0.706905 -0.706905 0.0239 0.706905 0.706905 0.0239 0.706905 0.706905 0.0239 -0.706905 -0.706905 0.0239 -0.706905 0.706905 0.0239 0.706905 -0.706905 0.0239 0.706905</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-normal-array" count="11" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin1-texcoord">
+          <float_array id="i432000_output.skin1-texcoord-array" count="22">0 0 0.5 1 1 0 0 0 1 0 0 0 1 0 0.70839 0.06958801 0.70839 0.06958801 0.70839 0.06958801 0.70839 0.06958801</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-texcoord-array" count="11" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin1-color">
+          <float_array id="i432000_output.skin1-color-array" count="44">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-color-array" count="11" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="i432000_output.skin1-vertex">
+          <input semantic="POSITION" source="#i432000_output.skin1-position" />
+        </vertices>
+        <triangles material="DefaultLib.i432000_01_01" count="18">
+          <input semantic="VERTEX" source="#i432000_output.skin1-vertex" offset="0" />
+          <input semantic="NORMAL" source="#i432000_output.skin1-normal" offset="1" />
+          <input semantic="TEXCOORD" source="#i432000_output.skin1-texcoord" offset="2" />
+          <input semantic="COLOR" source="#i432000_output.skin1-color" offset="3" />
+          <p>0 0 0 0 1 1 1 1 2 2 2 2 1 1 1 1 3 3 3 3 2 2 2 2 4 4 4 4 5 5 5 5 1 1 1 1 5 5 5 5 6 6 6 6 1 1 1 1 7 7 7 7 9 9 9 9 8 8 8 8 8 8 8 8 9 9 9 9 10 10 10 10 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="i432000_output.skin101-mesh" name="i432000_output.skin101">
+      <mesh>
+        <source id="i432000_output.skin101-position">
+          <float_array id="i432000_output.skin101-position-array" count="156">2.606488 2.728954 0.56 2.326488 3.213928 0.56 2.606488 2.728954 0 2.326488 3.213928 0 2.886488 2.24398 0 2.886488 2.24398 0.56 2.606488 2.728954 0.56 2.606488 2.728954 -0.56 2.886488 2.24398 -0.56 2.886488 2.24398 0 2.326488 3.213928 -0.56 2.606488 2.728954 -0.56 2.326488 3.213928 0 -2.606488 2.728954 -0.56 -2.326488 3.213928 -0.56 -2.606488 2.728954 0 -2.326488 3.213928 0 -2.886488 2.24398 0 -2.886488 2.24398 -0.56 -2.606488 2.728954 -0.56 -2.606488 2.728954 0.56 -2.886488 2.24398 0.56 -2.886488 2.24398 0 -2.326488 3.213928 0.56 -2.606488 2.728954 0.56 -2.326488 3.213928 0 0.56 2.728954 -2.606488 0.56 3.213928 -2.326488 0 2.728954 -2.606488 0 3.213928 -2.326488 0 2.24398 -2.886488 0.56 2.24398 -2.886488 0.56 2.728954 -2.606488 -0.56 2.728954 -2.606488 -0.56 2.24398 -2.886488 0 2.24398 -2.886488 -0.56 3.213928 -2.326488 -0.56 2.728954 -2.606488 0 3.213928 -2.326488 -0.56 2.728954 2.606488 -0.56 3.213928 2.326488 0 2.728954 2.606488 0 3.213928 2.326488 0.56 2.728954 2.606488 0.56 2.24398 2.886488 0 2.24398 2.886488 0 2.24398 2.886488 -0.56 2.24398 2.886488 -0.56 2.728954 2.606488 0 3.213928 2.326488 0.56 3.213928 2.326488 0.56 2.728954 2.606488</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-position-array" count="52" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin101-normal">
+          <float_array id="i432000_output.skin101-normal-array" count="156">0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 -0.866025 0.5 0 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 -0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025 0 0.5 0.866025</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-normal-array" count="52" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin101-texcoord">
+          <float_array id="i432000_output.skin101-texcoord-array" count="104">1 1 1 0 0 1 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 0 0 1 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 0 0 1 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 0 0 0 1 1 1 1 1 0 0 1 0 0 1 1 1 0 0 0 1 1 1 0 0 0 1 1 1 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-texcoord-array" count="52" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin101-color">
+          <float_array id="i432000_output.skin101-color-array" count="208">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-color-array" count="52" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="i432000_output.skin101-vertex">
+          <input semantic="POSITION" source="#i432000_output.skin101-position" />
+        </vertices>
+        <triangles material="DefaultLib.i432000_02_01" count="96">
+          <input semantic="VERTEX" source="#i432000_output.skin101-vertex" offset="0" />
+          <input semantic="NORMAL" source="#i432000_output.skin101-normal" offset="1" />
+          <input semantic="TEXCOORD" source="#i432000_output.skin101-texcoord" offset="2" />
+          <input semantic="COLOR" source="#i432000_output.skin101-color" offset="3" />
+          <p>0 0 0 0 2 2 2 2 1 1 1 1 1 1 1 1 2 2 2 2 3 3 3 3 4 4 4 4 2 2 2 2 5 5 5 5 5 5 5 5 2 2 2 2 6 6 6 6 7 7 7 7 2 2 2 2 8 8 8 8 8 8 8 8 2 2 2 2 9 9 9 9 10 10 10 10 12 12 12 12 11 11 11 11 11 11 11 11 12 12 12 12 2 2 2 2 13 13 13 13 15 15 15 15 14 14 14 14 14 14 14 14 15 15 15 15 16 16 16 16 17 17 17 17 15 15 15 15 18 18 18 18 18 18 18 18 15 15 15 15 19 19 19 19 20 20 20 20 15 15 15 15 21 21 21 21 21 21 21 21 15 15 15 15 22 22 22 22 23 23 23 23 25 25 25 25 24 24 24 24 24 24 24 24 25 25 25 25 15 15 15 15 26 26 26 26 28 28 28 28 27 27 27 27 27 27 27 27 28 28 28 28 29 29 29 29 30 30 30 30 28 28 28 28 31 31 31 31 31 31 31 31 28 28 28 28 32 32 32 32 33 33 33 33 28 28 28 28 34 34 34 34 34 34 34 34 28 28 28 28 35 35 35 35 36 36 36 36 38 38 38 38 37 37 37 37 37 37 37 37 38 38 38 38 28 28 28 28 39 39 39 39 41 41 41 41 40 40 40 40 40 40 40 40 41 41 41 41 42 42 42 42 43 43 43 43 41 41 41 41 44 44 44 44 44 44 44 44 41 41 41 41 45 45 45 45 46 46 46 46 41 41 41 41 47 47 47 47 47 47 47 47 41 41 41 41 48 48 48 48 49 49 49 49 41 41 41 41 50 50 50 50 50 50 50 50 41 41 41 41 51 51 51 51 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="Armature_i432000_output.skin1-mesh">
+      <skin source="#i432000_output.skin1-mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="i432000_output.skin1-mesh-joint">
+          <Name_array id="i432000_output.skin1-mesh-joint-array" count="3">i432000_output c_c1 skin1</Name_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-mesh-joint-array" count="3" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin1-mesh-inv_bind_matrix">
+          <float_array id="i432000_output.skin1-mesh-inv_bind_matrix-array" count="48">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 2.5 0 0 1 0 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-mesh-inv_bind_matrix-array" count="3" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin1-mesh-weight">
+          <float_array id="i432000_output.skin1-mesh-weight-array" count="1">1 </float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin1-mesh-weight-array" count="1" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#i432000_output.skin1-mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#i432000_output.skin1-mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="11">
+          <input semantic="JOINT" source="#i432000_output.skin1-mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#i432000_output.skin1-mesh-weight" offset="1" />
+          <vcount>1 1 1 1 1 1 1 1 1 1 1 </vcount>
+          <v>1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 </v>
+        </vertex_weights>
+      </skin>
+    </controller>
+    <controller id="Armature_i432000_output.skin101-mesh">
+      <skin source="#i432000_output.skin101-mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="i432000_output.skin101-mesh-joint">
+          <Name_array id="i432000_output.skin101-mesh-joint-array" count="3">i432000_output c_c1 skin1</Name_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-mesh-joint-array" count="3" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin101-mesh-inv_bind_matrix">
+          <float_array id="i432000_output.skin101-mesh-inv_bind_matrix-array" count="48">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 2.5 0 0 1 0 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-mesh-inv_bind_matrix-array" count="3" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="i432000_output.skin101-mesh-weight">
+          <float_array id="i432000_output.skin101-mesh-weight-array" count="1">1 </float_array>
+          <technique_common>
+            <accessor source="#i432000_output.skin101-mesh-weight-array" count="1" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#i432000_output.skin101-mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#i432000_output.skin101-mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="52">
+          <input semantic="JOINT" source="#i432000_output.skin101-mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#i432000_output.skin101-mesh-weight" offset="1" />
+          <vcount>1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 </vcount>
+          <v>1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 </v>
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="Armature_i432000_output" name="i432000_output" sid="i432000_output" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          <node id="Armature_c_c1" name="c_c1" sid="c_c1" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+          <node id="Armature_skin1" name="skin1" sid="skin1" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 -2.5 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+        </node>
+      </node>
+      <node id="i432000_output.skin1" name="i432000_output.skin1" type="NODE">
+        <instance_controller url="#Armature_i432000_output.skin1-mesh">
+          <skeleton>#Armature_i432000_output</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="DefaultLib.i432000_01_01" target="#DefaultLib.i432000_01_01" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+      <node id="i432000_output.skin101" name="i432000_output.skin101" type="NODE">
+        <instance_controller url="#Armature_i432000_output.skin101-mesh">
+          <skeleton>#Armature_i432000_output</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="DefaultLib.i432000_02_01" target="#DefaultLib.i432000_02_01" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene" />
+  </scene>
+</COLLADA>

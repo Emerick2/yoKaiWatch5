@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset />
+  <library_images>
+    <image id="x162000_01">
+      <init_from>x162000_01.png</init_from>
+    </image>
+  </library_images>
+  <library_materials>
+    <material id="DefaultLib.Scene_Material">
+      <instance_effect url="#Effect_DefaultLib.Scene_Material" />
+    </material>
+    <material id="DefaultLib.x162000_01_01">
+      <instance_effect url="#Effect_DefaultLib.x162000_01_01" />
+    </material>
+  </library_materials>
+  <library_effects>
+    <effect id="Effect_DefaultLib.Scene_Material">
+      <profile_COMMON>
+        <newparam sid="surface_DefaultLib.Scene_Material">
+          <surface type="2D">
+            <init_from>0</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_DefaultLib.Scene_Material">
+          <sampler2D>
+            <source>surface_DefaultLib.Scene_Material</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_DefaultLib.Scene_Material" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Effect_DefaultLib.x162000_01_01">
+      <profile_COMMON>
+        <newparam sid="surface_DefaultLib.x162000_01_01">
+          <surface type="2D">
+            <init_from>x162000_01</init_from>
+            <format>A8R8G8B8</format>
+          </surface>
+        </newparam>
+        <newparam sid="sampler_DefaultLib.x162000_01_01">
+          <sampler2D>
+            <source>surface_DefaultLib.x162000_01_01</source>
+          </sampler2D>
+        </newparam>
+        <technique sid="common">
+          <phong>
+            <diffuse>
+              <texture texture="sampler_DefaultLib.x162000_01_01" texcoord="" />
+            </diffuse>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_geometries>
+    <geometry id="x162000_output.col01-mesh" name="x162000_output.col01">
+      <mesh>
+        <source id="x162000_output.col01-position">
+          <float_array id="x162000_output.col01-position-array" count="24">-3 -3 -3 3 -3 -3 -3 3 -3 3 3 -3 -3 -3 3 3 -3 3 -3 3 3 3 3 0</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.col01-position-array" count="8" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.col01-normal">
+          <float_array id="x162000_output.col01-normal-array" count="24">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.col01-normal-array" count="8" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.col01-texcoord">
+          <float_array id="x162000_output.col01-texcoord-array" count="16">0 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.col01-texcoord-array" count="8" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.col01-color">
+          <float_array id="x162000_output.col01-color-array" count="32">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.col01-color-array" count="8" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="x162000_output.col01-vertex">
+          <input semantic="POSITION" source="#x162000_output.col01-position" />
+        </vertices>
+        <triangles material="DefaultLib.Scene_Material" count="36">
+          <input semantic="VERTEX" source="#x162000_output.col01-vertex" offset="0" />
+          <input semantic="NORMAL" source="#x162000_output.col01-normal" offset="1" />
+          <input semantic="TEXCOORD" source="#x162000_output.col01-texcoord" offset="2" />
+          <input semantic="COLOR" source="#x162000_output.col01-color" offset="3" />
+          <p>2 2 2 2 3 3 3 3 0 0 0 0 3 3 3 3 1 1 1 1 0 0 0 0 0 0 0 0 1 1 1 1 5 5 5 5 1 1 1 1 7 7 7 7 5 5 5 5 5 5 5 5 7 7 7 7 4 4 4 4 7 7 7 7 6 6 6 6 4 4 4 4 4 4 4 4 6 6 6 6 0 0 0 0 0 0 0 0 6 6 6 6 2 2 2 2 6 6 6 6 7 7 7 7 2 2 2 2 2 2 2 2 7 7 7 7 3 3 3 3 7 7 7 7 1 1 1 1 3 3 3 3 0 0 0 0 5 5 5 5 4 4 4 4 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+    <geometry id="x162000_output.skin1-mesh" name="x162000_output.skin1">
+      <mesh>
+        <source id="x162000_output.skin1-position">
+          <float_array id="x162000_output.skin1-position-array" count="102">1.43919 2.397939 -0.084209 -0.267358 1.763077 -0.19265 -2.016048 1.917413 -0.525508 2.517452 -0.069177 -0.085391 -2.229232 -0.14141 -0.521702 -0.347263 0.452515 -1.347192 2.272574 1.943281 -0.060601 -0.768219 2.280584 -0.333091 -0.258839 0.595048 1.077446 -0.085976 -2.545153 0.10121 1.703981 -1.025872 -0.051183 -1.395823 -1.36615 -0.267965 0.616298 -1.794944 -0.005691 0.470198 2.260329 -0.116956 2.655896 1.026227 -0.086594 -2.390024 0.96603 -0.606942 -1.454144 2.360215 -0.429299 1.43919 2.397939 -0.084209 -0.267358 1.763077 -0.19265 -2.016048 1.917413 -0.525508 2.517452 -0.069177 -0.085391 -2.229232 -0.14141 -0.521702 -0.347263 0.452515 -1.347192 2.272574 1.943281 -0.060601 -0.768219 2.280584 -0.333091 -0.258839 0.595048 1.077446 -0.085976 -2.545153 0.10121 1.703981 -1.025872 -0.051183 -1.395823 -1.36615 -0.267965 0.616298 -1.794944 -0.005691 0.470198 2.260329 -0.116956 2.655896 1.026227 -0.086594 -2.390024 0.96603 -0.606942 -1.454144 2.360215 -0.429299</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-position-array" count="34" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.skin1-normal">
+          <float_array id="x162000_output.skin1-normal-array" count="102">0.127807 0.991664 -0.016348 0.127796 0.99093 -0.041533 -0.786558 0.601046 -0.14167 0.908583 -0.417155 0.021401 -0.919809 -0.374393 -0.117397 0.082797 0.091994 -0.992311 0.726342 0.68732 0.004327 0.49735 0.867116 -0.027423 -0.076078 0.177776 0.981126 0.042037 -0.998422 -0.037227 0.673633 -0.738192 0.035933 -0.74409 -0.663643 -0.076861 0.659979 -0.750869 0.024968 -0.380591 0.923447 -0.04894 0.991143 0.132345 0.010969 -0.982415 0.108052 -0.152267 -0.221308 0.970618 -0.09446 0.127807 0.991664 -0.016348 0.127796 0.99093 -0.041533 -0.786558 0.601046 -0.14167 0.908583 -0.417155 0.021401 -0.919809 -0.374393 -0.117397 0.082797 0.091994 -0.992311 0.726342 0.68732 0.004327 0.49735 0.867116 -0.027423 -0.076078 0.177776 0.981126 0.042037 -0.998422 -0.037227 0.673633 -0.738192 0.035933 -0.74409 -0.663643 -0.076861 0.659979 -0.750869 0.024968 -0.380591 0.923447 -0.04894 0.991143 0.132345 0.010969 -0.982415 0.108052 -0.152267 -0.221308 0.970618 -0.09446</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-normal-array" count="34" stride="3">
+              <param name="X" type="float" />
+              <param name="Y" type="float" />
+              <param name="Z" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.skin1-texcoord">
+          <float_array id="x162000_output.skin1-texcoord-array" count="68">0.678743 0.940082 0.49738 0.757206 0.087388 0.803036 0.96601 0.554654 0.02875 0.554654 0.49738 0.52992 0.907371 0.803036 0.316017 0.940082 0.49738 0.554654 0.49738 0.052378 0.829959 0.332757 0.19667 0.263641 0.625161 0.20453 0.588061 0.848644 0.93669 0.678845 0.058069 0.678845 0.201703 0.871559 0.678743 0.940082 0.49738 0.757206 0.087388 0.803036 0.96601 0.554654 0.02875 0.554654 0.49738 0.52992 0.907371 0.803036 0.316017 0.940082 0.49738 0.554654 0.49738 0.052378 0.829959 0.332757 0.19667 0.263641 0.625161 0.20453 0.588061 0.848644 0.93669 0.678845 0.058069 0.678845 0.201703 0.871559</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-texcoord-array" count="34" stride="2">
+              <param name="S" type="float" />
+              <param name="T" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.skin1-color">
+          <float_array id="x162000_output.skin1-color-array" count="136">0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0 1</float_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-color-array" count="34" stride="4">
+              <param name="R" type="float" />
+              <param name="G" type="float" />
+              <param name="B" type="float" />
+              <param name="A" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="x162000_output.skin1-vertex">
+          <input semantic="POSITION" source="#x162000_output.skin1-position" />
+        </vertices>
+        <triangles material="DefaultLib.x162000_01_01" count="180">
+          <input semantic="VERTEX" source="#x162000_output.skin1-vertex" offset="0" />
+          <input semantic="NORMAL" source="#x162000_output.skin1-normal" offset="1" />
+          <input semantic="TEXCOORD" source="#x162000_output.skin1-texcoord" offset="2" />
+          <input semantic="COLOR" source="#x162000_output.skin1-color" offset="3" />
+          <p>4 4 4 4 15 15 15 15 5 5 5 5 15 15 15 15 2 2 2 2 5 5 5 5 5 5 5 5 2 2 2 2 16 16 16 16 2 2 2 2 8 8 8 8 16 16 16 16 16 16 16 16 8 8 8 8 7 7 7 7 8 8 8 8 1 1 1 1 7 7 7 7 7 7 7 7 1 1 1 1 5 5 5 5 1 1 1 1 13 13 13 13 5 5 5 5 5 5 5 5 13 13 13 13 0 0 0 0 13 13 13 13 8 8 8 8 0 0 0 0 0 0 0 0 8 8 8 8 6 6 6 6 8 8 8 8 14 14 14 14 6 6 6 6 6 6 6 6 14 14 14 14 5 5 5 5 14 14 14 14 3 3 3 3 5 5 5 5 5 5 5 5 3 3 3 3 10 10 10 10 3 3 3 3 8 8 8 8 10 10 10 10 10 10 10 10 8 8 8 8 12 12 12 12 8 8 8 8 9 9 9 9 12 12 12 12 12 12 12 12 9 9 9 9 5 5 5 5 9 9 9 9 11 11 11 11 5 5 5 5 5 5 5 5 11 11 11 11 4 4 4 4 11 11 11 11 8 8 8 8 4 4 4 4 4 4 4 4 8 8 8 8 15 15 15 15 8 8 8 8 2 2 2 2 15 15 15 15 1 1 1 1 8 8 8 8 13 13 13 13 0 0 0 0 6 6 6 6 5 5 5 5 10 10 10 10 12 12 12 12 5 5 5 5 8 8 8 8 11 11 11 11 9 9 9 9 3 3 3 3 14 14 14 14 8 8 8 8 7 7 7 7 5 5 5 5 16 16 16 16 33 33 33 33 22 22 22 22 24 24 24 24 25 25 25 25 31 31 31 31 20 20 20 20 26 26 26 26 28 28 28 28 25 25 25 25 22 22 22 22 29 29 29 29 27 27 27 27 22 22 22 22 23 23 23 23 17 17 17 17 30 30 30 30 25 25 25 25 18 18 18 18 19 19 19 19 25 25 25 25 32 32 32 32 32 32 32 32 25 25 25 25 21 21 21 21 25 25 25 25 28 28 28 28 21 21 21 21 21 21 21 21 28 28 28 28 22 22 22 22 28 28 28 28 26 26 26 26 22 22 22 22 22 22 22 22 26 26 26 26 29 29 29 29 26 26 26 26 25 25 25 25 29 29 29 29 29 29 29 29 25 25 25 25 27 27 27 27 25 25 25 25 20 20 20 20 27 27 27 27 27 27 27 27 20 20 20 20 22 22 22 22 20 20 20 20 31 31 31 31 22 22 22 22 22 22 22 22 31 31 31 31 23 23 23 23 31 31 31 31 25 25 25 25 23 23 23 23 23 23 23 23 25 25 25 25 17 17 17 17 25 25 25 25 30 30 30 30 17 17 17 17 17 17 17 17 30 30 30 30 22 22 22 22 30 30 30 30 18 18 18 18 22 22 22 22 22 22 22 22 18 18 18 18 24 24 24 24 18 18 18 18 25 25 25 25 24 24 24 24 24 24 24 24 25 25 25 25 33 33 33 33 25 25 25 25 19 19 19 19 33 33 33 33 33 33 33 33 19 19 19 19 22 22 22 22 19 19 19 19 32 32 32 32 22 22 22 22 22 22 22 22 32 32 32 32 21 21 21 21 </p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_controllers>
+    <controller id="Armature_x162000_output.col01-mesh">
+      <skin source="#x162000_output.col01-mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="x162000_output.col01-mesh-joint">
+          <Name_array id="x162000_output.col01-mesh-joint-array" count="6">x162000_output Bone_0 Bone_1 c_gbl c_c1 pintage01</Name_array>
+          <technique_common>
+            <accessor source="#x162000_output.col01-mesh-joint-array" count="6" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.col01-mesh-inv_bind_matrix">
+          <float_array id="x162000_output.col01-mesh-inv_bind_matrix-array" count="96">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.7837 -0.51 -0.3544 -0.0803 0.5692 0.3614 0.7385 -1.571 -0.2486 -0.7805 0.5736 0.0255 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#x162000_output.col01-mesh-inv_bind_matrix-array" count="6" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.col01-mesh-weight">
+          <float_array id="x162000_output.col01-mesh-weight-array" count="0" />
+          <technique_common>
+            <accessor source="#x162000_output.col01-mesh-weight-array" count="0" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#x162000_output.col01-mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#x162000_output.col01-mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="8">
+          <input semantic="JOINT" source="#x162000_output.col01-mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#x162000_output.col01-mesh-weight" offset="1" />
+          <vcount>0 0 0 0 0 0 0 0 </vcount>
+          <v />
+        </vertex_weights>
+      </skin>
+    </controller>
+    <controller id="Armature_x162000_output.skin1-mesh">
+      <skin source="#x162000_output.skin1-mesh">
+        <bind_shape_matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</bind_shape_matrix>
+        <source id="x162000_output.skin1-mesh-joint">
+          <Name_array id="x162000_output.skin1-mesh-joint-array" count="6">x162000_output Bone_0 Bone_1 c_gbl c_c1 pintage01</Name_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-mesh-joint-array" count="6" stride="1">
+              <param name="JOINT" type="name" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.skin1-mesh-inv_bind_matrix">
+          <float_array id="x162000_output.skin1-mesh-inv_bind_matrix-array" count="96">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0.7837 -0.51 -0.3544 -0.0803 0.5692 0.3614 0.7385 -1.571 -0.2486 -0.7805 0.5736 0.0255 0 0 0 1 </float_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-mesh-inv_bind_matrix-array" count="6" stride="16">
+              <param name="TRANSFORM" type="float4x4" />
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="x162000_output.skin1-mesh-weight">
+          <float_array id="x162000_output.skin1-mesh-weight-array" count="1">1 </float_array>
+          <technique_common>
+            <accessor source="#x162000_output.skin1-mesh-weight-array" count="1" stride="1">
+              <param name="WEIGHT" type="float" />
+            </accessor>
+          </technique_common>
+        </source>
+        <joints>
+          <input semantic="JOINT" source="#x162000_output.skin1-mesh-joint" />
+          <input semantic="INV_BIND_MATRIX" source="#x162000_output.skin1-mesh-inv_bind_matrix" />
+        </joints>
+        <vertex_weights count="34">
+          <input semantic="JOINT" source="#x162000_output.skin1-mesh-joint" offset="0" />
+          <input semantic="WEIGHT" source="#x162000_output.skin1-mesh-weight" offset="1" />
+          <vcount>1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 </vcount>
+          <v>4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 4 0 </v>
+        </vertex_weights>
+      </skin>
+    </controller>
+  </library_controllers>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Armature" name="Armature" type="NODE">
+        <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <node id="Armature_x162000_output" name="x162000_output" sid="x162000_output" type="JOINT">
+          <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          <node id="Armature_Bone_0" name="Bone_0" sid="Bone_0" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+          <node id="Armature_Bone_1" name="Bone_1" sid="Bone_1" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+          </node>
+          <node id="Armature_c_gbl" name="c_gbl" sid="c_gbl" type="JOINT">
+            <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+            <node id="Armature_c_c1" name="c_c1" sid="c_c1" type="JOINT">
+              <matrix sid="transform">1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 </matrix>
+              <node id="Armature_pintage01" name="pintage01" sid="pintage01" type="JOINT">
+                <matrix sid="transform">0.7837 0.5692 -0.2486 0.9634 -0.51 0.3614 -0.7805 0.5467 -0.3544 0.7385 0.5736 1.1171 0 0 0 1 </matrix>
+              </node>
+            </node>
+          </node>
+        </node>
+      </node>
+      <node id="x162000_output.col01" name="x162000_output.col01" type="NODE">
+        <instance_controller url="#Armature_x162000_output.col01-mesh">
+          <skeleton>#Armature_x162000_output</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="DefaultLib.Scene_Material" target="#DefaultLib.Scene_Material" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+      <node id="x162000_output.skin1" name="x162000_output.skin1" type="NODE">
+        <instance_controller url="#Armature_x162000_output.skin1-mesh">
+          <skeleton>#Armature_x162000_output</skeleton>
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="DefaultLib.x162000_01_01" target="#DefaultLib.x162000_01_01" />
+            </technique_common>
+          </bind_material>
+        </instance_controller>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene" />
+  </scene>
+</COLLADA>
