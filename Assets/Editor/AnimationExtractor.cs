@@ -3,25 +3,20 @@ using UnityEditor;
 using System.IO;
 using System.Linq;
 
-public class AnimationExtractor : EditorWindow
-{
+public class AnimationExtractor : EditorWindow{
     private DefaultAsset folderToScan;
 
     [MenuItem("Tools/Extract Animations from All FBX in Folder")]
-    public static void ShowWindow()
-    {
+    public static void ShowWindow(){
         GetWindow<AnimationExtractor>("FBX Batch Animation Extractor");
     }
 
-    private void OnGUI()
-    {
+    private void OnGUI(){
         GUILayout.Label("Extraction automatique des animations depuis un dossier de FBX", EditorStyles.boldLabel);
         folderToScan = (DefaultAsset)EditorGUILayout.ObjectField("Dossier FBX", folderToScan, typeof(DefaultAsset), false);
 
-        if (GUILayout.Button("Extraire toutes les animations"))
-        {
-            if (folderToScan == null)
-            {
+        if (GUILayout.Button("Extraire toutes les animations")){
+            if (folderToScan == null){
                 Debug.LogError("Merci de sélectionner un dossier contenant des FBX.");
                 return;
             }
@@ -31,12 +26,10 @@ public class AnimationExtractor : EditorWindow
         }
     }
 
-    private void ExtractAllAnimations(string folderPath)
-    {
+    private void ExtractAllAnimations(string folderPath){
         string[] fbxFiles = Directory.GetFiles(folderPath, "*.fbx", SearchOption.AllDirectories);
 
-        if (fbxFiles.Length == 0)
-        {
+        if (fbxFiles.Length == 0){
             Debug.LogWarning("Aucun fichier .fbx trouvé dans ce dossier.");
             return;
         }
@@ -47,8 +40,7 @@ public class AnimationExtractor : EditorWindow
 
         int totalClips = 0;
 
-        foreach (string fbxPath in fbxFiles)
-        {
+        foreach (string fbxPath in fbxFiles){
             string assetPath = fbxPath.Replace(Application.dataPath, "Assets").Replace('\\', '/');
             Object[] assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
 
@@ -58,10 +50,8 @@ public class AnimationExtractor : EditorWindow
             if (!Directory.Exists(outputPath))
                 Directory.CreateDirectory(outputPath);
 
-            foreach (Object asset in assets)
-            {
-                if (asset is AnimationClip clip)
-                {
+            foreach (Object asset in assets){
+                if (asset is AnimationClip clip){
                     if (clip.name.StartsWith("__")) continue;
 
                     string newClipPath = Path.Combine(outputPath, clip.name + ".anim");
