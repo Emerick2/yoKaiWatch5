@@ -8,9 +8,18 @@ public class yoKaiMModel3D : MonoBehaviour{
     [HideInInspector] public RuntimeAnimatorController animController1;
     private Animator animator;
     public bool neBougeraPas;
-    public float vitesseDeRechargement=0.02f;
+    public float vitesseDeRechargement=0.2f;
+    void Awake(){
+        Transform enfantNom = transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
+        if (enfantNom != null){
+            string nouveauNom = enfantNom.name.Substring(4); // Retire "nom:"
+            gameObject.name = nouveauNom;
+        }
+        gameObject.name = gameObject.name.Replace("_mod", "");
+    }
     void Start(){
-        gameObject.name = gameObject.name.Replace("(Clone)", "");
+        //gameObject.name = gameObject.name.Replace("(Clone)", "");
+        
         if (neBougeraPas){vitesseDeRechargement=1;}
         if (animController1 != null){
             animator = gameObject.AddComponent<Animator>();

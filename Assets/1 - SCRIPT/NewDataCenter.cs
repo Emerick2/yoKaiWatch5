@@ -1,7 +1,7 @@
 /*
 Se script est créé par Emerick et ne doit pas être modifié !
 Pour l'utiliser 🚀
-NewDataCenter.Instance.SauvegarderINT("monScore", "100");
+NewDataCenter.Instance.SauvegarderINT("monScore", 100);
 NewDataCenter.Instance.Lire("monScore");
 */
 
