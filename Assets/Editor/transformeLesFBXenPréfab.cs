@@ -52,7 +52,7 @@ public class transformeLesFBXenPréfab : EditorWindow{
             }
 
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(fbxModel);
-            bool aÉtéModifié = false;
+            //bool aÉtéModifié = false;
 
             Transform[] allChildren = instance.GetComponentsInChildren<Transform>(true);
             /*

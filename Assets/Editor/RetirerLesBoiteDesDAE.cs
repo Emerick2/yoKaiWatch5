@@ -52,13 +52,13 @@ public class RetirerLesBoiteDesDAE : EditorWindow{
             }
 
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(daeModel);
-            bool aÉtéModifié = false;
+            //bool aÉtéModifié = false;
 
             Transform[] allChildren = instance.GetComponentsInChildren<Transform>(true);
             foreach (Transform child in allChildren){
                 if (child.name.ToLower().Contains("output.col")){
                     child.gameObject.SetActive(false);
-                    aÉtéModifié = true;
+                    //aÉtéModifié = true;
                     Debug.Log($"Désactivé : {child.name} dans {nomBase}");
                 }
             }

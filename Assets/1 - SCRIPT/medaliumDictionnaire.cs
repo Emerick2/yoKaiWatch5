@@ -19,7 +19,55 @@ public class medaliumDictionnaire : MonoBehaviour{
             MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
             MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
         }
+    }*//*
+    public Sprite RecevoirUnSpriteDeTribue(string nomDeLaTribue){
+        return imageDesTribue.nomDeLaTribue;
+        /*
+        if (nomDuRang == "Wandroïd"){
+            return imageDesRang[10];
+        }else if (nomDuRang == "Enma"){
+            return imageDesRang[9];
+        }else if (nomDuRang == "Perfide"){
+            return imageDesRang[8];
+        }else if (nomDuRang == "Insaisissable"){
+            return imageDesRang[7];
+        }else if (nomDuRang == "Sinistre"){
+            return imageDesRang[6];
+        }else if (nomDuRang == "Sombre"){
+            return imageDesRang[5];
+        }else if (nomDuRang == "Bienveillant"){
+            return imageDesRang[4];
+        }else if (nomDuRang == "Mignon"){
+            return imageDesRang[3];
+        }else if (nomDuRang == "Costaud"){
+            return imageDesRang[2];
+        }else if (nomDuRang == "Mystérieu"){
+            return imageDesRang[1];
+        }else if (nomDuRang == "Vaillant"){
+            return imageDesRang[0];
+        }else{
+            Debug.LogWarning("La tribue "+nomDuRang+" est manquante dans le médalium");
+            return imageDesRang[7];
+        }*//*
     }*/
+    public Sprite RecevoirUnSpriteDeRang(string nomDuRang){
+        if (nomDuRang == "S"){
+            return imageDesRang[5];
+        }else if (nomDuRang == "A"){
+            return imageDesRang[4];
+        }else if (nomDuRang == "B"){
+            return imageDesRang[3];
+        }else if (nomDuRang == "C"){
+            return imageDesRang[2];
+        }else if (nomDuRang == "D"){
+            return imageDesRang[1];
+        }else if (nomDuRang == "E"){
+            return imageDesRang[0];
+        }else{
+            Debug.LogWarning("La tribue "+nomDuRang+" est manquante dans le médalium");
+            return imageDesRang[1];
+        }
+    }
 }
 
 [System.Serializable]

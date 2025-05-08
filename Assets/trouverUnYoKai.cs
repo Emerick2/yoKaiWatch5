@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class trouverUnYoKai : MonoBehaviour{
-    private bool leLieuEstVide = false;
-    private int IDduYoKaiPrésent;
-    private int niveauDuYoKaiPrésent;
-    private string rang;
+    [HideInInspector] public bool leLieuEstVide = false;
+    [HideInInspector] public int IDduYoKaiPrésent;
+    [HideInInspector] public int niveauDuYoKaiPrésent;
+    [HideInInspector] public string rang;
 
     public bool danLeLieu = false;
 
