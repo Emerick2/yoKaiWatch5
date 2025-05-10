@@ -29,6 +29,6 @@ public class AutoColliderGenerator : MonoBehaviour
             }
         }
 
-        Debug.Log($"MeshColliders ajoutés sur {addedCount} objets avec SkinnedMeshRenderer.");
+        //Debug.Log($"MeshColliders ajoutés sur {addedCount} objets avec SkinnedMeshRenderer.");
     }
 }

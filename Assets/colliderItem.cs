@@ -31,6 +31,6 @@ public class colliderItem : MonoBehaviour
             }
         }
 
-        Debug.Log($"MeshColliders ajoutés sur {addedCount} objets avec SkinnedMeshRenderer.");
+        //Debug.Log($"MeshColliders ajoutés sur {addedCount} objets avec SkinnedMeshRenderer.");
     }
 }

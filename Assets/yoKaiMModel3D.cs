@@ -9,16 +9,40 @@ public class yoKaiMModel3D : MonoBehaviour{
     private Animator animator;
     public bool neBougeraPas;
     public float vitesseDeRechargement=0.2f;
-    void Awake(){
+    medaliumDictionnaire médalium;
+    void Start(){
         Transform enfantNom = transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
+        médalium = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
+
+        string ID = gameObject.name;
+        ID.Replace("²","");
+        ID.Replace("!","");
+        bool nombre = true;
+
+        for (int i = 0; i < ID.Length; i++){
+            if (ID[0]!='0' && ID[0]!='1' && ID[0]!='2' && ID[0]!='3' && ID[0]!='4' && ID[0]!='5' && ID[0]!='6' && ID[0]!='7' && ID[0]!='8' && ID[0]!='9'){
+                nombre = false;
+            }
+        }
+
+        if (nombre && médalium.dictionnaire.Count < int.Parse(ID)){        
+            string x = médalium.dictionnaire[int.Parse(ID)].nomDeMonSquellette;
+            string nomDeBase = enfantNom.name.Substring(4);
+            if (x != ""){
+                enfantNom.name="nom:"+x;
+                transform.Find(nomDeBase+"_output").transform.parent = transform;
+                transform.Find(nomDeBase+"_output").gameObject.name = x;
+            }            
+        }
         if (enfantNom != null){
             string nouveauNom = enfantNom.name.Substring(4); // Retire "nom:"
             gameObject.name = nouveauNom;
         }
         gameObject.name = gameObject.name.Replace("_mod", "");
-    }
-    void Start(){
-        //gameObject.name = gameObject.name.Replace("(Clone)", "");
+
+
+
+        gameObject.name = gameObject.name.Replace("(Clone)", "");
         
         if (neBougeraPas){vitesseDeRechargement=1;}
         if (animController1 != null){

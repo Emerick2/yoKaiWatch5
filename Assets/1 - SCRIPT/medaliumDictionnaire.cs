@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using System.Reflection;
 
 public class medaliumDictionnaire : MonoBehaviour{
-    public List<MedaliumNonPersonel> dictionnaire;
+    [HideInInspector] public List<MedaliumNonPersonel> dictionnaire;
     public List<Sprite> imageDesRang;
     public ImageDesTribue imageDesTribue;
     
@@ -68,6 +68,20 @@ public class medaliumDictionnaire : MonoBehaviour{
             return imageDesRang[1];
         }
     }
+
+    public void ajouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
+        nomDeLaTribue = nomDeLaTribue.ToLower();
+        nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
+        if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
+            dictionnaire[IDdeLaCible].tribue = (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
+        }
+    }
+    public void ajouterUnRang(int IDdeLaCible, string nomDuRang){
+        nomDuRang = nomDuRang.ToUpper();
+        if (Enum.IsDefined(typeof(Rang), nomDuRang)){
+            dictionnaire[IDdeLaCible].rang = (Rang)Enum.Parse(typeof(Rang), nomDuRang);
+        }
+    }
 }
 
 [System.Serializable]
@@ -104,6 +118,7 @@ public class MedaliumNonPersonel{
     [Range(1,100)] public int vitesse;
     [Range(1,100)] public int esprit;
     [Range(1,100)] public int vie;
+    public string nomDeMonSquellette;
 }
 
 public enum Tribue{

@@ -29,10 +29,13 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
         pasID = pasID.Replace("²", "");
         pasID = pasID.Replace("!", "");
         int ID = int.Parse(pasID);
+        ID --;
         composant.IDduYoKaiPrésent = ID;
-        print(médalium.dictionnaire[ID].rang.ToString());
-        composant.rang = médalium.dictionnaire[ID].rang.ToString();
-        composant.niveauDuYoKaiPrésent = Random.Range(yoKaiRandom.niveauMinimum,yoKaiRandom.niveauMaximum);
+        if (médalium.dictionnaire.Count > ID){
+            Rang r = médalium.dictionnaire[ID].rang;
+            composant.rang = r.ToString();
+            composant.niveauDuYoKaiPrésent = Random.Range(yoKaiRandom.niveauMinimum,yoKaiRandom.niveauMaximum);
+        }
     }
 }
 
