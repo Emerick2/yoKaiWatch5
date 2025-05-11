@@ -41,7 +41,7 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
 
 [System.Serializable]
 public class YoKai{
-    [PrefabOnlyInPath("Assets/3 - yo-kai 3D/nouveau/yo-kai/tous")]
+    [PrefabOnlyInPath("Assets/Resources/tousLesYoKai")]
     public GameObject leYoKai;
     [Range(0,100)] public int probabilitéDeApparition;
     [Range(1,100)] public int niveauMinimum;

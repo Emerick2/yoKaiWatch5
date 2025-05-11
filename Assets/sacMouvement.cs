@@ -43,7 +43,7 @@ public class sacMouvement : MonoBehaviour{
             }
             if (Input.GetKeyDown(KeyCode.E)){
                 int numéro=indexGauche;
-                if (indexHaut==0){numéro+=sélectionnéHaut.Count-1;}
+                if (indexHaut==0){numéro+=sélectionnéHaut.Count;}
                 if (windows[numéro] != null){
                     windows[numéro].SetActive(true);
                     pause=true;
@@ -62,7 +62,7 @@ public class sacMouvement : MonoBehaviour{
         yield return new WaitForSeconds(0.01f);
         pause=false;    
         int numéro=indexGauche;
-        if (indexHaut==0){numéro+=sélectionnéHaut.Count-1;}
+        if (indexHaut==0){numéro+=sélectionnéHaut.Count;}
         windows[numéro].SetActive(false);
     }
     void changerDePosition(){
