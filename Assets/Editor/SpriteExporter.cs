@@ -5,7 +5,7 @@ using System.IO;
 public class SpriteExporter {
     [MenuItem("Outils/Exporter tous les sprites")]
     public static void ExporterSprites() {
-        string path = "Assets/Resources/Sprites/MonSpriteSheet.png";
+        string path = "Assets/Resources/Sprites/nouriture.png";
         Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
 
         if (texture == null) {

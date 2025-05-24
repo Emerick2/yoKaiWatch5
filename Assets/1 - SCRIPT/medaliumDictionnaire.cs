@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using System.Reflection;
 
 public class medaliumDictionnaire : MonoBehaviour{
-    [HideInInspector] public List<MedaliumNonPersonel> dictionnaire;
+    /*[HideInInspector]*/ public List<MedaliumNonPersonel> dictionnaire;
     public List<Sprite> imageDesRang;
     public ImageDesTribue imageDesTribue;
     

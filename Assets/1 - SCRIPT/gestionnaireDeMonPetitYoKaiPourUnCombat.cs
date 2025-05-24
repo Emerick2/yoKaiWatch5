@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.UI;
 // faire la vie
 
@@ -45,13 +46,17 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     private bool déjaActiver;
     void Start(){
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
+        //print(MedaliumDictionnaire==null);
+        début();
     }
-    void Update(){
-        if (!déjaActiver){
+    void début(){
+        int n=1000;
+        while (!déjaActiver && n>=0){
+            n--;
             if (MesYoKai.Instance.finDuChargement == true){
                 OuvrirLeYoKai();
                 déjaActiver=true;
-                suiteDeOuverture();
+                //suiteDeOuverture();
             }
         }
     }
@@ -80,11 +85,11 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         vitesse = mimi.vitesse;
         esprit = mimi.esprit;
         pointDeVie = mimi.vie;
-
+        /*
         nomDeAmultime = mimi.amultime.nomDeAmultime.ToString();
         multiplicationDeLaPuissance = mimi.amultime.multiplicationDeLaPuissance;
         catégorieÂmultime = mimi.amultime.catégorieÂmultime.ToString();
-
+        */
         //yo-kai en particulier :
         if (IDduYoKaiSpécifique>=0){
             niveau = int.Parse(NewDataCenter.Instance.Lire(IDduYoKaiSpécifique.ToString()+"_niveau"));

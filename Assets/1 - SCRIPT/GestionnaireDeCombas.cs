@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEditor;
 using System;
 
+//TV.transform.localScale = new Vector3(100, 100, 100);
 
 public class GestionnaireDeCombas : MonoBehaviour{
     public Transform flèche;
@@ -14,9 +15,9 @@ public class GestionnaireDeCombas : MonoBehaviour{
     public GameObject panneauDeDéfaite;
     [HideInInspector]public bool finDuCombat=false;
     [HideInInspector]public bool leJoeurAGagner=false;
-    public RuntimeAnimatorController animController;
     private medaliumDictionnaire MedaliumDictionnaire;
-    public int[] IDDesYoKaiDeEquipe;//identifient unique "mesYoKai"
+    public MesYoKai mesYoKai;
+    public List<int> IDDesYoKaiDeEquipe = new List<int>();//identifient unique "mesYoKai"
     public Transform[] positionJ;
     public Transform[] positionE;
     public Gestionnaire g;
@@ -27,20 +28,30 @@ public class GestionnaireDeCombas : MonoBehaviour{
     public List<(int vitesse, Personnage source, string origine, int index)> listeVitesse = new();
 
     void Start(){
+        StartCoroutine(start());
+    }
+
+    IEnumerator start(){
+        while (mesYoKai.yoKaiDeMonEquipeChargé == false || mesYoKai.finDuChargement == false){
+            yield return new WaitForSeconds(0.3f);
+            print("non");
+        }
+        print("ici0");
+        IDDesYoKaiDeEquipe = mesYoKai.yoKaiDeMonEquipe;
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         chargementDesPersonnage();
         StartCoroutine(boucleDuJeu());
-        for (int i = 0; i < IDDesYoKaiDeEquipe.Length ; i++){
+        for (int i = 0; i < IDDesYoKaiDeEquipe.Count ; i++){
             médaillon[i].sprite = MedaliumDictionnaire.dictionnaire[IDDesYoKaiDeEquipe[i]].médaillon;
         }
     }
 
     void chargementDesPersonnage(){
-        //joeur :
-        for (int i = 0; i < IDDesYoKaiDeEquipe.Length; i++){
+        //joueur :
+        for (int i = 0; i < IDDesYoKaiDeEquipe.Count; i++){
             int ID = MesYoKai.Instance.maListe[IDDesYoKaiDeEquipe[i]].ID;
             if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
-            GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[ID].yoKai);
+            GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[ID-1].yoKai);
             
             var script = TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>();
             script.IDduYoKaiMedalium = ID;
@@ -52,28 +63,17 @@ public class GestionnaireDeCombas : MonoBehaviour{
                 positionActuel = i
             };
             g.J.Add(nouveau);
-
-            TV.transform.localScale = new Vector3(100, 100, 100);
             TV.transform.position = new Vector3(positionJ[i].position.x,positionJ[i].position.y,positionJ[i].position.z);
-            Vector3 rotation = TV.transform.eulerAngles;
-            rotation.y += 180;
-            TV.transform.eulerAngles = rotation;
             g.nom[i].text=NewDataCenter.Instance.Lire(IDDesYoKaiDeEquipe[i].ToString()+"_surnom");
-            TV.AddComponent<Animator>().runtimeAnimatorController = animController;
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
-            CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
         }
         //ennemie :
         livraison Livraison = GameObject.Find("livraison").GetComponent<livraison>();
         for (int i = 0; i < Livraison.numéroDesYoKaiPourLeCombat.Count; i++){
             Instantiate(MedaliumDictionnaire.dictionnaire[Livraison.numéroDesYoKaiPourLeCombat[i].ID].yoKai);
-            //Livraison.numéroDesYoKaiPourLeCombat[i].ID
-
             int ID = Livraison.numéroDesYoKaiPourLeCombat[i].ID;
             if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
-            //g.E.Add(MedaliumDictionnaire.dictionnaire[ID].yoKai);
             GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[ID].yoKai);
-            
             var script = TV.AddComponent<gestionnaireDeMonPetitYoKaiPourUnCombat>();
             script.niveau=Livraison.numéroDesYoKaiPourLeCombat[i].niveau;
             script.IDduYoKaiMedalium = ID;
@@ -83,58 +83,13 @@ public class GestionnaireDeCombas : MonoBehaviour{
                 vie = 100
             };
             g.E.Add(nouveau);
-
-
-            TV.transform.localScale = new Vector3(200, 200, 200);
             TV.transform.position = new Vector3(positionE[i].position.x,positionE[i].position.y,positionE[i].position.z);
-            TV.AddComponent<Animator>().runtimeAnimatorController = animController;
+            Vector3 rotation = TV.transform.eulerAngles;
+            rotation.y += 180;
+            TV.transform.eulerAngles = rotation;
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
-            CrééMonAnimator(TV.GetComponent<Animator>(), TV.transform.name, TV);
         }
         Destroy(GameObject.Find("livraison"));
-    }
-    
-    void CrééMonAnimator(Animator animator, string yoKaiName, GameObject modèle3DDuYoKai){
-        Animator modeleAnimator = modèle3DDuYoKai.GetComponent<Animator>();
-        RuntimeAnimatorController animController = modeleAnimator.runtimeAnimatorController;
-        AnimationClip[] clips = animController.animationClips;
-        AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
-        string nomDuYoKaiDeAnimatorParDéfaut = "y105010";
-        List<string> aRemplacer = new List<string>{
-            "_p20_27001d_del",
-            "_p20_27000d_dei",
-            "_p20_26500d_dmi",
-            "_p20_25000s_ati",
-            "_p20_21001d_stl",
-            "_p20_21001d_stl_1"
-        };
-
-        // Dictionnaire pour stocker les correspondances entre anciennes et nouvelles animations
-        List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
-
-        for (int i = 0; i < aRemplacer.Count; i++){
-            string suffixe = aRemplacer[i];
-            string nomAnimationOrigine = nomDuYoKaiDeAnimatorParDéfaut + suffixe;
-
-            // Trouve l'animation existante dans le contrôleur d'origine
-            AnimationClip clipOrigine = clips.FirstOrDefault(c => c.name == nomAnimationOrigine);
-
-            // Charge la nouvelle animation dans le projet
-            string nomAnimationRemplacement = yoKaiName + suffixe;
-            AnimationClip clipRemplacement = Resources.Load<AnimationClip>("AnimationsExtraites/" + yoKaiName + "/" + nomAnimationRemplacement);
-            //print (clipRemplacement.ToString());
-            if (clipOrigine != null && clipRemplacement != null){
-                AnimationClip clip = clipRemplacement;
-                SerializedObject serializedClip = new SerializedObject(clip);
-                serializedClip.FindProperty("m_AnimationClipSettings.m_LoopTime").boolValue = true;
-                serializedClip.ApplyModifiedProperties();
-                overrides.Add(new KeyValuePair<AnimationClip, AnimationClip>(clipOrigine, clipRemplacement));
-            }else{
-                Debug.LogWarning($"Animation introuvable : {nomAnimationOrigine} ou {nomAnimationRemplacement}");
-            }
-        }
-        overrideController.ApplyOverrides(overrides);
-        animator.runtimeAnimatorController = overrideController;
     }
     IEnumerator MouvementYoKai(GameObject élément, Transform positionCible, bool animationFluide){
         Vector2 vectorCible = positionCible.position;
@@ -249,6 +204,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
                     RafraichireLeCanvas();
                     vérifieSiUnJoueurEstEnVie();
                 }
+                print(cible+" : "+lanceur);
             }
             yield return new WaitForSeconds(0.1f);
         }

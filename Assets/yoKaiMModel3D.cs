@@ -17,6 +17,7 @@ public class yoKaiMModel3D : MonoBehaviour{
         string ID = gameObject.name;
         ID.Replace("²","");
         ID.Replace("!","");
+        ID.Replace("(Clone)","");
         bool nombre = true;
 
         for (int i = 0; i < ID.Length; i++){
@@ -24,7 +25,8 @@ public class yoKaiMModel3D : MonoBehaviour{
                 nombre = false;
             }
         }
-
+        /*
+        ID.Replace("(Clone)","");
         if (nombre && médalium.dictionnaire.Count < int.Parse(ID)){        
             string x = médalium.dictionnaire[int.Parse(ID)].nomDeMonSquellette;
             string nomDeBase = enfantNom.name.Substring(4);
@@ -34,6 +36,7 @@ public class yoKaiMModel3D : MonoBehaviour{
                 transform.Find(nomDeBase+"_output").gameObject.name = x;
             }            
         }
+        */
         if (enfantNom != null){
             string nouveauNom = enfantNom.name.Substring(4); // Retire "nom:"
             gameObject.name = nouveauNom;
@@ -45,6 +48,7 @@ public class yoKaiMModel3D : MonoBehaviour{
         gameObject.name = gameObject.name.Replace("(Clone)", "");
         
         if (neBougeraPas){vitesseDeRechargement=1;}
+        
         if (animController1 != null){
             animator = gameObject.AddComponent<Animator>();
             animator.runtimeAnimatorController = animController1;

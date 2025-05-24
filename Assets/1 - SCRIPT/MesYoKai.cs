@@ -5,8 +5,10 @@ using UnityEngine;
 public class MesYoKai : MonoBehaviour{
     private static MesYoKai _instance;
 
-    public List<ListeDeMesYoKai> maListe;
-    public bool finDuChargement;
+    public List<ListeDeMesYoKai> maListe = new List<ListeDeMesYoKai>();
+    public List<int> yoKaiDeMonEquipe = new List<int>();
+    /*[HideInInspector]*/ public bool yoKaiDeMonEquipeChargé = false;
+    /*[HideInInspector]*/ public bool finDuChargement;
     
     // Singleton : la propriété Instance est du même type que _instance
     public static MesYoKai Instance {
@@ -30,6 +32,19 @@ public class MesYoKai : MonoBehaviour{
 
     void Start(){
         ChargerLesYoKai();
+        ChargerMonEquipe();
+    }
+    public void ChargerMonEquipe(){
+        string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe","équipe.json");
+        print(listeDesID);
+        
+        foreach (char ch in listeDesID) {
+            if (char.IsDigit(ch)) {
+                print("ici");
+                yoKaiDeMonEquipe.Add(int.Parse(ch.ToString()));
+            }
+        }
+        finDuChargement = true;
     }
     public void AjouterUnYoKai(int ID2, int niveau2, string personalité2, string surnom2){
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
@@ -56,7 +71,7 @@ public class MesYoKai : MonoBehaviour{
             maListe[i].personnalité  =  NewDataCenter.Instance.Lire(i.ToString()+"_personalité");
             maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
         }
-        finDuChargement=true;
+        yoKaiDeMonEquipeChargé=true;
     }
 }
 

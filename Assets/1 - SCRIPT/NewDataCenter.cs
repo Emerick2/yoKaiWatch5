@@ -40,25 +40,25 @@ public class NewDataCenter : MonoBehaviour{
     private Dictionary<string, string> dataDict = new Dictionary<string, string>();
 
     private void Awake(){
+        filePath = Application.persistentDataPath+"/";
         if (_instance == null){
             _instance = this;
             DontDestroyOnLoad(gameObject);
         }else{
             Destroy(gameObject);
         }
-
-        filePath = Application.persistentDataPath + "/mesData.json";
+        //filePath = Application.persistentDataPath + "/mesData.json";
         ChargerDonnées();
         MeilleurScoreADéfinir();
     }
 
-    public void SauvegarderSTR(string clef, string valeur){
+    public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json"){
         valeur=chiffrerLesDonnées(valeur);
         dataDict[clef] = valeur;
         string json = JsonUtility.ToJson(new DataContainer(dataDict));
-        File.WriteAllText(filePath, json);
+        File.WriteAllText(Path.Combine(filePath+dossier), json);
     }
-    public void SauvegarderINT(string clef, int valeur){
+    public void SauvegarderINT(string clef, int valeur, string dossier="mesData.json"){
         string valeurLue = Lire(clef);
         int valeurExistante = int.TryParse(valeurLue, out int resultat) ? resultat : 0;
 
@@ -66,12 +66,10 @@ public class NewDataCenter : MonoBehaviour{
         string donnéDeLaValeur = chiffrerLesDonnées(valeur.ToString());
         dataDict[clef] = donnéDeLaValeur;
         string json = JsonUtility.ToJson(new DataContainer(dataDict));
-        File.WriteAllText(filePath, json);
+        File.WriteAllText(Path.Combine(filePath+dossier), json);
     }
 
-
-
-    public string Lire(string clef){
+    public string Lire(string clef, string dossier="mesData.json"){
         if (dataDict.TryGetValue(clef, out string valeur)){
             valeur = déchiffrerLesDonnées(valeur);
             //if (int.TryParse(valeur, out int intValue)){
@@ -84,9 +82,9 @@ public class NewDataCenter : MonoBehaviour{
 
 
 
-    private void ChargerDonnées(){
-        if (File.Exists(filePath)){
-            string json = File.ReadAllText(filePath);
+    private void ChargerDonnées(string dossier="mesData.json"){
+        if (File.Exists(Path.Combine(filePath+dossier))){
+            string json = File.ReadAllText(Path.Combine(filePath+dossier));
             DataContainer dataContainer = JsonUtility.FromJson<DataContainer>(json);
             dataDict = dataContainer.ToDictionary();
         }
@@ -120,6 +118,12 @@ public class NewDataCenter : MonoBehaviour{
             return data;
         }
     }
+
+
+
+
+
+    /*--- GESTION DES YO-KAI---*/
 }
 
 [System.Serializable]
