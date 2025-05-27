@@ -50,6 +50,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
         //joueur :
         for (int i = 0; i < IDDesYoKaiDeEquipe.Count; i++){
             int ID = MesYoKai.Instance.maListe[IDDesYoKaiDeEquipe[i]].ID;
+            print(ID);
             if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
             GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[ID-1].yoKai);
             

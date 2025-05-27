@@ -16,6 +16,7 @@ public class NewDataCenter : MonoBehaviour{
     public bool lesDonnéesDoiventÊtreChiffré=false; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
     private string clefDeChiffrement="g89d56566fg4d32fsdf1gsdfsf32";
     private string crypted = "";
+    private List<string> lesLieuDeData = new List<string>();
 
     public static NewDataCenter Instance{
         get{
@@ -47,6 +48,8 @@ public class NewDataCenter : MonoBehaviour{
         }else{
             Destroy(gameObject);
         }
+        lesLieuDeData.Add("mesData.json");
+        lesLieuDeData.Add("équipe.json");
         //filePath = Application.persistentDataPath + "/mesData.json";
         ChargerDonnées();
         MeilleurScoreADéfinir();
@@ -83,10 +86,12 @@ public class NewDataCenter : MonoBehaviour{
 
 
     private void ChargerDonnées(string dossier="mesData.json"){
-        if (File.Exists(Path.Combine(filePath+dossier))){
-            string json = File.ReadAllText(Path.Combine(filePath+dossier));
-            DataContainer dataContainer = JsonUtility.FromJson<DataContainer>(json);
-            dataDict = dataContainer.ToDictionary();
+        foreach (string item in lesLieuDeData){
+            if (File.Exists(Path.Combine(filePath+item))){
+                string json = File.ReadAllText(Path.Combine(filePath+item));
+                DataContainer dataContainer = JsonUtility.FromJson<DataContainer>(json);
+                dataDict = dataContainer.ToDictionary();
+            }
         }
     }
     public void MeilleurScoreADéfinir(){
@@ -118,12 +123,6 @@ public class NewDataCenter : MonoBehaviour{
             return data;
         }
     }
-
-
-
-
-
-    /*--- GESTION DES YO-KAI---*/
 }
 
 [System.Serializable]

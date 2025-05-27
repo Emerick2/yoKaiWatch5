@@ -36,7 +36,6 @@ public class MesYoKai : MonoBehaviour{
     }
     public void ChargerMonEquipe(){
         string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe","équipe.json");
-        print(listeDesID);
         
         foreach (char ch in listeDesID) {
             if (char.IsDigit(ch)) {
