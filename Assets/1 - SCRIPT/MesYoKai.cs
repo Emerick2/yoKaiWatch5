@@ -39,7 +39,6 @@ public class MesYoKai : MonoBehaviour{
         
         foreach (char ch in listeDesID) {
             if (char.IsDigit(ch)) {
-                print("ici");
                 yoKaiDeMonEquipe.Add(int.Parse(ch.ToString()));
             }
         }
