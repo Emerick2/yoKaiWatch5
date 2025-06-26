@@ -22,9 +22,15 @@ public class menuPrincipal : MonoBehaviour{
     public GameObject choisirLeNom;
     public GameObject menuPrincipalBloc;
     void Start(){
-        if (NewDataCenter.Instance.Lire("nomDuJoueur") != "0"){
+        if (NewDataCenter.Instance.Lire("nomDuJoueur","mesData.json") != "0"){
             cible = positionFlameContinuer;
         }else{NouvellePartie();}
+    }
+
+    IEnumerator ChangementScène(string scène) {        
+        GameObject.FindWithTag("Fondu").GetComponent<Animator>().SetTrigger("faireLeFondu");
+        yield return new WaitForSeconds(0.40f);
+        SceneManager.LoadScene(scène);
     }
     void Update(){
         if (jeSuisSurLeDéplacementMouvementPrincipal){
@@ -37,8 +43,7 @@ public class menuPrincipal : MonoBehaviour{
                     continuerSélectionner.SetActive(false);
                     nouvellePartieNonSélectionner.SetActive(false);
                     nouvellePartieSélectionner.SetActive(true);
-                }
-                else if (!jeSuisSurContinuer){//je vais viser continuer
+                }else if (!jeSuisSurContinuer){//je vais viser continuer
                     jeSuisSurContinuer = true;
                     cible = positionFlameContinuer;
                     STOP = false;
@@ -50,12 +55,18 @@ public class menuPrincipal : MonoBehaviour{
             }
             if (Input.GetKeyDown(KeyCode.E)){
                 if (jeSuisSurContinuer){
-                    SceneManager.LoadScene(leJeu);//plus tard il faudra mettre ici un déplassement vers la scène ou le joueur à sauvgarder
+                    string p = NewDataCenter.Instance.Lire("scenne","position");
+                    if (p != "0"){
+                        leJeu = p;
+                    }
+                    GameObject newObject = new GameObject("livraison début de partie");
+                    newObject.AddComponent<LivraisonDébutUnePartie>();
+                    StartCoroutine(ChangementScène(leJeu));
                 }else{
                     NouvellePartie();
                 }
             }
-            if (!STOP){
+            if (!STOP && cible != null){
                 direction = (cible.anchoredPosition - petitFlame.anchoredPosition).normalized;
                 petitFlame.anchoredPosition += direction * vitesse * Time.deltaTime;
                 if (Vector2.Distance(petitFlame.anchoredPosition, cible.anchoredPosition) < 5f){

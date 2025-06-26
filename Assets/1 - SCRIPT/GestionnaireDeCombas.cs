@@ -5,14 +5,22 @@ using UnityEngine.UI;
 using System.Linq;
 using UnityEditor;
 using System;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 //TV.transform.localScale = new Vector3(100, 100, 100);
 
 public class GestionnaireDeCombas : MonoBehaviour{
+    private livraison Lili;
+    public LivraisonPrivée Livraison;
+
+    private bool suite = false;
+    private string nomDeLaScène;
+    private Vector3 positionPersonnage;
+
+    public FinDuJeu finDuJeu;
     public Transform flèche;
     public List<Image> médaillon;
-    public GameObject panneauDeVictoire;
-    public GameObject panneauDeDéfaite;
     [HideInInspector]public bool finDuCombat=false;
     [HideInInspector]public bool leJoeurAGagner=false;
     private medaliumDictionnaire MedaliumDictionnaire;
@@ -30,23 +38,34 @@ public class GestionnaireDeCombas : MonoBehaviour{
     public List<Personnage> joueurEnEtatDeCombat = new();
 
     void Start(){
+        Lili = FindObjectOfType<livraison>();
+        Livraison.numéroDesYoKaiPourLeCombat = Lili.numéroDesYoKaiPourLeCombat;
+        Livraison.nomDeLaScène = Lili.nomDeLaScène;
+        Livraison.positionPersonnage = Lili.positionPersonnage;
+        Lili.Détruit();
         if (g == null){
             Debug.LogError("Le Gestionnaire n'est pas assigné !");
             return;
         }
         g.Initialiser();
+        print("ici b2");
         StartCoroutine(start());
     }
 
     IEnumerator start(){
+        print("ici b1");
         while (mesYoKai.yoKaiDeMonEquipeChargé == false || mesYoKai.finDuChargement == false){
             yield return new WaitForSeconds(0.3f);
         }
+        print("c0");
         foreach (int item in mesYoKai.yoKaiDeMonEquipe){
             IDDesYoKaiDeEquipe.Add(item);
         }
+        print("c1");
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
+        print("c2");
         chargementDesPersonnage();
+        print("c3");
         StartCoroutine(boucleDuJeu());
         if (g.E.Count == 1) {g.blocDeVieE[1].SetActive(false);g.blocDeVieE[2].SetActive(false);}
         if (g.E.Count == 2) {g.blocDeVieE[2].SetActive(false);}
@@ -62,8 +81,10 @@ public class GestionnaireDeCombas : MonoBehaviour{
     }
 
     void chargementDesPersonnage(){
+        print("ici a1");
         //joueur :
         for (int i = 0; i < IDDesYoKaiDeEquipe.Count; i++){
+            print("ici a3");
             if (i >= médaillon.Count){
                 Debug.LogError($"Pas assez de médaillons pour l'index {i}. médaillon.Count = {médaillon.Count}");
                 continue;
@@ -95,8 +116,15 @@ public class GestionnaireDeCombas : MonoBehaviour{
             //g.nomTexteJ[i].text=g.J[i].nom;
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
         }
+        print("ici a2");
         //ennemie :
-        livraison Livraison = GameObject.Find("livraison").GetComponent<livraison>();
+        if (Livraison == null){
+            Debug.LogWarning("aucun livreur n'est passer !");
+            return;
+        }
+        nomDeLaScène = Livraison.nomDeLaScène;
+        positionPersonnage = Livraison.positionPersonnage;//new Vector3(Livraison.nomDeLaScène.x,Livraison.nomDeLaScène.y,Livraison.nomDeLaScène.z);
+
         for (int i = 0; i < Livraison.numéroDesYoKaiPourLeCombat.Count; i++){
             int ID = Livraison.numéroDesYoKaiPourLeCombat[i].ID;
             if (MedaliumDictionnaire.dictionnaire.Count <= ID){Debug.Log("ERREUR, le médalium n'est pas asser grand");}
@@ -117,7 +145,6 @@ public class GestionnaireDeCombas : MonoBehaviour{
             TV.transform.eulerAngles = rotation;
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
         }
-        Destroy(GameObject.Find("livraison"));
     }
     IEnumerator MouvementYoKai(GameObject élément, Transform positionCible, bool animationFluide){
         Vector2 vectorCible = positionCible.position;
@@ -188,7 +215,6 @@ public class GestionnaireDeCombas : MonoBehaviour{
             }
         }
         listeVitesse.Sort((a, b) => b.vitesse.CompareTo(a.vitesse));
-        print(listeVitesse.Count);
     }
 
 
@@ -206,14 +232,14 @@ public class GestionnaireDeCombas : MonoBehaviour{
                 lanceur = listeVitesse[i].source;
                 //print(listeVitesse[i].origine);
                 if (listeVitesse[i].origine[2] == 'J'){
-                    print("tour du joueur");
+                    //print("tour du joueur");
                     if (lanceur.vie > 0 && lanceur.numéroDuDernierTourJouer < numéroDuTour){
                         lanceur.numéroDuDernierTourJouer = numéroDuTour;
                         cible = ennemieEnEtatDeCombat[UnityEngine.Random.Range(0,ennemieEnEtatDeCombat.Count)];
                         flèche.position = new Vector2(cible.objet.transform.position.x,cible.objet.transform.position.y+4);
                     }
                 }else{//c'est un 'E'
-                    print("tour de l'ennemie");
+                    //print("tour de l'ennemie");
                     if (lanceur.vie > 0 && lanceur.numéroDuDernierTourJouer < numéroDuTour){
                         lanceur.numéroDuDernierTourJouer = numéroDuTour;
                         cible = joueurEnEtatDeCombat[UnityEngine.Random.Range(0,joueurEnEtatDeCombat.Count)];
@@ -291,7 +317,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
             print("fin de la partie, le joueur à gagner");
             finDuCombat = true;
             leJoeurAGagner = true;
-            panneauDeVictoire.SetActive(true);
+            finDuJeu.panneauDeVictoire1.SetActive(true);
         }
         conteur = 0;
         for (int i = 0; i < g.J.Count; i++){
@@ -306,10 +332,70 @@ public class GestionnaireDeCombas : MonoBehaviour{
             print("fin de la partie, l'ennemie à gagner");
             finDuCombat = true;
             leJoeurAGagner = false;
-            panneauDeDéfaite.SetActive(true);
+            finDuJeu.panneauDeDéfaite1.SetActive(true);
+        }
+    }
+    void Update(){
+        if (finDuCombat){
+            if (Input.GetKeyDown(KeyCode.E)){
+                if (!suite){
+                    finDuJeu.RemplireLaFinDuJeu(leJoeurAGagner);
+                    suite=true;
+                }else{
+                    finDuJeu.RetoursSurLeJeu(nomDeLaScène, positionPersonnage);
+                }
+            }
         }
     }
 }
+
+[System.Serializable]
+public class LivraisonPrivée{
+    public List<UneDeMesLivraison> numéroDesYoKaiPourLeCombat = new List<UneDeMesLivraison>();//le premier est l'ID et le deuxième son niveau.
+    public string nomDeLaScène;
+    public Vector3 positionPersonnage;
+}
+
+
+[System.Serializable]
+public class FinDuJeu{
+    public int score;
+    public int argent;
+    //public List<Objet> objet = new List<Objet>(); // à mettre quand les objets seront référencer
+    public TextMeshProUGUI texteScore;
+    public TextMeshProUGUI texteArgent;
+    
+    public GameObject blocDeFinDuJeux;
+    public GameObject panneauDeVictoire1;
+    public GameObject panneauDeDéfaite1;
+
+    public GameObject panneauDeVictoire2;
+    public GameObject panneauDeDéfaite2;
+
+    public void RemplireLaFinDuJeu(bool leJoeurAGagner){
+        blocDeFinDuJeux.SetActive(true);
+        texteScore.text = score.ToString();
+        texteArgent.text = argent.ToString();
+
+        panneauDeVictoire2.SetActive(leJoeurAGagner);
+        panneauDeDéfaite2.SetActive(!leJoeurAGagner);
+    }
+    public void RetoursSurLeJeu(string nomDeLaScène, Vector3 positionPersonnage){
+        if (nomDeLaScène != ""){
+            GameObject TV = new GameObject("livraison TP");
+            LivraisonTp tp = TV.AddComponent<LivraisonTp>();
+            tp.positionPersonnage = positionPersonnage;
+            tp.nomDeLaScèneCible = nomDeLaScène;
+            SceneManager.LoadScene(nomDeLaScène);
+        }else{
+            Debug.LogWarning("IL N'Y A PAS DE SCENNE DE téléportation pour retourner sur le jeu");
+        }
+    }
+}
+
+
+
+
 [System.Serializable]
 public class Gestionnaire{
     /*[HideInInspector]*/ public List<Personnage> J = new List<Personnage>();

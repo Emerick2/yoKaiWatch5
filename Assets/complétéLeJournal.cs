@@ -8,14 +8,16 @@ public class complétéLeJournal : MonoBehaviour{
     public Text nomDuJoueur;
     public Text tempsDeJeu;
     public Text Date;
+    public Text lieu;
     public List<GameObject> médaille;
     public List<Image> icôneMédaille;
     private medaliumDictionnaire médailum;
+    private Transform postitionJoueur;
 
     void Start(){
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         nomDuJoueur.text = NewDataCenter.Instance.Lire("nomDuJoueur");
-
+        lieu.text = NewDataCenter.Instance.Lire("scenne","position");
         DateTime maintenant = DateTime.Now;
         int mois = maintenant.Month;
         int jour = maintenant.Day;

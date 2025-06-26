@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class livraison : MonoBehaviour{
     public List<UneDeMesLivraison> numéroDesYoKaiPourLeCombat = new List<UneDeMesLivraison>();//le premier est l'ID et le deuxième son niveau.
+
+    public string nomDeLaScène;
+    public Vector3 positionPersonnage;
     void Start(){
         DontDestroyOnLoad(gameObject);
     }
@@ -12,6 +15,9 @@ public class livraison : MonoBehaviour{
         nouvelleLivraison.ID = ID;
         nouvelleLivraison.niveau = niveau;
         numéroDesYoKaiPourLeCombat.Add(nouvelleLivraison);
+    }
+    public void Détruit(){
+        Destroy(gameObject);
     }
 }
 [System.Serializable]

@@ -19,6 +19,8 @@ public class trouverUnYoKai : MonoBehaviour{
                 //revenir
                 livraison.monID = IDduYoKaiPrésent;
                 livraison.monNiveau = niveauDuYoKaiPrésent;
+                livraison.positionPersonnage = GameObject.FindWithTag("Player").transform.position; 
+                livraison.nomDeLaScèneCible = SceneManager.GetActiveScene().name;
                 SceneManager.LoadScene("visé le yo-kai");
             }
         }

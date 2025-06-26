@@ -42,6 +42,7 @@ public class sacMouvement : MonoBehaviour{
                 changerDePosition();
             }
             if (Input.GetKeyDown(KeyCode.E)){
+                StartCoroutine(Transition());
                 int numéro=indexGauche;
                 if (indexHaut==0){numéro+=sélectionnéHaut.Count;}
                 if (windows[numéro] != null){
@@ -50,13 +51,19 @@ public class sacMouvement : MonoBehaviour{
                 }
             }
             if (Input.GetKeyDown(KeyCode.B)){
+                StartCoroutine(Transition());
                 mouvementDuJoueur.droitDeMarcher = true;
                 boiteDeMenuDeJeu.SetActive(true);
                 gameObject.SetActive(false);
             }
         }else if (Input.GetKeyDown(KeyCode.B)){
+            StartCoroutine(Transition());
             StartCoroutine(FermetureDeLaFenêtre());
         }
+    }
+    IEnumerator Transition(){
+        //GameObject.FindWithTag("Fondu").GetComponent<Animator>().SetTrigger("fondu complet");
+        yield return null;
     }
     IEnumerator FermetureDeLaFenêtre(){
         yield return new WaitForSeconds(0.01f);

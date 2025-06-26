@@ -5,7 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 
-public class chosirSonNom : MonoBehaviour{
+public class chosirSonNom : MonoBehaviour
+{
     public GameObject boutonContinuer;
     public Text texteEcrit;
     private bool leBoutonDoitÊtreAfficher;
@@ -13,15 +14,15 @@ public class chosirSonNom : MonoBehaviour{
     void Update(){
         choie = texteEcrit.text;
         leBoutonDoitÊtreAfficher = false;
-        if (choie.Length >2 && choie.Length <= 16){
+        if (choie.Length > 2 && choie.Length <= 16){
             bool espaceValidé = false;
             for (int i = 0; i < choie.Length; i++){
                 if (choie[i] != ' '){
-                    espaceValidé=true;
+                    espaceValidé = true;
                 }
             }
             if (espaceValidé){
-                leBoutonDoitÊtreAfficher=true;
+                leBoutonDoitÊtreAfficher = true;
             }
         }
         if (leBoutonDoitÊtreAfficher){
@@ -36,6 +37,12 @@ public class chosirSonNom : MonoBehaviour{
     public void EnregistrerLeNom(){
         NewDataCenter.Instance.SauvegarderSTR("nomDuJoueur", choie);
         print("enregistrer");
-        SceneManager.LoadScene("maison du héro");
+        StartCoroutine(ChangementScène("maison du héro"));
+    }
+    
+    IEnumerator ChangementScène(string scène) {        
+        GameObject.FindWithTag("Fondu").GetComponent<Animator>().SetTrigger("faireLeFondu");
+        yield return new WaitForSeconds(0.40f);
+        SceneManager.LoadScene(scène);
     }
 }

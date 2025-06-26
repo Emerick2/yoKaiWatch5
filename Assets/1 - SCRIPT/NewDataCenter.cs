@@ -9,14 +9,16 @@ using UnityEngine;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class NewDataCenter : MonoBehaviour{
     private static NewDataCenter _instance;
+    private DataContainer dataContainer;
     public string filePath;
     public bool lesDonnéesDoiventÊtreChiffré=false; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
     private string clefDeChiffrement="g89d56566fg4d32fsdf1gsdfsf32";
     private string crypted = "";
-    private List<string> lesLieuDeData = new List<string>();
+    private List<string> lesLieuDeData = new List<string> {"mesData.json","équipe.json","position.json"};
 
     public static NewDataCenter Instance{
         get{
@@ -48,20 +50,20 @@ public class NewDataCenter : MonoBehaviour{
         }else{
             Destroy(gameObject);
         }
-        lesLieuDeData.Add("mesData.json");
-        lesLieuDeData.Add("équipe.json");
         //filePath = Application.persistentDataPath + "/mesData.json";
         ChargerDonnées();
         MeilleurScoreADéfinir();
     }
 
     public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json"){
+        dossier = CorrigerNom(dossier);
         valeur=chiffrerLesDonnées(valeur);
         dataDict[clef] = valeur;
         string json = JsonUtility.ToJson(new DataContainer(dataDict));
         File.WriteAllText(Path.Combine(filePath+dossier), json);
     }
     public void SauvegarderINT(string clef, int valeur, string dossier="mesData.json"){
+        dossier = CorrigerNom(dossier);
         string valeurLue = Lire(clef);
         int valeurExistante = int.TryParse(valeurLue, out int resultat) ? resultat : 0;
 
@@ -73,6 +75,7 @@ public class NewDataCenter : MonoBehaviour{
     }
 
     public string Lire(string clef, string dossier="mesData.json"){
+        dossier = CorrigerNom(dossier);
         if (dataDict.TryGetValue(clef, out string valeur)){
             valeur = déchiffrerLesDonnées(valeur);
             //if (int.TryParse(valeur, out int intValue)){
@@ -83,17 +86,33 @@ public class NewDataCenter : MonoBehaviour{
         return "0";
     }
 
+    string CorrigerNom(string nom){
+        if (string.IsNullOrWhiteSpace(nom)) return "fichier.json";
+        if (!nom.EndsWith(".json", StringComparison.OrdinalIgnoreCase)) nom += ".json";
+        return nom;
+    }
 
-
-    private void ChargerDonnées(string dossier="mesData.json"){
+    private void ChargerDonnées(){
+        dataDict = new Dictionary<string, string>(); // Reset de base
         foreach (string item in lesLieuDeData){
-            if (File.Exists(Path.Combine(filePath+item))){
-                string json = File.ReadAllText(Path.Combine(filePath+item));
-                DataContainer dataContainer = JsonUtility.FromJson<DataContainer>(json);
-                dataDict = dataContainer.ToDictionary();
+            string path = Path.Combine(filePath + item);
+            if (File.Exists(path)){
+                string json = File.ReadAllText(path);
+                dataContainer = JsonUtility.FromJson<DataContainer>(json);
+                Dictionary<string, string> tempDict = dataContainer.ToDictionary();
+
+                foreach (var pair in tempDict){
+                    if (!dataDict.ContainsKey(pair.Key)) {
+                        dataDict.Add(pair.Key, pair.Value);
+                    } else {
+                        // Optionnel : tu peux choisir de remplacer ou d’ignorer
+                        dataDict[pair.Key] = pair.Value; // ou bien ne rien faire
+                    }
+                }
             }
         }
     }
+
     public void MeilleurScoreADéfinir(){
         int meilleurScore = int.Parse(Lire("dataMeilleurScore"));
         int nombreLarvuce = int.Parse(Lire("dataNombreDeLarvuceDansLaPartie"));

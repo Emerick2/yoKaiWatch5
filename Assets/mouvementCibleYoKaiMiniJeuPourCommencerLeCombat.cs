@@ -54,10 +54,15 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
     }
     IEnumerator DéclancherUnCombat(){
         écranDeChargement.SetActive(true);
-        GameObject newObject = new GameObject("livraison");
-        livraison Livraison = newObject.AddComponent<livraison>();
-        mouvementAléatoireYoKAi data = GameObject.Find("yo-kai").GetComponent<mouvementAléatoireYoKAi>();
-        Livraison.ajouterUneValeur(data.monID,data.monNiveau);//ID puis niveau
+        livraison Livraison = FindObjectOfType<livraison>();
+
+        Livraison.positionPersonnage = FindObjectOfType<mouvementAléatoireYoKAi>().positionPersonnage;
+        Livraison.nomDeLaScène = FindObjectOfType<mouvementAléatoireYoKAi>().nomDeLaScèneCible;
+
+        mouvementAléatoireYoKAi data = FindObjectOfType<mouvementAléatoireYoKAi>();
+        //Livraison.ajouterUneValeur(data.monID,data.monNiveau);//ID puis niveau        
+        Livraison.ajouterUneValeur(3,1);//ID puis niveau
+
         yield return new WaitForSeconds(1.5f);
         SceneManager.LoadScene("combat");
     }

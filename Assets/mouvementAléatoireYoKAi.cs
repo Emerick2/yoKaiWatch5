@@ -17,10 +17,18 @@ public class mouvementAléatoireYoKAi : MonoBehaviour{
 
     public int monID;
     public int monNiveau;
+
+    
+    public Vector3 positionPersonnage;
+    public string nomDeLaScèneCible;
     void Start(){            
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         GestionnaireDuJeuDeLaCible livraison = GameObject.Find("livraison").GetComponent<GestionnaireDuJeuDeLaCible>();
         GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[livraison.monID].yoKai);
+        
+        positionPersonnage = livraison.positionPersonnage;
+        nomDeLaScèneCible = livraison.nomDeLaScèneCible;
+
         TV.transform.localScale = new Vector3(200,200,200);
         TV.transform.parent = transform;
         yoKaiMModel3D anim = TV.AddComponent<yoKaiMModel3D>();
