@@ -4,23 +4,21 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class trouverUnYoKai : MonoBehaviour{
-    [HideInInspector] public bool leLieuEstVide = false;
-    [HideInInspector] public int IDduYoKaiPrésent;
-    [HideInInspector] public int niveauDuYoKaiPrésent;
-    [HideInInspector] public string rang;
+    /*[HideInInspector]*/ public bool leLieuEstVide = false;
+    /*[HideInInspector]*/ public int IDduYoKaiPrésent;
+    /*[HideInInspector]*/ public int niveauDuYoKaiPrésent;
+    /*[HideInInspector]*/ public string rang;
 
     public bool danLeLieu = false;
 
     void Update(){
-        if (Input.GetKeyDown(KeyCode.E) && danLeLieu){
+        if (Input.GetKeyDown(KeyCode.E) && danLeLieu && mouvementDuJoueur.droitDeMarcher == true){
             if (!leLieuEstVide){
                 GameObject newObject = new GameObject("livraison");
-                GestionnaireDuJeuDeLaCible livraison = newObject.AddComponent<GestionnaireDuJeuDeLaCible>();
-                //revenir
-                livraison.monID = IDduYoKaiPrésent;
-                livraison.monNiveau = niveauDuYoKaiPrésent;
-                livraison.positionPersonnage = GameObject.FindWithTag("Player").transform.position; 
-                livraison.nomDeLaScèneCible = SceneManager.GetActiveScene().name;
+                BaladeDeCombat livraison = newObject.AddComponent<BaladeDeCombat>();
+                livraison.Ajouter(IDduYoKaiPrésent, niveauDuYoKaiPrésent);
+                livraison.positionJoueur = GameObject.FindWithTag("Player").transform.position; 
+                livraison.scèneOriginale = SceneManager.GetActiveScene().name;
                 SceneManager.LoadScene("visé le yo-kai");
             }
         }

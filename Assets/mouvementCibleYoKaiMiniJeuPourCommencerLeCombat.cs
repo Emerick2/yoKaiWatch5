@@ -37,7 +37,18 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
                 position.z -= vitesse * Time.deltaTime;
             }
             transform.position = position;
+
+            if (Input.GetKey(KeyCode.B)) BoutonB();
         }
+    }
+    public void BoutonB(){
+        BaladeDeCombat bala = FindObjectOfType<BaladeDeCombat>();
+        GameObject TV = new GameObject("livraison");
+        LivraisonTp tp = TV.AddComponent<LivraisonTp>();
+        tp.positionPersonnage = bala.positionJoueur;
+        tp.nomDeLaScèneCible = bala.scèneOriginale;
+        bala.Détruit();
+        SceneManager.LoadScene(bala.scèneOriginale);
     }
     IEnumerator Regarde(){
         while (étape < 6){
@@ -54,15 +65,6 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
     }
     IEnumerator DéclancherUnCombat(){
         écranDeChargement.SetActive(true);
-        livraison Livraison = FindObjectOfType<livraison>();
-
-        Livraison.positionPersonnage = FindObjectOfType<mouvementAléatoireYoKAi>().positionPersonnage;
-        Livraison.nomDeLaScène = FindObjectOfType<mouvementAléatoireYoKAi>().nomDeLaScèneCible;
-
-        mouvementAléatoireYoKAi data = FindObjectOfType<mouvementAléatoireYoKAi>();
-        //Livraison.ajouterUneValeur(data.monID,data.monNiveau);//ID puis niveau        
-        Livraison.ajouterUneValeur(3,1);//ID puis niveau
-
         yield return new WaitForSeconds(1.5f);
         SceneManager.LoadScene("combat");
     }

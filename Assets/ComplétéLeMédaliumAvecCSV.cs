@@ -4,7 +4,7 @@ using UnityEngine;
 using System;
 
 public class ComplétéLeMédaliumAvecCSV : MonoBehaviour{
-    public medaliumDictionnaire médailum;
+    private medaliumDictionnaire médailum;
     private char séparateur = ';';
     private string nomDuFichierCSV = "Médalium";
     List<string[]> lignesNom;
@@ -13,6 +13,9 @@ public class ComplétéLeMédaliumAvecCSV : MonoBehaviour{
         /*foreach (string[] ligne in lignesNom){
             Debug.Log(string.Join(" | ", ligne));
         }*/
+    }
+    void Start(){
+        médailum = medaliumDictionnaire._instance.AvoirLeGameObject().GetComponent<medaliumDictionnaire>();
         AméliorerLeMédalium();
     }
 

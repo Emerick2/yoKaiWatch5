@@ -14,28 +14,15 @@ public class mouvementAléatoireYoKAi : MonoBehaviour{
 
     private bool actionEnCours=false;
     private Transform cible;
-
-    public int monID;
-    public int monNiveau;
-
-    
-    public Vector3 positionPersonnage;
-    public string nomDeLaScèneCible;
     void Start(){            
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-        GestionnaireDuJeuDeLaCible livraison = GameObject.Find("livraison").GetComponent<GestionnaireDuJeuDeLaCible>();
-        GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[livraison.monID].yoKai);
+        BaladeDeCombat livraison = FindObjectOfType<BaladeDeCombat>();
+        GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[livraison.listeYoKai[0].ID].yoKai);
         
-        positionPersonnage = livraison.positionPersonnage;
-        nomDeLaScèneCible = livraison.nomDeLaScèneCible;
-
         TV.transform.localScale = new Vector3(200,200,200);
         TV.transform.parent = transform;
         yoKaiMModel3D anim = TV.AddComponent<yoKaiMModel3D>();
         anim.animController1 = transform.GetComponent<yoKaiMModel3D>().animController1;
-        monID = livraison.monID;
-        monNiveau = livraison.monNiveau;
-        Destroy(GameObject.Find("livraison"));
         StartCoroutine(Fonctionnement());
     }
     IEnumerator Fonctionnement(){

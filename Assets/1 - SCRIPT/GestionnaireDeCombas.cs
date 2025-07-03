@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 //TV.transform.localScale = new Vector3(100, 100, 100);
 
 public class GestionnaireDeCombas : MonoBehaviour{
-    private livraison Lili;
+    private BaladeDeCombat Lili;
     public LivraisonPrivée Livraison;
 
     private bool suite = false;
@@ -24,7 +24,7 @@ public class GestionnaireDeCombas : MonoBehaviour{
     [HideInInspector]public bool finDuCombat=false;
     [HideInInspector]public bool leJoeurAGagner=false;
     private medaliumDictionnaire MedaliumDictionnaire;
-    public MesYoKai mesYoKai;
+    private MesYoKai mesYoKai;
     public List<int> IDDesYoKaiDeEquipe = new List<int>();//identifient unique "mesYoKai"
     public Transform[] positionJ;
     public Transform[] positionE;
@@ -38,34 +38,36 @@ public class GestionnaireDeCombas : MonoBehaviour{
     public List<Personnage> joueurEnEtatDeCombat = new();
 
     void Start(){
-        Lili = FindObjectOfType<livraison>();
-        Livraison.numéroDesYoKaiPourLeCombat = Lili.numéroDesYoKaiPourLeCombat;
-        Livraison.nomDeLaScène = Lili.nomDeLaScène;
-        Livraison.positionPersonnage = Lili.positionPersonnage;
+        mesYoKai = MesYoKai.Instance.AvoirLeGameObject().GetComponent<MesYoKai>();
+        MedaliumDictionnaire = medaliumDictionnaire._instance.AvoirLeGameObject().GetComponent<medaliumDictionnaire>();
+        Lili = FindObjectOfType<BaladeDeCombat>();
+        foreach (Éléments item in Lili.listeYoKai){
+            UneDeMesLivraison liv = new UneDeMesLivraison();
+            liv.ID = item.ID;
+            liv.niveau = item.niveau;
+            Livraison.numéroDesYoKaiPourLeCombat.Add(liv);
+        }
+        Livraison.nomDeLaScène = Lili.scèneOriginale;
+        Livraison.positionPersonnage = Lili.positionJoueur;
         Lili.Détruit();
         if (g == null){
             Debug.LogError("Le Gestionnaire n'est pas assigné !");
             return;
         }
         g.Initialiser();
-        print("ici b2");
+        //print("ici b2");
         StartCoroutine(start());
     }
 
     IEnumerator start(){
-        print("ici b1");
         while (mesYoKai.yoKaiDeMonEquipeChargé == false || mesYoKai.finDuChargement == false){
             yield return new WaitForSeconds(0.3f);
         }
-        print("c0");
         foreach (int item in mesYoKai.yoKaiDeMonEquipe){
             IDDesYoKaiDeEquipe.Add(item);
         }
-        print("c1");
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-        print("c2");
         chargementDesPersonnage();
-        print("c3");
         StartCoroutine(boucleDuJeu());
         if (g.E.Count == 1) {g.blocDeVieE[1].SetActive(false);g.blocDeVieE[2].SetActive(false);}
         if (g.E.Count == 2) {g.blocDeVieE[2].SetActive(false);}
@@ -81,10 +83,8 @@ public class GestionnaireDeCombas : MonoBehaviour{
     }
 
     void chargementDesPersonnage(){
-        print("ici a1");
         //joueur :
         for (int i = 0; i < IDDesYoKaiDeEquipe.Count; i++){
-            print("ici a3");
             if (i >= médaillon.Count){
                 Debug.LogError($"Pas assez de médaillons pour l'index {i}. médaillon.Count = {médaillon.Count}");
                 continue;
@@ -116,7 +116,6 @@ public class GestionnaireDeCombas : MonoBehaviour{
             //g.nomTexteJ[i].text=g.J[i].nom;
             TV.transform.name = TV.transform.name.Replace("(Clone)", "");
         }
-        print("ici a2");
         //ennemie :
         if (Livraison == null){
             Debug.LogWarning("aucun livreur n'est passer !");
@@ -273,13 +272,14 @@ public class GestionnaireDeCombas : MonoBehaviour{
 
     void RafraichireLeCanvas(){
         /*----- joueur -----*/
-        for (int i = 0; i < g.J_Vie.Count; i++){
+        int minCount = Mathf.Min(g.J_Vie.Count, g.J.Count);
+        for (int i = 0; i < minCount; i++){
             g.J[Mod(g.numéroPrésentDevant+i,6)].amûltime += 5;
         }
-        for (int i = 0; i < g.E_Vie.Count; i++){
-            if (g.E.Count > i){
-                g.E_Vie[i].value = g.E[i].vie;
-            }
+        
+        minCount = Mathf.Min(g.E_Vie.Count, g.E.Count);
+        for (int i = 0; i < minCount; i++){
+            g.E_Vie[i].value = g.E[i].vie;
         }
 
         /*----- ennemie -----*/
@@ -289,10 +289,15 @@ public class GestionnaireDeCombas : MonoBehaviour{
     }
     void Rafraichire(){
         for (int i = 0; i < g.J_Vie.Count; i++){
-            g.J_Vie[i].value = g.J[Mod(g.numéroPrésentDevant+i,6)].vie;
-            g.J[Mod(g.numéroPrésentDevant+i,6)].amûltime += 5;
-            g.barreDeAmultimeJ[i].value=g.J[Mod(g.numéroPrésentDevant+i,6)].amûltime;
-            g.nomTexteJ[i].text=g.J[Mod(g.numéroPrésentDevant+i,6)].nom;
+            int idx = Mod(g.numéroPrésentDevant+i, g.J.Count);
+            if (i < g.J.Count && i < g.barreDeAmultimeJ.Count && i < g.nomTexteJ.Count) {
+                g.J_Vie[i].value = g.J[idx].vie;
+                g.J[idx].amûltime += 5;
+                g.barreDeAmultimeJ[i].value = g.J[idx].amûltime;
+                g.nomTexteJ[i].text = g.J[idx].nom;
+            } else {
+                Debug.LogWarning($"Index {i} hors limites dans Rafraichire : g.J.Count={g.J.Count}, g.barreDeAmultimeJ.Count={g.barreDeAmultimeJ.Count}, g.nomTexteJ.Count={g.nomTexteJ.Count}");
+            }
         }
     }
 

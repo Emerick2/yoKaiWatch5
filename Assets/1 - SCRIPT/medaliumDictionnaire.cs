@@ -5,13 +5,40 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
+using Unity.VisualScripting;
 
 public class medaliumDictionnaire : MonoBehaviour{
-    /*[HideInInspector]*/ public List<MedaliumNonPersonel> dictionnaire;
+    public static medaliumDictionnaire _instance;
+    public Sprite imageDeUneMédailleInconnue;
+
+    /*[HideInInspector]*/
+    public List<MedaliumNonPersonel> dictionnaire;
     public List<Sprite> imageDesRang;
     public ImageDesTribue imageDesTribue;
-    
-    
+    public GameObject AvoirLeGameObject(){
+        return gameObject;
+    }
+
+    private void Awake(){
+        if (_instance == null){
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else{
+            Destroy(gameObject);
+        }
+    }
+    void Start(){
+        foreach (MedaliumNonPersonel item in dictionnaire){
+            if (item.médaillon == null){
+                item.médaillon = imageDeUneMédailleInconnue;
+            }
+            //inversion squellette et description :
+            string t = item.nomDeMonSquellette;
+            item.nomDeMonSquellette = item.description;
+            item.description = t;
+        }
+    }
     /*
     void Start(){
         if (int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"))<3){
@@ -114,10 +141,10 @@ public class MedaliumNonPersonel{
     public Type type;
     public Ammultime amultime;
     public Envoutement envoutement;
-    [Range(1,100)] public int force;
-    [Range(1,100)] public int vitesse;
-    [Range(1,100)] public int esprit;
-    [Range(1,100)] public int vie;
+    public int force;
+    public int vitesse;
+    public int esprit;
+    public int vie;
     public string nomDeMonSquellette;
 }
 

@@ -29,6 +29,9 @@ public class MesYoKai : MonoBehaviour{
             Destroy(gameObject);
         }
     }
+    public GameObject AvoirLeGameObject(){
+        return gameObject;
+    }
 
     void Start(){
         ChargerLesYoKai();

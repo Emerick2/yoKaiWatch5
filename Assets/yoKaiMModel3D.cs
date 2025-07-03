@@ -56,6 +56,10 @@ public class yoKaiMModel3D : MonoBehaviour{
             GameObject modèle3DDuYoKai = gameObject;
             Animator modeleAnimator = modèle3DDuYoKai.GetComponent<Animator>();
             RuntimeAnimatorController animController = modeleAnimator.runtimeAnimatorController;
+            if (animController == null) {
+                Debug.LogError("Aucun RuntimeAnimatorController n'est assigné à l'Animator !");
+                return;
+            }
             AnimationClip[] clips = animController.animationClips;
             AnimatorOverrideController overrideController = new AnimatorOverrideController(animController);
             string nomDuYoKaiDeAnimatorParDéfaut = "y105010";

@@ -15,9 +15,26 @@ public class fonctionnementMédalium : MonoBehaviour{
     [Range(0,11)] public int ID;
     public int IDTotal;
     public int nombreTotalDeCase;
+    public List<int> lesIdAInséré = new List<int>();
+    public bool cesLeMédalium = true;
+    private MesYoKai mesYoKai;//mesYoKai.maListe
+
     void Start(){
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-        nombreTotalDeCase = Mathf.CeilToInt((médailum.dictionnaire.Count) / 12f);
+        mesYoKai = NewDataCenter.Instance.transform.Find("DICTIONNAIRE DE MES YO-KAI").GetComponent<MesYoKai>();
+
+        if (cesLeMédalium){
+            int i=1;
+            foreach (MedaliumNonPersonel item in médailum.dictionnaire){
+                lesIdAInséré.Add(i);
+                i++;
+            }
+        }else{
+            foreach (ListeDeMesYoKai item in mesYoKai.maListe){
+                lesIdAInséré.Add(item.ID);
+            }
+        }
+        nombreTotalDeCase = Mathf.CeilToInt((lesIdAInséré.Count) / 12f);
         PlacerLesMédailles();
         MouvementDansLaPage(0);
 
@@ -52,7 +69,7 @@ public class fonctionnementMédalium : MonoBehaviour{
         }
         else if (nouveau == 1){
             // Aller à la page suivante
-            if (médailum.dictionnaire.Count > 12 * numéroDeLaPage){
+            if (lesIdAInséré.Count > 12 * numéroDeLaPage){
                 numéroDeLaPage++;
                 ID = 0;
                 IDTotal = (numéroDeLaPage - 1) * 12;
@@ -104,9 +121,9 @@ public class fonctionnementMédalium : MonoBehaviour{
     void PlacerLesMédailles(){
         for (int i = 0; i < espaceDesMédailles.Count; i++){
             espaceDesMédailles[i].transform.Find("numéro").GetComponent<Image>().sprite = imageDesNuméro[i];
-            if (médailum.dictionnaire.Count > IDTotal+i){
+            if (lesIdAInséré.Count > IDTotal+i){
                 espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite =  médailum.dictionnaire[IDTotal+i].médaillon;
+                espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite =  médailum.dictionnaire[lesIdAInséré[IDTotal+i]].médaillon;
             }else {
                 espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(false);
             }
@@ -116,13 +133,13 @@ public class fonctionnementMédalium : MonoBehaviour{
     }
 
     void RemplirLeBloc(){
-        if (médailum.dictionnaire.Count > IDTotal){
+        if (lesIdAInséré.Count > IDTotal){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.dictionnaire[IDTotal];
+            MedaliumNonPersonel google = médailum.dictionnaire[lesIdAInséré[IDTotal]];
             blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
             blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.nom;
-            blocInformatif.transform.Find("description").GetComponent<Text>().text = google.description;
+            if (cesLeMédalium) blocInformatif.transform.Find("description").GetComponent<Text>().text = google.description;
 
             string maTribue = google.tribue.ToString();
             if (maTribue == "Vaillant") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Vaillant;

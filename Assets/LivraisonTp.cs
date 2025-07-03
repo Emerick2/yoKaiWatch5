@@ -8,6 +8,9 @@ public class LivraisonTp : MonoBehaviour{
     public string nomDeLaScèneCible;
 
     private bool aDéjàTéléporté = false;
+    public bool cesUnAlléRetours;
+    public string nomDeLaScèneDuRetours;
+    public Vector3 positionDuRetours;
 
     void Start(){
         DontDestroyOnLoad(gameObject);
@@ -20,7 +23,16 @@ public class LivraisonTp : MonoBehaviour{
             if (joueur != null){
                 joueur.transform.position = positionPersonnage;
                 aDéjàTéléporté = true;
+                if (!cesUnAlléRetours) Destroy(gameObject);
             }
         }
+    }
+
+    public void InverserLaDirection(){
+        positionPersonnage = positionDuRetours;
+        nomDeLaScèneCible = nomDeLaScèneDuRetours;
+        cesUnAlléRetours = false;
+        aDéjàTéléporté = false;
+        SceneManager.LoadScene(nomDeLaScèneCible);
     }
 }

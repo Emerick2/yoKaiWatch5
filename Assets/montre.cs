@@ -8,12 +8,11 @@ public class montre : MonoBehaviour{
     public Image image;
     public Image rangImage;
     public GameObject blocRang;
-    public medaliumDictionnaire médalium;
+    private medaliumDictionnaire médalium;
 
     public string rang;
     private List<GameObject> boîte = new List<GameObject>();
     private GameObject boîteConcerner;
-    public PersonnageAléatoireDeLaZonne personageAléatoireDeLaZonne;
     private GameObject joueur;
     private int indiceActuelleDeEguille = -1;
 
@@ -28,16 +27,12 @@ public class montre : MonoBehaviour{
     public Animator animator;
 
     void Start() {
-        if (personageAléatoireDeLaZonne == null) {
-            Debug.LogError("personageAléatoireDeLaZonne n'est pas assigné dans l'inspecteur !");
-            return;
-        }
+        médalium = medaliumDictionnaire._instance.AvoirLeGameObject().GetComponent<medaliumDictionnaire>();
+
         joueur = GameObject.FindWithTag("Player");
         trouverUnYoKai[] composantsTrouvés = FindObjectsOfType<trouverUnYoKai>();
         foreach (trouverUnYoKai composant in composantsTrouvés) {
-            if (composant.leLieuEstVide == false){
-                boîte.Add(composant.gameObject);
-            }
+            boîte.Add(composant.gameObject);
         }
         if (boîte.Count == 0) {
             Debug.Log("Aucun enfant trouvé avec le script trouverUnYoKai.");
@@ -48,10 +43,12 @@ public class montre : MonoBehaviour{
         float total = 1000;
         float totalTemps = 0;
         for (int i = 0; i < boîte.Count ; i++){
-            totalTemps = distance(joueur.transform, boîte[i].transform);
-            if (totalTemps<total){
-                total=totalTemps;
-                boîteConcerner = boîte[i];
+            if (boîte[i].GetComponent<trouverUnYoKai>().leLieuEstVide == false){
+                totalTemps = distance(joueur.transform, boîte[i].transform);
+                if (totalTemps<total){
+                    total=totalTemps;
+                    boîteConcerner = boîte[i];
+                }
             }
         }
         valeur = (int)(100-total);

@@ -55,7 +55,7 @@ public class menuPrincipal : MonoBehaviour{
             }
             if (Input.GetKeyDown(KeyCode.E)){
                 if (jeSuisSurContinuer){
-                    string p = NewDataCenter.Instance.Lire("scenne","position");
+                    string p = NewDataCenter.Instance.Lire("scenne","position.json");
                     if (p != "0"){
                         leJeu = p;
                     }
