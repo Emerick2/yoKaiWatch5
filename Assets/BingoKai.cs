@@ -40,7 +40,7 @@ public class BingoKai : MonoBehaviour{
     }
     public void BoutonE(){
         if (autorisationDeContinuer1){
-            scripteDuChoieDeLaPièce.PièceSélectionné();//je revindrais ici plus tard
+            //scripteDuChoieDeLaPièce.PièceSélectionné();//je revindrais ici plus tard
             boutonB.SetActive(false);
             boutonE.SetActive(false);
             possibilitéDeAppuyerSurB = false;
