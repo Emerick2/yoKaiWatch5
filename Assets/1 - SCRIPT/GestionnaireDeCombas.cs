@@ -274,7 +274,9 @@ public class GestionnaireDeCombas : MonoBehaviour{
         /*----- joueur -----*/
         int minCount = Mathf.Min(g.J_Vie.Count, g.J.Count);
         for (int i = 0; i < minCount; i++){
-            g.J[Mod(g.numéroPrésentDevant+i,6)].amûltime += 5;
+            if (Mod(g.numéroPrésentDevant+i,6) < g.J.Count){
+                g.J[Mod(g.numéroPrésentDevant+i,6)].amûltime += 5;
+            }
         }
         
         minCount = Mathf.Min(g.E_Vie.Count, g.E.Count);
