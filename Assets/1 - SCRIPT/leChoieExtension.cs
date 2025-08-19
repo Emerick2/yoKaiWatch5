@@ -61,8 +61,7 @@ public class lechoixExtension : MonoBehaviour
     }
     void Update(){
         if (jeSuisUtile){
-            if ((Input.GetKeyDown(KeyCode.R) /*|| Input.GetButtonDown("R")*/)){
-                //right (droite ->)
+            if (Input.GetButtonDown("flèche droite")){
                 position++;
                 if (position > nombre){
                     position = 0;
@@ -77,8 +76,7 @@ public class lechoixExtension : MonoBehaviour
                 }
                 //objetSélection.transform.position=objet[position].transform.position;
                 //objetSélection.transform.position.x+=10.82f;
-            }else if ((Input.GetKeyDown(KeyCode.L) /*|| Input.GetButtonDown("L")*/)){
-                //left (gauche <-)
+            }else if (Input.GetButtonDown("flèche gauche")){
                 position--;
                 if (position > nombre){
                     position = 0;
@@ -93,13 +91,13 @@ public class lechoixExtension : MonoBehaviour
                 }
                 //objetSélection.transform.position=objet[position].transform.position;
                 //objetSélection.transform.position.x+=10.82f;
-            }else if(Input.GetKeyDown(KeyCode.E) && !pauseDeApparition && messager!=null && !attendRelachementE && position >= 0 && position < choix.Count /*&& objetSélection != null*/ && objet[position] != null){
+            }else if(Input.GetButtonDown("A") && !pauseDeApparition && messager!=null && !attendRelachementE && position >= 0 && position < choix.Count /*&& objetSélection != null*/ && objet[position] != null){
                 pauseDeApparition=true;
                 jeSuisUtile=false;
                 messager.GetComponent<PNJ_script>().enregistrerUneValeur(clef, choix[position], true);
                 messager.GetComponent<PNJ_script>().atendUneRéponceALaQuestion=false;
                 fermeture();
-            }else if (Input.GetKeyUp(KeyCode.E)){
+            }else if (Input.GetButtonUp("A")){
                 attendRelachementE = false;
             }
         }

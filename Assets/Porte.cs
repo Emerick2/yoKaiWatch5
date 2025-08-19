@@ -11,7 +11,7 @@ public class Porte : MonoBehaviour{
     public bool seSeraUnAlléRetours;
 
     void Update(){
-        if (jeSuisDedans && Input.GetKey(KeyCode.E)){
+        if (jeSuisDedans && Input.GetButton("A")){
             GameObject TV = new GameObject();
             LivraisonTp TP = TV.AddComponent<LivraisonTp>();
             TP.nomDeLaScèneCible = scèneCible;

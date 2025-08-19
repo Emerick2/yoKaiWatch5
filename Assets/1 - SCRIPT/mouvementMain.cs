@@ -23,20 +23,20 @@ public class MouvementMain : MonoBehaviour
         if (!bloquer){
             Vector2 position = rectTransform.anchoredPosition;
 
-            if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && position.x < maxXPosition){
+            if (Input.GetButtonDown("flèche droite") && position.x < maxXPosition){
                 position.x += vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)) && position.x > minXPosition){
+            if (Input.GetButtonDown("flèche gauche") && position.x > minXPosition){
                 position.x -= vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) && position.y < maxYPosition){
+            if (Input.GetButtonDown("flèche haut") && position.y < maxYPosition){
                 position.y += vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && position.y > minYPosition){
+            if (Input.GetButtonDown("flèche bas") && position.y > minYPosition){
                 position.y -= vitesse * Time.deltaTime;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space)){
+            if (Input.GetButtonDown("A")){
                 StartCoroutine(StopClic());
             }
 

@@ -118,7 +118,7 @@ public class PNJ_script : MonoBehaviour {
     }
 
     void Update(){
-        if(isInRange && Input.GetKeyDown(KeyCode.E)){
+        if(isInRange && Input.GetButtonDown("A")){
             if (lesInstructions.Count==0){//premier passage}
                 mouvementDuJoueur.droitDeMarcher = false;
                 numéroDeDialogueSauvgarder=numéroDeDialogue;

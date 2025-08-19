@@ -13,7 +13,7 @@ public class sacMouvement : MonoBehaviour{
     public GameObject boiteDeMenuDeJeu;
     void Update(){   
         if (!pause){
-            if (Input.GetKeyDown(KeyCode.RightArrow)){
+            if (Input.GetButtonDown("flèche droite")){
                 indexGauche++;
                 if (indexGauche < 0){
                     indexGauche=sélectionnéHaut.Count-1;
@@ -22,7 +22,7 @@ public class sacMouvement : MonoBehaviour{
                 }
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.LeftArrow)){
+            if (Input.GetButtonDown("flèche gauche")){
                 indexGauche--;
                 if (indexGauche < 0){
                     indexGauche=sélectionnéHaut.Count-1;
@@ -31,17 +31,17 @@ public class sacMouvement : MonoBehaviour{
                 }
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.UpArrow)){
+            if (Input.GetButtonDown("flèche haut")){
                 if (indexHaut == 0){indexHaut=1;}
                 else {indexHaut=0;}
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow)){
+            if (Input.GetButtonDown("flèche bas")){
                 if (indexHaut == 0){indexHaut=1;}
                 else {indexHaut=0;}
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.E)){
+            if (Input.GetButtonDown("A")){
                 StartCoroutine(Transition());
                 int numéro=indexGauche;
                 if (indexHaut==0){numéro+=sélectionnéHaut.Count;}
@@ -50,13 +50,13 @@ public class sacMouvement : MonoBehaviour{
                     pause=true;
                 }
             }
-            if (Input.GetKeyDown(KeyCode.B)){
+            if (Input.GetButtonDown("B")){
                 StartCoroutine(Transition());
                 mouvementDuJoueur.droitDeMarcher = true;
                 boiteDeMenuDeJeu.SetActive(true);
                 gameObject.SetActive(false);
             }
-        }else if (Input.GetKeyDown(KeyCode.B)){
+        }else if (Input.GetButtonDown("B")){
             StartCoroutine(Transition());
             StartCoroutine(FermetureDeLaFenêtre());
         }

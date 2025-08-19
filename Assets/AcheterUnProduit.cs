@@ -29,7 +29,7 @@ public class AcheterUnProduit : MonoBehaviour{
     void Update(){
         //if (Input.GetKeyDown(KeyCode.+)) AugmenterQuantité(1);
         //if (Input.GetKeyDown(KeyCode.-)) DiminuerQuantité(1);
-        if (Input.GetKeyDown(KeyCode.A)) payer();
+        if (Input.GetButtonDown("A")) payer();
         total = (int)prixDeUnProduit*int.Parse(nombre.text);
         if(monArgent<total){
             int x = 0;

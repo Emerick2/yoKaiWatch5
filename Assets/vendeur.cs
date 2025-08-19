@@ -6,7 +6,7 @@ public class vendeur : MonoBehaviour{
     public GameObject blocDeBoutique;
     private bool dansLaZonne;
     void Update(){
-        if(dansLaZonne && Input.GetKeyDown(KeyCode.E)){
+        if(dansLaZonne && Input.GetButtonDown("A")){
             mouvementDuJoueur.droitDeMarcher = false;
             blocDeBoutique.SetActive(true);
         }

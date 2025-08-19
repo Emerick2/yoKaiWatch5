@@ -19,7 +19,7 @@ public class Coffre : MonoBehaviour{
         }
     }
     void Update(){
-        if(dansLaZonne && Input.GetKeyDown(KeyCode.E) && déjaOuvert == false){
+        if(dansLaZonne && Input.GetButtonDown("A") && déjaOuvert == false){
             transform.GetComponent<Animator>().SetBool("ouverture",true);
             string nom = objetPossible[Random.Range(0,objetPossible.Count)];
             NewDataCenter.Instance.SauvegarderINT(nom, 1);

@@ -10,24 +10,31 @@ public class jeuAmultime : MonoBehaviour
     public bool jeuPointer;
     public bool jeuToucher;//6
     public GameObject CHARGER;
+    public Image charge;
     public int décompte;
     public RectTransform[] positionDeApparitionDesBoules;
     public GameObject laBoule;
     public GameObject lePapa;
+    void Start(){
+        Initialisation();
+    }
 
-    public void décompter(){
+    public void Initialisation(){
+        if (jeuToucher){
+            décompte=6;
+            StartCoroutine(TourneViseEnvoyer());
+        }
+    }
+
+    void Décompter(){
         décompte-=1;
+        charge.fillAmount = 1f-((float)décompte/6f);
         if (décompte<=0){
+            //appeler AmultimeFinie
             CHARGER.SetActive(true);
         }
     }
-    void Start(){
-        if (jeuToucher){
-            décompte=6;
-            StartCoroutine(tourneViseEnvoyer());
-        }
-    }
-    IEnumerator tourneViseEnvoyer(){
+    IEnumerator TourneViseEnvoyer(){
         while (jeuToucher){
             yield return new WaitForSeconds(1f);
             int indexSpawn = Random.Range(0, positionDeApparitionDesBoules.Length);
@@ -42,6 +49,11 @@ public class jeuAmultime : MonoBehaviour
                 indexCible = Random.Range(0, 4);
             }
             TV.GetComponent<UI_Déplacement>().cible = positionDeApparitionDesBoules[indexCible].GetComponent<RectTransform>();
+            TV.transform.localScale = new Vector3(2f, 2f, 2f);
         }
+    }
+    public void BoulleToucher(GameObject go){
+        Destroy(go);
+        Décompter();
     }
 }

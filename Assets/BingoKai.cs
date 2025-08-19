@@ -31,10 +31,10 @@ public class BingoKai : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetKeyDown(KeyCode.E)){
+        if (Input.GetButtonDown("A")){
             BoutonE();
         }
-        if (Input.GetKey(KeyCode.B)){
+        if (Input.GetButton("B")){
             BoutonB();
         }
     }

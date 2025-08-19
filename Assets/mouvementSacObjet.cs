@@ -29,7 +29,7 @@ public class mouvementSacObjet : MonoBehaviour
     }
     void Update(){   
         if (!pause){
-            if (Input.GetKeyDown(KeyCode.RightArrow)){
+            if (Input.GetButton("flèche droite")){
                 indexGauche++;
                 if (indexGauche < 0){
                     indexGauche=sélectionnéHaut.Count-1;
@@ -38,7 +38,7 @@ public class mouvementSacObjet : MonoBehaviour
                 }
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.LeftArrow)){
+            if (Input.GetButton("flèche gauche")){
                 indexGauche--;
                 if (indexGauche < 0){
                     indexGauche=sélectionnéHaut.Count-1;
@@ -47,13 +47,13 @@ public class mouvementSacObjet : MonoBehaviour
                 }
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.UpArrow)){
+            if (Input.GetButton("flèche haut")){
                 if (indexHaut == 0){indexHaut=1;}
                 else if (indexHaut == 1){indexHaut=2;}
                 else {indexHaut=0;}
                 changerDePosition();
             }
-            if (Input.GetKeyDown(KeyCode.DownArrow)){
+            if (Input.GetButton("flèche bas")){
                 if (indexHaut == 2){indexHaut=1;}
                 else if (indexHaut == 1){indexHaut=0;}
                 else {indexHaut=2;}

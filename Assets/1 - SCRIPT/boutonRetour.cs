@@ -5,7 +5,7 @@ public class boutonRetour : MonoBehaviour
     public GameObject aOuvrir;
     public GameObject aFermer;
     void Update(){
-        if(Input.GetKeyDown(KeyCode.B)){
+        if(Input.GetButtonDown("B")){
             action();
         }
     }

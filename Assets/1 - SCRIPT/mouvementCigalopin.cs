@@ -24,7 +24,7 @@ public class mouvementCigalopin : MonoBehaviour{
 
     void Update(){
         transform.Translate(positionCible * vitesse * Time.deltaTime);
-        if (Input.GetKey(KeyCode.K)){//gauche
+        if (Input.GetButtonDown("flèche gauche")){
             if (position == 3){
                 Vector3 nouvellePosition = new Vector3(P2.position.x, transform.position.y, transform.position.z);
                 transform.position = nouvellePosition;

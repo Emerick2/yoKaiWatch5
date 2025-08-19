@@ -12,7 +12,7 @@ public class trouverUnYoKai : MonoBehaviour{
     public bool danLeLieu = false;
 
     void Update(){
-        if (Input.GetKeyDown(KeyCode.E) && danLeLieu && mouvementDuJoueur.droitDeMarcher == true){
+        if (Input.GetButtonDown("A") && danLeLieu && mouvementDuJoueur.droitDeMarcher == true){
             if (!leLieuEstVide){
                 GameObject newObject = new GameObject("livraison");
                 BaladeDeCombat livraison = newObject.AddComponent<BaladeDeCombat>();

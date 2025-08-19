@@ -150,15 +150,15 @@ public class fonctionnementMédaillon : MonoBehaviour{
 
     }
     void Update(){
-        if (Input.GetKeyDown(KeyCode.DownArrow)){
+        if (Input.GetButtonDown("flèche bas")){
             MouvementDansLaPage(3);
-        }else if (Input.GetKeyDown(KeyCode.UpArrow)){
+        }else if (Input.GetButtonDown("flèche haut")){
             MouvementDansLaPage(-3);
-        }else if (Input.GetKeyDown(KeyCode.RightArrow)){
+        }else if (Input.GetButtonDown("flèche droite")){
             MouvementDansLaPage(1);
-        }else if (Input.GetKeyDown(KeyCode.LeftArrow)){
+        }else if (Input.GetButtonDown("flèche gauche")){
             MouvementDansLaPage(-1);
-        }else if (Input.GetKey(KeyCode.B)){
+        }else if (Input.GetButtonDown("B")){
             numéroDeLaPage = 1;
             PlacerLesMédailles();
             MouvementDansLaPage(0);

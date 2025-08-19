@@ -6,7 +6,7 @@ public class outilInterfaceBouton : MonoBehaviour{
     public GameObject interfaceDuYoKaiPad;
     public GameObject boiteDeMenuDeJeu;
     void Update(){
-        if (Input.GetKeyDown(KeyCode.X)){
+        if (Input.GetButtonDown("X")){
             mouvementDuJoueur.droitDeMarcher = false;
             interfaceDuYoKaiPad.SetActive(true);
             boiteDeMenuDeJeu.SetActive(false);

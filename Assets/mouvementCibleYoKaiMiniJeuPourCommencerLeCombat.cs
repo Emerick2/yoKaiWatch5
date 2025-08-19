@@ -24,21 +24,21 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
         if (!bloquer){
             Vector3 position = transform.position;
 
-            if ((Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) && position.x < maxXPosition){
+            if (Input.GetButton("flèche droite") && position.x < maxXPosition){
                 position.x += vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow)) && position.x > minXPosition){
+            if (Input.GetButton("flèche gauche") && position.x > minXPosition){
                 position.x -= vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow)) && position.z < maxZPosition){
+            if (Input.GetButton("flèche haut") && position.z < maxZPosition){
                 position.z += vitesse * Time.deltaTime;
             }
-            if ((Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) && position.z > minZPosition){
+            if (Input.GetButton("flèche bas") && position.z > minZPosition){
                 position.z -= vitesse * Time.deltaTime;
             }
             transform.position = position;
 
-            if (Input.GetKey(KeyCode.B)) BoutonB();
+            if (Input.GetButton("B")) BoutonB();
         }
     }
     public void BoutonB(){

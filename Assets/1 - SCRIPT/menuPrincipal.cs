@@ -34,7 +34,7 @@ public class menuPrincipal : MonoBehaviour{
     }
     void Update(){
         if (jeSuisSurLeDéplacementMouvementPrincipal){
-            if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)){
+            if (Input.GetButtonDown("flèche droite") || Input.GetButtonDown("flèche gauche") || Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
                 if (jeSuisSurContinuer){//je vais viser la nouvelle partie
                     jeSuisSurContinuer = false;
                     cible = positionFlameNouvellePartie;
@@ -53,7 +53,7 @@ public class menuPrincipal : MonoBehaviour{
                     nouvellePartieSélectionner.SetActive(false);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.E)){
+            if (Input.GetButtonDown("A")){
                 if (jeSuisSurContinuer){
                     string p = NewDataCenter.Instance.Lire("scenne","position.json");
                     if (p != "0"){

@@ -77,11 +77,11 @@ public class ChoisirSaPièceDeBingoKai : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetKeyDown(KeyCode.RightArrow)) ChangerPosition(1);
-        if (Input.GetKeyDown(KeyCode.LeftArrow)) ChangerPosition(-1);
+        if (Input.GetButtonDown("flèche droite")) ChangerPosition(1);
+        if (Input.GetButtonDown("flèche gauche")) ChangerPosition(-1);
         if (lesPiècesDisponibles.Count > nombreDePièceMaximumSurUneRanger){
-            if (Input.GetKeyDown(KeyCode.DownArrow)) ChangerPosition(nombreDePièceMaximumSurUneRanger);
-            if (Input.GetKeyDown(KeyCode.UpArrow)) ChangerPosition(nombreDePièceMaximumSurUneRanger*(-1));
+            if (Input.GetButtonDown("flèche bas")) ChangerPosition(nombreDePièceMaximumSurUneRanger);
+            if (Input.GetButtonDown("flèche haut")) ChangerPosition(nombreDePièceMaximumSurUneRanger*(-1));
         }
     }
     void ChangerPosition(int valeur){

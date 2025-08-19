@@ -22,24 +22,24 @@ public class mouvementDuJoueur : MonoBehaviour{
 
     void Update(){
         if (droitDeMarcher){
-            if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)){
+            if (Input.GetButton("flèche droite")){
                 transform.Translate(directionDroit * vitesse * Time.deltaTime);
                 animator.SetBool("avence", true);
                 joueur.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
             }
-            else if (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftArrow))
+            else if (Input.GetButton("flèche gauche"))
             {
                 transform.Translate(directionGauche * vitesse * Time.deltaTime);
                 joueur.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
                 animator.SetBool("avence", true);
             }
-            else if (Input.GetKey(KeyCode.Z) || Input.GetKey(KeyCode.UpArrow))
+            else if (Input.GetButton("flèche haut"))
             {
                 transform.Translate(directionHaut * vitesse * Time.deltaTime);
                 joueur.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
                 animator.SetBool("avence", true);
             }
-            else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            else if (Input.GetButton("flèche bas"))
             {
                 transform.Translate(directionBas * vitesse * Time.deltaTime);
                 joueur.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
@@ -50,7 +50,7 @@ public class mouvementDuJoueur : MonoBehaviour{
                 animator.SetBool("avence", false);
             }
         }
-        if (Input.GetKeyDown(KeyCode.N)){
+        if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+")){
             Sauvgarder();
         }
     } 

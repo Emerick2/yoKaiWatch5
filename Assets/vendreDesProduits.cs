@@ -40,22 +40,22 @@ public class vendreDesProduits : MonoBehaviour{
     void Update(){
         boiteDeMenuDeJeu.SetActive(false);
         if (!acheter){
-            if (Input.GetKeyDown(KeyCode.UpArrow)){
+            if (Input.GetButtonDown("flèche haut")){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 sélection--;
                 Choisir();
-            }else if (Input.GetKeyDown(KeyCode.DownArrow)){
+            }else if (Input.GetButtonDown("flèche bas")){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 sélection++;
                 Choisir();
-            }else if (Input.GetKeyDown(KeyCode.E)){
+            }else if (Input.GetButtonDown("A")){
                 acheter=true;
                 blocDeAchat.SetActive(true);
                 blocDeAchat.GetComponent<AcheterUnProduit>().prixDeUnProduit = scriptDesItem.lesObjets[IDDesObjetAVendre[sélection]].prix;
                 blocDeAchat.GetComponent<AcheterUnProduit>().Réinitialiser();
                 blocDeAchat.GetComponent<AcheterUnProduit>().nom = scriptDesItem.lesObjets[IDDesObjetAVendre[sélection]].nom;
                 blocDeAchat.GetComponent<AcheterUnProduit>().vdp = transform.GetComponent<vendreDesProduits>();
-            }else if (Input.GetKeyDown(KeyCode.B)){
+            }else if (Input.GetButtonDown("B")){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 sélection=0;
                 Choisir();
@@ -64,7 +64,7 @@ public class vendreDesProduits : MonoBehaviour{
                 gameObject.SetActive(false);
             }
         }else{
-            if (Input.GetKeyDown(KeyCode.B)){
+            if (Input.GetButtonDown("B")){
                 acheter=false;
                 blocDeAchat.SetActive(false);
             }
