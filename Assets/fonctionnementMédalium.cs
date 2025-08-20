@@ -55,6 +55,16 @@ public class fonctionnementMédalium : MonoBehaviour{
             gameObject.SetActive(false);
         }
     }
+    public MedaliumNonPersonel CeluiSurQuiJeSuis(){
+        return médailum.dictionnaire[lesIdAInséré[IDTotal]];
+    }
+    public int IDDeCeluiSurQuiJeSuis(){
+        if (lesIdAInséré.Count > ID){
+            return ID*numéroDeLaPage;
+        }else{
+            return -1;
+        }
+    }
     void ChangerDePage(int nouveau){
         int pageVoulu = numéroDeLaPage + nouveau;
 

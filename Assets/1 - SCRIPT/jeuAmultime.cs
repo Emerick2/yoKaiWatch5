@@ -15,6 +15,8 @@ public class jeuAmultime : MonoBehaviour
     public RectTransform[] positionDeApparitionDesBoules;
     public GameObject laBoule;
     public GameObject lePapa;
+    [HideInInspector] public contrôleMain contrôle;
+    [HideInInspector] public int position;
     void Start(){
         Initialisation();
     }
@@ -29,8 +31,8 @@ public class jeuAmultime : MonoBehaviour
     void Décompter(){
         décompte-=1;
         charge.fillAmount = 1f-((float)décompte/6f);
-        if (décompte<=0){
-            //appeler AmultimeFinie
+        if (décompte<=1){
+            contrôle.AmultimeFinie(position);
             CHARGER.SetActive(true);
         }
     }

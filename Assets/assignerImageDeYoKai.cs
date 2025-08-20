@@ -10,12 +10,18 @@ public class assignerImageDeYoKai : MonoBehaviour
     private medaliumDictionnaire médailum;
     void Start(){
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-        string yoKaiDansEquipe = NewDataCenter.Instance.Lire("yoKaiDansEquipe");
-        if (yoKaiDansEquipe != "0"){
-            for (int i = 0; i < yoKaiDansEquipe.Length; i++){
-                médaille[i].SetActive(true);
-                icôneMédaille[i].sprite = médailum.dictionnaire[int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))].médaillon;
+        StartCoroutine(AffichageImageYoKai());
+    }
+    IEnumerator AffichageImageYoKai(){
+        while(true){
+            string yoKaiDansEquipe = NewDataCenter.Instance.Lire("yoKaiDansEquipe");
+            if (yoKaiDansEquipe != "0"){
+                for (int i = 0; i < yoKaiDansEquipe.Length; i++){
+                    médaille[i].SetActive(true);
+                    icôneMédaille[i].sprite = médailum.dictionnaire[int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))].médaillon;
+                }
             }
+            yield return new WaitForSeconds(1f);
         }
     }
 }

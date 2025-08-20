@@ -87,33 +87,39 @@ public class contrôleMain : MonoBehaviour{
     public void ClicCible(){
         eventRoue.SetActive(false); eventÂmultime.SetActive(false); eventCible.SetActive(true); eventPurifier.SetActive(false);  eventObjet.SetActive(false);
     }
-    public void ClicAmultime(){
-        foreach (YoKaiPersonnage item in gestionnaireDeCombas.yoKaiJoueurEnVie){
-            if (item.jaugeAmultime >=100 && item.estSurLaScène){
-                attendChoieAmultime = true;
-                gestionnaireDeCombas.imageDesMédaillonDansLaRoue[item.positionActuel].gameObject.transform.Find("sélection").gameObject.SetActive(true);
-            }
-        }        
-        eventRoue.SetActive(false); eventÂmultime.SetActive(true); eventCible.SetActive(false); eventPurifier.SetActive(false);  eventObjet.SetActive(false);
-    }
-    public void AmultimeFinie(){
-        eventÂmultime.GetComponent<jeuAmultime>().Initialisation();
-    }
     public void ClicObjet(){
         eventRoue.SetActive(false); eventÂmultime.SetActive(false); eventCible.SetActive(false); eventPurifier.SetActive(false);  eventObjet.SetActive(true);
     }
     public void ClicPurification(){
         eventRoue.SetActive(false); eventÂmultime.SetActive(false); eventCible.SetActive(false); eventPurifier.SetActive(true);  eventObjet.SetActive(false);
     }
-
+    #region Amultime
+    public void ClicAmultime(){
+        foreach (YoKaiPersonnage item in gestionnaireDeCombas.yoKaiJoueurEnVie){
+            if (item.jaugeAmultime >=100 && item.estSurLaScène){
+                item.jaugeAmultime = 0;
+                attendChoieAmultime = true;
+                gestionnaireDeCombas.imageDesMédaillonDansLaRoue[item.positionActuel].gameObject.transform.Find("sélection").gameObject.SetActive(true);
+            }
+        }        
+    }
     public void ChoieUnYoKai(int position){
         Debug.Log(position);
         foreach (YoKaiPersonnage item in gestionnaireDeCombas.yoKaiJoueur){
             gestionnaireDeCombas.imageDesMédaillonDansLaRoue[item.positionActuel].gameObject.transform.Find("sélection").gameObject.SetActive(false);
         }
-        //avent de faire sa, il faut allumer le mini-jeu d'amultime.
         if (attendChoieAmultime){
-            gestionnaireDeCombas.UtiliseAmultime(position);
+            eventRoue.SetActive(false); eventÂmultime.SetActive(true); eventCible.SetActive(false); eventPurifier.SetActive(false);  eventObjet.SetActive(false);
+
+            attendChoieAmultime = false;
+            eventÂmultime.GetComponent<jeuAmultime>().Initialisation();
+            eventÂmultime.GetComponent<jeuAmultime>().contrôle = GetComponent<contrôleMain>();
+            eventÂmultime.GetComponent<jeuAmultime>().position = position;
         }
     }
+    public void AmultimeFinie(int position){
+        eventRoue.SetActive(true); eventÂmultime.SetActive(false); eventCible.SetActive(false); eventPurifier.SetActive(false);  eventObjet.SetActive(false);
+        gestionnaireDeCombas.UtiliseAmultime(position);
+    }
+    #endregion
 }
