@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +10,13 @@ public class ChangementEquipe : MonoBehaviour{
     public fonctionnementMédalium médaliumFonction;
     private medaliumDictionnaire médailum;
     private MesYoKai mesYoKai;//mesYoKai.maListe
-    private bool ouvert;
+    [HideInInspector]public bool ouvert;
     private bool demandeDeRetirer;
     private Sprite iconeDeVide;
+    public Image imageDuYoKaiChoisie;
+    public TextMeshProUGUI texteInstruction;
+    public sacMouvement sac;
+    private mouvementDuJoueur joueur;
 
     void Start(){
         iconeDeVide = espaceImagePourMonEquipe[0].sprite;
@@ -19,6 +24,7 @@ public class ChangementEquipe : MonoBehaviour{
         mesYoKai = NewDataCenter.Instance.transform.Find("DICTIONNAIRE DE MES YO-KAI").GetComponent<MesYoKai>();
         choie.SetActive(false);
         PlacerMesYoKai();
+        joueur = GameObject.FindObjectOfType<mouvementDuJoueur>().GetComponent<mouvementDuJoueur>();
     }
     void PlacerMesYoKai() {
         foreach (Image item in espaceImagePourMonEquipe){
@@ -31,40 +37,57 @@ public class ChangementEquipe : MonoBehaviour{
                 continue; // évite le crash
             }
 
-            espaceImagePourMonEquipe[i].sprite = médailum.dictionnaire[mesYoKai.maListe[index].ID].médaillon;
+            if (i<espaceImagePourMonEquipe.Count)espaceImagePourMonEquipe[i].sprite = médailum.dictionnaire[mesYoKai.maListe[index].ID].médaillon;
+            else Debug.LogWarning("Dépassement de la pile i avec un i="+i);
+        }
+        if (médaliumFonction.IDDeCeluiSurQuiJeSuis() != -1){
+            imageDuYoKaiChoisie.sprite = médailum.dictionnaire[mesYoKai.maListe[médaliumFonction.IDDeCeluiSurQuiJeSuis()].ID].médaillon;
+            imageDuYoKaiChoisie.gameObject.SetActive(true);
+        }else{
+            imageDuYoKaiChoisie.gameObject.SetActive(false);
         }
     }
 
     void Update(){
-        if (Input.GetButtonDown("X")){
+        if (Input.GetButtonDown("X") && !ouvert){
+            médaliumFonction.bloquer=true;
+            sac.bloquer = true;
             choie.SetActive(true);
             ouvert = true;
             demandeDeRetirer = false;
+            texteInstruction.text = "Quelle yo-kai remplacer ?";
             PlacerMesYoKai();
         }
-        if (Input.GetButtonDown("Y")||Input.GetButtonDown("B")){
-            choie.SetActive(false);
+        else if (Input.GetButtonUp("B") && ouvert){
             ouvert = false;
-            demandeDeRetirer = false;
+            médaliumFonction.bloquer=false;
+            sac.bloquer = false;
+            choie.SetActive(false);
         }
-        if (Input.GetKeyDown(KeyCode.V)){
-            choie.SetActive(true);
-            ouvert = true;
+        else if (Input.GetButtonDown("Y") && ouvert){
             demandeDeRetirer = true;
+            texteInstruction.text = "Quelle yo-kai retirer";
             PlacerMesYoKai();
         }
+        else if (Input.GetButtonDown("X") && ouvert){
+            demandeDeRetirer = false;
+            texteInstruction.text = "Quelle yo-kai remplacer ?";
+            PlacerMesYoKai();
+        }
+
     }
     public void ChangerUnYoKai(int numéroAChanger){
         List<int> y = mesYoKai.yoKaiDeMonEquipe;
-        int CeluiAAjouter=médaliumFonction.IDDeCeluiSurQuiJeSuis();
-        if (CeluiAAjouter != -1 && !demandeDeRetirer && !y.Contains(CeluiAAjouter)){
-            if (y.Count>numéroAChanger)y[numéroAChanger]=CeluiAAjouter;
-            else y.Add(CeluiAAjouter);
+        int celuiAAjouter=médaliumFonction.IDDeCeluiSurQuiJeSuis();
+        Debug.Log(celuiAAjouter);
+        if (celuiAAjouter != -1 && !demandeDeRetirer && !y.Contains(celuiAAjouter)){
+            if (y.Count>numéroAChanger)y[numéroAChanger]=celuiAAjouter;
+            else y.Add(celuiAAjouter);
         }else if (demandeDeRetirer && y.Count>numéroAChanger && y.Count > 1){
             y.Remove(y[numéroAChanger]);
         }else{
-            Debug.Log("Contenue ? "+y.Contains(CeluiAAjouter));
-            Debug.Log("CeluiAAjouter : "+CeluiAAjouter);
+            Debug.Log("Contenue ? "+y.Contains(celuiAAjouter));
+            Debug.Log("CeluiAAjouter : "+celuiAAjouter);
         }
         mesYoKai.yoKaiDeMonEquipe = y;
         
@@ -77,6 +100,10 @@ public class ChangementEquipe : MonoBehaviour{
         NewDataCenter.Instance.SauvegarderSTR("yoKaiDansEquipe",t,"équipe.json");
 
         PlacerMesYoKai();
-        choie.SetActive(false);
+        if (joueur != null){
+            joueur.Sauvgarder();
+        }else{
+            Debug.Log("le joueur n'est pas assigner");
+        }
     }    
 }

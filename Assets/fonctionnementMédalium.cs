@@ -18,6 +18,8 @@ public class fonctionnementMédalium : MonoBehaviour{
     public List<int> lesIdAInséré = new List<int>();
     public bool cesLeMédalium = true;
     private MesYoKai mesYoKai;//mesYoKai.maListe
+    public bool bloquer = false;
+    public ChangementEquipe changementEquipe;
 
     void Start(){
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
@@ -40,19 +42,24 @@ public class fonctionnementMédalium : MonoBehaviour{
 
     }
     void Update(){
-        if (Input.GetButtonDown("flèche bas")){
-            MouvementDansLaPage(3);
-        }else if (Input.GetButtonDown("flèche haut")){
-            MouvementDansLaPage(-3);
-        }else if (Input.GetButtonDown("flèche droite")){
-            MouvementDansLaPage(1);
-        }else if (Input.GetButtonDown("flèche gauche")){
-            MouvementDansLaPage(-1);
-        }else if (Input.GetButton("B")){
-            numéroDeLaPage = 1;
-            PlacerLesMédailles();
-            MouvementDansLaPage(0);
-            gameObject.SetActive(false);
+        if (!bloquer){
+            if (Input.GetButtonDown("flèche bas")){
+                MouvementDansLaPage(3);
+            }else if (Input.GetButtonDown("flèche haut")){
+                MouvementDansLaPage(-3);
+            }else if (Input.GetButtonDown("flèche droite")){
+                MouvementDansLaPage(1);
+            }else if (Input.GetButtonDown("flèche gauche")){
+                MouvementDansLaPage(-1);
+            }
+        }
+        if (Input.GetButtonDown("B")){
+            if ((changementEquipe == null || !changementEquipe.ouvert) && !bloquer) {
+                numéroDeLaPage = 1;
+                PlacerLesMédailles();
+                MouvementDansLaPage(0);
+                gameObject.SetActive(false);
+            }
         }
     }
     public MedaliumNonPersonel CeluiSurQuiJeSuis(){

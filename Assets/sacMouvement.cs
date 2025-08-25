@@ -11,8 +11,9 @@ public class sacMouvement : MonoBehaviour{
     private int indexGauche = 0;
     private GameObject objetActuel;
     public GameObject boiteDeMenuDeJeu;
+    [HideInInspector] public bool bloquer;
     void Update(){   
-        if (!pause){
+        if (!pause && !bloquer){
             if (Input.GetButtonDown("flèche droite")){
                 indexGauche++;
                 if (indexGauche < 0){
@@ -56,7 +57,7 @@ public class sacMouvement : MonoBehaviour{
                 boiteDeMenuDeJeu.SetActive(true);
                 gameObject.SetActive(false);
             }
-        }else if (Input.GetButtonDown("B")){
+        }else if (Input.GetButtonDown("B") && !bloquer){
             StartCoroutine(Transition());
             StartCoroutine(FermetureDeLaFenêtre());
         }

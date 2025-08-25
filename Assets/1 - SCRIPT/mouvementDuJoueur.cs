@@ -55,7 +55,7 @@ public class mouvementDuJoueur : MonoBehaviour{
         }
     } 
 
-    void Sauvgarder(){
+    public void Sauvgarder(){
         if (oeuilSauvegarde != null){
             oeuilSauvegarde.SetTrigger("ouvre");
         }
