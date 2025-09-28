@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -9,6 +10,11 @@ public class GestionnaireMusique : MonoBehaviour{
     private AudioClip musiqueEnMémoire;
     private AudioSource audioSource;
     private List<GameObject> listeObjetMusique = new List<GameObject>();
+    private bool laMusiqueVientDuLecteurMP3;
+
+    public GameObject blocMusique;
+    public TextMeshProUGUI nomMusique;
+    
     private void Awake(){
         if (_Komasan == null){
             _Komasan = this;
@@ -24,6 +30,7 @@ public class GestionnaireMusique : MonoBehaviour{
     }
     void Start(){
         NettoyerLaListe();
+        Ecrire();
     }
     void Update(){
         if (!audioSource.isPlaying && musiqueEnMémoire != null){
@@ -31,7 +38,21 @@ public class GestionnaireMusique : MonoBehaviour{
         }
     }
 
-    public void ChangerLaMusique(AudioClip nomMusique, bool répété){
+    void Ecrire(){
+        if (blocMusique != null){
+            if (laMusiqueVientDuLecteurMP3){
+                blocMusique.SetActive(true);
+                if (nomMusique != null && audioSource.clip != null) nomMusique.text = audioSource.clip.name;
+            } else {
+                blocMusique.SetActive(false);
+            }
+        }
+    }
+    public void ChangerLaMusique(AudioClip nomMusique, bool répété, bool vientDuLecteurMP3 = false,bool remaitreLeThèmePrincipale = false){
+        if (remaitreLeThèmePrincipale){
+            nomMusique = musiqueDeFond;
+        }
+        laMusiqueVientDuLecteurMP3 = vientDuLecteurMP3;
         if (audioSource == null || nomMusique == null) return;
         if (!répété){
             musiqueEnMémoire=audioSource.clip;
@@ -39,6 +60,7 @@ public class GestionnaireMusique : MonoBehaviour{
         audioSource.clip = nomMusique;
         audioSource.loop = répété;
         audioSource.Play();
+        Ecrire();
     }
     public void JouerUnEffetSonore(AudioClip nomMusique, bool répété){
         if (audioSource == null || nomMusique == null) return;

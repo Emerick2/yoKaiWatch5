@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class SystèmeMusiqueLecteurSac : MonoBehaviour{
     public AudioClip[] clips;
+    private int dernierNuméro = -1;
     public TextMeshProUGUI nomMusique;
     public GameObject lieuOuPossé;
     public Sprite imageQuandMusiqueSélectionnée;
@@ -33,11 +34,16 @@ public class SystèmeMusiqueLecteurSac : MonoBehaviour{
             Debug.Log(numéro);
             return;
         }
-        if (nomMusique != null) nomMusique.text = clips[numéro].name;
-        GestionnaireMusique._Komasan.ChangerLaMusique(clips[numéro],true);
         for (int i = 0; i < listeElementMusique.Count; i++){
             listeElementMusique[i].GetComponent<Image>().sprite = imageQuandMusiqueNonSélectionnée;
         }
-        listeElementMusique[numéro].GetComponent<Image>().sprite = imageQuandMusiqueSélectionnée;
+        if (dernierNuméro != numéro){
+            dernierNuméro = numéro;
+            if (nomMusique != null) nomMusique.text = clips[numéro].name;
+            GestionnaireMusique._Komasan.ChangerLaMusique(clips[numéro],true,true);
+            listeElementMusique[numéro].GetComponent<Image>().sprite = imageQuandMusiqueSélectionnée;
+        } else {
+            GestionnaireMusique._Komasan.ChangerLaMusique(null,true,false,true);
+        }
     }
 }
