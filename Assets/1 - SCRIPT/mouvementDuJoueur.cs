@@ -22,33 +22,24 @@ public class mouvementDuJoueur : MonoBehaviour{
 
     void Update(){
         if (droitDeMarcher){
+            bool non = true;
             if (Input.GetButton("flèche droite")){
                 transform.Translate(directionDroit * vitesse * Time.deltaTime);
-                animator.SetBool("avence", true);
                 joueur.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
-            }
-            else if (Input.GetButton("flèche gauche"))
-            {
+            }else if (Input.GetButton("flèche gauche")){
                 transform.Translate(directionGauche * vitesse * Time.deltaTime);
                 joueur.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
-                animator.SetBool("avence", true);
-            }
-            else if (Input.GetButton("flèche haut"))
-            {
+            }else if (Input.GetButton("flèche haut")){
                 transform.Translate(directionHaut * vitesse * Time.deltaTime);
                 joueur.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-                animator.SetBool("avence", true);
-            }
-            else if (Input.GetButton("flèche bas"))
-            {
+            }else if (Input.GetButton("flèche bas")){
                 transform.Translate(directionBas * vitesse * Time.deltaTime);
                 joueur.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-                animator.SetBool("avence", true);
+            }else{
+                non = false;
             }
-            else
-            {
-                animator.SetBool("avence", false);
-            }
+            animator.SetBool("avence", non);
+
         }
         if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+")){
             Sauvgarder();

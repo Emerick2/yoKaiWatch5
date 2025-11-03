@@ -12,6 +12,7 @@ public class Porte : MonoBehaviour{
 
     void Update(){
         if (jeSuisDedans && Input.GetButton("A")&& mouvementDuJoueur.droitDeMarcher == true){
+            InfoUI._instance.ChangerTexteInfoUI("");
             GameObject TV = new GameObject();
             LivraisonTp TP = TV.AddComponent<LivraisonTp>();
             TP.nomDeLaScèneCible = scèneCible;
@@ -25,11 +26,13 @@ public class Porte : MonoBehaviour{
     private void OnTriggerEnter(Collider collision){
         if (collision.gameObject.CompareTag("Player")){
             jeSuisDedans = true;
+            InfoUI._instance.ChangerTexteInfoUI("Appuie sur 'A' pour ouvrir la porte");
         }
     }
     private void OnTriggerExit(Collider collision){
         if (collision.gameObject.CompareTag("Player")){
             jeSuisDedans=false;
+            InfoUI._instance.ChangerTexteInfoUI("");
         }
     }
 }
