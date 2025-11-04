@@ -20,7 +20,7 @@ public class MesYoKai : MonoBehaviour{
             }
             return _instance;
         }
-    }
+    } 
     private void Awake(){
         if (_instance == null){
             _instance = this;

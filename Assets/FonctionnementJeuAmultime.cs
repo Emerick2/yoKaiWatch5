@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,9 +7,13 @@ public class FonctionnementJeuAmultime : MonoBehaviour{
     public List<GameObject> listeDesMiniJeu;
     public AmultimeRoueJeu roueScript;
     public AmultimeTourneJeu tourneScript;
+    public DessineJeuAmultime dessinScript;
     public int identifiantDansMesYoKaiDuJoueur;
     public bool ammultimePrête;
     public GameObject imageQuiCrieVictoire;
+    public Transform positionCibleAmultime;
+    public GameObject blocAmultimeAnnimation;
+    public Image sliderImage;
 
     void Start(){
         RéinitialiserMenuAmultime();
@@ -26,20 +31,51 @@ public class FonctionnementJeuAmultime : MonoBehaviour{
         imageQuiCrieVictoire.SetActive(false);
         roueScript.Initialisation(this);
         tourneScript.Initialisation(this);
+        dessinScript.Initialisation(this);
         ammultimePrête = false;
         foreach (GameObject item in listeDesMiniJeu){
             item.SetActive(false);
         }
+        sliderImage.fillAmount = 0;
     }
 
     public void VictoireMiniJeu(){
         imageQuiCrieVictoire.SetActive(true);
         ammultimePrête = true;
+        UtilisationAmultime();
     }
 
 
     public void UtilisationAmultime(){
+        MedaliumNonPersonel yoKai = medaliumDictionnaire._instance.dictionnaire[MesYoKai.Instance.maListe[identifiantDansMesYoKaiDuJoueur].ID];
+        GameObject TV = Instantiate(yoKai.yoKai);
+        TV.transform.position = positionCibleAmultime.position;
+        TV.transform.rotation = positionCibleAmultime.rotation;
+        blocAmultimeAnnimation.SetActive(true);
+        StartCoroutine(Annimation(TV));
         RéinitialiserMenuAmultime();
+    }
+    IEnumerator Annimation(GameObject TV){
+        int STOP = 50;
+        while (STOP > 0){
+            STOP--;
+            yield return new WaitForSeconds(0.2f);
+            if (TV.GetComponent<Animator>() != null){
+                TV.GetComponent<Animator>().SetTrigger("Amultime");
+                StartCoroutine(FinAnnimation(TV));
+                STOP = 0;
+            }
+        }
+    }
+
+    IEnumerator FinAnnimation(GameObject TV){
+        yield return new WaitForSeconds(7f);
+        blocAmultimeAnnimation.SetActive(false);
+        Destroy(TV);
+    }
+
+    public void NouvelleValeurSliderImage(float valeur){
+        sliderImage.fillAmount = valeur;
     }
 }
 

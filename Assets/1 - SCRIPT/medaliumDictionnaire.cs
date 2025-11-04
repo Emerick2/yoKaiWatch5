@@ -18,7 +18,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     public GameObject AvoirLeGameObject(){
         return gameObject;
     }
-
+ 
     private void Awake(){
         if (_instance == null){
             _instance = this;
