@@ -72,7 +72,19 @@ public class yoKaiMModel3D : MonoBehaviour{
                 "_p10_02001d_wkl",
                 "_p10_02501d_rnl",
                 "_p20_29000s_spi",
-                "_p20_29001s_spo"
+                "_p20_29001s_spo",
+                "_p10_01051s_tkl",
+                "_p20_21000s_sti",
+                "_p20_24001d_trl",
+                "_p20_21010d_idi",
+                "_p20_24201s_lfl",
+                "_p20_24500d_hpi",
+                "_p20_25500d_wci",
+                "_p20_26001d_grl",
+                "_p20_26301d_adl",
+                "_p20_27500d_wii",
+                "_p20_27501d_wil",
+                "_p20_28001s_pwl"
             };
 
             // Dictionnaire pour stocker les correspondances entre anciennes et nouvelles animations

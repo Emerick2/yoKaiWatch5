@@ -12,6 +12,9 @@ public class mouvementDuJoueur : MonoBehaviour{
     Vector3 directionGauche = new Vector3(-1, 0, 0);
     Vector3 directionDroit = new Vector3(1, 0, 0);
     public float vitesse = 2;
+    public Transform caméra;
+    public Transform iconeMiniMap;
+
 
     void Start(){
         LivraisonDébutUnePartie livrer = FindObjectOfType<LivraisonDébutUnePartie>();
@@ -39,7 +42,11 @@ public class mouvementDuJoueur : MonoBehaviour{
                 non = false;
             }
             animator.SetBool("avence", non);
-
+            Vector3 nouvellePositionCaméra = caméra.position;
+            nouvellePositionCaméra.x = joueur.transform.position.x;
+            nouvellePositionCaméra.z = joueur.transform.position.z;
+            caméra.position = nouvellePositionCaméra;
+            //iconeMiniMap.position = joueur.transform.position;
         }
         if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+")){
             Sauvgarder();

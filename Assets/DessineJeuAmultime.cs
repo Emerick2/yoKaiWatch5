@@ -58,7 +58,6 @@ public class DessineJeuAmultime : MonoBehaviour, IPointerDownHandler, IDragHandl
             List<Sprite> laListe = lesDessinQuiPeuventArrivé;
             Sprite spriteActuel = GetComponent<Image>().sprite;
             laListe.RemoveAll(spriteDeListe => spriteDeListe == spriteActuel);
-            Debug.Log(laListe.Count);
             
             GetComponent<Image>().sprite = laListe[Random.Range(0,laListe.Count)];
             imageASuivre = GetComponent<Image>();

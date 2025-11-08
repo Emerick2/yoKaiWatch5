@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class AmultimeTourneJeu : MonoBehaviour{
-    public Image imageSlider;
     private RectTransform rect;
     public float vitesseInitiale;
     public float vitesseMaximum;
@@ -39,7 +38,7 @@ public class AmultimeTourneJeu : MonoBehaviour{
             else{
                 vitesse = vitesseInitiale;
             }
-            imageSlider.fillAmount = vitesse / vitesseMaximum;
+            fonctionnement.NouvelleValeurSliderImage(vitesse / vitesseMaximum);
         } else {
             Vector3 nouvelleRotation = rect.localEulerAngles;
             if (cesR){

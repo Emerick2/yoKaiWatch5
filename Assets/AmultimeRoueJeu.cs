@@ -9,7 +9,6 @@ public class AmultimeRoueJeu : MonoBehaviour{
     private int cible;
     public int nombreDeToursMax=4;
     [HideInInspector] public int nombreDeTours = 0;
-    public Image imageSlider;
     [HideInInspector] public FonctionnementJeuAmultime fonctionnement;
     private bool victoireDéjàAppeler;
     
@@ -56,10 +55,10 @@ public class AmultimeRoueJeu : MonoBehaviour{
     void NouveauTours(bool premierTours){
         if (premierTours == true){
             nombreDeTours = 0;
-            imageSlider.fillAmount=0;
+            fonctionnement.NouvelleValeurSliderImage(0);
         } else {
             nombreDeTours++;
-            imageSlider.fillAmount = (float)nombreDeTours / nombreDeToursMax;
+            fonctionnement.NouvelleValeurSliderImage((float)nombreDeTours / nombreDeToursMax);
         } if (nombreDeTours >= nombreDeToursMax) {
             if (!victoireDéjàAppeler){
                 fonctionnement.VictoireMiniJeu();

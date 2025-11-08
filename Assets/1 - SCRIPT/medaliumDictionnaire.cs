@@ -5,7 +5,9 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
-using Unity.VisualScripting;
+using Unity.VisualScripting.Dependencies.Sqlite;
+
+// le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
@@ -29,15 +31,22 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
     void Start(){
+        string phrasse = "";
+        int i = 0;
         foreach (MedaliumNonPersonel item in dictionnaire){
             if (item.médaillon == null){
                 item.médaillon = imageDeUneMédailleInconnue;
+                if (item.nom != ""){
+                    phrasse += i.ToString()+" | "+item.nom + "\n";
+                }
             }
+            i++;
             //inversion squellette et description :
             string t = item.nomDeMonSquellette;
             item.nomDeMonSquellette = item.description;
             item.description = t;
         }
+        //Debug.Log(phrasse);
     }
     /*
     void Start(){
