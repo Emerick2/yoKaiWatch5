@@ -38,12 +38,25 @@ public class MesYoKai : MonoBehaviour{
         ChargerMonEquipe();
     }
     public void ChargerMonEquipe(){
-        string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe","équipe.json");
-        
-        foreach (char ch in listeDesID) {
-            if (char.IsDigit(ch)) {
-                yoKaiDeMonEquipe.Add(int.Parse(ch.ToString()));
+        string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe", "équipe.json");
+        yoKaiDeMonEquipe.Clear();
+        string nombreTemp = "";
+
+        for (int i = 0; i < listeDesID.Length; i++){
+            char ch = listeDesID[i];
+
+            if (char.IsDigit(ch)){
+                nombreTemp += ch;
+            } else {
+                if (nombreTemp.Length > 0) {
+                    yoKaiDeMonEquipe.Add(int.Parse(nombreTemp));
+                    nombreTemp = "";
+                }
             }
+        }
+
+        if (nombreTemp.Length > 0) {
+            yoKaiDeMonEquipe.Add(int.Parse(nombreTemp));
         }
         finDuChargement = true;
     }
@@ -57,6 +70,7 @@ public class MesYoKai : MonoBehaviour{
 
         maListe.Add(new ListeDeMesYoKai());
         if(monIDActuel < maListe.Count){
+            maListe[monIDActuel].IDUnique=monIDActuel;
             maListe[monIDActuel].ID=ID2;
             maListe[monIDActuel].niveau=niveau2;
             maListe[monIDActuel].personnalité=personalité2;
@@ -67,6 +81,7 @@ public class MesYoKai : MonoBehaviour{
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         for (int i = 0; i < monIDActuel; i++){
             maListe.Add(new ListeDeMesYoKai());
+            maListe[i].IDUnique = i;
             maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
             maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
             maListe[i].personnalité  =  NewDataCenter.Instance.Lire(i.ToString()+"_personalité");
@@ -78,6 +93,7 @@ public class MesYoKai : MonoBehaviour{
 
 [System.Serializable]
 public class ListeDeMesYoKai{//maListe
+    public int IDUnique;
     public int ID;
     public string surnom;
     public int niveau;

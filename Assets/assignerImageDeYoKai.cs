@@ -14,15 +14,13 @@ public class assignerImageDeYoKai : MonoBehaviour
     }
     IEnumerator AffichageImageYoKai(){
         while(true){
-            string yoKaiDansEquipe = NewDataCenter.Instance.Lire("yoKaiDansEquipe");
-            if (yoKaiDansEquipe != "0"){
-                for (int i = 0; i < yoKaiDansEquipe.Length; i++){
-                    if (i<médaille.Count && i<icôneMédaille.Count){
-                        médaille[i].SetActive(true);
-                        icôneMédaille[i].sprite = médailum.dictionnaire[int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))].médaillon;
-                    }else{
-                        Debug.LogError("Le i est en "+i);
-                    }
+            List<int> yoKaiDansEquipe = MesYoKai.Instance.yoKaiDeMonEquipe;
+            for (int i = 0; i < yoKaiDansEquipe.Count; i++){
+                if (i<médaille.Count && i<icôneMédaille.Count){
+                    médaille[i].SetActive(true);
+                    icôneMédaille[i].sprite = médailum.dictionnaire[int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))].médaillon;
+                }else{
+                    Debug.LogError("Le i est en "+i);
                 }
             }
             yield return new WaitForSeconds(1f);

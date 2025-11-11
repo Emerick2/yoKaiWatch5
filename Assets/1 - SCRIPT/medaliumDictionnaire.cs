@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
-using Unity.VisualScripting.Dependencies.Sqlite;
+using System.Diagnostics.Tracing;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 
@@ -16,6 +16,8 @@ public class medaliumDictionnaire : MonoBehaviour{
     /*[HideInInspector]*/
     public List<MedaliumNonPersonel> dictionnaire;
     public List<Sprite> imageDesRang;
+    public List<Sprite> imageDesTribues;
+
     public ImageDesTribue imageDesTribue;
     public GameObject AvoirLeGameObject(){
         return gameObject;
@@ -117,6 +119,29 @@ public class medaliumDictionnaire : MonoBehaviour{
         if (Enum.IsDefined(typeof(Rang), nomDuRang)){
             dictionnaire[IDdeLaCible].rang = (Rang)Enum.Parse(typeof(Rang), nomDuRang);
         }
+    }
+
+    public Sprite SpriteDeLaTribue(Tribue tribue){
+        List<Tribue> aurdre = new List<Tribue>{
+            Tribue.Vaillant,
+            Tribue.Mystérieu,
+            Tribue.Costaud,
+            Tribue.Mignon,
+            Tribue.Bienveillant,
+            Tribue.Sombre,
+            Tribue.Sinistre,
+            Tribue.Insaisissable,
+            Tribue.Perfide,
+            Tribue.Enma,
+            Tribue.Wandroïd
+        };
+        for (int i = 0; i < aurdre.Count; i++){
+            if (tribue == aurdre[i]){
+               return imageDesTribues[i];
+            }
+        }
+        
+        return null;
     }
 }
 
@@ -333,7 +358,7 @@ public enum PlatPréféré{
     Sukiyaki,
     spécial
 }
-public enum Type{
+public enum Type{ 
     Attaque,
     Sabotage,
     Technique,

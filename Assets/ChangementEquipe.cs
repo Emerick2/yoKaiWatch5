@@ -95,6 +95,7 @@ public class ChangementEquipe : MonoBehaviour{
         string t = "";
         foreach (int item in y){
             t+=item.ToString();
+            t+="%";
         }
         //Debug.Log(t);
         NewDataCenter.Instance.SauvegarderSTR("yoKaiDansEquipe",t,"équipe.json");
