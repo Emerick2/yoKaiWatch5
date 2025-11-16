@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 public class Page1DeChangeréquipe : MonoBehaviour{
+    public RemplisLaRoue remplisLaRoue;
     public Sprite spriteDeSélection;
     public Sprite spriteDeNonSélection;
     public Image choieEquipe;
@@ -22,6 +23,10 @@ public class Page1DeChangeréquipe : MonoBehaviour{
         if (Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
             cible = (cible+1)%2;
             ChangerChoie();
+        } 
+        if (Input.GetButtonDown("A")){
+            remplisLaRoue.numéroPageActuelle = cible+2;
+            remplisLaRoue.ChangerDePage();
         }
     }
 

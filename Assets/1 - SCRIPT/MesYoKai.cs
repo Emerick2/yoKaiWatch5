@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 public class MesYoKai : MonoBehaviour{
@@ -7,6 +8,7 @@ public class MesYoKai : MonoBehaviour{
 
     public List<ListeDeMesYoKai> maListe = new List<ListeDeMesYoKai>();
     public List<int> yoKaiDeMonEquipe = new List<int>();
+
     /*[HideInInspector]*/ public bool yoKaiDeMonEquipeChargé = false;
     /*[HideInInspector]*/ public bool finDuChargement;
     
@@ -39,26 +41,74 @@ public class MesYoKai : MonoBehaviour{
     }
     public void ChargerMonEquipe(){
         string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe", "équipe.json");
+        string listeDesPosition = NewDataCenter.Instance.Lire("yoKaiDansEquipePosition", "équipe.json");
+
         yoKaiDeMonEquipe.Clear();
+        yoKaiDeMonEquipe = TransformerUneListeStringEnUneListeInt(listeDesID);
+        List<int> lesPositions = TransformerUneListeStringEnUneListeInt(listeDesPosition);
+        //avent tous :
+        // 1 - vérifier que le nombre est sufisant :
+        if (yoKaiDeMonEquipe.Count != lesPositions.Count){
+            lesPositions.Clear();
+            for (int i = 0; i < yoKaiDeMonEquipe.Count; i++){
+                lesPositions.Add(i);
+            }
+        }
+        // 2 - vérifier que les positions ne sont pas répété :
+        // 2 - vérifier que les positions ne sont pas répété...
+        int nombreDeYoKai = yoKaiDeMonEquipe.Count;
+        HashSet<int> positionsTrouvees = new HashSet<int>();
+        List<int> indicesDesDoublons = new List<int>();
+        for (int i = 0; i < lesPositions.Count; i++){
+            int positionActuelle = lesPositions[i];
+            if (positionActuelle >= 0 && positionActuelle < nombreDeYoKai && !positionsTrouvees.Contains(positionActuelle)){
+                positionsTrouvees.Add(positionActuelle);
+            } else{
+                indicesDesDoublons.Add(i);
+            }
+        }
+        List<int> positionsManquantes = new List<int>();
+        for (int i = 0; i < nombreDeYoKai; i++){
+            if (!positionsTrouvees.Contains(i)){
+                positionsManquantes.Add(i);
+            }
+        }
+
+        for (int i = 0; i < indicesDesDoublons.Count; i++){
+            int indexADupliquer = indicesDesDoublons[i];
+            int nouvellePosition = positionsManquantes[i];
+            lesPositions[indexADupliquer] = nouvellePosition;
+        }
+
+        // 3 - appliquer les positions au yo-kai :
+        for (int i = 0; i < yoKaiDeMonEquipe.Count; i++){
+            if (lesPositions.Count > i){
+                maListe[yoKaiDeMonEquipe[i]].positionRoue = lesPositions[i];
+            }
+        }
+        
+        //List<int> yoKaiDeMonEquipePosition
+        finDuChargement = true;
+    }
+
+    List<int> TransformerUneListeStringEnUneListeInt(string listeChainer){//"12%68%4%0%7" en [12,68,4,0,7]
+        List<int> maListe = new List<int>();
         string nombreTemp = "";
-
-        for (int i = 0; i < listeDesID.Length; i++){
-            char ch = listeDesID[i];
-
+        for (int i = 0; i < listeChainer.Length; i++){
+            char ch = listeChainer[i];
             if (char.IsDigit(ch)){
                 nombreTemp += ch;
             } else {
                 if (nombreTemp.Length > 0) {
-                    yoKaiDeMonEquipe.Add(int.Parse(nombreTemp));
+                    maListe.Add(int.Parse(nombreTemp));
                     nombreTemp = "";
                 }
             }
         }
-
         if (nombreTemp.Length > 0) {
-            yoKaiDeMonEquipe.Add(int.Parse(nombreTemp));
+            maListe.Add(int.Parse(nombreTemp));
         }
-        finDuChargement = true;
+        return maListe;
     }
     public void AjouterUnYoKai(int ID2, int niveau2, string personalité2, string surnom2){
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
@@ -89,6 +139,14 @@ public class MesYoKai : MonoBehaviour{
         }
         yoKaiDeMonEquipeChargé=true;
     }
+
+    public void SauvegarderLesPositonDesYokai(){
+        string texte = "";
+        foreach (int item in yoKaiDeMonEquipe){
+            texte += "%" + maListe[item].positionRoue + "%";
+        }
+        NewDataCenter.Instance.SauvegarderSTR("yoKaiDansEquipePosition",texte);
+    }
 }
 
 [System.Serializable]
@@ -98,4 +156,5 @@ public class ListeDeMesYoKai{//maListe
     public string surnom;
     public int niveau;
     public string personnalité;
+    [Range(0,5)] public int positionRoue;
 }
