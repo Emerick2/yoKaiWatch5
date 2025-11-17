@@ -7,7 +7,7 @@ public class PlaceLesApplicationsSac : MonoBehaviour{
     public GameObject blocOrigine;
     public List<Sprite> listeImageApplication = new List<Sprite>();
     public List<GameObject> lesLieux = new List<GameObject>();
-    private int cible;
+    [HideInInspector]public int cible;
     public Sprite spriteVisé;
     public Sprite spriteNonVisé;
     private int nombreApplicationParEtage = 3;

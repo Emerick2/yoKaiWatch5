@@ -92,7 +92,7 @@ public class MesYoKai : MonoBehaviour{
     }
 
     List<int> TransformerUneListeStringEnUneListeInt(string listeChainer){//"12%68%4%0%7" en [12,68,4,0,7]
-        List<int> maListe = new List<int>();
+        List<int> maListe2 = new List<int>();
         string nombreTemp = "";
         for (int i = 0; i < listeChainer.Length; i++){
             char ch = listeChainer[i];
@@ -100,15 +100,15 @@ public class MesYoKai : MonoBehaviour{
                 nombreTemp += ch;
             } else {
                 if (nombreTemp.Length > 0) {
-                    maListe.Add(int.Parse(nombreTemp));
+                    maListe2.Add(int.Parse(nombreTemp));
                     nombreTemp = "";
                 }
             }
         }
         if (nombreTemp.Length > 0) {
-            maListe.Add(int.Parse(nombreTemp));
+            maListe2.Add(int.Parse(nombreTemp));
         }
-        return maListe;
+        return maListe2;
     }
     public void AjouterUnYoKai(int ID2, int niveau2, string personalité2, string surnom2){
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
@@ -119,6 +119,7 @@ public class MesYoKai : MonoBehaviour{
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_surnom",surnom2);
 
         maListe.Add(new ListeDeMesYoKai());
+        Debug.Log("ajoute un yo-kai");
         if(monIDActuel < maListe.Count){
             maListe[monIDActuel].IDUnique=monIDActuel;
             maListe[monIDActuel].ID=ID2;
@@ -128,14 +129,17 @@ public class MesYoKai : MonoBehaviour{
         }
     }
     private void ChargerLesYoKai(){
+        maListe.Clear();
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         for (int i = 0; i < monIDActuel; i++){
-            maListe.Add(new ListeDeMesYoKai());
-            maListe[i].IDUnique = i;
-            maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
-            maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
-            maListe[i].personnalité  =  NewDataCenter.Instance.Lire(i.ToString()+"_personalité");
-            maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
+            if (int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID")) > 0){
+                maListe.Add(new ListeDeMesYoKai());
+                maListe[i].IDUnique = i;
+                maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
+                maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
+                maListe[i].personnalité  =  NewDataCenter.Instance.Lire(i.ToString()+"_personalité");
+                maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
+            }
         }
         yoKaiDeMonEquipeChargé=true;
     }

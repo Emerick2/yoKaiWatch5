@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class RemplisLaRoue : MonoBehaviour{
     [Range(1,3)]public int numéroPageActuelle;
@@ -36,6 +37,12 @@ public class RemplisLaRoue : MonoBehaviour{
     public Sprite spriteBoutonVerouiller;
 
     private int cible2;
+    private int cibleMémoriser;
+    private bool page3Facultatives;
+    private bool page2Facultatives;
+    private int numéroDeTrie;
+    public écrireLesPetitesValeursDuMenu menu;
+    private List<ListeDeMesYoKai> listeTriée = new List<ListeDeMesYoKai>();
     void Start(){
         enCoursDeSélection = false;
         numéroPageActuelle = 1;
@@ -44,7 +51,9 @@ public class RemplisLaRoue : MonoBehaviour{
 
     void Update(){
         // la page 4 ces la page 2 quand on appuie sur A qui permet de choisir des options.
+        // la page 5 ces la page 3 quand on appuie sur A qui permet de choisir des options.
         page2.gameObject.transform.Find("BLOC CHOIX").gameObject.SetActive(numéroPageActuelle==4);
+        page3.gameObject.transform.Find("BLOC CHOIX").gameObject.SetActive(numéroPageActuelle==5);
 
         if (numéroPageActuelle == 2){
             if (Input.GetButtonDown("flèche droite")){
@@ -65,14 +74,27 @@ public class RemplisLaRoue : MonoBehaviour{
                     case true:
                         enCoursDeSélection= false;
                         InverserLesPositionDansLaRoue();
-                        NouvelleCiblePage2();
                         RemplireLaRouePage2();
+                        NouvelleCiblePage2();
                         break;
                 }
             } else if (Input.GetButtonDown("A")){
-                numéroPageActuelle = 4;
-                cible2 = 0;
-                ChangerPositionCible2(page2,4);
+                if (!page2Facultatives){
+                    numéroPageActuelle = 4;
+                    cible2 = 0;
+                    ChangerPositionCible2(page2,4);
+                } else {
+                    for (int j = 0; j < MesYoKai.Instance.yoKaiDeMonEquipe.Count; j++){
+                        if (MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]].positionRoue == cible){
+                            MesYoKai.Instance.yoKaiDeMonEquipe.RemoveAt(j);
+                        }
+                    }
+                    MesYoKai.Instance.yoKaiDeMonEquipe.Add(listeTriée[cibleMémoriser].IDUnique);
+                    MesYoKai.Instance.maListe[listeTriée[cibleMémoriser].IDUnique].positionRoue = cible;
+                    numéroPageActuelle = 3;
+                    page2Facultatives = false;
+                    ChangerDePage();
+                }
             }
         }
         else if (numéroPageActuelle == 3) {
@@ -84,6 +106,25 @@ public class RemplisLaRoue : MonoBehaviour{
                 NouvelleCiblePage3(-1);
             } else if (Input.GetButtonDown("X")){
                 ChangementPageInfo();
+            } else if (Input.GetButtonDown("A")){
+                if (!page3Facultatives){
+                    numéroPageActuelle = 5;
+                    cible2=0;
+                    ChangerPositionCible2(page3,4);
+                } else {
+                    for (int j = 0; j < MesYoKai.Instance.yoKaiDeMonEquipe.Count; j++){
+                        if (MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]].positionRoue == cibleMémoriser){
+                            MesYoKai.Instance.yoKaiDeMonEquipe.RemoveAt(j);
+                        }
+                    }
+                    MesYoKai.Instance.yoKaiDeMonEquipe.Add(listeTriée[cible].IDUnique);
+                    MesYoKai.Instance.maListe[listeTriée[cible].IDUnique].positionRoue = cibleMémoriser;
+                    numéroPageActuelle = 2;
+                    ChangerDePage();
+                }
+            } else if (Input.GetButtonDown("Y")){
+                numéroDeTrie += 1;
+                RemplireLaListeDesYoKai();
             }
         }
         else if (numéroPageActuelle == 4) {
@@ -93,8 +134,14 @@ public class RemplisLaRoue : MonoBehaviour{
             } else if (Input.GetButtonDown("flèche haut")){
                 cible2--;
                 ChangerPositionCible2(page2,4);
-            } else if (Input.GetButtonDown("A")){
+            } else if (Input.GetButtonDown("A") && page2.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.name != "spriteBoutonVerouiller"){
                 switch (cible2){
+                    case 0:
+                        cibleMémoriser = cible;
+                        page3Facultatives = true;
+                        numéroPageActuelle = 3;
+                        ChangerDePage();
+                        break;
                     case 3:
                         // renvoyer un yo-kai
                         if (MesYoKai.Instance.yoKaiDeMonEquipe.Count > 1){
@@ -109,15 +156,51 @@ public class RemplisLaRoue : MonoBehaviour{
                         break;
                 }
             }
+        } else if (numéroPageActuelle == 5) {
+             if (Input.GetButtonDown("flèche bas")){
+                cible2++;
+                ChangerPositionCible2(page3,4);
+            } else if (Input.GetButtonDown("flèche haut")){
+                cible2--;
+                ChangerPositionCible2(page3,4);
+            } else if (Input.GetButtonDown("A") && page3.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.name != "spriteBoutonVerouiller"){
+                switch (cible2){
+                    case 0:
+                        cibleMémoriser = cible;
+                        page2Facultatives = true;
+                        numéroPageActuelle = 2;
+                        ChangerDePage();
+                        break;
+                    case 3:
+                        // renvoyer un yo-kai
+                        // if (MesYoKai.Instance.yoKaiDeMonEquipe.Count > 1){
+                        //     for (int i = 0; i < MesYoKai.Instance.yoKaiDeMonEquipe.Count; i++){
+                        //         if (MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue == cible){
+                        //             MesYoKai.Instance.yoKaiDeMonEquipe.RemoveAt(i);
+                        //             RemplireLaRouePage2();
+                        //         }
+                        //     }
+                        // }
+                        // numéroPageActuelle = 2;
+                        break;
+                }
+            }
         }
         if (Input.GetButtonDown("B")){
             if (numéroPageActuelle == 4){
                 numéroPageActuelle = 2;
-            } else if (numéroPageActuelle != 1){
-                numéroPageActuelle = 1;
-                ChangerDePage();
+            } else if (numéroPageActuelle == 5){
+                numéroPageActuelle = 3;
+            }else if (numéroPageActuelle != 1){
+                if (numéroPageActuelle == 3 && page3Facultatives){
+                    numéroPageActuelle = 2;
+                    ChangerDePage();
+                } else {
+                    numéroPageActuelle = 1;
+                    ChangerDePage();
+                }
             } else if (numéroPageActuelle == 1){
-                gameObject.SetActive(false);
+                menu.RevenirAuMenu();
             }
         }
     }
@@ -128,16 +211,35 @@ public class RemplisLaRoue : MonoBehaviour{
             cible2 = maximum+cible2;
         }
         for (int i = 0; i < maximum; i++){
-            if (i != cible2){
-                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonNonSélection;
-                
-                if (pageGameObject == page2){
-                    //spriteBoutonVerouiller
-                    if (i==3 && MesYoKai.Instance.yoKaiDeMonEquipe.Count <= 1){
-                        pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonVerouiller;
+            bool doitÊtreVerouiller = false;
+
+            if (pageGameObject == page2){
+                if (i==3 && MesYoKai.Instance.yoKaiDeMonEquipe.Count <= 1){
+                    doitÊtreVerouiller = true;
+                }
+                bool estUnYoKai = false;
+                for (int j = 0; j < MesYoKai.Instance.yoKaiDeMonEquipe.Count; j++){
+                    if (MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]].positionRoue == cible){
+                        estUnYoKai = true;
                     }
                 }
+                if (i != 0 && !estUnYoKai){
+                    doitÊtreVerouiller = true;
+                }
+            } else if (pageGameObject == page3) {
+                if (EstDansEquipe(listeTriée[cible].IDUnique)){
+                    if (i == 0) doitÊtreVerouiller = true;
+                    if (i == 3) doitÊtreVerouiller = true;
+                }
+            }
+            if (doitÊtreVerouiller){
+                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonVerouiller;
+                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")/texte").gameObject.transform.name = "spriteBoutonVerouiller";
             } else {
+                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonNonSélection;
+                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")/texte").gameObject.transform.name = "spriteBoutonNonVerouiller";
+            }  
+            if (i == cible2){
                 pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonSélection;
             }
         }
@@ -215,61 +317,44 @@ public class RemplisLaRoue : MonoBehaviour{
 
     public void ChangerDePage(){
         enCoursDeSélection = false;
+        numéroDeTrie = 0;
         if (numéroPageActuelle == 1){
             page1.SetActive(true);
             page2.SetActive(false);
             page3.SetActive(false);
             blocInformatif.SetActive(false);
+            menu.boutDroit.SetActive(true);
         } else if (numéroPageActuelle == 2){
             page1.SetActive(false);
             page2.SetActive(true);
             page3.SetActive(false);
             blocInformatif.SetActive(true);
+            menu.boutDroit.SetActive(false);
         } else if (numéroPageActuelle == 3){
             page1.SetActive(false);
             page2.SetActive(false);
             page3.SetActive(true);
+            menu.boutDroit.SetActive(false);
             blocInformatif.SetActive(true);
         }
         if (MesYoKai.Instance != null){
             StartCoroutine(Attend());
         }
-        cible = 0;
+        if (page3Facultatives && numéroPageActuelle == 2){
+            cible = cibleMémoriser;
+            page3Facultatives = false;
+        } else {
+            cible = 0;
+        }
         numéroDePageInfo = 0;
         ChangementPageInfo();
-    }
-
-
-    void RemplireLaListeDesYoKai(){
-        lesBlocDansLaListeEspaceBlocListeYokai.Clear();
-        foreach (Transform child in espaceBlocListeYokai.transform){
-            if (child.gameObject != exempleBlocListeYokai){
-                Destroy(child.gameObject);
-            }
+        if (numéroPageActuelle == 3){
+            NouvelleCiblePage3(0);
         }
-        exempleBlocListeYokai.SetActive(false);
-        for (int i = 0; i < MesYoKai.Instance.maListe.Count; i++){
-            GameObject TV = Instantiate(exempleBlocListeYokai);
-            TV.transform.parent = espaceBlocListeYokai.transform;
-            TV.transform.localScale = new Vector3(1, 1, 1);
-            TV.transform.Find("dans l'équipe").gameObject.SetActive(EstDansEquipe(i));
-            TV.transform.Find("médaille").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.dictionnaire[MesYoKai.Instance.maListe[i].ID].médaillon;
-            TV.transform.Find("Nom").gameObject.GetComponent<TextMeshProUGUI>().text = MesYoKai.Instance.maListe[i].surnom;
-            TV.transform.Find("rang/Image rang").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.RecevoirUnSpriteDeRang(medaliumDictionnaire._instance.dictionnaire[MesYoKai.Instance.maListe[i].ID].rang.ToString());
-            TV.transform.Find("Niveau/nombre text").gameObject.GetComponent<TextMeshProUGUI>().text = MesYoKai.Instance.maListe[i].niveau.ToString();
-            TV.transform.name = i.ToString();
-            TV.SetActive(true);
-            lesBlocDansLaListeEspaceBlocListeYokai.Add(TV);
+        if (numéroPageActuelle == 2){
+            RemplireLaRouePage2();
+            NouvelleCiblePage2();
         }
-        float height = 0;
-        height += espaceBlocListeYokai.GetComponent<GridLayoutGroup>().padding.top+espaceBlocListeYokai.GetComponent<GridLayoutGroup>().padding.bottom;
-        height += MesYoKai.Instance.maListe.Count * espaceBlocListeYokai.GetComponent<GridLayoutGroup>().cellSize.y;
-        height += MesYoKai.Instance.maListe.Count * espaceBlocListeYokai.GetComponent<GridLayoutGroup>().spacing.y;
-        RectTransform rt = espaceBlocListeYokai.GetComponent<RectTransform>();
-        Vector2 size = rt.sizeDelta;
-        size.y = height;
-        rt.sizeDelta = size;
-        NouvelleCiblePage3(0);
     }
 
     bool EstDansEquipe(int IDSpécifique){
@@ -409,5 +494,78 @@ public class RemplisLaRoue : MonoBehaviour{
         } else {
             positionVisibleDansLeBloc += direction;
         }
+    }
+
+    void RemplireLaListeDesYoKai(){
+        numéroDeTrie = numéroDeTrie%6;
+
+        // 1 - Vider la liste précédante
+        lesBlocDansLaListeEspaceBlocListeYokai.Clear();
+        foreach (Transform child in espaceBlocListeYokai.transform){
+            if (child.gameObject != exempleBlocListeYokai){
+                Destroy(child.gameObject);
+            }
+        }
+        exempleBlocListeYokai.SetActive(false);
+
+        // 2 - Trié la liste
+        listeTriée.Clear();
+        listeTriée = MesYoKai.Instance.maListe;
+        TextMeshProUGUI espaceTexte = page3.transform.Find("Trie/Nom").GetComponent<TextMeshProUGUI>();
+        switch (numéroDeTrie){
+            case 0 :
+                espaceTexte.text = "Équipe";
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yokai => !EstDansEquipe(yokai.IDUnique)).ToList();
+                break;
+            case 1 :
+                espaceTexte.text = "Niveau";
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => yoKai.niveau).ToList();
+                break;
+            case 2 :
+                espaceTexte.text = "Rang";
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => medaliumDictionnaire._instance.dictionnaire[yoKai.ID].rang.ToString()).ToList();
+                break;
+            case 3 :
+                espaceTexte.text = "Tribu";
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => medaliumDictionnaire._instance.dictionnaire[yoKai.ID].tribue.ToString()).ToList();
+                break;
+            case 4 :
+                espaceTexte.text = "Nom";
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => yoKai.surnom).ToList();
+                break;
+            case 5 :
+                espaceTexte.text = "Nouveau";
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => yoKai.IDUnique).ToList();
+                break;
+        }
+
+        // 3 - Placer la liste
+        for (int i = 0; i < listeTriée.Count; i++){
+            if (page3Facultatives && EstDansEquipe(listeTriée[i].IDUnique)){
+                listeTriée.RemoveAt(i);
+                i--;
+            } else {
+                GameObject TV = Instantiate(exempleBlocListeYokai);
+                TV.transform.parent = espaceBlocListeYokai.transform;
+                TV.transform.localScale = new Vector3(1, 1, 1);
+                TV.transform.Find("dans l'équipe").gameObject.SetActive(EstDansEquipe(listeTriée[i].IDUnique));
+                TV.transform.Find("médaille").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.dictionnaire[listeTriée[i].ID].médaillon;
+                TV.transform.Find("Nom").gameObject.GetComponent<TextMeshProUGUI>().text = listeTriée[i].surnom;
+                TV.transform.Find("rang/Image rang").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.RecevoirUnSpriteDeRang(medaliumDictionnaire._instance.dictionnaire[listeTriée[i].ID].rang.ToString());
+                TV.transform.Find("Niveau/nombre text").gameObject.GetComponent<TextMeshProUGUI>().text = listeTriée[i].niveau.ToString();
+                TV.transform.name = listeTriée[i].IDUnique.ToString();
+                TV.SetActive(true);
+                lesBlocDansLaListeEspaceBlocListeYokai.Add(TV);
+            }
+        }
+        float height = 0;
+        height += espaceBlocListeYokai.GetComponent<GridLayoutGroup>().padding.top+espaceBlocListeYokai.GetComponent<GridLayoutGroup>().padding.bottom;
+        height += listeTriée.Count * espaceBlocListeYokai.GetComponent<GridLayoutGroup>().cellSize.y;
+        height += listeTriée.Count * espaceBlocListeYokai.GetComponent<GridLayoutGroup>().spacing.y;
+        RectTransform rt = espaceBlocListeYokai.GetComponent<RectTransform>();
+        Vector2 size = rt.sizeDelta;
+        size.y = height;
+        rt.sizeDelta = size;
+        NouvelleCiblePage3(0);
     }
 }

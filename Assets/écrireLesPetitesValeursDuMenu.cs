@@ -3,14 +3,34 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     public TextMeshProUGUI textArgent;
     public TextMeshProUGUI textToursBingoKai;
     public List<GameObject> lesEspaceYoKai;
+    public GameObject boutDroit;
+    public List<GameObject> lesPagesApplications;
+    public GameObject choieApplication;
+    private bool peutChoisireUneApplication;
     void Start(){
         if (MesYoKai.Instance != null){
             StartCoroutine(Attend());
+        }
+        RevenirAuMenu();
+    }
+
+    void Update(){
+        if (Input.GetButtonDown("A")){
+            if (peutChoisireUneApplication && lesPagesApplications.Count > choieApplication.GetComponent<PlaceLesApplicationsSac>().cible){
+                for (int i = 0; i < lesPagesApplications.Count; i++){
+                    lesPagesApplications[i].SetActive(false);
+                }
+                boutDroit.SetActive(false);
+                choieApplication.SetActive(false);
+                lesPagesApplications[choieApplication.GetComponent<PlaceLesApplicationsSac>().cible].SetActive(true);
+                peutChoisireUneApplication = false;
+            }
         }
     }
 
@@ -48,5 +68,14 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         blocDePostionUI.transform.Find("bloc nom/nom").gameObject.GetComponent<TextMeshProUGUI>().text=yoKai.surnom;
         blocDePostionUI.transform.Find("bloc info/nombre max vie").gameObject.GetComponent<TextMeshProUGUI>().text=(informationGénéral.vie*yoKai.niveau).ToString();
         blocDePostionUI.transform.Find("tribue").gameObject.GetComponent<Image>().sprite=medaliumDictionnaire._instance.SpriteDeLaTribue(informationGénéral.tribue);
+    }
+
+    public void RevenirAuMenu(){
+        for (int i = 0; i < lesPagesApplications.Count; i++){
+            lesPagesApplications[i].SetActive(false);
+        }
+        boutDroit.SetActive(true);
+        choieApplication.SetActive(true);
+        peutChoisireUneApplication = true;
     }
 }
