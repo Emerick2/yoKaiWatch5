@@ -1,3 +1,11 @@
+// using UnityEngine;
+// public class yoKaiMModel3D : MonoBehaviour
+// {
+//     [HideInInspector] public RuntimeAnimatorController animController1;
+//     public bool neBougeraPas;
+//     public float vitesseDeRechargement=0.2f;
+// }
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

@@ -5,7 +5,7 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
-using System.Diagnostics.Tracing;
+using System.Diagnostics.Tracing; 
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 

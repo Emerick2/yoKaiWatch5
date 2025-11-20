@@ -41,14 +41,16 @@ public class mouvementDuJoueur : MonoBehaviour{
             }else{
                 non = false;
             }
-            animator.SetBool("avence", non);
-            Vector3 nouvellePositionCaméra = caméra.position;
-            nouvellePositionCaméra.x = joueur.transform.position.x;
-            nouvellePositionCaméra.z = joueur.transform.position.z;
-            caméra.position = nouvellePositionCaméra;
+            if (animator != null) animator.SetBool("avence", non);
+            if (caméra != null){
+                Vector3 nouvellePositionCaméra = caméra.position;
+                nouvellePositionCaméra.x = joueur.transform.position.x;
+                nouvellePositionCaméra.z = joueur.transform.position.z;
+                caméra.position = nouvellePositionCaméra;
+            }
             //iconeMiniMap.position = joueur.transform.position;
         }
-        if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+")){
+        if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+") && NewDataCenter.Instance != null){
             Sauvgarder();
         }
     } 

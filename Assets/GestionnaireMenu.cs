@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.IO;
-using UnityEditor.Search;
 
 public class GestionnaireMenu : MonoBehaviour{
     Dictionary<string, string> monDictionnaire = new Dictionary<string, string>();
