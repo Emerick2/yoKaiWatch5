@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -43,6 +42,7 @@ public class RemplisLaRoue : MonoBehaviour{
     private int numéroDeTrie;
     public écrireLesPetitesValeursDuMenu menu;
     private List<ListeDeMesYoKai> listeTriée = new List<ListeDeMesYoKai>();
+
     void Start(){
         enCoursDeSélection = false;
         numéroPageActuelle = 1;

@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using Unity.VisualScripting;
 
 public class InvantaireSac : MonoBehaviour{
     public List<GameObject> laListeDesCatégorie;
     private int cible = 0;
+    public Vector2 cible2;
+    [Min(1)] public int nombreImageParLigne = 5;
+    [Min(1)] public int nombreImageVuEnVerticale = 5;
+    [Min(0)] private int ligneLaPlusHauteVisible = 0;
     public Sprite spriteRSélection;
     public Sprite spriteLSélection;
     public Sprite spriteRNonSélection;
@@ -19,6 +21,7 @@ public class InvantaireSac : MonoBehaviour{
     private List<ObjetDansLeSacInformation> lesItems = new List<ObjetDansLeSacInformation>();
     public GameObject conteneur;
     private GameObject exemple;
+    private List<GameObject> objetPlacerEnPrévu = new List<GameObject>();
     public bool étatDeDebug = true;
     void Start(){
         Initialiser();
@@ -45,6 +48,18 @@ public class InvantaireSac : MonoBehaviour{
             L.sprite=spriteLNonSélection;
             cible++;
             ChangerPositionCible();
+        } else if (Input.GetButtonDown("flèche gauche")){
+            cible2.x--;
+            ChangerPositionCible2();
+        } else if (Input.GetButtonDown("flèche droite")){
+            cible2.x++;
+            ChangerPositionCible2();
+        } else if (Input.GetButtonDown("flèche bas")){
+            cible2.y++;
+            ChangerPositionCible2();
+        } else if (Input.GetButtonDown("flèche haut")){
+            cible2.y--;
+            ChangerPositionCible2();
         }
     }
 
@@ -62,7 +77,7 @@ public class InvantaireSac : MonoBehaviour{
         }
         lesItems.Clear();
         switch (cible){
-            case 1:
+            case 0:
                 PlacerLaNouriture();
                 break;
         }
@@ -84,7 +99,7 @@ public class InvantaireSac : MonoBehaviour{
                     nom = item.nom,
                     sprite = item.image,
                     infoNouriture = item,
-                    quantitée = 1,
+                    quantitée = Random.Range(0,1000),
                 });
             }
         } else {
@@ -103,6 +118,7 @@ public class InvantaireSac : MonoBehaviour{
     }
 
     void PlacerLesItems(){
+        objetPlacerEnPrévu.Clear();
         foreach (Transform child in conteneur.transform){
             if (exemple == null){
                 exemple = child.gameObject;
@@ -121,6 +137,81 @@ public class InvantaireSac : MonoBehaviour{
             TV.transform.parent = conteneur.transform;
             TV.transform.localScale = new Vector3(1,1,1);
             TV.SetActive(true);
+            objetPlacerEnPrévu.Add(TV);
+        }
+
+        // changer le height :
+        StartCoroutine(LargeurBloc());
+
+        cible2 = new Vector2(0,0);
+        ChangerPositionCible2();
+    }
+
+    void ChangerPositionCible2(){
+        if (nombreImageParLigne<=0){
+            nombreImageParLigne = 1;
+            Debug.LogWarning("Attention à la division par 0 avec nombreImageParLigne !");
+        }
+        cible2.x %= nombreImageParLigne;
+        cible2.y %= objetPlacerEnPrévu.Count/nombreImageParLigne;
+
+        if (cible2.x < 0){
+            cible2.x = nombreImageParLigne+cible2.x;
+        }
+        if (cible2.y < 0){
+            cible2.y = (int)(objetPlacerEnPrévu.Count+cible2.y)/nombreImageParLigne;
+        }
+        for (int i = 0; i < objetPlacerEnPrévu.Count; i++){
+            bool laCible = i == cible2.y * nombreImageParLigne + cible2.x;
+            objetPlacerEnPrévu[i].GetComponent<Image>().enabled = laCible;
+        }
+        ChangerLaHauteurDuBloque();
+    }
+
+    IEnumerator LargeurBloc(){
+        yield return new WaitForSeconds(0.2f);
+        if (objetPlacerEnPrévu.Count > 0){
+            RectTransform rtConteneur = conteneur.GetComponent<RectTransform>();
+            GridLayoutGroup gridLayout = conteneur.GetComponent<GridLayoutGroup>();
+    
+            RectTransform dernierElement = objetPlacerEnPrévu[objetPlacerEnPrévu.Count - 1].GetComponent<RectTransform>();
+
+            float lastElementY = dernierElement.anchoredPosition.y;
+    
+            float height = Mathf.Abs(lastElementY);
+            height += gridLayout.cellSize.y;
+            height += gridLayout.padding.bottom;
+
+            rtConteneur.sizeDelta = new Vector2(rtConteneur.sizeDelta.x, height);
+
+            // Debug.Log(height);
+        }
+    }
+
+    void ChangerLaHauteurDuBloque() {
+        GridLayoutGroup grid = conteneur.GetComponent<GridLayoutGroup>();
+        float hauteurLigne = grid.cellSize.y + grid.spacing.y; 
+    
+        float limiteBasse = ligneLaPlusHauteVisible + nombreImageVuEnVerticale;
+        bool estAuDessus = cible2.y <= ligneLaPlusHauteVisible;
+        bool estEnDessous = cible2.y >= limiteBasse;
+
+        if (estAuDessus || estEnDessous) {
+            int nouveauSommet = ligneLaPlusHauteVisible;
+            if (estAuDessus) {
+                nouveauSommet = (int)cible2.y;
+            }    
+            else if (estEnDessous) {
+                nouveauSommet = (int)cible2.y - nombreImageVuEnVerticale;
+            }
+            ligneLaPlusHauteVisible = nouveauSommet;
+            float nouvelleHauteurY = grid.padding.top + (nouveauSommet * hauteurLigne);
+            if (estAuDessus) nouvelleHauteurY-=grid.cellSize.y;
+            else nouvelleHauteurY+=grid.cellSize.y;
+            RectTransform rt = conteneur.GetComponent<RectTransform>();    
+            Vector2 newAnchoredPos = rt.anchoredPosition;
+            newAnchoredPos.y = nouvelleHauteurY;
+            rt.anchoredPosition = newAnchoredPos;
         }
     }
 }
