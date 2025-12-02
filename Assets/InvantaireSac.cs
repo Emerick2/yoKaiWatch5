@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using TMPro;
 
 public class InvantaireSac : MonoBehaviour{
     public List<GameObject> laListeDesCatégorie;
@@ -23,6 +25,7 @@ public class InvantaireSac : MonoBehaviour{
     private GameObject exemple;
     private List<GameObject> objetPlacerEnPrévu = new List<GameObject>();
     public bool étatDeDebug = true;
+    public GameObject blocInformation;
     void Start(){
         Initialiser();
     }
@@ -80,6 +83,9 @@ public class InvantaireSac : MonoBehaviour{
             case 0:
                 PlacerLaNouriture();
                 break;
+            case 1:
+                PlacerLesÉquipement();
+                break;
         }
         PlacerLesItems();
     }
@@ -110,6 +116,31 @@ public class InvantaireSac : MonoBehaviour{
                         nom = item.nom,
                         sprite = item.image,
                         infoNouriture = item,
+                        quantitée = quantitées,
+                    });
+                }
+            }
+        }
+    }
+
+    void PlacerLesÉquipement(){
+        if (étatDeDebug){
+            foreach (Équipement item in Item._instance.listeDesÉquipements){
+                lesItems.Add(new ObjetDansLeSacInformation{
+                    nom = item.nom,
+                    sprite = item.sprite,
+                    infoÉquipement = item,
+                    quantitée = Random.Range(0,1000),
+                });
+            }
+        } else {
+            foreach (Équipement item in Item._instance.listeDesÉquipements){
+                int quantitées = int.Parse(NewDataCenter.Instance.Lire(item.nom));
+                if (quantitées > 0){
+                    lesItems.Add(new ObjetDansLeSacInformation{
+                        nom = item.nom,
+                        sprite = item.sprite,
+                        infoÉquipement = item,
                         quantitée = quantitées,
                     });
                 }
@@ -166,6 +197,66 @@ public class InvantaireSac : MonoBehaviour{
             objetPlacerEnPrévu[i].GetComponent<Image>().enabled = laCible;
         }
         ChangerLaHauteurDuBloque();
+        RemplireLeBlocInformation();
+    }
+
+    void RemplireLeBlocInformation(){
+        int identifiant = (int)cible2.y * nombreImageParLigne + (int)cible2.x;
+        if (objetPlacerEnPrévu.Count <= 0 || objetPlacerEnPrévu.Count <= identifiant){
+            blocInformation.SetActive(false);
+        } else {
+            blocInformation.SetActive(true);
+        
+            blocInformation.transform.Find("icone/Image").gameObject.GetComponent<Image>().sprite = lesItems[identifiant].sprite;
+            blocInformation.transform.Find("Nom").gameObject.GetComponent<TextMeshProUGUI>().text = lesItems[identifiant].nom;
+            blocInformation.transform.Find("Quantitée/nombre").gameObject.GetComponent<TextMeshProUGUI>().text = lesItems[identifiant].quantitée.ToString();
+            if (lesItems[identifiant].infoNouriture != null){
+                blocInformation.transform.Find("Spécial alliment").gameObject.SetActive(true);
+                blocInformation.transform.Find("Spécial équipement").gameObject.SetActive(false);
+
+                string texteAmis = Item._instance.listeDesEffetsNouritures[lesItems[identifiant].infoNouriture.IdEffetSiSurAmi].description;
+                string texteEnnemies = Item._instance.listeDesEffetsNouritures[lesItems[identifiant].infoNouriture.IdEffetSurSiSurEnnemie].description;
+                blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = lesItems[identifiant].infoNouriture.description;
+                if (texteAmis != ""){
+                    blocInformation.transform.Find("Spécial alliment/Image ami").gameObject.SetActive(true);
+                    blocInformation.transform.Find("Spécial alliment/ami").gameObject.GetComponent<TextMeshProUGUI>().text = texteAmis;
+                    blocInformation.transform.Find("Spécial alliment/ami").gameObject.SetActive(true);
+                } else {
+                    blocInformation.transform.Find("Spécial alliment/Image ami").gameObject.SetActive(false);
+                    blocInformation.transform.Find("Spécial alliment/ami").gameObject.SetActive(false);
+                }
+                if (texteAmis != ""){
+                    blocInformation.transform.Find("Spécial alliment/Image ennemie").gameObject.SetActive(true);
+                    blocInformation.transform.Find("Spécial alliment/Ennemie").gameObject.GetComponent<TextMeshProUGUI>().text = texteEnnemies;
+                    blocInformation.transform.Find("Spécial alliment/Ennemie").gameObject.SetActive(true);
+                } else {
+                    blocInformation.transform.Find("Spécial alliment/Image ennemie").gameObject.SetActive(false);
+                    blocInformation.transform.Find("Spécial alliment/Ennemie").gameObject.SetActive(false);
+                }
+            } else if (lesItems[identifiant].infoÉquipement != null){
+                blocInformation.transform.Find("Spécial alliment").gameObject.SetActive(false);
+                blocInformation.transform.Find("Spécial équipement").gameObject.SetActive(true);
+
+                blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = lesItems[identifiant].infoÉquipement.description;
+                string texteEffet = "";
+                Équipement équip = lesItems[identifiant].infoÉquipement;
+                texteEffet += équip.effetSur_ELSE;
+                if (texteEffet == "") {
+                    if (équip.effetSur_Défance != 0) texteEffet+="Défence "+équip.effetSur_Défance.ToString() + " ";
+                    if (équip.effetSur_Esprit != 0) texteEffet+="Esprit "+équip.effetSur_Esprit.ToString() + " ";
+                    if (équip.effetSur_Force != 0) texteEffet+="Force "+équip.effetSur_Force.ToString() + " ";
+                    if (équip.effetSur_Vitesse != 0) texteEffet+="Vitesse "+équip.effetSur_Vitesse.ToString() + " ";
+                }
+                if (texteEffet != ""){
+                    blocInformation.transform.Find("Spécial équipement/information effet").gameObject.GetComponent<TextMeshProUGUI>().text = texteEffet;
+                    blocInformation.transform.Find("Spécial équipement/information effet").gameObject.SetActive(true);
+                    blocInformation.transform.Find("Spécial équipement/Image information").gameObject.SetActive(true);
+                } else {
+                    blocInformation.transform.Find("Spécial équipement/information effet").gameObject.SetActive(false);
+                    blocInformation.transform.Find("Spécial équipement/Image information").gameObject.SetActive(false);
+                }
+            }
+        }
     }
 
     IEnumerator LargeurBloc(){
@@ -222,4 +313,6 @@ public class ObjetDansLeSacInformation{
     public string nom;
     public Sprite sprite;
     public Nouriture infoNouriture = null;
+    public Équipement infoÉquipement = null;
+
 }
