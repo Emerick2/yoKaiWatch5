@@ -28,8 +28,15 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
                 }
                 boutDroit.SetActive(false);
                 choieApplication.SetActive(false);
-                lesPagesApplications[choieApplication.GetComponent<PlaceLesApplicationsSac>().cible].SetActive(true);
+                GameObject application = lesPagesApplications[choieApplication.GetComponent<PlaceLesApplicationsSac>().cible];
+                application.SetActive(true);
                 peutChoisireUneApplication = false;
+                if (application.GetComponent<RemplisLaRoue>() != null){
+                    application.GetComponent<RemplisLaRoue>().Initialisation(true);
+                }
+                if (application.GetComponent<InvantaireSac>() != null){
+                    application.GetComponent<InvantaireSac>().Initialiser();
+                }
             }
         }
     }
@@ -41,7 +48,7 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         Initialisation();
     }
 
-    void Initialisation(){
+    public void Initialisation(){
         textToursBingoKai.text = "3 / 3";
         string argent = NewDataCenter.Instance.Lire("€");
         string argent2 = argent;
@@ -52,9 +59,15 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         textArgent.text = argent2+"€";
         for (int i = 0; i < lesEspaceYoKai.Count; i++){
             lesEspaceYoKai[i].SetActive(false);
-            if (i < MesYoKai.Instance.yoKaiDeMonEquipe.Count){
-                // Debug.Log(MesYoKai.Instance.yoKaiDeMonEquipe[i]+"   "+MesYoKai.Instance.maListe.Count);
-                PlacerUnYoKai(MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]],lesEspaceYoKai[i]);
+            for (int j = 0; j < MesYoKai.Instance.yoKaiDeMonEquipe.Count; j++){
+                ListeDeMesYoKai yoKai = MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]];
+                yoKai.positionRoue %= lesEspaceYoKai.Count;
+                if (yoKai.positionRoue<0){
+                    yoKai.positionRoue=0;
+                }
+                if (yoKai.positionRoue==i){
+                    PlacerUnYoKai(yoKai,lesEspaceYoKai[i]);
+                }
             }
         }
     }
@@ -77,5 +90,6 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         boutDroit.SetActive(true);
         choieApplication.SetActive(true);
         peutChoisireUneApplication = true;
+        Initialisation();
     }
 }

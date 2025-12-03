@@ -67,9 +67,17 @@ public class RemplisLaRoue : MonoBehaviour{
             } else if (Input.GetButtonDown("Y")){
                 switch (enCoursDeSélection){
                     case false:
-                        enCoursDeSélection= true;
-                        numéroEnCoursDeSélection=cible;
-                        lesMédaillon[numéroEnCoursDeSélection].transform.Find("pointeur").gameObject.GetComponent<Image>().sprite = spriteCercleSélection;
+                        bool autoriser = false;
+                        for (int i = 0; i < MesYoKai.Instance.yoKaiDeMonEquipe.Count; i++){
+                            if (MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue == cible){
+                                autoriser = true;
+                            }
+                        }
+                        if (autoriser){
+                            enCoursDeSélection= true;
+                            numéroEnCoursDeSélection=cible;
+                            lesMédaillon[numéroEnCoursDeSélection].transform.Find("pointeur").gameObject.GetComponent<Image>().sprite = spriteCercleSélection;
+                        }
                         break;
                     case true:
                         enCoursDeSélection= false;
@@ -95,6 +103,22 @@ public class RemplisLaRoue : MonoBehaviour{
                     page2Facultatives = false;
                     ChangerDePage();
                 }
+            } else if (Input.GetButtonDown("R")){
+                for (int i = 0; i < MesYoKai.Instance.yoKaiDeMonEquipe.Count; i++){
+                    MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue++;
+                    MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue%=6;
+                }
+                MesYoKai.Instance.SauvegarderLesPositonDesYokai(); 
+                RemplireLaRouePage2();
+            } else if (Input.GetButtonDown("L")){
+                for (int i = 0; i < MesYoKai.Instance.yoKaiDeMonEquipe.Count; i++){
+                    MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue--;
+                    if (MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue < 0){
+                        MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue=6+MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[i]].positionRoue;
+                    }
+                }
+                MesYoKai.Instance.SauvegarderLesPositonDesYokai(); 
+                RemplireLaRouePage2();
             }
         }
         else if (numéroPageActuelle == 3) {
@@ -134,7 +158,7 @@ public class RemplisLaRoue : MonoBehaviour{
             } else if (Input.GetButtonDown("flèche haut")){
                 cible2--;
                 ChangerPositionCible2(page2,4);
-            } else if (Input.GetButtonDown("A") && page2.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.name != "spriteBoutonVerouiller"){
+            } else if (Input.GetButtonDown("A") && page2.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.tag != "spriteBoutonVerouiller"){
                 switch (cible2){
                     case 0:
                         cibleMémoriser = cible;
@@ -163,7 +187,7 @@ public class RemplisLaRoue : MonoBehaviour{
             } else if (Input.GetButtonDown("flèche haut")){
                 cible2--;
                 ChangerPositionCible2(page3,4);
-            } else if (Input.GetButtonDown("A") && page3.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.name != "spriteBoutonVerouiller"){
+            } else if (Input.GetButtonDown("A") && page3.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.tag != "spriteBoutonVerouiller"){
                 switch (cible2){
                     case 0:
                         cibleMémoriser = cible;
@@ -234,10 +258,10 @@ public class RemplisLaRoue : MonoBehaviour{
             }
             if (doitÊtreVerouiller){
                 pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonVerouiller;
-                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")/texte").gameObject.transform.name = "spriteBoutonVerouiller";
+                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")/texte").gameObject.transform.tag = "spriteBoutonVerouiller";
             } else {
                 pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonNonSélection;
-                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")/texte").gameObject.transform.name = "spriteBoutonNonVerouiller";
+                pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")/texte").gameObject.transform.tag = "spriteBoutonNonVerouiller";
             }  
             if (i == cible2){
                 pageGameObject.gameObject.transform.Find("BLOC CHOIX/choix ("+(i+1).ToString()+")").gameObject.GetComponent<Image>().sprite=spriteBoutonSélection;
@@ -268,18 +292,25 @@ public class RemplisLaRoue : MonoBehaviour{
                 } else {
                     cibleInitiale.positionRoue = cible;
                 }
-                MesYoKai.Instance.SauvegarderLesPositonDesYokai();
             }
         }
+        MesYoKai.Instance.SauvegarderLesPositonDesYokai();
     }
 
     IEnumerator Attend(){
         while (!MesYoKai.Instance.finDuChargement && !MesYoKai.Instance.yoKaiDeMonEquipeChargé){
             yield return new WaitForSeconds(0.1f);
         }
-        Initialisation(true);
+        Initialisation(false);
     }
     public void Initialisation(bool total){
+        if (total){
+            page2Facultatives = false;
+            page3Facultatives = false;
+            numéroDePageInfo = 1;
+            enCoursDeSélection = false;
+            numéroPageActuelle = 1;
+        }
         RemplireLaRouePage2();
         RemplireLaListeDesYoKai();
         if (true){
@@ -313,6 +344,7 @@ public class RemplisLaRoue : MonoBehaviour{
                 lesMédaillon[i].GetComponent<Image>().enabled = false;
             }
         }
+        NouvelleCiblePage2();
     }
 
     public void ChangerDePage(){
@@ -324,6 +356,7 @@ public class RemplisLaRoue : MonoBehaviour{
             page3.SetActive(false);
             blocInformatif.SetActive(false);
             menu.boutDroit.SetActive(true);
+            menu.Initialisation();
         } else if (numéroPageActuelle == 2){
             page1.SetActive(false);
             page2.SetActive(true);

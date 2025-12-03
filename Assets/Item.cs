@@ -1,12 +1,14 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using System.IO;
+using System.Text;
 
 public class Item : MonoBehaviour{
     public static Item _instance;
     public List<EffetNouriture> listeDesEffetsNouritures;
     public List<Nouriture> listeDesNouritures;
     public List<Équipement> listeDesÉquipements;
+    public List<Annimal> listeDesAnnimaux;
 
     private char séparateur = ';';
     List<string[]> lignesNom = new List<string[]>();
@@ -26,6 +28,7 @@ public class Item : MonoBehaviour{
     void RemplireLesListe(){
         RemplirePourAlliment();
         RemplirePourÉquipement();
+        RemplirePourAnnimal();
         // SéparerTexteEtNombre("épée de légende !");//attendu[épée de légende !]
         // SéparerTexteEtNombre("def+1");//attendu [def,+1]
         // SéparerTexteEtNombre("def+1ou-5");//attendu[def,+1,ou,-5]
@@ -97,11 +100,8 @@ public class Item : MonoBehaviour{
             nouv.nom = ligne[1];
             nouv.image = Resources.Load<Sprite>("Image_Objet/alliment/"+ligne[3]);
             nouv.description = ligne[6];
-            if (!int.TryParse(ligne[4], out nouv.prixAchat)) nouv.prixAchat = 1;
-            else nouv.prixAchat = int.Parse(ligne[4]);
-            
-            if (!int.TryParse(ligne[5], out nouv.prixVente)) nouv.prixVente = 0;
-            else nouv.prixVente = int.Parse(ligne[5]);
+            nouv.prixVente = TransformeTexteEnNombre(ligne[4],1);
+            nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
             listeDesNouritures.Add(nouv);
         }
     }
@@ -131,19 +131,14 @@ public class Item : MonoBehaviour{
                 lignesNom.RemoveAt(i+1);
             }
         }
-        Debug.Log("-------");
         foreach (string[] ligne in lignesNom){
             if (ligne[1].Length>0){
-                Debug.Log(ligne.Length);
                 Équipement nouv = new Équipement{};
                 nouv.nom = ligne[1];
                 nouv.sprite = Resources.Load<Sprite>("Image_Objet/équipement/"+ligne[2]);
                 if (ligne.Length > 6) nouv.description = ligne[6];
-                if (ligne.Length <= 4 || !int.TryParse(ligne[4], out nouv.prixAchat)) nouv.prixAchat = 1;
-                else nouv.prixAchat = int.Parse(ligne[4]);
-            
-                if (ligne.Length <= 5 || !int.TryParse(ligne[5], out nouv.prixVente)) nouv.prixVente = 0;
-                else nouv.prixVente = int.Parse(ligne[5]);
+                nouv.prixVente = TransformeTexteEnNombre(ligne[4],1);
+                nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
 
                 string texteEffet = ligne[3].Replace(" ","");
                 texteEffet = texteEffet.Replace("\"","");
@@ -185,29 +180,62 @@ public class Item : MonoBehaviour{
                 }
                 listeDesÉquipements.Add(nouv);
             }
-            else{
-                Debug.Log(ligne.Length);
+        }
+    }
+
+    void RemplirePourAnnimal(){
+        lignesNom.Clear();
+        lignesNom = LireCSV("CSV/CSV_Animaux");
+        listeDesAnnimaux.Clear();
+        lignesNom.RemoveAt(0);
+        foreach (string[] ligne in lignesNom){
+            if (ligne[3] != ""){
+                ligne[1] = ligne[1].Replace('?','★');
+                ligne[3] = ligne[3].Replace('?','★');
+                Annimal nouv = new Annimal{};
+                nouv.nom = ligne[1];
+                nouv.image = Resources.Load<Sprite>("Image_Objet/annimal/"+ligne[3]);
+                nouv.description = ligne[6];
+                nouv.prixVente = TransformeTexteEnNombre(ligne[4],1);
+                nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
+                nouv.rare = ligne[1].Contains('★');
+                string t = ligne[1];
+                t = t.Replace("★","");
+                nouv.modèle3D = Resources.Load<GameObject>("annimal/"+t);
+                listeDesAnnimaux.Add(nouv);
             }
         }
     }
 
     public List<string[]> LireCSV(string nomFichierSansExtension){
-        TextAsset fichier = Resources.Load<TextAsset>(nomFichierSansExtension);
-        if (fichier == null){
-            Debug.LogError("Fichier CSV non trouvé : " + nomFichierSansExtension);
-            return new List<string[]>();
-        }
-        string contenuPropre = fichier.text.Replace('\r', ' '); // Remplace par un espace pour éviter de coller le texte
-        string[] lignes = contenuPropre.Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+        string chemin = Application.dataPath + "/Resources/" + nomFichierSansExtension + ".csv";
         List<string[]> resultat = new List<string[]>();
-        foreach (string ligne in lignes){
-            string[] valeurs = ligne.Split(séparateur); 
-            resultat.Add(valeurs);
+        try{
+            string contenuPropre = File.ReadAllText(chemin, Encoding.GetEncoding("windows-1252")); 
+            string[] lignes = contenuPropre.Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+            foreach (string ligne in lignes){
+                string[] valeurs = ligne.Split(séparateur); 
+                resultat.Add(valeurs);
+            }
+        }
+        catch (FileNotFoundException){
+            Debug.LogError("Fichier CSV non trouvé : " + chemin);
         }
         return resultat;
     }
+
+    public int TransformeTexteEnNombre(string texte, int valeurParDéfaut){
+        int nombre = valeurParDéfaut;
+        if (!int.TryParse(texte, out nombre)) return nombre;
+        else return int.Parse(texte);
+    }
 }
 
+/*
+NullReferenceException: Object reference not set to an instance of an object
+RemplisLaRoue.ChangerPositionCible2 (UnityEngine.GameObject pageGameObject, System.Int32 maximum) (at Assets/RemplisLaRoue.cs:240)
+RemplisLaRoue.Update () (at Assets/RemplisLaRoue.cs:133)
+*/
 /*
 Nouriture
 Objet
@@ -248,4 +276,16 @@ public class Équipement{
     public int effetSur_Défance;
     public int effetSur_Esprit;
     public string effetSur_ELSE;
+}
+
+
+[System.Serializable]
+public class Annimal{
+    public string nom;
+    public Sprite image;
+    [TextArea(3, 5)] public string description;
+    public int prixAchat;
+    public int prixVente;
+    public bool rare;
+    public GameObject modèle3D;
 }

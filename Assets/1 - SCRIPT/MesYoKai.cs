@@ -47,6 +47,7 @@ public class MesYoKai : MonoBehaviour{
         //avent tous :
         // 1 - vérifier que le nombre est sufisant :
         if (yoKaiDeMonEquipe.Count != lesPositions.Count){
+            Debug.Log("Problème de position lesPositions dans équipe");
             lesPositions.Clear();
             for (int i = 0; i < yoKaiDeMonEquipe.Count; i++){
                 lesPositions.Add(i);
@@ -55,11 +56,11 @@ public class MesYoKai : MonoBehaviour{
         // 2 - vérifier que les positions ne sont pas répété :
         // 2 - vérifier que les positions ne sont pas répété...
         int nombreDeYoKai = yoKaiDeMonEquipe.Count;
-        HashSet<int> positionsTrouvees = new HashSet<int>();
+        List<int> positionsTrouvees = new List<int>();
         List<int> indicesDesDoublons = new List<int>();
         for (int i = 0; i < lesPositions.Count; i++){
             int positionActuelle = lesPositions[i];
-            if (positionActuelle >= 0 && positionActuelle < nombreDeYoKai && !positionsTrouvees.Contains(positionActuelle)){
+            if (positionActuelle >= 0 && positionActuelle < 6 && !positionsTrouvees.Contains(positionActuelle)){
                 positionsTrouvees.Add(positionActuelle);
             } else{
                 indicesDesDoublons.Add(i);

@@ -26,6 +26,7 @@ public class InvantaireSac : MonoBehaviour{
     private List<GameObject> objetPlacerEnPrévu = new List<GameObject>();
     public bool étatDeDebug = true;
     public GameObject blocInformation;
+    public écrireLesPetitesValeursDuMenu menu;
     void Start(){
         Initialiser();
     }
@@ -63,6 +64,9 @@ public class InvantaireSac : MonoBehaviour{
         } else if (Input.GetButtonDown("flèche haut")){
             cible2.y--;
             ChangerPositionCible2();
+        } else if (Input.GetButtonDown("B")) {
+            if (menu != null )menu.RevenirAuMenu();
+            else Debug.LogWarning("Le gameObject menu n'est pas assigner");
         }
     }
 
@@ -83,7 +87,10 @@ public class InvantaireSac : MonoBehaviour{
             case 0:
                 PlacerLaNouriture();
                 break;
-            case 1:
+            case 2:
+                PlacerLesAnnimaux();
+                break;
+            case 3:
                 PlacerLesÉquipement();
                 break;
         }
@@ -116,6 +123,31 @@ public class InvantaireSac : MonoBehaviour{
                         nom = item.nom,
                         sprite = item.image,
                         infoNouriture = item,
+                        quantitée = quantitées,
+                    });
+                }
+            }
+        }
+    }
+
+    void PlacerLesAnnimaux(){
+        if (étatDeDebug){
+            foreach (Annimal item in Item._instance.listeDesAnnimaux){
+                lesItems.Add(new ObjetDansLeSacInformation{
+                    nom = item.nom,
+                    sprite = item.image,
+                    infoAnimal = item,
+                    quantitée = Random.Range(0,1000),
+                });
+            }
+        } else {
+            foreach (Annimal item in Item._instance.listeDesAnnimaux){
+                int quantitées = int.Parse(NewDataCenter.Instance.Lire(item.nom));
+                if (quantitées > 0){
+                    lesItems.Add(new ObjetDansLeSacInformation{
+                        nom = item.nom,
+                        sprite = item.image,
+                        infoAnimal = item,
                         quantitée = quantitées,
                     });
                 }
@@ -255,6 +287,14 @@ public class InvantaireSac : MonoBehaviour{
                     blocInformation.transform.Find("Spécial équipement/information effet").gameObject.SetActive(false);
                     blocInformation.transform.Find("Spécial équipement/Image information").gameObject.SetActive(false);
                 }
+            } else if (lesItems[identifiant].infoAnimal != null) {
+                blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = lesItems[identifiant].infoAnimal.description;
+                blocInformation.transform.Find("Spécial alliment").gameObject.SetActive(false);
+                blocInformation.transform.Find("Spécial équipement").gameObject.SetActive(false);
+            } else {
+                blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = "";
+                blocInformation.transform.Find("Spécial alliment").gameObject.SetActive(false);
+                blocInformation.transform.Find("Spécial équipement").gameObject.SetActive(false);
             }
         }
     }
@@ -313,6 +353,6 @@ public class ObjetDansLeSacInformation{
     public string nom;
     public Sprite sprite;
     public Nouriture infoNouriture = null;
+    public Annimal infoAnimal = null;
     public Équipement infoÉquipement = null;
-
 }

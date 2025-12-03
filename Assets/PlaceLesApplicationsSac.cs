@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
@@ -12,6 +11,10 @@ public class PlaceLesApplicationsSac : MonoBehaviour{
     public Sprite spriteNonVisé;
     private int nombreApplicationParEtage = 3;
     void Start(){
+        Initialisation();
+    }
+
+    void Initialisation(){
         for (int i = 0; i < listeImageApplication.Count; i++){
             GameObject TV = Instantiate(blocOrigine);
             TV.transform.Find("icone").GetComponent<Image>().sprite = listeImageApplication[i];
@@ -20,10 +23,6 @@ public class PlaceLesApplicationsSac : MonoBehaviour{
             lesLieux.Add(TV);
         }
         Destroy(blocOrigine);
-        Initialisation();
-    }
-
-    void Initialisation(){
         ChangerPositionCurseur(0);
     }
 
