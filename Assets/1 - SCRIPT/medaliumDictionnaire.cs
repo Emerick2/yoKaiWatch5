@@ -178,6 +178,7 @@ public class MedaliumNonPersonel{
     public int force;
     public int vitesse;
     public int esprit;
+    public int défance;// IL faut le rensaigner dans le CSV
     public int vie;
     public string nomDeMonSquellette;
 }
