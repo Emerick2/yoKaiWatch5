@@ -143,6 +143,61 @@ public class medaliumDictionnaire : MonoBehaviour{
         
         return null;
     }
+
+    public Element ObtenirElementDeLaTechnique(Technique technique){
+        switch (technique){
+            // FEU
+            case Technique.Feu:
+            case Technique.Incendie:
+            case Technique.Brasier:
+                return Element.Feu;
+
+            // EAU
+            case Technique.Torrent:
+            case Technique.Rapides:
+            case Technique.Cascade:
+                return Element.Eau;
+
+            // FOUDRE
+            case Technique.Décharge:
+            case Technique.Foudre:
+            case Technique.HauteTension:
+                return Element.Foudre;
+
+            // TERRE
+            case Technique.Galet:
+            case Technique.Éboulement:
+            case Technique.Météore:
+                return Element.Terre;
+
+            // VENT
+            case Technique.Tourbillon:
+            case Technique.Tornade:
+            case Technique.Ouragan:
+                return Element.Vent;
+
+            // GLACE
+            case Technique.Grêle:
+            case Technique.Gel:
+            case Technique.Blizzard:
+                return Element.Glace;
+
+            // DRAIN
+            case Technique.Absorption:
+            case Technique.Vortex:
+            case Technique.Récolte:
+                return Element.Drain;
+
+            // SOIN (Ne fait pas de dégâts, mais bon à classer)
+            case Technique.Guérison:
+            case Technique.Restauration:
+            case Technique.Paradis:
+                return Element.Soin;
+
+            default:
+                return Element.Neutre;
+        }
+    }
 }
 
 [System.Serializable]
@@ -181,6 +236,10 @@ public class MedaliumNonPersonel{
     public int défance;// IL faut le rensaigner dans le CSV
     public int vie;
     public string nomDeMonSquellette;
+
+    [Header("Affinités Élémentaires")]
+    public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)
+    public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
 }
 
 public enum Tribue{
@@ -389,3 +448,16 @@ rang
 
 
 */
+
+
+public enum Element{
+    Neutre, // Pour les attaques physiques de base
+    Feu,
+    Eau,
+    Foudre,
+    Terre,
+    Vent,
+    Glace,
+    Drain, // Absorption
+    Soin   // Pour exclure les soins des calculs de dégâts
+}
