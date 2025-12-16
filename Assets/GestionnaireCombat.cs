@@ -7,8 +7,8 @@ using TMPro;
 
 public class GestionnaireCombat : MonoBehaviour{
     public List<Image> lesEspacesMédaillonDansLaRoue;
-    private List<StructureYoKaiCombat> listeYoKaiAmiSurLeTerrain = new List<StructureYoKaiCombat>();
-    private List<StructureYoKaiCombat> listeYoKaiEnnemieSurLeTerrain = new List<StructureYoKaiCombat>();
+    [HideInInspector] public List<StructureYoKaiCombat> listeYoKaiAmiSurLeTerrain = new List<StructureYoKaiCombat>();
+    [HideInInspector] public List<StructureYoKaiCombat> listeYoKaiEnnemieSurLeTerrain = new List<StructureYoKaiCombat>();
     private bool autorisationDeTournerLaRoue = true;
     [Range(0,5)]private int positionRotationRoue = 0;
     private int rotationDemander;//on demande la rotation. Elle sera réaliser à la fin du tours complets (quand chaque yo-kai aurras jouer)
@@ -83,6 +83,10 @@ public class GestionnaireCombat : MonoBehaviour{
         foreach (StructureYoKaiCombat item in listeYoKaiEnnemieSurLeTerrain){
             PriseEnCompteObjet(item);
         }
+        for (int i = 0; i < listeYoKaiEnnemieSurLeTerrain.Count; i++){
+            cible.GetComponent<Cible>().yoKaiGameObjects.Add(listeYoKaiEnnemieSurLeTerrain[i].gameObjectSurLaScène);
+        }
+        cible.GetComponent<Cible>().gestionnaireCombat = this;
         StartCoroutine(BoucleDuJeu());
     }
 

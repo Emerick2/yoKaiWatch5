@@ -17,8 +17,10 @@ public class medaliumDictionnaire : MonoBehaviour{
     public List<MedaliumNonPersonel> dictionnaire;
     public List<Sprite> imageDesRang;
     public List<Sprite> imageDesTribues;
+    public List<Sprite> imageDesElements;
 
     public ImageDesTribue imageDesTribue;
+    
     public GameObject AvoirLeGameObject(){
         return gameObject;
     }
@@ -33,61 +35,20 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
     void Start(){
-        string phrasse = "";
         int i = 0;
         foreach (MedaliumNonPersonel item in dictionnaire){
             if (item.médaillon == null){
                 item.médaillon = imageDeUneMédailleInconnue;
-                if (item.nom != ""){
-                    phrasse += i.ToString()+" | "+item.nom + "\n";
-                }
             }
             i++;
             //inversion squellette et description :
             string t = item.nomDeMonSquellette;
             item.nomDeMonSquellette = item.description;
             item.description = t;
+            
+            item.monElement = ObtenirElementDeLaTechnique(item.technique);
         }
-        //Debug.Log(phrasse);
     }
-    /*
-    void Start(){
-        if (int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"))<3){
-            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-        }
-    }*//*
-    public Sprite RecevoirUnSpriteDeTribue(string nomDeLaTribue){
-        return imageDesTribue.nomDeLaTribue;
-        /*
-        if (nomDuRang == "Wandroïd"){
-            return imageDesRang[10];
-        }else if (nomDuRang == "Enma"){
-            return imageDesRang[9];
-        }else if (nomDuRang == "Perfide"){
-            return imageDesRang[8];
-        }else if (nomDuRang == "Insaisissable"){
-            return imageDesRang[7];
-        }else if (nomDuRang == "Sinistre"){
-            return imageDesRang[6];
-        }else if (nomDuRang == "Sombre"){
-            return imageDesRang[5];
-        }else if (nomDuRang == "Bienveillant"){
-            return imageDesRang[4];
-        }else if (nomDuRang == "Mignon"){
-            return imageDesRang[3];
-        }else if (nomDuRang == "Costaud"){
-            return imageDesRang[2];
-        }else if (nomDuRang == "Mystérieu"){
-            return imageDesRang[1];
-        }else if (nomDuRang == "Vaillant"){
-            return imageDesRang[0];
-        }else{
-            Debug.LogWarning("La tribue "+nomDuRang+" est manquante dans le médalium");
-            return imageDesRang[7];
-        }*//*
-    }*/
     public Sprite RecevoirUnSpriteDeRang(string nomDuRang){
         if (nomDuRang == "S"){
             return imageDesRang[5];
@@ -107,14 +68,15 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
 
-    public void ajouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
+    public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
         nomDeLaTribue = nomDeLaTribue.ToLower();
         nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
         if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
             dictionnaire[IDdeLaCible].tribue = (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
         }
     }
-    public void ajouterUnRang(int IDdeLaCible, string nomDuRang){
+    public void AjouterUnRang(int IDdeLaCible, string nomDuRang){
+        nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
         nomDuRang = nomDuRang.ToUpper();
         if (Enum.IsDefined(typeof(Rang), nomDuRang)){
             dictionnaire[IDdeLaCible].rang = (Rang)Enum.Parse(typeof(Rang), nomDuRang);
@@ -186,7 +148,7 @@ public class medaliumDictionnaire : MonoBehaviour{
             case Technique.Absorption:
             case Technique.Vortex:
             case Technique.Récolte:
-                return Element.Drain;
+                return Element.Absorption;
 
             // SOIN (Ne fait pas de dégâts, mais bon à classer)
             case Technique.Guérison:
@@ -197,6 +159,29 @@ public class medaliumDictionnaire : MonoBehaviour{
             default:
                 return Element.Neutre;
         }
+    }
+
+    public Sprite ObtenirImageElement(Element technique){
+        switch (technique){
+            case Element.Feu:
+                return imageDesElements[0];
+            case Element.Eau:
+                return imageDesElements[1];
+            case Element.Foudre:
+                return imageDesElements[3];
+            case Element.Terre:
+                return imageDesElements[4];
+            case Element.Glace:
+                return imageDesElements[5];
+            case Element.Vent:
+                return imageDesElements[6];
+            case Element.Absorption:
+                return imageDesElements[7];
+            case Element.Soin:
+                return imageDesElements[8];
+        }
+        Debug.LogWarning("Aucun élément n'a été trouvé");
+        return imageDesElements[0];
     }
 }
 
@@ -240,6 +225,7 @@ public class MedaliumNonPersonel{
     [Header("Affinités Élémentaires")]
     public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)
     public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
+    public Element monElement;
 }
 
 public enum Tribue{
@@ -458,6 +444,6 @@ public enum Element{
     Terre,
     Vent,
     Glace,
-    Drain, // Absorption
+    Absorption,
     Soin   // Pour exclure les soins des calculs de dégâts
 }
