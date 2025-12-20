@@ -50,8 +50,8 @@ public class ComplétéLeMédaliumAvecCSV : MonoBehaviour{
                 }
                 MedaliumNonPersonel l = médailum.dictionnaire[int.Parse(ID)];
                 l.nom = ligne[1];
-                if (ligne[2] != "")médailum.ajouterUneTribue(int.Parse(ID), ligne[2]);
-                if (ligne[3] != "")médailum.ajouterUnRang(int.Parse(ID), ligne[3]);
+                if (ligne[2] != "")médailum.AjouterUneTribue(int.Parse(ID), ligne[2]);
+                if (ligne[3] != "")médailum.AjouterUnRang(int.Parse(ID), ligne[3]);
                 if (ligne[4] != "") l.vie = int.Parse(ligne[4]);
                 if (ligne[5] != "")l.esprit = int.Parse(ligne[5]);
                 if (ligne[6] != "")l.vitesse = int.Parse(ligne[6]);

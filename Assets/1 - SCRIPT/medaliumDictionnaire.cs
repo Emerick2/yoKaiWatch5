@@ -17,8 +17,10 @@ public class medaliumDictionnaire : MonoBehaviour{
     public List<MedaliumNonPersonel> dictionnaire;
     public List<Sprite> imageDesRang;
     public List<Sprite> imageDesTribues;
+    public List<Sprite> imageDesElements;
 
     public ImageDesTribue imageDesTribue;
+    
     public GameObject AvoirLeGameObject(){
         return gameObject;
     }
@@ -33,61 +35,20 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
     void Start(){
-        string phrasse = "";
         int i = 0;
         foreach (MedaliumNonPersonel item in dictionnaire){
             if (item.médaillon == null){
                 item.médaillon = imageDeUneMédailleInconnue;
-                if (item.nom != ""){
-                    phrasse += i.ToString()+" | "+item.nom + "\n";
-                }
             }
             i++;
             //inversion squellette et description :
             string t = item.nomDeMonSquellette;
             item.nomDeMonSquellette = item.description;
             item.description = t;
+            
+            item.monElement = ObtenirElementDeLaTechnique(item.technique);
         }
-        //Debug.Log(phrasse);
     }
-    /*
-    void Start(){
-        if (int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"))<3){
-            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-            MesYoKai.Instance.AjouterUnYoKai(5,52,"une personalité !","un surnom !");
-        }
-    }*//*
-    public Sprite RecevoirUnSpriteDeTribue(string nomDeLaTribue){
-        return imageDesTribue.nomDeLaTribue;
-        /*
-        if (nomDuRang == "Wandroïd"){
-            return imageDesRang[10];
-        }else if (nomDuRang == "Enma"){
-            return imageDesRang[9];
-        }else if (nomDuRang == "Perfide"){
-            return imageDesRang[8];
-        }else if (nomDuRang == "Insaisissable"){
-            return imageDesRang[7];
-        }else if (nomDuRang == "Sinistre"){
-            return imageDesRang[6];
-        }else if (nomDuRang == "Sombre"){
-            return imageDesRang[5];
-        }else if (nomDuRang == "Bienveillant"){
-            return imageDesRang[4];
-        }else if (nomDuRang == "Mignon"){
-            return imageDesRang[3];
-        }else if (nomDuRang == "Costaud"){
-            return imageDesRang[2];
-        }else if (nomDuRang == "Mystérieu"){
-            return imageDesRang[1];
-        }else if (nomDuRang == "Vaillant"){
-            return imageDesRang[0];
-        }else{
-            Debug.LogWarning("La tribue "+nomDuRang+" est manquante dans le médalium");
-            return imageDesRang[7];
-        }*//*
-    }*/
     public Sprite RecevoirUnSpriteDeRang(string nomDuRang){
         if (nomDuRang == "S"){
             return imageDesRang[5];
@@ -107,14 +68,15 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
 
-    public void ajouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
+    public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
         nomDeLaTribue = nomDeLaTribue.ToLower();
         nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
         if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
             dictionnaire[IDdeLaCible].tribue = (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
         }
     }
-    public void ajouterUnRang(int IDdeLaCible, string nomDuRang){
+    public void AjouterUnRang(int IDdeLaCible, string nomDuRang){
+        nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
         nomDuRang = nomDuRang.ToUpper();
         if (Enum.IsDefined(typeof(Rang), nomDuRang)){
             dictionnaire[IDdeLaCible].rang = (Rang)Enum.Parse(typeof(Rang), nomDuRang);
@@ -142,6 +104,84 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
         
         return null;
+    }
+
+    public Element ObtenirElementDeLaTechnique(Technique technique){
+        switch (technique){
+            // FEU
+            case Technique.Feu:
+            case Technique.Incendie:
+            case Technique.Brasier:
+                return Element.Feu;
+
+            // EAU
+            case Technique.Torrent:
+            case Technique.Rapides:
+            case Technique.Cascade:
+                return Element.Eau;
+
+            // FOUDRE
+            case Technique.Décharge:
+            case Technique.Foudre:
+            case Technique.HauteTension:
+                return Element.Foudre;
+
+            // TERRE
+            case Technique.Galet:
+            case Technique.Éboulement:
+            case Technique.Météore:
+                return Element.Terre;
+
+            // VENT
+            case Technique.Tourbillon:
+            case Technique.Tornade:
+            case Technique.Ouragan:
+                return Element.Vent;
+
+            // GLACE
+            case Technique.Grêle:
+            case Technique.Gel:
+            case Technique.Blizzard:
+                return Element.Glace;
+
+            // DRAIN
+            case Technique.Absorption:
+            case Technique.Vortex:
+            case Technique.Récolte:
+                return Element.Absorption;
+
+            // SOIN (Ne fait pas de dégâts, mais bon à classer)
+            case Technique.Guérison:
+            case Technique.Restauration:
+            case Technique.Paradis:
+                return Element.Soin;
+
+            default:
+                return Element.Neutre;
+        }
+    }
+
+    public Sprite ObtenirImageElement(Element technique){
+        switch (technique){
+            case Element.Feu:
+                return imageDesElements[0];
+            case Element.Eau:
+                return imageDesElements[1];
+            case Element.Foudre:
+                return imageDesElements[3];
+            case Element.Terre:
+                return imageDesElements[4];
+            case Element.Glace:
+                return imageDesElements[5];
+            case Element.Vent:
+                return imageDesElements[6];
+            case Element.Absorption:
+                return imageDesElements[7];
+            case Element.Soin:
+                return imageDesElements[8];
+        }
+        Debug.LogWarning("Aucun élément n'a été trouvé");
+        return imageDesElements[0];
     }
 }
 
@@ -178,8 +218,14 @@ public class MedaliumNonPersonel{
     public int force;
     public int vitesse;
     public int esprit;
+    public int défance;// IL faut le rensaigner dans le CSV
     public int vie;
     public string nomDeMonSquellette;
+
+    [Header("Affinités Élémentaires")]
+    public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)
+    public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
+    public Element monElement;
 }
 
 public enum Tribue{
@@ -388,3 +434,16 @@ rang
 
 
 */
+
+
+public enum Element{
+    Neutre, // Pour les attaques physiques de base
+    Feu,
+    Eau,
+    Foudre,
+    Terre,
+    Vent,
+    Glace,
+    Absorption,
+    Soin   // Pour exclure les soins des calculs de dégâts
+}
