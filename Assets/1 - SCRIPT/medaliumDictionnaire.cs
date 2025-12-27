@@ -447,3 +447,4 @@ public enum Element{
     Absorption,
     Soin   // Pour exclure les soins des calculs de dégâts
 }
+

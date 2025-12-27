@@ -27,18 +27,13 @@ public class GestionnaireCombat : MonoBehaviour{
     private int numéroSpritePourLaVitesse = 0;
     private bool vitesseAccéléré = false;
 
-    Vector2 directionHaut = new Vector2(0, 1);
-    Vector2 directionBas = new Vector2(0, -1);
-    Vector2 directionGauche = new Vector2(-1, 0);
-    Vector2 directionDroit = new Vector2(1, 0);
-    public GameObject cible;
-    public List<Transform> limites;
-    public float vitesseCible;
 
     public DiminuerLaVieScript diminuerLaVieScript;
 
+    public GameObject cible;
     // options :
     private bool utiliseLaCible = true;
+    public GameObject blocDesBoutonGénéraux;
 
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
@@ -49,6 +44,9 @@ public class GestionnaireCombat : MonoBehaviour{
         if (MesYoKai.Instance != null){
             StartCoroutine(CoroutineDeDémarrage());
         }
+        utiliseLaCible = false;
+        cible.SetActive(false);
+        blocDesBoutonGénéraux.SetActive(true);
     }
     void AjouterUnEnnemie(int ID, int niveau){
         StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
@@ -97,10 +95,10 @@ public class GestionnaireCombat : MonoBehaviour{
         } else if (Input.GetButtonDown("R")){
             // TourneLaRoue(1);
             rotationDemander=1;
-        } else if (Input.GetButtonDown("flèche droite")){
+        } else if (Input.GetButtonDown("flèche droite") && !utiliseLaCible){
             cibleOption++;
             ChangerCibleOption();
-        } else if (Input.GetButtonDown("flèche gauche")){
+        } else if (Input.GetButtonDown("flèche gauche") && !utiliseLaCible){
             cibleOption--;
             ChangerCibleOption();
         } else if (Input.GetButtonDown("X")){
@@ -114,16 +112,22 @@ public class GestionnaireCombat : MonoBehaviour{
                 vitesseAccéléré = true;
                 StartCoroutine(CoroutineVitesseAccéléré());
             }
-        }
-        if (utiliseLaCible){
-            if (Input.GetButton("flèche droite")){
-                cible.transform.Translate(directionDroit * vitesseCible * Time.deltaTime);
-            }else if (Input.GetButton("flèche gauche")){
-                cible.transform.Translate(directionGauche * vitesseCible * Time.deltaTime);
-            }else if (Input.GetButton("flèche haut")){
-                cible.transform.Translate(directionHaut * vitesseCible * Time.deltaTime);
-            }else if (Input.GetButton("flèche bas")){
-                cible.transform.Translate(directionBas * vitesseCible * Time.deltaTime);
+        } else if (Input.GetButtonDown("A")){
+            if (!utiliseLaCible){
+                switch(cibleOption){
+                    case 1:
+                        utiliseLaCible = true;
+                        cible.GetComponent<Cible>().Initialisation();
+                        cible.SetActive(true);
+                        blocDesBoutonGénéraux.SetActive(false);
+                        break;
+                }
+            }
+        } else if (Input.GetButtonDown("B")){
+            if (utiliseLaCible){
+                utiliseLaCible = false;
+                cible.SetActive(false);
+                blocDesBoutonGénéraux.SetActive(true);
             }
         }
     }

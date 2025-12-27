@@ -16,15 +16,41 @@ public class Cible : MonoBehaviour{
 
     public SpriteRenderer imageElement;
 
+    public float vitesseCible;
+    Vector2 directionHaut = new Vector2(0, 1);
+    Vector2 directionBas = new Vector2(0, -1);
+    Vector2 directionGauche = new Vector2(-1, 0);
+    Vector2 directionDroit = new Vector2(1, 0);
+    private Vector2 positionInitial = new Vector2(0, 0);
+
     void Start(){
+        positionInitial = transform.position;
+        Initialisation();
+    }
+
+    public void Initialisation(){
         imageElement.gameObject.SetActive(false);
         imageEstUnAmi.gameObject.SetActive(false);
         texteAlliment.gameObject.SetActive(false);
+        transform.position = positionInitial;
+    }
+
+    void Update(){
+        if (Input.GetButton("flèche droite")){
+            transform.Translate(directionDroit * vitesseCible * Time.deltaTime);
+        }else if (Input.GetButton("flèche gauche")){
+            transform.Translate(directionGauche * vitesseCible * Time.deltaTime);
+        }else if (Input.GetButton("flèche haut")){
+            transform.Translate(directionHaut * vitesseCible * Time.deltaTime);
+        }else if (Input.GetButton("flèche bas")){
+            transform.Translate(directionBas * vitesseCible * Time.deltaTime);
+        }
     }
 
     void OnTriggerEnter(Collider other){
         GameObject parent = EstValide(other.gameObject);
         if (parent != null){
+            Debug.Log("ici");
             GetComponent<SpriteRenderer>().sprite = imageSélection;
             int IDTrouvé = 0;
             for (int i = 0; i < gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain.Count; i++){
