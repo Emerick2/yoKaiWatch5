@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
-using System.Diagnostics.Tracing; 
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 
@@ -20,6 +19,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     public List<Sprite> imageDesElements;
 
     public ImageDesTribue imageDesTribue;
+    public bool chargementFini = false;
     
     public GameObject AvoirLeGameObject(){
         return gameObject;
@@ -48,6 +48,7 @@ public class medaliumDictionnaire : MonoBehaviour{
             
             item.monElement = ObtenirElementDeLaTechnique(item.technique);
         }
+        chargementFini = true;
     }
     public Sprite RecevoirUnSpriteDeRang(string nomDuRang){
         if (nomDuRang == "S"){
