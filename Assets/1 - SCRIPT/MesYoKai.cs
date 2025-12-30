@@ -123,7 +123,7 @@ public class MesYoKai : MonoBehaviour{
             maListe[monIDActuel].IDUnique=monIDActuel;
             maListe[monIDActuel].ID=ID2;
             maListe[monIDActuel].niveau=niveau2;
-            maListe[monIDActuel].personnalité=personalité2;
+            maListe[monIDActuel].personnalité=TrouverMaPersonalité(personalité2);
             maListe[monIDActuel].surnom=surnom2;
         }
     }
@@ -136,7 +136,7 @@ public class MesYoKai : MonoBehaviour{
                 maListe[i].IDUnique = i;
                 maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
                 maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
-                maListe[i].personnalité  =  NewDataCenter.Instance.Lire(i.ToString()+"_personalité");
+                maListe[i].personnalité  =  TrouverMaPersonalité(NewDataCenter.Instance.Lire(i.ToString()+"_personalité"));
                 maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
             }
         }
@@ -150,6 +150,25 @@ public class MesYoKai : MonoBehaviour{
         }
         NewDataCenter.Instance.SauvegarderSTR("yoKaiDansEquipePosition",texte);
     }
+
+    public Personalité TrouverMaPersonalité(string nom){
+        switch (nom){
+            case "Sérieux":
+            return Personalité.Sérieux;
+            case "Ferme":
+            return Personalité.Ferme;
+            case "Détendu":
+            return Personalité.Détendu;
+            case "Frivole":
+            return Personalité.Frivole;
+            case "Distrait":
+            return Personalité.Distrait;
+            case "Maladroit":
+            return Personalité.Maladroit;
+        }
+        Debug.LogWarning("Personalité non trouvé dans l'enum : "+nom);
+        return Personalité.Détendu;
+    }
 }
 
 [System.Serializable]
@@ -158,6 +177,15 @@ public class ListeDeMesYoKai{//maListe
     public int ID;
     public string surnom;
     public int niveau;
-    public string personnalité;
+    public Personalité personnalité;
     [Range(0,5)] public int positionRoue;
+}
+
+public enum Personalité{
+    Sérieux,
+    Ferme,
+    Détendu,
+    Frivole,
+    Distrait,
+    Maladroit
 }

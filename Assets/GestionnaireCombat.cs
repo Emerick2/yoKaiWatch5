@@ -170,6 +170,7 @@ public class GestionnaireCombat : MonoBehaviour{
             nouv.force= medaliumDictionnaire._instance.dictionnaire[ID].force;
             nouv.défance= medaliumDictionnaire._instance.dictionnaire[ID].défance;
             nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
+            nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
             listeYoKaiAmiSurLeTerrain.Add(nouv);
         }
     }
@@ -313,6 +314,15 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
     }
+    void JouerAnnimationBOOL(StructureYoKaiCombat yoKai, string nom, bool état){
+        if (yoKai.gameObjectSurLaScène != null){
+            if (yoKai.gameObjectSurLaScène.GetComponent<Animator>() != null){
+                yoKai.gameObjectSurLaScène.GetComponent<Animator>().SetBool(nom, état);
+            } else {
+                Debug.Log("Le yo-kai "+yoKai.nom+" n'as pas de component Animator");
+            }
+        }
+    }
 
     void PriseEnCompteObjet(StructureYoKaiCombat yoKai){
         if (yoKai.tienUnObjet && yoKai.numéroObjetTennu >= 0 && yoKai.numéroObjetTennu < Item._instance.listeDesÉquipements.Count){
@@ -346,6 +356,35 @@ public class GestionnaireCombat : MonoBehaviour{
         return (float)valeur / total;
     }
 
+
+    bool VaFlâner(Personalité personalité){
+        float nombre = 0;
+        switch (personalité){
+            case Personalité.Sérieux:
+            nombre = 0f;
+            break;
+            case Personalité.Ferme:
+            nombre = 1.75f;
+            break;
+            case Personalité.Détendu:
+            nombre = 3.5f;
+            break;
+            case Personalité.Frivole:
+            nombre = 5f;
+            break;
+            case Personalité.Distrait:
+            nombre = 9f;
+            break;
+            case Personalité.Maladroit:
+            nombre = 12f;
+            break;
+            default:
+            Debug.LogWarning("La personnalité n'as pas été défini ici.");
+            nombre = 5f;
+            break;
+        }
+        return Random.Range(0,100)<=nombre;
+    }
     IEnumerator BoucleDuJeu(){
         EcrireInformationUI();
         yield return new WaitForSeconds(0.5f);//temps avent le début du combat qui permet notament le chargement des animator
@@ -363,7 +402,16 @@ public class GestionnaireCombat : MonoBehaviour{
                 //Ici on va parcourire tous les yo-kai du plus rapide au plus lang
                 //Les ennemie et amis sont mélanger
                 bool vaFaireUneAttaqueSimple = true;//il y auras plusieurs sorte d'attaque plus tard
-                if (vaFaireUneAttaqueSimple){
+                bool vaFlâner = VaFlâner(item.personalité);
+                // bool vaFlâner = true;
+                if (!vaFlâner && item.estEnTrainDeFlâner){
+                    item.estEnTrainDeFlâner = false;
+                    JouerAnnimationBOOL(item, "Flâne", false);
+                }
+                if (vaFlâner){
+                    item.estEnTrainDeFlâner = true;
+                    JouerAnnimationBOOL(item, "Flâne", true);
+                } else if (vaFaireUneAttaqueSimple){
                     yield return StartCoroutine(VaFaireUneAttaqueSimple(item));
                 }
                 yield return new WaitForSeconds(0.5f);
@@ -399,4 +447,6 @@ public class StructureYoKaiCombat{
     public float garde = 1; // 1/0.5/0.25
     public Rang rang;
     public Tribue tribue;
+    public Personalité personalité;
+    public bool estEnTrainDeFlâner = false;
 }

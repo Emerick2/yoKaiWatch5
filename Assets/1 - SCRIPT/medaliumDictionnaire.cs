@@ -208,7 +208,7 @@ public class MedaliumNonPersonel{
     public GameObject yoKai;
     public Tribue tribue;
     public Rang rang;
-    public Personnalité personalité;
+    public Personalité personalité;
     public Talent talent;
     public Technique technique;
     public PlatPréféré platPréféré;
@@ -242,27 +242,27 @@ public enum Tribue{
     Wandroïd
 }
 
-public enum Personnalité{
-    //1
-    flâneur,
-    frivole,
-    ferme,
-    sérieux,
-    //2
-    grognon,
-    dur,
-    logique,
-    futé,
-    prudent,
-    calme,
-    gentil,
-    tendre,
-    bizarre,
-    cruel,
-    altruiste,
-    dévoué,
-    violant,
-}
+// public enum Personnalité{
+//     //1
+//     flâneur,
+//     frivole,
+//     ferme,
+//     sérieux,
+//     //2
+//     grognon,
+//     dur,
+//     logique,
+//     futé,
+//     prudent,
+//     calme,
+//     gentil,
+//     tendre,
+//     bizarre,
+//     cruel,
+//     altruiste,
+//     dévoué,
+//     violant,
+// }
 
 public enum Rang{
     E,
