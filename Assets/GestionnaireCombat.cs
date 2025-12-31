@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 
 public class GestionnaireCombat : MonoBehaviour{
     public List<Image> lesEspacesMédaillonDansLaRoue;
@@ -359,6 +360,7 @@ public class GestionnaireCombat : MonoBehaviour{
 
     bool VaFlâner(Personalité personalité){
         float nombre = 0;
+        return Random.Range(0,100)<=70;
         switch (personalité){
             case Personalité.Sérieux:
             nombre = 0f;
@@ -385,8 +387,46 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         return Random.Range(0,100)<=nombre;
     }
+    void JouerAnnimationFlane(StructureYoKaiCombat item, bool leFait){
+        if (item.gameObjectSurLaScène != null){
+            JouerAnnimationBOOL(item, "Flâne", leFait);
+            GameObject display = null;
+            if(item.possitionRoue<3) {
+                if (item.estUnAmi) display = troisDisplateUIAmi[item.possitionRoue];
+                else display = troisDisplateUIEnnemie[item.possitionRoue];
+            }
+            if(display != null) {
+                display.transform.Find("bulle").gameObject.SetActive(leFait);
+            }
+            if (item.estUnAmi){
+                float currentX = item.gameObjectSurLaScène.transform.eulerAngles.x;
+                float currentZ = item.gameObjectSurLaScène.transform.eulerAngles.z;
+                if (leFait){    
+                    item.gameObjectSurLaScène.transform.rotation = Quaternion.Euler(currentX, 180f, currentZ);
+                    if(display != null) {
+                        display.transform.Find("bulle/t").gameObject.GetComponent<TextMeshProUGUI>().text="Pfiou...";
+                        display.transform.Find("bulle").gameObject.GetComponent<Animator>().SetTrigger("ouvre");
+                        Debug.Log("ici annimation");
+                        
+                    }
+                } else {
+                    item.gameObjectSurLaScène.transform.rotation = Quaternion.Euler(currentX, 0f, currentZ);
+                }
+            }
+        }
+    }
     IEnumerator BoucleDuJeu(){
         EcrireInformationUI();
+        foreach (GameObject item in troisDisplateUIAmi){
+            if (item != null){
+                item.transform.Find("bulle").gameObject.SetActive(false);
+            }
+        }
+        foreach (GameObject item in troisDisplateUIEnnemie){
+            if (item != null){
+                item.transform.Find("bulle").gameObject.SetActive(false);
+            }
+        }
         yield return new WaitForSeconds(0.5f);//temps avent le début du combat qui permet notament le chargement des animator
         while (true){
             if (rotationDemander != 0){
@@ -406,11 +446,11 @@ public class GestionnaireCombat : MonoBehaviour{
                 // bool vaFlâner = true;
                 if (!vaFlâner && item.estEnTrainDeFlâner){
                     item.estEnTrainDeFlâner = false;
-                    JouerAnnimationBOOL(item, "Flâne", false);
+                    JouerAnnimationFlane(item, false);
                 }
                 if (vaFlâner){
                     item.estEnTrainDeFlâner = true;
-                    JouerAnnimationBOOL(item, "Flâne", true);
+                    JouerAnnimationFlane(item, true);
                 } else if (vaFaireUneAttaqueSimple){
                     yield return StartCoroutine(VaFaireUneAttaqueSimple(item));
                 }
