@@ -64,7 +64,7 @@ public class DiminuerLaVieScript : MonoBehaviour{
         return 1f;
     }
 
-    public void DiminueLaVie(StructureYoKaiCombat attaquant, StructureYoKaiCombat cible, List<StructureYoKaiCombat> ordreDePassage){
+    public int DiminueLaVie(StructureYoKaiCombat attaquant, StructureYoKaiCombat cible, List<StructureYoKaiCombat> ordreDePassage){
         TypeAttaque typeAttaque = TypeAttaque.Physique;//cette variable changeras en fonction du yo-kai plus tard
         float correction = CalculerCorrection(attaquant, typeAttaque, TousLesYoKaiSurRoue(attaquant.estUnAmi,ordreDePassage));
         int rollStep = Random.Range(0, 21);
@@ -78,6 +78,8 @@ public class DiminuerLaVieScript : MonoBehaviour{
         float dégâtBase = correction / 2f + attaquant.force / 2f - cible.défance / 4f;
         float dégâtFinal = dégâtBase * rouleau * faiblesseOuRésistance * multiplicateurDeCompétance * gardeEnnemie;
 
-        cible.vie -= (int)Mathf.Max(1f, dégâtFinal);
+        int taux = (int)Mathf.Max(1f, dégâtFinal);
+        cible.vie -= taux;
+        return taux;
     }
 }

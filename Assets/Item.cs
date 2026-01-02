@@ -9,6 +9,7 @@ public class Item : MonoBehaviour{
     public List<Nouriture> listeDesNouritures;
     public List<Équipement> listeDesÉquipements;
     public List<Annimal> listeDesAnnimaux;
+    public bool chargementTerminé = false;
 
     private char séparateur = ';';
     List<string[]> lignesNom = new List<string[]>();
@@ -26,6 +27,7 @@ public class Item : MonoBehaviour{
         RemplireLesListe();
     }
     void RemplireLesListe(){
+        chargementTerminé = false;
         RemplirePourAlliment();
         RemplirePourÉquipement();
         RemplirePourAnnimal();
@@ -33,6 +35,7 @@ public class Item : MonoBehaviour{
         // SéparerTexteEtNombre("def+1");//attendu [def,+1]
         // SéparerTexteEtNombre("def+1ou-5");//attendu[def,+1,ou,-5]
         // SéparerTexteEtNombre("def1ou5");//attendu[def,1,ou,5]
+        chargementTerminé = true;
 
     }
 

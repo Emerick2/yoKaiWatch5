@@ -33,8 +33,17 @@ public class GestionnaireCombat : MonoBehaviour{
 
     public GameObject cible;
     // options :
-    private bool utiliseLaCible = true;
+    private bool utiliseLaCible = false;
+    private bool utiliseLeSac = false;
+    private bool utiliseAmultime = false;
+    private bool utilisePurification = false;
+
     public GameObject blocDesBoutonGénéraux;
+    // sprite
+    public Sprite spriteFlâne;
+    public Sprite spriteDéfance;
+    public Sprite spriteRaté;
+    private int nouritureChoisie = 0;
 
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
@@ -46,6 +55,9 @@ public class GestionnaireCombat : MonoBehaviour{
             StartCoroutine(CoroutineDeDémarrage());
         }
         utiliseLaCible = false;
+        utiliseLeSac = false;
+        utiliseAmultime = false;
+        utilisePurification = false;
         cible.SetActive(false);
         blocDesBoutonGénéraux.SetActive(true);
     }
@@ -96,10 +108,10 @@ public class GestionnaireCombat : MonoBehaviour{
         } else if (Input.GetButtonDown("R")){
             // TourneLaRoue(1);
             rotationDemander=1;
-        } else if (Input.GetButtonDown("flèche droite") && !utiliseLaCible){
+        } else if (Input.GetButtonDown("flèche droite") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
             cibleOption++;
             ChangerCibleOption();
-        } else if (Input.GetButtonDown("flèche gauche") && !utiliseLaCible){
+        } else if (Input.GetButtonDown("flèche gauche") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
             cibleOption--;
             ChangerCibleOption();
         } else if (Input.GetButtonDown("X")){
@@ -114,12 +126,28 @@ public class GestionnaireCombat : MonoBehaviour{
                 StartCoroutine(CoroutineVitesseAccéléré());
             }
         } else if (Input.GetButtonDown("A")){
-            if (!utiliseLaCible){
+            if (!utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
+                Input.ResetInputAxes();
                 switch(cibleOption){
+                    case 0:
+                        utiliseAmultime = true;
+                        GetComponent<ChoisieYoKaiAmi>().Initialiser();
+                        blocDesBoutonGénéraux.SetActive(false);
+                        break;
                     case 1:
                         utiliseLaCible = true;
                         cible.GetComponent<Cible>().Initialisation();
                         cible.SetActive(true);
+                        blocDesBoutonGénéraux.SetActive(false);
+                        break;
+                    case 2:
+                        utilisePurification = true;
+                        GetComponent<ChoisieYoKaiAmi>().Initialiser();
+                        blocDesBoutonGénéraux.SetActive(false);
+                        break;
+                    case 3:
+                        utiliseLeSac = true;
+                        GetComponent<SacCombats>().Initialiser();
                         blocDesBoutonGénéraux.SetActive(false);
                         break;
                 }
@@ -130,7 +158,42 @@ public class GestionnaireCombat : MonoBehaviour{
                 cible.SetActive(false);
                 blocDesBoutonGénéraux.SetActive(true);
             }
+            if (utiliseLeSac){
+                utiliseLeSac = false;
+                GetComponent<ChoisieYoKaiAmi>().Arrêter();
+                GetComponent<SacCombats>().Arrêter();
+                blocDesBoutonGénéraux.SetActive(true);
+            }
+            if (utiliseAmultime){
+                utiliseAmultime = false;
+                GetComponent<ChoisieYoKaiAmi>().Arrêter();
+                blocDesBoutonGénéraux.SetActive(true);
+            }
+            if (utilisePurification){
+                utilisePurification = false;
+                GetComponent<ChoisieYoKaiAmi>().Arrêter();
+                blocDesBoutonGénéraux.SetActive(true);
+            }
         }
+    }
+
+    public void ChoisieAllimant(int ID){
+        nouritureChoisie = ID;
+        GetComponent<SacCombats>().Arrêter();
+        GetComponent<ChoisieYoKaiAmi>().Initialiser();
+    }
+
+    public void ChoieDeAmiEffectuer(int cible){
+        Debug.Log(cible+" à été sélectionner");
+        utiliseAmultime = false;
+        utilisePurification = false;
+        if (utiliseLeSac){
+            utiliseLeSac = false;
+            Debug.Log("Consome la nouriture "+nouritureChoisie);
+            nouritureChoisie = 0;
+        }
+        GetComponent<ChoisieYoKaiAmi>().Arrêter();
+        blocDesBoutonGénéraux.SetActive(true);
     }
 
     void ChangerCibleOption(){
@@ -338,16 +401,33 @@ public class GestionnaireCombat : MonoBehaviour{
         StructureYoKaiCombat cibleDuCoup = null;
         if (item.estUnAmi) cibleDuCoup = YoKaiPrisAuHasard(listeYoKaiEnnemieSurLeTerrain);
         else cibleDuCoup = YoKaiPrisAuHasard(listeYoKaiAmiSurLeTerrain);
+        bool raté = Random.Range(0,100)<30;
+        if (raté){
+            EchecAttaqueCible(cibleDuCoup);
+            cibleDuCoup = null;
+        }
         if (cibleDuCoup != null){
             JouerAnnimation(item, "attaque");
             yield return new WaitForSeconds(0.2f);
-            diminuerLaVieScript.DiminueLaVie(item, cibleDuCoup,ordreDePassage);
+            int dégâts = diminuerLaVieScript.DiminueLaVie(item, cibleDuCoup,ordreDePassage);
             if (cibleDuCoup.vie>0){
                 JouerAnnimation(cibleDuCoup, "coup");
             } else {
                 JouerAnnimation(cibleDuCoup, "mort");
             }
             // Debug.Log(item.estUnAmi+"   "+cibleDuCoup.estUnAmi);
+
+            GameObject display = null;
+            if(cibleDuCoup.possitionRoue<3) {
+                if (cibleDuCoup.estUnAmi) display = troisDisplateUIAmi[cibleDuCoup.possitionRoue];
+                else display = troisDisplateUIEnnemie[cibleDuCoup.possitionRoue];
+            }
+            if(display != null) {
+                display.transform.Find("nombre").gameObject.GetComponent<EcrireUneQuantitéAvecDesImages>().EcrireLeNombre(dégâts);
+                display.transform.Find("nombre").gameObject.GetComponent<Animator>().SetTrigger("ouvert");
+            } else {
+                Debug.Log("display est null");
+            }
         } else {
             Debug.LogWarning("Attention, la cible du coup est null");
         }
@@ -360,7 +440,7 @@ public class GestionnaireCombat : MonoBehaviour{
 
     bool VaFlâner(Personalité personalité){
         float nombre = 0;
-        return Random.Range(0,100)<=70;
+        // return Random.Range(0,100)<=70;
         switch (personalité){
             case Personalité.Sérieux:
             nombre = 0f;
@@ -387,6 +467,12 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         return Random.Range(0,100)<=nombre;
     }
+
+    bool VaFaireUneGarde(Personalité personalité){
+        return Random.Range(0,100)<=30;
+    }
+
+
     void JouerAnnimationFlane(StructureYoKaiCombat item, bool leFait){
         if (item.gameObjectSurLaScène != null){
             JouerAnnimationBOOL(item, "Flâne", leFait);
@@ -403,15 +489,59 @@ public class GestionnaireCombat : MonoBehaviour{
                 float currentZ = item.gameObjectSurLaScène.transform.eulerAngles.z;
                 if (leFait){    
                     item.gameObjectSurLaScène.transform.rotation = Quaternion.Euler(currentX, 180f, currentZ);
-                    if(display != null) {
-                        display.transform.Find("bulle/t").gameObject.GetComponent<TextMeshProUGUI>().text="Pfiou...";
-                        display.transform.Find("bulle").gameObject.GetComponent<Animator>().SetTrigger("ouvre");
-                        Debug.Log("ici annimation");
-                        
-                    }
                 } else {
                     item.gameObjectSurLaScène.transform.rotation = Quaternion.Euler(currentX, 0f, currentZ);
                 }
+            }
+            if(display != null && leFait) {
+                display.transform.Find("bulle/t").gameObject.GetComponent<TextMeshProUGUI>().text="Pfiou...";
+                display.transform.Find("bulle").gameObject.GetComponent<Animator>().SetTrigger("ouvre");    
+                display.transform.Find("bulle/Image").gameObject.GetComponent<Image>().sprite = spriteFlâne;                
+            }
+        }
+    }
+
+    void EchecAttaqueCible(StructureYoKaiCombat item){
+        if (item == null) return;
+        GameObject display = null;
+        if(item.possitionRoue<3) {
+            if (item.estUnAmi) display = troisDisplateUIAmi[item.possitionRoue];
+            else display = troisDisplateUIEnnemie[item.possitionRoue];
+        }
+        if(display != null) {
+            display.transform.Find("bulle").gameObject.SetActive(true);
+        }
+        if (display != null){
+            display.transform.Find("bulle/t").gameObject.GetComponent<TextMeshProUGUI>().text="Au zut !";
+            display.transform.Find("bulle").gameObject.GetComponent<Animator>().SetTrigger("ouvre");    
+            display.transform.Find("bulle/Image").gameObject.GetComponent<Image>().sprite = spriteRaté;   
+        }
+    }
+    
+    void JouerAnnimationGarde(StructureYoKaiCombat item, bool leFait){
+        if (item.gameObjectSurLaScène != null){
+            JouerAnnimationBOOL(item, "garde", leFait);
+            GameObject display = null;
+            if(item.possitionRoue<3) {
+                if (item.estUnAmi) display = troisDisplateUIAmi[item.possitionRoue];
+                else display = troisDisplateUIEnnemie[item.possitionRoue];
+            }
+            if(display != null) {
+                display.transform.Find("bulle").gameObject.SetActive(leFait);
+            }
+            if (item.estUnAmi){
+                float currentX = item.gameObjectSurLaScène.transform.eulerAngles.x;
+                float currentZ = item.gameObjectSurLaScène.transform.eulerAngles.z;
+                if (leFait){    
+                    item.gameObjectSurLaScène.transform.rotation = Quaternion.Euler(currentX, 180f, currentZ);
+                } else {
+                    item.gameObjectSurLaScène.transform.rotation = Quaternion.Euler(currentX, 0f, currentZ);
+                }
+            }
+            if (leFait && display != null){
+                display.transform.Find("bulle/t").gameObject.GetComponent<TextMeshProUGUI>().text="En garde !";
+                display.transform.Find("bulle").gameObject.GetComponent<Animator>().SetTrigger("ouvre");    
+                display.transform.Find("bulle/Image").gameObject.GetComponent<Image>().sprite = spriteDéfance;   
             }
         }
     }
@@ -439,19 +569,33 @@ public class GestionnaireCombat : MonoBehaviour{
                 .OrderByDescending(yokai => yokai.vitesse)
                 .ToList();
             foreach (StructureYoKaiCombat item in ordreDePassage){
+                if (item.vie <= 0){
+                    continue;
+                }
                 //Ici on va parcourire tous les yo-kai du plus rapide au plus lang
                 //Les ennemie et amis sont mélanger
                 bool vaFaireUneAttaqueSimple = true;//il y auras plusieurs sorte d'attaque plus tard
                 bool vaFlâner = VaFlâner(item.personalité);
+                bool vaFaireUneGarde = VaFaireUneGarde(item.personalité);
                 // bool vaFlâner = true;
                 if (!vaFlâner && item.estEnTrainDeFlâner){
                     item.estEnTrainDeFlâner = false;
                     JouerAnnimationFlane(item, false);
                 }
+                if (!vaFaireUneGarde && item.estEnTrainDeFaireUneGarde){
+                    item.estEnTrainDeFaireUneGarde = false;
+                    item.garde = 1;
+                    JouerAnnimationGarde(item, false);
+                }
+                // ----------
                 if (vaFlâner){
                     item.estEnTrainDeFlâner = true;
                     JouerAnnimationFlane(item, true);
-                } else if (vaFaireUneAttaqueSimple){
+                } else if (vaFaireUneGarde){
+                    item.estEnTrainDeFaireUneGarde = true;
+                    item.garde = 0.5f;
+                    JouerAnnimationGarde(item, true);
+                }else if (vaFaireUneAttaqueSimple){
                     yield return StartCoroutine(VaFaireUneAttaqueSimple(item));
                 }
                 yield return new WaitForSeconds(0.5f);
@@ -489,4 +633,5 @@ public class StructureYoKaiCombat{
     public Tribue tribue;
     public Personalité personalité;
     public bool estEnTrainDeFlâner = false;
+    public bool estEnTrainDeFaireUneGarde = false;
 }
