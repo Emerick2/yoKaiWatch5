@@ -41,7 +41,7 @@ public class medaliumDictionnaire : MonoBehaviour{
             if (item.médaillon == null){
                 item.médaillon = imageDeUneMédailleInconnue;
             }
-            i++;
+            
             //inversion squellette et description :
             string t = item.nomDeMonSquellette;
             item.nomDeMonSquellette = item.description;
@@ -50,6 +50,7 @@ public class medaliumDictionnaire : MonoBehaviour{
             item.monElement = ObtenirElementDeLaTechnique(item.technique);
 
             item.faceImage = Resources.Load<Sprite>("PuniArt/"+i);
+            i++;
         }
         chargementFini = true;
     }

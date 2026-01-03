@@ -209,6 +209,10 @@ public class DialcodePrinted : MonoBehaviour{
             if (fragmentDeDialogue[position].image != null){
                 espaceImage.gameObject.SetActive(true);
                 espaceImage.sprite = fragmentDeDialogue[position].image;
+                // espaceImage.SetNativeSize();
+                float ratio = espaceImage.sprite.rect.width / espaceImage.sprite.rect.height;
+                float nouvelleLargeur = espaceImage.rectTransform.rect.height * ratio;
+                espaceImage.rectTransform.sizeDelta = new Vector2(nouvelleLargeur, espaceImage.rectTransform.sizeDelta.y);
             } else {
                 espaceImage.gameObject.SetActive(false);
             }
