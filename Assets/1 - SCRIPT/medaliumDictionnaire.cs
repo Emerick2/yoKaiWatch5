@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
+using Mono.Cecil;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 
@@ -47,6 +48,8 @@ public class medaliumDictionnaire : MonoBehaviour{
             item.description = t;
             
             item.monElement = ObtenirElementDeLaTechnique(item.technique);
+
+            item.faceImage = Resources.Load<Sprite>("PuniArt/"+i);
         }
         chargementFini = true;
     }
@@ -204,6 +207,7 @@ public class ImageDesTribue{
 [System.Serializable]
 public class MedaliumNonPersonel{
     public Sprite médaillon;
+    public Sprite faceImage;
     public string nom;
     public string description;
     public GameObject yoKai;
