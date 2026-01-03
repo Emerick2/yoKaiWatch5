@@ -2,26 +2,50 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CréerUnYoKaiMohand : MonoBehaviour
+public class CrééUnYoKaiMohand : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public GameObject monYoKai;
+    public Transform position;
     void Start()
     {
-        StartCoroutine(ApparitionDeYokai(8));          
+        StartCoroutine(ApparitionDeYoKai(8));
+        monYoKai.transform.position = position.position;
     }
-    IEnumerator ApparitionDeYokai(int id){ 
-    
-        while (medaliumDictionnaire._instance.chargementFini == false){ 
-        
-            yield return new WaitForSeconds(0.1f); 
+    IEnumerator ApparitionDeYoKai(int id)
+    {
+        // if (medaliumDictionnaire._instance == null){
+        //     return;
+        // }
+        while (medaliumDictionnaire._instance.chargementFini == false)
+        {
+            yield return new WaitForSeconds(0.1f);
         }
         GameObject modèle = medaliumDictionnaire._instance.dictionnaire[id].yoKai;
-        GameObject monYokai = Instantiate(modèle);
+        monYoKai = Instantiate(modèle);
+        monYoKai.AddComponent<MouvementMohand>();
+
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetButtonDown("A"))
+        {
+            monYoKai.GetComponent<Animator>().SetTrigger("coup");
+        }
+
+        if (Input.GetButtonDown("B"))
+        {
+            monYoKai.GetComponent<Animator>().SetTrigger("attaque");
+        }
+        if(Input.GetButton("flèche gauche"))
+        {
+            monYoKai.GetComponent<Animator>().SetBool("garde",true);
+
+        }
+        else
+        {
+            monYoKai.GetComponent<Animator>().SetBool("garde",false);
+        }
+
     }
 }
