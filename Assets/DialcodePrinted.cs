@@ -1,6 +1,8 @@
 /*
 Les balises :
 <PNAME> : nom du héro
+
+quand on dit non à un choix, ça enregistre 0 sinon si ces oui, se sera 1
 */
 using System.Collections;
 using System.Collections.Generic;
@@ -24,9 +26,30 @@ public class DialcodePrinted : MonoBehaviour{
     public Décoration décoration;
     private GameObject bulle;
     private GameObject cadeau;
+    private GameObject information;
+    private GameObject choix;
+    private int auteurConditionnelle;
+    private int auteurConditionnelleRéel;
+    private int positionChoix;
+    private bool choixEnCours;
+    private GameObject imageDePrésentation;
+    private int nChoix;
+    public static DialcodePrinted Instance;
+    [HideInInspector] public bool dansUneZoneDeDialogue;
+
+    void Awake(){
+        if (Instance == null){
+            Instance = this;
+        } else {
+            Destroy(this);
+        }
+    }
     void Start(){
         bulle = transform.Find("-- BULLE --").gameObject;
         cadeau = transform.Find("-- OFFRE --").gameObject;
+        information = transform.Find("-- INFO --").gameObject;
+        choix = transform.Find("-- CHOIX --").gameObject;
+        imageDePrésentation = bulle.transform.Find("imageDePrésentation").gameObject;
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null) {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
@@ -37,23 +60,46 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButtonDown("A")){
-            if (boiteFermer){
-                Ouverture();
-                peutCliquer = false;
-                Action();
+        if (dansUneZoneDeDialogue){
+            if (choixEnCours) {
+                if (Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
+                    positionChoix++;
+                    ChangerPositionChoix();
+                } else if (Input.GetButtonDown("A")){
+                    string valeur = "0";
+                    if (positionChoix == 0){
+                        valeur = "1";
+                    }
+                    NewDataCenter.Instance.SauvegarderSTR("choix-dialogue-"+nChoix, valeur);
+                    nChoix++;
+                    position++;
+                    choixEnCours = false;
+                }
             }
-            if (position >= fragmentDeDialogue.Count){
-                Fermeture(false);
-                peutCliquer = false;
-            }else if (peutCliquer) {
-                Action();
+            if (!choixEnCours){
+                if (Input.GetButtonDown("A")){
+                    if (boiteFermer){
+                        Ouverture();
+                        peutCliquer = false;
+                        Action();
+                    }
+                    if (position >= fragmentDeDialogue.Count){
+                        Fermeture(false);
+                        peutCliquer = false;
+                    }else if (peutCliquer) {
+                        Action();
+                    }
+                }
             }
         }
     }
 
     void Action(){
         AvancerJusqueAuProchainDialogue();
+        if (fragmentDeDialogue.Count <= position){
+            Fermeture(false);
+            return;
+        }
         FragmentDeDialogue fragment = fragmentDeDialogue[position];
         fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
@@ -61,7 +107,7 @@ public class DialcodePrinted : MonoBehaviour{
             if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.dictionnaire[fragment.IdÉlément].nom;
             if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.dictionnaire[fragment.IdÉlément].faceImage;
         }
-        if (fragment.type == TypeDialogue.cadeau){
+        if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
             if (fragment.quantitée <= 0) fragment.quantitée = 1;
             if (fragment.typeObjet == TypeObjet.nouriture){
                 fragment.nom = Item._instance.listeDesNouritures[fragment.IdÉlément].nom;
@@ -78,6 +124,8 @@ public class DialcodePrinted : MonoBehaviour{
         if (fragment.type == TypeDialogue.texte){
             bulle.SetActive(true);
             cadeau.SetActive(false);
+            information.SetActive(false);
+            choix.SetActive(false);
             if (coroutineApparitionLettre == null){
                 if (!boiteFermer) coroutineApparitionLettre = StartCoroutine(PrintSentence(fragment.phrase));
             } else {
@@ -91,6 +139,8 @@ public class DialcodePrinted : MonoBehaviour{
         } else if (fragment.type == TypeDialogue.cadeau){
             bulle.SetActive(false);
             cadeau.SetActive(true);
+            information.SetActive(false);
+            choix.SetActive(false);
             if (fragment.image != null){
                 cadeau.transform.Find("cintille").gameObject.SetActive(true);
                 cadeau.transform.Find("cintille/cadeau").GetComponent<Image>().sprite = fragment.image;
@@ -106,11 +156,67 @@ public class DialcodePrinted : MonoBehaviour{
             //Utiliser <C12><ITEM_NAME></C> sur qui ?
             cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
             position++;
+        } else if (fragment.type == TypeDialogue.vol){
+            bulle.SetActive(false);
+            cadeau.SetActive(true);
+            information.SetActive(false);
+            choix.SetActive(false);
+            cadeau.transform.Find("cintille").gameObject.SetActive(false);
+            string phrase = "Tu as remis :";
+            if (fragment.nom.Length > 0){
+                if (fragment.quantitée == 1) phrase = "Tu as remis : <color=#4C714F>\n"+fragment.nom+"</color>.";
+                else phrase = "Tu as remis : <color=#4C714F>\n"+fragment.quantitée +" "+ fragment.nom+"</color>.";
+            }
+            NewDataCenter.Instance.SauvegarderINT(fragment.nom,fragment.quantitée*(-1));
+            //Utiliser <C12><ITEM_NAME></C> sur qui ?
+            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
+            position++;
+        } else if (fragment.type == TypeDialogue.volDiscret){
+            Vole(fragment.nom, fragment.quantitée);
+            position++;
+            AvancerJusqueAuProchainDialogue();
+            Action();
+        } else if (fragment.type == TypeDialogue.donDiscret){
+            DonDiscret(fragment.nom, fragment.quantitée);
+            position++;
+            AvancerJusqueAuProchainDialogue();
+            Action();
+        } else if (fragment.type == TypeDialogue.information){
+            bulle.SetActive(false);
+            cadeau.SetActive(false);
+            information.SetActive(true);
+            choix.SetActive(false);
+            information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
+            Sprite image = décoration.spritePointExclamatif;
+            if(!fragment.cesUneExclamation) image = décoration.spritePointIntérogatif;
+            information.transform.Find("icone").gameObject.GetComponent<Image>().sprite = image;
+            position++;
+        } else if (fragment.type == TypeDialogue.choix){
+            bulle.SetActive(false);
+            cadeau.SetActive(false);
+            information.SetActive(false);
+            choix.SetActive(true);
+            choixEnCours = true;
+            positionChoix = 0;
+            ChangerPositionChoix();
+            //le choix nécessite d'une clef de sauvegarde temporaire, cette clef est ce qui est écrit dans "nom";
         }
     }
 
+
+    void ChangerPositionChoix(){
+        positionChoix%=2;
+        choix.transform.Find("Bouton1/fond-actif").gameObject.SetActive(positionChoix == 0);
+        choix.transform.Find("Bouton1/fond-inactif").gameObject.SetActive(positionChoix != 0);
+        choix.transform.Find("Bouton2/fond-actif").gameObject.SetActive(positionChoix == 1);
+        choix.transform.Find("Bouton2/fond-inactif").gameObject.SetActive(positionChoix != 1);
+    }
+
     void Ouverture(){
+        nChoix = 0;
         boiteFermer = false;
+        auteurConditionnelle = 0;
+        auteurConditionnelleRéel = 0;
         StartCoroutine(AnnimationOuverture());
         position = 0;
         if (fragmentDeDialogue.Count == 0){
@@ -209,10 +315,7 @@ public class DialcodePrinted : MonoBehaviour{
             if (fragmentDeDialogue[position].image != null){
                 espaceImage.gameObject.SetActive(true);
                 espaceImage.sprite = fragmentDeDialogue[position].image;
-                // espaceImage.SetNativeSize();
-                float ratio = espaceImage.sprite.rect.width / espaceImage.sprite.rect.height;
-                float nouvelleLargeur = espaceImage.rectTransform.rect.height * ratio;
-                espaceImage.rectTransform.sizeDelta = new Vector2(nouvelleLargeur, espaceImage.rectTransform.sizeDelta.y);
+                NePasDéformerImage(espaceImage);
             } else {
                 espaceImage.gameObject.SetActive(false);
             }
@@ -221,13 +324,44 @@ public class DialcodePrinted : MonoBehaviour{
             blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(false);
             espaceImage.gameObject.SetActive(false);
         }
+
+        if (fragmentDeDialogue[position].imageDePrésentation != null){
+            imageDePrésentation.SetActive(true);
+            imageDePrésentation.GetComponent<Image>().sprite = fragmentDeDialogue[position].imageDePrésentation;
+            NePasDéformerImage(imageDePrésentation.GetComponent<Image>());
+        } else {
+            imageDePrésentation.SetActive(false);
+        }
+    }
+
+    void NePasDéformerImage(Image image){
+        // image.SetNativeSize();
+        float ratio = image.sprite.rect.width / image.sprite.rect.height;
+        float nouvelleLargeur = image.rectTransform.rect.height * ratio;
+        image.rectTransform.sizeDelta = new Vector2(nouvelleLargeur, image.rectTransform.sizeDelta.y);
     }
 
     void AvancerJusqueAuProchainDialogue(){
         // cette fonction permet seulement de sauter les structures conditionelles.
         for (int i = position; i < fragmentDeDialogue.Count; i++){
-            if (fragmentDeDialogue[position].type != TypeDialogue.conditionDePassage){
-                return;
+            if (fragmentDeDialogue[position].type != TypeDialogue.conditionDePassage && fragmentDeDialogue[position].type != TypeDialogue.finDeCondition){
+                if (fragmentDeDialogue[position].auteurConditionnelle <= auteurConditionnelle){
+                    return;
+                } //else {
+                //     Debug.Log("On as pas vu ça comme ma hauteur est "+auteurConditionnelle +" et la scienne est "+fragmentDeDialogue[position].auteurConditionnelle);
+                // }
+            }
+            if (fragmentDeDialogue[position].type == TypeDialogue.conditionDePassage){
+                bool valeur = RéponceALaCondition();
+                if (valeur){
+                    auteurConditionnelle++;
+                }
+                auteurConditionnelleRéel++;
+            } else if (fragmentDeDialogue[position].type == TypeDialogue.finDeCondition){
+                auteurConditionnelleRéel--;
+                if (auteurConditionnelleRéel < auteurConditionnelle){
+                    auteurConditionnelle=auteurConditionnelleRéel;
+                }
             }
             position++;
         }
@@ -236,12 +370,103 @@ public class DialcodePrinted : MonoBehaviour{
             peutCliquer = false;
         }
     }
+
+    bool RéponceALaCondition() {
+        FragmentDeDialogue f = fragmentDeDialogue[position];
+        if (f.conditionnelle == null || f.conditionnelle.Count == 0) return true;
+
+        List<bool> valeurs = new List<bool>();
+        foreach (Conditionnelle c in f.conditionnelle) {
+            valeurs.Add(EvaluerConditionSimple(c));
+        }
+
+        return CalculerLogiqueComplexe(valeurs, f.conditionnelle);
+    }
+
+    bool EvaluerConditionSimple(Conditionnelle c) {
+        string v1s = c.nomV1;
+        string v2s = c.nomV2;
+        bool nombre = int.TryParse(c.nomV1, out int tt);
+        if (!nombre){
+            v1s = NewDataCenter.Instance.Lire(c.nomV1);
+        }
+        nombre = int.TryParse(c.nomV2, out tt);
+        if (!nombre){
+            v2s = NewDataCenter.Instance.Lire(c.nomV2);
+        }
+
+        bool isV1Num = int.TryParse(v1s, out int v1);
+        bool isV2Num = int.TryParse(v2s, out int v2);
+
+        // Debug.Log(v1+"  -  "+v2);
+
+        switch (c.opérateur) {
+            case Opérateur.supérieur: return isV1Num && isV2Num && v1 > v2;
+            case Opérateur.supérieurOuÉgale: return isV1Num && isV2Num && v1 >= v2;
+            case Opérateur.inférieur: return isV1Num && isV2Num && v1 < v2;
+            case Opérateur.inférieurOuÉgale: return isV1Num && isV2Num && v1 <= v2;
+            case Opérateur.égale: return v1s == v2s;
+            case Opérateur.different: return v1s != v2s;
+            default: return false;
+        }
+    }
+
+    bool CalculerLogiqueComplexe(List<bool> valeurs, List<Conditionnelle> conditions) {
+        int index = 0;
+        return EvaluerRecursif(valeurs, conditions, ref index);
+    }
+
+    private bool EvaluerRecursif(List<bool> valeurs, List<Conditionnelle> conditions, ref int index) {
+        bool resultatAccumule = true;
+        OpérateurEtape2 dernierOp = OpérateurEtape2.et;
+
+        while (index < valeurs.Count) {
+            Conditionnelle c = conditions[index];
+            bool valeurActuelle;
+
+            if (c.opérateurEtape2 == OpérateurEtape2.ouvertureParentaise) {
+                index++;
+                valeurActuelle = EvaluerRecursif(valeurs, conditions, ref index);
+            } else {
+                valeurActuelle = valeurs[index];
+            }
+
+            if (dernierOp == OpérateurEtape2.et) {
+                resultatAccumule = resultatAccumule && valeurActuelle;
+            } else if (dernierOp == OpérateurEtape2.ou) {
+                resultatAccumule = resultatAccumule || valeurActuelle;
+            }
+
+            if (c.opérateurEtape2 == OpérateurEtape2.fermetureParentaise) {
+                return resultatAccumule;
+            }
+
+            dernierOp = c.opérateurEtape2;
+            index++;
+        }
+
+        return resultatAccumule;
+    }
+
+    void Vole(string nom, int quantitée){
+        //ce n'est pas vraiment un vol mais le fait de prendre quelque chose, par exemple, prendre de l'argent si l'utilisateur doit payer un truc.
+        NewDataCenter.Instance.SauvegarderINT(nom, quantitée*(-1));
+    }
+    void DonDiscret(string nom, int quantitée){
+        NewDataCenter.Instance.SauvegarderINT(nom, quantitée);
+    }
 }
 
 public enum TypeDialogue{
     texte,
     cadeau,
-    conditionDePassage
+    conditionDePassage,
+    finDeCondition,
+    volDiscret,
+    donDiscret,
+    information,
+    choix,
+    vol
 }
 
 public enum QuiJeSuis{
@@ -255,6 +480,22 @@ public enum TypeObjet{
     nouriture,
     équipement,
     annimaux
+}
+
+public enum Opérateur{
+    supérieur,
+    supérieurOuÉgale,
+    inférieur,
+    inférieurOuÉgale,
+    égale,
+    different
+}
+
+public enum OpérateurEtape2{
+    et,
+    ou,
+    ouvertureParentaise,
+    fermetureParentaise
 }
 
 
@@ -272,10 +513,13 @@ public class Décoration{
     public Sprite nomY2;
     public Sprite nomH1;
     public Sprite nomH2;
+    public Sprite spritePointExclamatif;
+    public Sprite spritePointIntérogatif;
 }
 
 [System.Serializable]
 public class FragmentDeDialogue{
+    public int auteurConditionnelle;
     public int IdÉlément;
     public TypeDialogue type;
     public string phrase;
@@ -284,4 +528,16 @@ public class FragmentDeDialogue{
     public Sprite image;
     [Min(1)]public int quantitée = 1;//si ces un cadeau, il y a une quantitée
     public TypeObjet typeObjet;
+    [Header("Opération")]
+    public List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
+    public bool cesUneExclamation;
+    public Sprite imageDePrésentation;
+}
+
+[System.Serializable]
+public class Conditionnelle{
+    public string nomV1;
+    public Opérateur opérateur;
+    public string nomV2;
+    public OpérateurEtape2 opérateurEtape2;
 }
