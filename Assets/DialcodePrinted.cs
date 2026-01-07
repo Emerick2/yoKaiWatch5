@@ -11,6 +11,9 @@ using UnityEngine.UI;
 using TMPro;
 
 public class DialcodePrinted : MonoBehaviour{
+    public List<GameObject> listeObjetACacherPendantDialogue;
+    private List<GameObject> objetMasqueADémasquer = new List<GameObject>();
+
     public List<FragmentDeDialogue> fragmentDeDialogue = new List<FragmentDeDialogue>();
     private TextMeshProUGUI espaceDialogue;
     private GameObject blocNomUtilisé;
@@ -222,6 +225,14 @@ public class DialcodePrinted : MonoBehaviour{
         if (fragmentDeDialogue.Count == 0){
             Debug.LogWarning("Il n'y a pas de phrase pour le dialogue !");
         }
+        objetMasqueADémasquer.Clear();
+        foreach (GameObject item in listeObjetACacherPendantDialogue){
+            if (item.activeSelf == true){
+                objetMasqueADémasquer.Add(item);
+                item.SetActive(false);
+            }
+        }
+        mouvementDuJoueur.droitDeMarcher = false;
     }
 
     IEnumerator AnnimationOuverture(){
@@ -244,6 +255,11 @@ public class DialcodePrinted : MonoBehaviour{
         } else {
             StartCoroutine(AnnimationFermeture());
         }
+        foreach (GameObject item in objetMasqueADémasquer){
+            item.SetActive(true);
+        }
+        objetMasqueADémasquer.Clear();
+        mouvementDuJoueur.droitDeMarcher = true;
     }
     IEnumerator AnnimationFermeture(){
         float tempsEcoule = 0f;

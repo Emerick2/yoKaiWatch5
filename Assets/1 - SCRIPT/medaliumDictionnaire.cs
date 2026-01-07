@@ -51,6 +51,22 @@ public class medaliumDictionnaire : MonoBehaviour{
 
             item.faceImage = Resources.Load<Sprite>("PuniArt/"+i);
             i++;
+
+            string nom = "";
+            if (item.yoKai != null){
+                foreach (Transform obj in item.yoKai.transform){
+                    if (obj.name[0]=='n'&&obj.name[1]=='o'&&obj.name[2]=='m'&&obj.name[3]==':'){
+                        nom = obj.name;
+                        nom = nom.Replace("nom:","");
+                        nom = nom.Replace("_p00","");
+                        nom = nom.Replace("_mod","");
+                        item.faceRondImage = Resources.Load<Sprite>("Face icon/"+nom+".xi.00");
+                        break;
+                    }
+                }
+            } else {
+                Debug.Log("Le yo-kai était null");
+            }
         }
         chargementFini = true;
     }
@@ -209,6 +225,8 @@ public class ImageDesTribue{
 public class MedaliumNonPersonel{
     public Sprite médaillon;
     public Sprite faceImage;
+    public Sprite faceRondImage;
+    public bool rare;
     public string nom;
     public string description;
     public GameObject yoKai;

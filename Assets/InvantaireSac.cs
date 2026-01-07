@@ -27,11 +27,18 @@ public class InvantaireSac : MonoBehaviour{
     public bool étatDeDebug = true;
     public GameObject blocInformation;
     public écrireLesPetitesValeursDuMenu menu;
+    public Sprite spriteNouritures;
+    public Sprite spriteObjets;
+    public Sprite spriteAnnimaux;
+    public Sprite spriteÉquipements;
+    public Sprite spriteÂmes;
+    public Sprite spriteObjetsClés;
     void Start(){
         Initialiser();
     }
     public void Initialiser(){
         cible = 0;
+        ligneLaPlusHauteVisible = 0;
         ChangerPositionCible();
     }
 
@@ -295,6 +302,27 @@ public class InvantaireSac : MonoBehaviour{
                 blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = "";
                 blocInformation.transform.Find("Spécial alliment").gameObject.SetActive(false);
                 blocInformation.transform.Find("Spécial équipement").gameObject.SetActive(false);
+            }
+
+            switch (cible){
+                case 0 :
+                    blocInformation.transform.Find("type").gameObject.GetComponent<Image>().sprite = spriteNouritures;
+                    break;
+                case 1 :
+                    blocInformation.transform.Find("type").gameObject.GetComponent<Image>().sprite = spriteObjets;
+                    break;
+                case 2 :
+                    blocInformation.transform.Find("type").gameObject.GetComponent<Image>().sprite = spriteAnnimaux;
+                    break;
+                case 3 :
+                    blocInformation.transform.Find("type").gameObject.GetComponent<Image>().sprite = spriteÉquipements;
+                    break;
+                case 4 :
+                    blocInformation.transform.Find("type").gameObject.GetComponent<Image>().sprite = spriteÂmes;
+                    break;
+                case 5 :
+                    blocInformation.transform.Find("type").gameObject.GetComponent<Image>().sprite = spriteObjetsClés;
+                    break;
             }
         }
     }

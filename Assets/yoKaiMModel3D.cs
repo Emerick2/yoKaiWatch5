@@ -17,8 +17,26 @@ public class yoKaiMModel3D : MonoBehaviour{
     private Animator animator;
     public bool neBougeraPas;
     public float vitesseDeRechargement=0.2f;
-    medaliumDictionnaire médalium;
+    private medaliumDictionnaire médalium;
+
+    private GameObject préfabIconeMiniMap;
+    IEnumerator UpdateLant(float vitesse){
+        while (true){
+            préfabIconeMiniMap.transform.position = transform.position;
+            yield return new WaitForSeconds(vitesse);        
+        }
+    }
     void Start(){
+        préfabIconeMiniMap = Resources.Load<GameObject>("prefab/iconeMinimapYokai");
+        if (préfabIconeMiniMap != null){
+            préfabIconeMiniMap = Instantiate(préfabIconeMiniMap);
+            préfabIconeMiniMap.transform.parent = transform;
+            préfabIconeMiniMap.transform.position = transform.position;
+            if (!neBougeraPas) StartCoroutine(UpdateLant(0.5f));
+            else StartCoroutine(UpdateLant(1f));
+        } else {
+            Debug.Log("Le préfab est null...");
+        }
         Transform enfantNom = transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
         médalium = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
 

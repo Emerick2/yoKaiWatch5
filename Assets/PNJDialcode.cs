@@ -8,7 +8,7 @@ public class PNJDialcode : MonoBehaviour{
     
     [Header("Données")]
     [HideInInspector] public List<FragmentDeDialogue> maListeDeFraguement = new List<FragmentDeDialogue>();
-    public float taux;
+    public float taux = 0.01f;
 
     void Start(){
         dialcode = DialcodePrinted.Instance;
