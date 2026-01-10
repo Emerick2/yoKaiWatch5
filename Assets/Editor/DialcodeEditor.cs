@@ -26,6 +26,7 @@ public class DialcodeEditor : EditorWindow{
     }
 
     private void OnGUI(){
+        EditorGUI.BeginChangeCheck();
         // Rect windowRect = new Rect(0, 0, position.width, position.height);
         // EditorGUI.DrawRect(windowRect, new Color(1f, 1f, 1f));
 
@@ -78,10 +79,17 @@ public class DialcodeEditor : EditorWindow{
             GUILayout.Space(currentIndent * tauxIndentation);
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            DrawFragment(fragment, i);
+            
+            bool wasRemoved = DrawFragment(fragment, i);
+            
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
+
+            if (wasRemoved){
+                GUIUtility.ExitGUI();
+                break;
+            }
 
             GUI.backgroundColor = Color.white;
 
@@ -97,7 +105,7 @@ public class DialcodeEditor : EditorWindow{
         EditorGUILayout.EndScrollView();
     }
 
-    private void DrawFragment(FragmentDeDialogue f, int index){
+    private bool DrawFragment(FragmentDeDialogue f, int index){
         EditorGUILayout.BeginHorizontal();
         f.type = (TypeDialogue)EditorGUILayout.EnumPopup("Type :", f.type);
         GUI.color = Color.red;
@@ -107,7 +115,7 @@ public class DialcodeEditor : EditorWindow{
 
         if (removed) {
             selectedPNJ.maListeDeFraguement.RemoveAt(index);
-            return;
+            return true;
         }
 
         EditorGUI.indentLevel++;
@@ -172,9 +180,36 @@ public class DialcodeEditor : EditorWindow{
             case TypeDialogue.finDeCondition:
                 EditorExtensions.LabelHelper("--- Fin du bloc conditionnel ---");
                 break;
+            
+            case TypeDialogue.boutique:
+                EditorGUILayout.LabelField("Liste des produits (IDs)", EditorStyles.boldLabel);
+                if (f.listeProduitBoutique == null) {
+                    f.listeProduitBoutique = new List<int>();
+                }
+
+                if (GUILayout.Button("+ Ajouter un produit au magasin")) {
+                    f.listeProduitBoutique.Add(0);
+                }
+
+                for (int i = 0; i < f.listeProduitBoutique.Count; i++) {
+                    EditorGUILayout.BeginHorizontal();
+                    f.listeProduitBoutique[i] = EditorGUILayout.IntField("ID Produit " + i, f.listeProduitBoutique[i]);
+
+                    GUI.color = Color.red;
+                    if (GUILayout.Button("X", GUILayout.Width(20))) {
+                        f.listeProduitBoutique.RemoveAt(i);
+                        EditorGUILayout.EndHorizontal();
+                        break; 
+                    }
+                    GUI.color = Color.white;
+                    
+                    EditorGUILayout.EndHorizontal();
+                }
+                break;
         }
 
         EditorGUI.indentLevel--;
+        return false;
     }
 
     // private void SauvegarderEnJson()

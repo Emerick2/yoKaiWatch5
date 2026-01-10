@@ -230,10 +230,10 @@ public class Item : MonoBehaviour{
     }
 
     public float TransformeTexteEnNombre(string texte, float valeurParDéfaut){
-        texte = texte.Replace(',','.');
-        float nombre = valeurParDéfaut;
-        if (!float.TryParse(texte, out nombre)) return nombre;
-        else return float.Parse(texte);
+        if (float.TryParse(texte, NumberStyles.Any, CultureInfo.InvariantCulture, out float nombre)) {
+            return nombre;
+        }
+        return valeurParDéfaut;
     }
 }
 

@@ -31,14 +31,19 @@ public class DialcodePrinted : MonoBehaviour{
     private GameObject cadeau;
     private GameObject information;
     private GameObject choix;
+    private GameObject choixBoutique;
+    private GameObject boutiqueAcheter;
     private int auteurConditionnelle;
     private int auteurConditionnelleRéel;
     private int positionChoix;
     private bool choixEnCours;
+    private bool choixEnCoursBoutique1;
+    private bool choixEnCoursBoutique2;
+    private int cibleChoixBoutique1;
     private GameObject imageDePrésentation;
     private int nChoix;
     public static DialcodePrinted Instance;
-    [HideInInspector] public bool dansUneZoneDeDialogue;
+    public bool dansUneZoneDeDialogue;
 
     void Awake(){
         if (Instance == null){
@@ -46,12 +51,15 @@ public class DialcodePrinted : MonoBehaviour{
         } else {
             Destroy(this);
         }
+        dansUneZoneDeDialogue = false;
     }
     void Start(){
         bulle = transform.Find("-- BULLE --").gameObject;
         cadeau = transform.Find("-- OFFRE --").gameObject;
         information = transform.Find("-- INFO --").gameObject;
         choix = transform.Find("-- CHOIX --").gameObject;
+        choixBoutique = transform.Find("-- CHOIX BOUTIQUE --").gameObject;
+        boutiqueAcheter = transform.Find("-- ACHETER --").gameObject;
         imageDePrésentation = bulle.transform.Find("imageDePrésentation").gameObject;
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null) {
@@ -79,7 +87,39 @@ public class DialcodePrinted : MonoBehaviour{
                     choixEnCours = false;
                 }
             }
-            if (!choixEnCours){
+            if (choixEnCoursBoutique1) {
+                if (Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
+                    ChangerPositionCibleChoixBoutique1(1);
+                } else if (Input.GetButtonDown("A")){
+                    choixEnCoursBoutique1 = false;
+                    if(cibleChoixBoutique1 == 0){
+                        choixEnCoursBoutique2 = true;
+                        boutiqueAcheter.GetComponent<BoutiqueDialcode>().produitAllimentaire = fragmentDeDialogue[position].listeProduitBoutique;
+                        boutiqueAcheter.GetComponent<BoutiqueDialcode>().acheterUser = true;
+                        StartCoroutine(boutiqueAcheter.GetComponent<BoutiqueDialcode>().Initialisation());
+                        OuvertureFenêtre(boutiqueAcheter);
+                    } else if(cibleChoixBoutique1 == 1){
+                        choixEnCoursBoutique2 = true;
+                        List<int> listeDesIDNouriturePossédé = new List<int>();
+                        for (int i = 0; i < Item._instance.listeDesNouritures.Count; i++){
+                            if (int.TryParse(NewDataCenter.Instance.Lire(Item._instance.listeDesNouritures[i].nom), out int quantite) && quantite > 0){
+                                listeDesIDNouriturePossédé.Add(i);
+                            }
+                        }
+                        boutiqueAcheter.GetComponent<BoutiqueDialcode>().produitAllimentaire = listeDesIDNouriturePossédé;
+                        boutiqueAcheter.GetComponent<BoutiqueDialcode>().acheterUser = false;
+                        StartCoroutine(boutiqueAcheter.GetComponent<BoutiqueDialcode>().Initialisation());
+                        OuvertureFenêtre(boutiqueAcheter);
+                    }
+                }
+            } if (choixEnCoursBoutique2){
+                if (Input.GetButtonDown("B") && boutiqueAcheter.GetComponent<BoutiqueDialcode>().acheterUnProduitFenêtreOuverte == false){
+                    choixEnCoursBoutique2 = false;
+                    position++;
+                    Action();
+                }
+            }
+            if (!choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
                 if (Input.GetButtonDown("A")){
                     if (boiteFermer){
                         Ouverture();
@@ -125,10 +165,7 @@ public class DialcodePrinted : MonoBehaviour{
         }
         //la je m'ocupe des id pour écrire le nom et l'image
         if (fragment.type == TypeDialogue.texte){
-            bulle.SetActive(true);
-            cadeau.SetActive(false);
-            information.SetActive(false);
-            choix.SetActive(false);
+            OuvertureFenêtre(bulle);
             if (coroutineApparitionLettre == null){
                 if (!boiteFermer) coroutineApparitionLettre = StartCoroutine(PrintSentence(fragment.phrase));
             } else {
@@ -140,10 +177,7 @@ public class DialcodePrinted : MonoBehaviour{
                 }
             }
         } else if (fragment.type == TypeDialogue.cadeau){
-            bulle.SetActive(false);
-            cadeau.SetActive(true);
-            information.SetActive(false);
-            choix.SetActive(false);
+            OuvertureFenêtre(cadeau);
             if (fragment.image != null){
                 cadeau.transform.Find("cintille").gameObject.SetActive(true);
                 cadeau.transform.Find("cintille/cadeau").GetComponent<Image>().sprite = fragment.image;
@@ -160,10 +194,7 @@ public class DialcodePrinted : MonoBehaviour{
             cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
             position++;
         } else if (fragment.type == TypeDialogue.vol){
-            bulle.SetActive(false);
-            cadeau.SetActive(true);
-            information.SetActive(false);
-            choix.SetActive(false);
+            OuvertureFenêtre(cadeau);
             cadeau.transform.Find("cintille").gameObject.SetActive(false);
             string phrase = "Tu as remis :";
             if (fragment.nom.Length > 0){
@@ -185,27 +216,43 @@ public class DialcodePrinted : MonoBehaviour{
             AvancerJusqueAuProchainDialogue();
             Action();
         } else if (fragment.type == TypeDialogue.information){
-            bulle.SetActive(false);
-            cadeau.SetActive(false);
-            information.SetActive(true);
-            choix.SetActive(false);
+            OuvertureFenêtre(information);
             information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
             Sprite image = décoration.spritePointExclamatif;
             if(!fragment.cesUneExclamation) image = décoration.spritePointIntérogatif;
             information.transform.Find("icone").gameObject.GetComponent<Image>().sprite = image;
             position++;
         } else if (fragment.type == TypeDialogue.choix){
-            bulle.SetActive(false);
-            cadeau.SetActive(false);
-            information.SetActive(false);
-            choix.SetActive(true);
+            OuvertureFenêtre(choix);
             choixEnCours = true;
             positionChoix = 0;
             ChangerPositionChoix();
             //le choix nécessite d'une clef de sauvegarde temporaire, cette clef est ce qui est écrit dans "nom";
+        } else if (fragment.type == TypeDialogue.boutique){
+            OuvertureFenêtre(choixBoutique);
+            choixEnCoursBoutique1 = true;
+            choixEnCoursBoutique2 = false;
+            cibleChoixBoutique1 = 0;
+            ChangerPositionCibleChoixBoutique1(0);
         }
     }
 
+    void ChangerPositionCibleChoixBoutique1(int suplémant){
+        cibleChoixBoutique1=(((cibleChoixBoutique1+suplémant)%2)+2)%2;
+        choixBoutique.transform.Find("Bouton1/fond-actif").gameObject.SetActive(cibleChoixBoutique1 == 0);
+        choixBoutique.transform.Find("Bouton1/fond-inactif").gameObject.SetActive(cibleChoixBoutique1 != 0);
+        choixBoutique.transform.Find("Bouton2/fond-actif").gameObject.SetActive(cibleChoixBoutique1 == 1);
+        choixBoutique.transform.Find("Bouton2/fond-inactif").gameObject.SetActive(cibleChoixBoutique1 != 1);
+    }
+
+    void OuvertureFenêtre(GameObject fenêtre){
+        bulle.SetActive(bulle == fenêtre);
+        cadeau.SetActive(cadeau == fenêtre);
+        information.SetActive(information == fenêtre);
+        choix.SetActive(choix == fenêtre);
+        choixBoutique.SetActive(choixBoutique == fenêtre);
+        boutiqueAcheter.SetActive(boutiqueAcheter == fenêtre);
+    }
 
     void ChangerPositionChoix(){
         positionChoix%=2;
@@ -220,6 +267,9 @@ public class DialcodePrinted : MonoBehaviour{
         boiteFermer = false;
         auteurConditionnelle = 0;
         auteurConditionnelleRéel = 0;
+        choixEnCoursBoutique1 = false;
+        choixEnCoursBoutique2 = false;
+        cibleChoixBoutique1 = 0;
         StartCoroutine(AnnimationOuverture());
         position = 0;
         if (fragmentDeDialogue.Count == 0){
@@ -482,7 +532,8 @@ public enum TypeDialogue{
     donDiscret,
     information,
     choix,
-    vol
+    vol,
+    boutique
 }
 
 public enum QuiJeSuis{
@@ -548,6 +599,7 @@ public class FragmentDeDialogue{
     public List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
     public bool cesUneExclamation;
     public Sprite imageDePrésentation;
+    public List<int> listeProduitBoutique = new List<int>();
 }
 
 [System.Serializable]

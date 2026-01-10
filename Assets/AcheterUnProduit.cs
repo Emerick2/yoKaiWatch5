@@ -53,10 +53,11 @@ public class AcheterUnProduit : MonoBehaviour{
             int quantiteeFinale = Math.Min(quantiteeSouhaitee, quantiteeMaxPossible);
 
             nombre.text = quantiteeFinale.ToString();
-            decimal total = quantiteeFinale * prixDeUnProduit;
+            total = quantiteeFinale * prixDeUnProduit;
             
             // "F2" force l'affichage à 2 chiffres après la virgule (8.80€)
-            espaceDePrix.text = total.ToString("F2") + "€"; 
+            if((int)total != total) espaceDePrix.text = total.ToString("F2") + "€"; 
+            else espaceDePrix.text = total.ToString("G2") + "€"; 
         }
     }
 
@@ -66,23 +67,29 @@ public class AcheterUnProduit : MonoBehaviour{
     /// </summary>
 
     public void AugmenterQuantité(int i){
-        if (i > 0){
-            if ((int)prixDeUnProduit*(int.Parse(nombre.text)+1) <= monArgent){
-                int valeur;
-                if (int.TryParse(nombre.text, out valeur)){
-                    valeur += i;
-                    valeur = Mathf.Clamp(valeur, 0, 99);
-                    nombre.text = valeur.ToString();
-                }
+        int valeur;
+        if (!int.TryParse(nombre.text, out valeur)) return;
+
+        valeur += i;
+
+        if (vdp.acheterUser) {
+            // Mode Achat
+            int quantiteeMaxPossible = (int)(monArgent / prixDeUnProduit);
+            valeur = Mathf.Clamp(valeur, 0, quantiteeMaxPossible);
+            valeur = Mathf.Clamp(valeur, 0, 99);
+        } else {
+            // Mode Vente
+            int maxPossede = 0;
+            if(int.TryParse(NewDataCenter.Instance.Lire(nom), out int quantite)){
+                maxPossede = quantite;
             }
-        } else if (i<0) {
-            int valeur;
-            if (int.TryParse(nombre.text, out valeur)){
-                valeur += i;
-                valeur = Mathf.Clamp(valeur, 0, 99);
-                nombre.text = valeur.ToString();
+            if (maxPossede > 99){
+                maxPossede = 99;
             }
+            valeur = Mathf.Clamp(valeur, 0, maxPossede);
         }
+        
+        nombre.text = valeur.ToString();
         EcrirePrixTotal();
     }
     
@@ -90,13 +97,20 @@ public class AcheterUnProduit : MonoBehaviour{
     /// Cette fonction permet d'acheter le produit.
     /// </summary>
     public void Payer(){
-        NewDataCenter.Instance.SauvegarderMonaie(total*(-1));
-        NewDataCenter.Instance.SauvegarderINT(nom,int.Parse(nombre.text));
+        if (vdp.acheterUser){
+            NewDataCenter.Instance.SauvegarderMonaie(total*(-1));
+            NewDataCenter.Instance.SauvegarderINT(nom,int.Parse(nombre.text));
+        } else {
+            NewDataCenter.Instance.SauvegarderMonaie(total);
+            NewDataCenter.Instance.SauvegarderINT(nom,int.Parse(nombre.text)*(-1));
+            StartCoroutine(vdp.Initialisation(false));
+        }
         if (vdp != null){ 
             vdp.acheter=false;
             vdp.ReChargerMonArgent();
         }
         vdp.acheterUnProduitFenêtreOuverte = false;
+        vdp.RemplirBlocInformation();
         gameObject.SetActive(false);
     }
 

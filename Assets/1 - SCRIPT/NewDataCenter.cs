@@ -90,22 +90,25 @@ public class NewDataCenter : MonoBehaviour{
     /// <summary>
     /// On utilise la technique des centièmes (*100)
     /// </summary>
-    public void SauvegarderMonaie(decimal valeur){
-        valeur += LireMonaie();
-        if (valeur < 0m){
-            valeur = 0m;
+    public void SauvegarderMonaie(decimal modification){
+        Debug.Log("► changement de la monnaie de "+modification);
+        decimal soldeActuel = LireMonaie();
+        decimal nouveauSolde = soldeActuel + modification;
+        if (nouveauSolde < 0m) {
+            nouveauSolde = 0m; 
         }
-        int valeurInt = (int)(valeur*100);
-        SauvegarderSTR("€",valeurInt.ToString());
+
+        int valeurEnCentimes = (int)Math.Round(nouveauSolde * 100);
+        SauvegarderSTR("€",valeurEnCentimes.ToString());
     }
     public decimal LireMonaie(){
-        string texteSomme = Lire("€").Replace(',','.');
-        decimal somme = decimal.Parse(texteSomme);
-        somme/=100;
-        if (somme < 0m){
-            somme = 0m;
+        string texteSomme = Lire("€");
+    
+        if (decimal.TryParse(texteSomme, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal centimes)) {
+            decimal somme = centimes / 100m;
+            return somme < 0m ? 0m : somme;
         }
-        return somme;
+        return 0m;
     }
 
     string CorrigerNom(string nom){

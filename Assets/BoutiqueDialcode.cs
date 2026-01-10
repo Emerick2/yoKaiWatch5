@@ -18,13 +18,26 @@ public class BoutiqueDialcode : MonoBehaviour{
     [HideInInspector] public bool acheter;
     public AcheterUnProduit acheterUnProduitScript;
     [HideInInspector] public bool acheterUnProduitFenêtreOuverte = false;
+
+    public bool acheterUser = true;
     void Start(){
         StartCoroutine(Initialisation());
     }
-    IEnumerator Initialisation(){
-        cible = 0;
-        pointLePlusHautVisible = 0;
-        itemScript = Item._instance;
+    public IEnumerator Initialisation(bool initialisationTotal = true){
+        if (initialisationTotal){
+            cible = 0;
+            pointLePlusHautVisible = 0;
+            itemScript = Item._instance;
+
+            if (!acheterUser){
+                for (int i = produitAllimentaire.Count - 1; i >= 0; i--){
+                    int itemId = produitAllimentaire[i];
+                    if (int.Parse(NewDataCenter.Instance.Lire(itemScript.listeDesNouritures[itemId].nom)) <= 0){
+                        produitAllimentaire.RemoveAt(i);
+                    }
+                }
+            }
+        }
         while (!itemScript.chargementTerminé){
             yield return new WaitForSeconds(0.1f);
         }
@@ -32,7 +45,8 @@ public class BoutiqueDialcode : MonoBehaviour{
         foreach (int o in produitAllimentaire){
             if (o>=0 && o<itemScript.listeDesNouritures.Count){
                 Nouriture elem = itemScript.listeDesNouritures[o];
-                AjouterUnÉlémentAuBloc(elem.image, elem.nom, elem.prixAchat);
+                if (acheterUser) AjouterUnÉlémentAuBloc(elem.image, elem.nom, elem.prixAchat);
+                else AjouterUnÉlémentAuBloc(elem.image, elem.nom, elem.prixVente);
             }
         }
         ChangerDeCible(0);
@@ -55,9 +69,13 @@ public class BoutiqueDialcode : MonoBehaviour{
     }
     void AjouterUnÉlémentAuBloc(Sprite image, string nom, float quantitée){
         GameObject TV = Instantiate(exemple);
+        TV.GetComponent<Image>().enabled=true;
         TV.transform.Find("img").GetComponent<Image>().sprite = image;
+        TV.transform.Find("img").GetComponent<Image>().enabled = true;
         TV.transform.Find("nom").GetComponent<TextMeshProUGUI>().text = nom;
+        TV.transform.Find("nom").GetComponent<TextMeshProUGUI>().enabled = true;
         TV.transform.Find("prix").GetComponent<TextMeshProUGUI>().text = quantitée.ToString()+"€";
+        TV.transform.Find("prix").GetComponent<TextMeshProUGUI>().enabled = true;
         TV.transform.parent = bloc.transform;
         TV.transform.localScale = new Vector3(1,1,1);
         TV.SetActive(true);
@@ -74,7 +92,8 @@ public class BoutiqueDialcode : MonoBehaviour{
             } else if (Input.GetButtonDown("A")){
                 acheterUnProduitScript.gameObject.SetActive(true);
                 acheterUnProduitFenêtreOuverte = true;
-                acheterUnProduitScript.Réinitialiser(itemScript.listeDesNouritures[produitAllimentaire[cible]].prixAchat, itemScript.listeDesNouritures[produitAllimentaire[cible]].nom);
+                if (acheterUser) acheterUnProduitScript.Réinitialiser(itemScript.listeDesNouritures[produitAllimentaire[cible]].prixAchat, itemScript.listeDesNouritures[produitAllimentaire[cible]].nom);
+                else acheterUnProduitScript.Réinitialiser(itemScript.listeDesNouritures[produitAllimentaire[cible]].prixVente, itemScript.listeDesNouritures[produitAllimentaire[cible]].nom);
             }
         } else if (Input.GetButtonDown("B")){
             acheterUnProduitScript.gameObject.SetActive(false);
@@ -83,7 +102,9 @@ public class BoutiqueDialcode : MonoBehaviour{
     }
 
     void ChangerDeCible(int augmentation){
-        listeObjetsPosées[cible].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+        foreach (GameObject item in listeObjetsPosées){
+            item.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
+        }
         int n = listeObjetsPosées.Count;
         cible = (((cible+augmentation)%n)+n)%n;
         listeObjetsPosées[cible].GetComponent<Image>().color = new Color(2f, 0.94875f, 0f, 1f);
@@ -91,7 +112,7 @@ public class BoutiqueDialcode : MonoBehaviour{
         ChangementHauteur(augmentation);
     }
 
-    void RemplirBlocInformation(){
+    public void RemplirBlocInformation(){
         Nouriture élément = itemScript.listeDesNouritures[produitAllimentaire[cible]];
         blocInformation.Find("icone/Image").GetComponent<Image>().sprite = élément.image;
         blocInformation.Find("Nom").GetComponent<TextMeshProUGUI>().text = élément.nom;
@@ -152,6 +173,6 @@ public class BoutiqueDialcode : MonoBehaviour{
         }
     }
     public void ReChargerMonArgent(){
-        Debug.Log(NewDataCenter.Instance.LireMonaie());
+        Debug.Log(NewDataCenter.Instance.LireMonaie());//*100 pour voir les centimes.
     }
 }
