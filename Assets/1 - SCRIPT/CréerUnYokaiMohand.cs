@@ -37,15 +37,15 @@ public class CrééUnYoKaiMohand : MonoBehaviour
         {
             monYoKai.GetComponent<Animator>().SetTrigger("attaque");
         }
-        if(Input.GetButton("flèche gauche"))
-        {
-            monYoKai.GetComponent<Animator>().SetBool("garde",true);
+        //if(Input.GetButton("flèche gauche"))
+        //{
+        //    monYoKai.GetComponent<Animator>().SetBool("garde",true);
 
-        }
-        else
-        {
-            monYoKai.GetComponent<Animator>().SetBool("garde",false);
-        }
+        //}
+        //else
+        //{
+        //    monYoKai.GetComponent<Animator>().SetBool("garde",false);
+        //}
 
     }
 }
