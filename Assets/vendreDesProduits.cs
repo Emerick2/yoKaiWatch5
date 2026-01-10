@@ -24,7 +24,7 @@ public class vendreDesProduits : MonoBehaviour{
 
     void Start(){
         scriptDesItem = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<lesObjetsQuiExistes>();
-        monArgent.text = NewDataCenter.Instance.Lire("€");
+        monArgent.text = NewDataCenter.Instance.LireMonaie().ToString();
         for (int i = 0; i < IDDesObjetAVendre.Count; i++){
             GameObject TV = Instantiate(espaceDeVantePrefabe);
             espaceDeVante.Add(TV);
@@ -51,10 +51,10 @@ public class vendreDesProduits : MonoBehaviour{
             }else if (Input.GetButtonDown("A")){
                 acheter=true;
                 blocDeAchat.SetActive(true);
-                blocDeAchat.GetComponent<AcheterUnProduit>().prixDeUnProduit = scriptDesItem.lesObjets[IDDesObjetAVendre[sélection]].prix;
-                blocDeAchat.GetComponent<AcheterUnProduit>().Réinitialiser();
+                // blocDeAchat.GetComponent<AcheterUnProduit>().prixDeUnProduit = scriptDesItem.lesObjets[IDDesObjetAVendre[sélection]].prix;
+                // blocDeAchat.GetComponent<AcheterUnProduit>().Réinitialiser();
                 blocDeAchat.GetComponent<AcheterUnProduit>().nom = scriptDesItem.lesObjets[IDDesObjetAVendre[sélection]].nom;
-                blocDeAchat.GetComponent<AcheterUnProduit>().vdp = transform.GetComponent<vendreDesProduits>();
+                // blocDeAchat.GetComponent<AcheterUnProduit>().vdp = transform.GetComponent<vendreDesProduits>();
             }else if (Input.GetButtonDown("B")){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 sélection=0;
@@ -105,7 +105,7 @@ public class vendreDesProduits : MonoBehaviour{
         }
     }
     public void ReChargerMonArgent(){
-        monArgent.text = NewDataCenter.Instance.Lire("€");
+        monArgent.text = NewDataCenter.Instance.LireMonaie().ToString();
     }
 
     void mouvementDesArcticle(){

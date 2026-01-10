@@ -50,7 +50,7 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
 
     public void Initialisation(){
         textToursBingoKai.text = "3 / 3";
-        string argent = NewDataCenter.Instance.Lire("€");
+        string argent = NewDataCenter.Instance.LireMonaie().ToString();
         string argent2 = argent;
         if (double.TryParse(argent, out double valeur)){
             argent2 = valeur.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);

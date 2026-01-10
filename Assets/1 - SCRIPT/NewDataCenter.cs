@@ -10,6 +10,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using System.Globalization;
 
 public class NewDataCenter : MonoBehaviour{
     private static NewDataCenter _instance;
@@ -84,6 +85,27 @@ public class NewDataCenter : MonoBehaviour{
             return valeur;
         }
         return "0";
+    }
+
+    /// <summary>
+    /// On utilise la technique des centièmes (*100)
+    /// </summary>
+    public void SauvegarderMonaie(decimal valeur){
+        valeur += LireMonaie();
+        if (valeur < 0m){
+            valeur = 0m;
+        }
+        int valeurInt = (int)(valeur*100);
+        SauvegarderSTR("€",valeurInt.ToString());
+    }
+    public decimal LireMonaie(){
+        string texteSomme = Lire("€").Replace(',','.');
+        decimal somme = decimal.Parse(texteSomme);
+        somme/=100;
+        if (somme < 0m){
+            somme = 0m;
+        }
+        return somme;
     }
 
     string CorrigerNom(string nom){

@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Text;
+using UnityEngine.UI;
+using System.Globalization;
 
 public class Item : MonoBehaviour{
     public static Item _instance;
@@ -103,7 +105,7 @@ public class Item : MonoBehaviour{
             nouv.nom = ligne[1];
             nouv.image = Resources.Load<Sprite>("Image_Objet/alliment/"+ligne[3]);
             nouv.description = ligne[6];
-            nouv.prixVente = TransformeTexteEnNombre(ligne[4],1);
+            nouv.prixAchat = TransformeTexteEnNombre(ligne[4],1);
             nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
             listeDesNouritures.Add(nouv);
         }
@@ -140,7 +142,7 @@ public class Item : MonoBehaviour{
                 nouv.nom = ligne[1];
                 nouv.sprite = Resources.Load<Sprite>("Image_Objet/équipement/"+ligne[2]);
                 if (ligne.Length > 6) nouv.description = ligne[6];
-                nouv.prixVente = TransformeTexteEnNombre(ligne[4],1);
+                nouv.prixAchat = TransformeTexteEnNombre(ligne[4],1);
                 nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
 
                 string texteEffet = ligne[3].Replace(" ","");
@@ -199,7 +201,7 @@ public class Item : MonoBehaviour{
                 nouv.nom = ligne[1];
                 nouv.image = Resources.Load<Sprite>("Image_Objet/annimal/"+ligne[3]);
                 nouv.description = ligne[6];
-                nouv.prixVente = TransformeTexteEnNombre(ligne[4],1);
+                nouv.prixAchat = TransformeTexteEnNombre(ligne[4],1);
                 nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
                 nouv.rare = ligne[1].Contains('★');
                 string t = ligne[1];
@@ -227,10 +229,11 @@ public class Item : MonoBehaviour{
         return resultat;
     }
 
-    public int TransformeTexteEnNombre(string texte, int valeurParDéfaut){
-        int nombre = valeurParDéfaut;
-        if (!int.TryParse(texte, out nombre)) return nombre;
-        else return int.Parse(texte);
+    public float TransformeTexteEnNombre(string texte, float valeurParDéfaut){
+        texte = texte.Replace(',','.');
+        float nombre = valeurParDéfaut;
+        if (!float.TryParse(texte, out nombre)) return nombre;
+        else return float.Parse(texte);
     }
 }
 
@@ -253,8 +256,8 @@ public class Nouriture{
     public string nom;
     public Sprite image;
     [TextArea(3, 5)] public string description;
-    public int prixAchat;
-    public int prixVente;
+    public float prixAchat;
+    public float prixVente;
     [Min(0)] public int IdEffetSurSiSurEnnemie;
     [Min(0)] public int IdEffetSiSurAmi;
 }
@@ -272,8 +275,8 @@ public class Équipement{
     public Sprite sprite;
     [TextArea(3, 5)] public string description;
     public string catégorieDeYoKaiPorteur;
-    public int prixAchat;
-    public int prixVente;
+    public float prixAchat;
+    public float prixVente;
     public int effetSur_Force;
     public int effetSur_Vitesse;
     public int effetSur_Défance;
@@ -287,8 +290,8 @@ public class Annimal{
     public string nom;
     public Sprite image;
     [TextArea(3, 5)] public string description;
-    public int prixAchat;
-    public int prixVente;
+    public float prixAchat;
+    public float prixVente;
     public bool rare;
     public GameObject modèle3D;
 }
