@@ -12,6 +12,7 @@ public class mouvementDuJoueur : MonoBehaviour{
     Vector3 directionGauche = new Vector3(-1, 0, 0);
     Vector3 directionDroit = new Vector3(1, 0, 0);
     public float vitesse = 2;
+    public float vitesseRotation = 10f;
     public Transform caméra;
     public Transform iconeMiniMap;
 
@@ -26,21 +27,33 @@ public class mouvementDuJoueur : MonoBehaviour{
     void Update(){
         if (droitDeMarcher){
             bool non = true;
-            if (Input.GetButton("flèche droite")){
-                transform.Translate(directionDroit * vitesse * Time.deltaTime);
-                joueur.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
-            }else if (Input.GetButton("flèche gauche")){
-                transform.Translate(directionGauche * vitesse * Time.deltaTime);
-                joueur.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
-            }else if (Input.GetButton("flèche haut")){
-                transform.Translate(directionHaut * vitesse * Time.deltaTime);
-                joueur.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            }else if (Input.GetButton("flèche bas")){
-                transform.Translate(directionBas * vitesse * Time.deltaTime);
-                joueur.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            }else{
+            float h = Input.GetAxisRaw("Horizontal");
+            float v = Input.GetAxisRaw("Vertical");
+            Vector3 maDirection = new Vector3(h, 0, v);
+            // if ((h > 0.03f || h < -0.03f) && (v > 0.03f || v < -0.03f)){
+            if (maDirection.magnitude > 0.1f){
+                transform.Translate(maDirection.normalized * vitesse * Time.deltaTime, Space.World);
+                Quaternion rotationCible = Quaternion.LookRotation(maDirection);
+                joueur.transform.rotation = Quaternion.Slerp(joueur.transform.rotation, rotationCible, vitesseRotation * Time.deltaTime);
+            } else {
                 non = false;
             }
+
+            // if (Input.GetButton("flèche droite")){
+            //     transform.Translate(directionDroit * vitesse * Time.deltaTime);
+            //     joueur.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
+            // }else if (Input.GetButton("flèche gauche")){
+            //     transform.Translate(directionGauche * vitesse * Time.deltaTime);
+            //     joueur.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
+            // }else if (Input.GetButton("flèche haut")){
+            //     transform.Translate(directionHaut * vitesse * Time.deltaTime);
+            //     joueur.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            // }else if (Input.GetButton("flèche bas")){
+            //     transform.Translate(directionBas * vitesse * Time.deltaTime);
+            //     joueur.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            // }else{
+            //     non = false;
+            // }
             if (animator != null) animator.SetBool("avence", non);
             if (caméra != null){
                 Vector3 nouvellePositionCaméra = caméra.position;

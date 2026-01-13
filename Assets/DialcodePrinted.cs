@@ -81,7 +81,7 @@ public class DialcodePrinted : MonoBehaviour{
                     if (positionChoix == 0){
                         valeur = "1";
                     }
-                    NewDataCenter.Instance.SauvegarderSTR("choix-dialogue-"+nChoix, valeur);
+                    NewDataCenter.Instance.SauvegarderSTR("choix-numéro-"+nChoix, valeur);
                     nChoix++;
                     position++;
                     choixEnCours = false;
@@ -225,7 +225,7 @@ public class DialcodePrinted : MonoBehaviour{
         } else if (fragment.type == TypeDialogue.choix){
             OuvertureFenêtre(choix);
             choixEnCours = true;
-            positionChoix = 0;
+            positionChoix = 1;
             ChangerPositionChoix();
             //le choix nécessite d'une clef de sauvegarde temporaire, cette clef est ce qui est écrit dans "nom";
         } else if (fragment.type == TypeDialogue.boutique){
@@ -263,7 +263,7 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void Ouverture(){
-        nChoix = 0;
+        nChoix = 1;
         boiteFermer = false;
         auteurConditionnelle = 0;
         auteurConditionnelleRéel = 0;
@@ -411,6 +411,14 @@ public class DialcodePrinted : MonoBehaviour{
         // cette fonction permet seulement de sauter les structures conditionelles.
         for (int i = position; i < fragmentDeDialogue.Count; i++){
             if (fragmentDeDialogue[position].type != TypeDialogue.conditionDePassage && fragmentDeDialogue[position].type != TypeDialogue.finDeCondition){
+                if (fragmentDeDialogue[position].type == TypeDialogue.nul){
+                    position++;
+                    if (position >= fragmentDeDialogue.Count){
+                        Fermeture(false);
+                        peutCliquer = false;
+                        return;
+                    }
+                }
                 if (fragmentDeDialogue[position].auteurConditionnelle <= auteurConditionnelle){
                     return;
                 } //else {
@@ -533,7 +541,8 @@ public enum TypeDialogue{
     information,
     choix,
     vol,
-    boutique
+    boutique,
+    nul
 }
 
 public enum QuiJeSuis{

@@ -10,9 +10,9 @@ public class DialcodeEditor : EditorWindow{
     private string lastSavedFile = "";
     private int tauxIndentation = 50;
 
-    [MenuItem("Tools/Dialcode")]
+    [MenuItem("Tools/Dialcode V3")]
     public static void ShowWindow(){
-        GetWindow<DialcodeEditor>("Dialcode");
+        GetWindow<DialcodeEditor>("Dialcode V3");
     }
 
     private void OnSelectionChange(){
