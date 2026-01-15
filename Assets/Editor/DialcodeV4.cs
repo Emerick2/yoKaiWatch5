@@ -74,12 +74,31 @@ public class DialcodeV4 : EditorWindow{
             if (nombrePage > 1){
                 GUI.color = Color.red;
                 if (GUILayout.Button("X", GUILayout.Width(20))) {
-                    if (nombrePage-1>0){
-                        nombrePage--;
+                    string folder = Application.dataPath + "/Resources/texte/";
+                    string baseName = selectedPNJ.jsonPath;
+
+                    string deletedPath = folder + baseName + "-page" + i + ".json";
+                    if (File.Exists(deletedPath)) {
+                        string archiveName = folder + baseName + "-page" + i + "-suprimerLe-" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + ".json";
+                        File.Move(deletedPath, archiveName);
                     }
-                    if (positionPage == i){
-                        positionPage = 0;
+
+                    for (int next = i + 1; next < nombrePage; next++) {
+                        string oldFile = folder + baseName + "-page" + next + ".json";
+                        string newFile = folder + baseName + "-page" + (next - 1) + ".json";
+        
+                        if (File.Exists(oldFile)) {
+                            File.Move(oldFile, newFile);
+                        }
                     }
+
+                    nombrePage--;
+                    positionPage = Mathf.Clamp(positionPage, 0, nombrePage - 1);
+                    LireLaSauvegarde(positionPage);
+    
+                    AssetDatabase.Refresh();
+                    // GUI.color = Color.white;
+                    // break; 
                 }
                 GUI.color = Color.white;
             }
@@ -219,7 +238,7 @@ public class DialcodeV4 : EditorWindow{
         monStyleInfo.fontSize = 12;
         monStyleInfo.normal.background = EditorGUIUtility.Load("icons/d_console.infoicon.sml.png") as Texture2D;
 
-        Debug.Log("Style charger !");
+        // Debug.Log("Style charger !");
     }
 
     private Texture2D MakeTex(int width, int height, Color col) {
