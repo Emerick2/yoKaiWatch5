@@ -26,6 +26,8 @@ public class DialcodeV4 : EditorWindow{
     private int nombrePage = 1;
     private int positionPage;
 
+    private List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
+
     [MenuItem("Tools/Dialcode V4")]
     public static void ShowWindow(){
         GetWindow<DialcodeV4>("Dialcode V4");
@@ -69,11 +71,16 @@ public class DialcodeV4 : EditorWindow{
 
     void PlacerEnTête(){
         GUILayout.BeginHorizontal();
+        while (conditionOfTheDialoguePage.Count < nombrePage){
+            conditionOfTheDialoguePage.Add(new ConditionOfTheDialoguePage());
+        }
+
         for (int i = 0; i < nombrePage; i++){
             GUILayout.BeginVertical();
             if (nombrePage > 1){
                 GUI.color = Color.red;
                 if (GUILayout.Button("X", GUILayout.Width(20))) {
+                    conditionOfTheDialoguePage.RemoveAt(i);
                     string folder = Application.dataPath + "/Resources/texte/";
                     string baseName = selectedPNJ.jsonPath;
 
@@ -120,16 +127,13 @@ public class DialcodeV4 : EditorWindow{
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
-        bool personnageVisible = true;
-        personnageVisible = AjouterUnBool("Personnage visible ?",personnageVisible);
+        conditionOfTheDialoguePage[positionPage].visibleCharacter = AjouterUnBool("Personnage visible ?",conditionOfTheDialoguePage[positionPage].visibleCharacter);
 
         // condition :
-        List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
-        if (conditionnelle == null) conditionnelle = new List<Conditionnelle>();
-        if (GUILayout.Button("+ Ajouter Condition")) conditionnelle.Add(new Conditionnelle());
+        if (GUILayout.Button("+ Ajouter Condition")) conditionOfTheDialoguePage[positionPage].listOfConditions.Add(new Conditionnelle());
                 
-        for (int j = 0; j < conditionnelle.Count; j++){
-            Conditionnelle c = conditionnelle[j];
+        for (int j = 0; j < conditionOfTheDialoguePage[positionPage].listOfConditions.Count; j++){
+            Conditionnelle c = conditionOfTheDialoguePage[positionPage].listOfConditions[j];
             Rect rectLabelTemporaire = CrééLeRect();
             GUILayout.BeginHorizontal();
             c.nomV1 =  AjoutTexte("Valeur", c.nomV1);
@@ -137,12 +141,12 @@ public class DialcodeV4 : EditorWindow{
             c.nomV2 =  AjoutTexte("Valeur", c.nomV2);
             GUI.color = Color.red;
             if (GUILayout.Button("X", GUILayout.Width(20))) {
-                conditionnelle.RemoveAt(j);
+                conditionOfTheDialoguePage[positionPage].listOfConditions.RemoveAt(j);
                 j--;
             }
             GUI.color = Color.white;
             GUILayout.EndHorizontal();
-            if (j+1 < conditionnelle.Count){
+            if (j+1 < conditionOfTheDialoguePage[positionPage].listOfConditions.Count){
                 c.opérateurEtape2 = AjouterUnEnumGénérique("Lien suite", c.opérateurEtape2);
             }                
         }
@@ -421,6 +425,7 @@ public class DialcodeV4 : EditorWindow{
 
 
     void LireLaSauvegarde(int numéro) {
+        ReadTheSaveOfConditionOfTheDialoguePage();
         string fullPath = Application.dataPath + "/Resources/texte/" + selectedPNJ.jsonPath + "-page" + numéro + ".json";
 
         if (File.Exists(fullPath)) {
@@ -437,6 +442,7 @@ public class DialcodeV4 : EditorWindow{
 
 
     void EnregistrerPage(int numéro){
+        SaveConditionOfTheDialoguePage();
         string directory = Application.dataPath + "/Resources/texte";
         if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
@@ -453,5 +459,38 @@ public class DialcodeV4 : EditorWindow{
 
         EditorUtility.SetDirty(selectedPNJ);
         AssetDatabase.Refresh();
+    }
+
+    void SaveConditionOfTheDialoguePage(){
+        string directory = Application.dataPath + "/Resources/texte";
+        if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
+
+        if (string.IsNullOrEmpty(selectedPNJ.jsonPath)) {
+            selectedPNJ.jsonPath = DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss");
+        }
+
+        selectedPNJ.conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>(conditionOfTheDialoguePage);
+        ConditionOfTheDialoguePageData data = new ConditionOfTheDialoguePageData { conditionOfTheDialoguePage = selectedPNJ.conditionOfTheDialoguePage };
+        string json = JsonUtility.ToJson(data, true);
+        string fullPath = directory + "/" + selectedPNJ.jsonPath + "-listePage" + ".json";
+
+        File.WriteAllText(fullPath, json);
+
+        EditorUtility.SetDirty(selectedPNJ);
+        AssetDatabase.Refresh();
+    }
+
+    void ReadTheSaveOfConditionOfTheDialoguePage() {
+        string fullPath = Application.dataPath + "/Resources/texte/" + selectedPNJ.jsonPath + "-listePage" + ".json";
+
+        if (File.Exists(fullPath)) {
+            string json = File.ReadAllText(fullPath);
+            ConditionOfTheDialoguePageData data = JsonUtility.FromJson<ConditionOfTheDialoguePageData>(json);
+            conditionOfTheDialoguePage = data.conditionOfTheDialoguePage ?? new List<ConditionOfTheDialoguePage>();
+        } else {
+            conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
+        }
+    
+        selectedPNJ.conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>(conditionOfTheDialoguePage);
     }
 }

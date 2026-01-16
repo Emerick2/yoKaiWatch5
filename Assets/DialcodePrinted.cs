@@ -121,15 +121,15 @@ public class DialcodePrinted : MonoBehaviour{
             }
             if (!choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
                 if (Input.GetButtonDown("A")){
+                    Input.ResetInputAxes();
                     if (boiteFermer){
                         Ouverture();
                         peutCliquer = false;
                         Action();
-                    }
-                    if (position >= fragmentDeDialogue.Count){
+                    } else if (position >= fragmentDeDialogue.Count){
                         Fermeture(false);
                         peutCliquer = false;
-                    }else if (peutCliquer) {
+                    } else if (peutCliquer) {
                         Action();
                     }
                 }
@@ -457,7 +457,7 @@ public class DialcodePrinted : MonoBehaviour{
         return CalculerLogiqueComplexe(valeurs, f.conditionnelle);
     }
 
-    bool EvaluerConditionSimple(Conditionnelle c) {
+    public bool EvaluerConditionSimple(Conditionnelle c) {
         string v1s = c.nomV1;
         string v2s = c.nomV2;
         bool nombre = int.TryParse(c.nomV1, out int tt);
@@ -485,7 +485,7 @@ public class DialcodePrinted : MonoBehaviour{
         }
     }
 
-    bool CalculerLogiqueComplexe(List<bool> valeurs, List<Conditionnelle> conditions) {
+    public bool CalculerLogiqueComplexe(List<bool> valeurs, List<Conditionnelle> conditions) {
         int index = 0;
         return EvaluerRecursif(valeurs, conditions, ref index);
     }
@@ -531,49 +531,6 @@ public class DialcodePrinted : MonoBehaviour{
     }
 }
 
-public enum TypeDialogue{
-    texte,
-    cadeau,
-    conditionDePassage,
-    finDeCondition,
-    volDiscret,
-    donDiscret,
-    information,
-    choix,
-    vol,
-    boutique,
-    nul
-}
-
-public enum QuiJeSuis{
-    humain,
-    yokai,
-    héro,
-    héroYoKai
-}
-
-public enum TypeObjet{
-    nouriture,
-    équipement,
-    annimaux
-}
-
-public enum Opérateur{
-    supérieur,
-    supérieurOuÉgale,
-    inférieur,
-    inférieurOuÉgale,
-    égale,
-    different
-}
-
-public enum OpérateurEtape2{
-    et,
-    ou,
-    ouvertureParentaise,
-    fermetureParentaise
-}
-
 
 [System.Serializable]
 public class Décoration{
@@ -593,28 +550,3 @@ public class Décoration{
     public Sprite spritePointIntérogatif;
 }
 
-[System.Serializable]
-public class FragmentDeDialogue{
-    public int auteurConditionnelle;
-    public int IdÉlément;
-    public TypeDialogue type;
-    public string phrase;
-    public QuiJeSuis quiJeSuis;
-    public string nom;
-    public Sprite image;
-    [Min(1)]public int quantitée = 1;//si ces un cadeau, il y a une quantitée
-    public TypeObjet typeObjet;
-    [Header("Opération")]
-    public List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
-    public bool cesUneExclamation;
-    public Sprite imageDePrésentation;
-    public List<int> listeProduitBoutique = new List<int>();
-}
-
-[System.Serializable]
-public class Conditionnelle{
-    public string nomV1;
-    public Opérateur opérateur;
-    public string nomV2;
-    public OpérateurEtape2 opérateurEtape2;
-}
