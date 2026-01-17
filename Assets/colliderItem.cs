@@ -34,3 +34,24 @@ public class colliderItem : MonoBehaviour
         //Debug.Log($"MeshColliders ajoutés sur {addedCount} objets avec SkinnedMeshRenderer.");
     }
 }
+
+
+
+// Input.GetKey(KeyCode.A);
+// Input.GetButtonDown("A");
+
+// //Les deux conditions doivent êtres vrais.
+// if (joueur == true && Input.GetButtonDown("A")){
+    
+// }
+
+// //Au moins une des deux condition doivent être vrais.
+// if (joueur == true || Input.GetButtonDown("A")){
+    
+// }
+
+// && ||
+
+
+
+

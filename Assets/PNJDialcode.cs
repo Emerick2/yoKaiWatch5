@@ -13,6 +13,7 @@ public class PNJDialcode : MonoBehaviour{
 
     void Start(){
         dialcode = DialcodePrinted.Instance;
+        LoadConditionOfTheDialoguePage();
         CrééUnBoxCollider(taux);
         if (TrouverBonDialogue()) {
             gameObject.SetActive(true);
@@ -25,6 +26,14 @@ public class PNJDialcode : MonoBehaviour{
         if (targetFile != null){
             DialogueData wrapper = JsonUtility.FromJson<DialogueData>(targetFile.text);
             maListeDeFraguement = wrapper.fragments;
+        }
+    }
+
+    public void LoadConditionOfTheDialoguePage(){
+        TextAsset targetFile = Resources.Load<TextAsset>("texte/" + jsonPath+"-listePage");
+        if (targetFile != null){
+            ConditionOfTheDialoguePageData wrapper = JsonUtility.FromJson<ConditionOfTheDialoguePageData>(targetFile.text);
+            conditionOfTheDialoguePage = wrapper.conditionOfTheDialoguePage;
         }
     }
     void OnTriggerEnter(Collider collider){

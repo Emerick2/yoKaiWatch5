@@ -38,22 +38,6 @@ public class mouvementDuJoueur : MonoBehaviour{
             } else {
                 non = false;
             }
-
-            // if (Input.GetButton("flèche droite")){
-            //     transform.Translate(directionDroit * vitesse * Time.deltaTime);
-            //     joueur.transform.rotation = Quaternion.Euler(0f, 90f, 0f);
-            // }else if (Input.GetButton("flèche gauche")){
-            //     transform.Translate(directionGauche * vitesse * Time.deltaTime);
-            //     joueur.transform.rotation = Quaternion.Euler(0f, -90f, 0f);
-            // }else if (Input.GetButton("flèche haut")){
-            //     transform.Translate(directionHaut * vitesse * Time.deltaTime);
-            //     joueur.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            // }else if (Input.GetButton("flèche bas")){
-            //     transform.Translate(directionBas * vitesse * Time.deltaTime);
-            //     joueur.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
-            // }else{
-            //     non = false;
-            // }
             if (animator != null) animator.SetBool("avence", non);
             if (caméra != null){
                 Vector3 nouvellePositionCaméra = caméra.position;
