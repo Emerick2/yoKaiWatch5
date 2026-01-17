@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class coffreMohand : MonoBehaviour
 {
-    private bool joueur_dedans;    // Start is called before the first frame update
+    [Range(0,5)]public int test_range;
+    [Min(0)]public int id_nourriture;
+    private bool joueur_dedans = true;    // Start is called before the first frame update
                                    //void Start()
                                    //{
 

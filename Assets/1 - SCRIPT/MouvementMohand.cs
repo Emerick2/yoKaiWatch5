@@ -19,7 +19,7 @@ public class MouvementMohand : MonoBehaviour
         parents.transform.position = transform.position;
         transform.parent = parents.transform;
         gameObject.AddComponent<Rigidbody>();
-        gameObject.GetComponent<Rigidbody>().isKinematic = true;
+        //gameObject.GetComponent<Rigidbody>().isKinematic = true;
         gameObject.GetComponent<Rigidbody>().useGravity = false;
     }
 
