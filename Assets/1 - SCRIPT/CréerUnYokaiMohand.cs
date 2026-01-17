@@ -23,6 +23,7 @@ public class CrééUnYoKaiMohand : MonoBehaviour
         GameObject modèle = medaliumDictionnaire._instance.dictionnaire[id].yoKai;
         monYoKai = Instantiate(modèle);
         monYoKai.AddComponent<MouvementMohand>();
+        monYoKai.transform.tag = "Player";
 
     }
 
