@@ -100,10 +100,12 @@ public class DialcodeV4 : EditorWindow{
                     }
 
                     nombrePage--;
+                    SaveConditionOfTheDialoguePage();
                     positionPage = Mathf.Clamp(positionPage, 0, nombrePage - 1);
                     LireLaSauvegarde(positionPage);
-    
+                    
                     AssetDatabase.Refresh();
+                    
                     // GUI.color = Color.white;
                     // break; 
                 }
@@ -120,6 +122,7 @@ public class DialcodeV4 : EditorWindow{
         }
         if (GUILayout.Button("+", GUILayout.Width(50), GUILayout.Height(50))) {    
             nombrePage++;    
+            SaveConditionOfTheDialoguePage();
             positionPage = nombrePage-1;      
             fragment.Clear();
             LireLaSauvegarde(positionPage);
@@ -462,6 +465,9 @@ public class DialcodeV4 : EditorWindow{
     }
 
     void SaveConditionOfTheDialoguePage(){
+        while (conditionOfTheDialoguePage.Count < nombrePage){
+            conditionOfTheDialoguePage.Add(new ConditionOfTheDialoguePage());
+        }
         string directory = Application.dataPath + "/Resources/texte";
         if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);
 
