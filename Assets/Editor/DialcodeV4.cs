@@ -34,13 +34,23 @@ public class DialcodeV4 : EditorWindow{
     }
 
     private void OnSelectionChange(){
+        bool nothingHappened = true;
         GameObject go = Selection.activeGameObject;
         if (go != null){
-            selectedPNJ = go.GetComponent<PNJDialcode>();
-            positionPage = 0;
-            LireLaSauvegarde(positionPage);
-        }else{
+            if (go.GetComponent<PNJDialcode>() != null){
+                selectedPNJ = go.GetComponent<PNJDialcode>();
+                positionPage = 0;
+                LireLaSauvegarde(positionPage);
+                nothingHappened = false;
+            }
+        }
+        if(nothingHappened){
             selectedPNJ = null;
+            fragment.Clear();
+            nombreDeFragument = 0;
+            nombrePage = 1;
+            positionPage = 0;
+            conditionOfTheDialoguePage.Clear();
         }
         Repaint();
     }
@@ -53,12 +63,19 @@ public class DialcodeV4 : EditorWindow{
         EditorGUILayout.EndHorizontal();
 
         if (selectedPNJ == null){
-            EditorGUILayout.HelpBox("Veuillez sélectionner un GameObject avec le script PNJDialcode.", MessageType.Info);
-            if ((selectedPNJ == null && Selection.activeGameObject.GetComponent<PNJDialcode>() != null) || (Selection.activeGameObject != null && GUILayout.Button("Ajouter PNJDialcode à " + Selection.activeGameObject.name))){
-                if (Selection.activeGameObject.GetComponent<PNJDialcode>() == null) Selection.activeGameObject.AddComponent<PNJDialcode>();
-                OnSelectionChange();
+            if (Selection.activeGameObject == null){
+                EditorGUILayout.HelpBox("Veuillez sélectionner un GameObject avec le script PNJDialcode.", MessageType.Info);
+            } else if (GUILayout.Button("Ajouter PNJDialcode à " + Selection.activeGameObject.name)){
+                if (Selection.activeGameObject.GetComponent<PNJDialcode>() == null){
+                    selectedPNJ = Selection.activeGameObject.AddComponent<PNJDialcode>();
+                    OnSelectionChange();
+                }
             }
-            return;
+            // if (Selection.activeGameObject != null && (Selection.activeGameObject.GetComponent<PNJDialcode>() != null || GUILayout.Button("Ajouter PNJDialcode à " + Selection.activeGameObject.name))){
+            //     Debug.Log("ici");
+            //     if (Selection.activeGameObject.GetComponent<PNJDialcode>() == null) Selection.activeGameObject.AddComponent<PNJDialcode>();
+            //     OnSelectionChange();
+            // }
         }
 
         DrawInterface();
@@ -156,10 +173,11 @@ public class DialcodeV4 : EditorWindow{
     }
 
     void DrawInterface(){
+        if (selectedPNJ == null) return;
         nombreDeChoix = 1;
         hauteurConditionnele = 0;
-        // if (!styleChargé) Style();
-        Style();
+        if (!styleChargé) Style();
+        // Style();
         Rect rectangleFenêtre = new Rect(0,0,position.width,position.height);
         EditorGUI.DrawRect(rectangleFenêtre,Color.white);
 
@@ -218,7 +236,6 @@ public class DialcodeV4 : EditorWindow{
     }
 
     void Style(){
-        styleChargé = true;
         monStyleChampDeSaisie = new GUIStyle(EditorStyles.textField);
         monStyleChampDeSaisie.fontSize = 18;
         monStyleChampDeSaisie.normal.textColor = new Color(0.9f,0.9f,0.9f);
@@ -245,6 +262,7 @@ public class DialcodeV4 : EditorWindow{
         monStyleInfo.fontSize = 12;
         monStyleInfo.normal.background = EditorGUIUtility.Load("icons/d_console.infoicon.sml.png") as Texture2D;
 
+        styleChargé = true;
         // Debug.Log("Style charger !");
     }
 
@@ -346,7 +364,6 @@ public class DialcodeV4 : EditorWindow{
                         break; 
                     }
                     GUI.color = Color.white;
-                    
                     EditorGUILayout.EndHorizontal();
                 }
                 break;
@@ -379,6 +396,20 @@ public class DialcodeV4 : EditorWindow{
             case TypeDialogue.finDeCondition:
                 hauteurConditionnele--;
                 if (hauteurConditionnele < 0) f.type = TypeDialogue.nul;
+                break;
+            case TypeDialogue.quête:
+                f.nom = AjoutTexte("Nom",f.nom);
+                f.cesUneQuêteEtNonUnService = AjouterUnBool("C'est une quête (coche) ?",f.cesUneQuêteEtNonUnService);
+                string clef = "quête-";
+                if (!f.cesUneQuêteEtNonUnService){
+                    clef = "service-";
+                }
+                clef+=f.nom;
+                GUILayout.Box("La clef de sauvegarde est : "+clef, monStyleHelpBox);
+                GUILayout.Box("Les valeurs possibles sont :"+clef, monStyleHelpBox);
+                GUILayout.Box("0 : La quête n'as pas commancer."+clef, monStyleHelpBox);
+                GUILayout.Box("1 : La quête est en cours."+clef, monStyleHelpBox);
+                GUILayout.Box("2 : La quête est terminée."+clef, monStyleHelpBox);
                 break;
         }
     }
@@ -428,6 +459,7 @@ public class DialcodeV4 : EditorWindow{
 
 
     void LireLaSauvegarde(int numéro) {
+        if (selectedPNJ == null) return;
         ReadTheSaveOfConditionOfTheDialoguePage();
         string fullPath = Application.dataPath + "/Resources/texte/" + selectedPNJ.jsonPath + "-page" + numéro + ".json";
 
@@ -445,6 +477,7 @@ public class DialcodeV4 : EditorWindow{
 
 
     void EnregistrerPage(int numéro){
+        if (selectedPNJ == null) return;
         SaveConditionOfTheDialoguePage();
         string directory = Application.dataPath + "/Resources/texte";
         if (!Directory.Exists(directory)) Directory.CreateDirectory(directory);

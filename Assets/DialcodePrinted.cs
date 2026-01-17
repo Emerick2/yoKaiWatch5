@@ -33,6 +33,7 @@ public class DialcodePrinted : MonoBehaviour{
     private GameObject choix;
     private GameObject choixBoutique;
     private GameObject boutiqueAcheter;
+    private GameObject quête;
     private int auteurConditionnelle;
     private int auteurConditionnelleRéel;
     private int positionChoix;
@@ -60,6 +61,7 @@ public class DialcodePrinted : MonoBehaviour{
         choix = transform.Find("-- CHOIX --").gameObject;
         choixBoutique = transform.Find("-- CHOIX BOUTIQUE --").gameObject;
         boutiqueAcheter = transform.Find("-- ACHETER --").gameObject;
+        quête = transform.Find("-- QUÊTE --").gameObject;
         imageDePrésentation = bulle.transform.Find("imageDePrésentation").gameObject;
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null) {
@@ -234,6 +236,21 @@ public class DialcodePrinted : MonoBehaviour{
             choixEnCoursBoutique2 = false;
             cibleChoixBoutique1 = 0;
             ChangerPositionCibleChoixBoutique1(0);
+        } else if (fragment.type == TypeDialogue.quête){
+            OuvertureFenêtre(quête);
+            quête.transform.Find("icone requête").gameObject.SetActive(fragment.cesUneQuêteEtNonUnService);
+            quête.transform.Find("icone service").gameObject.SetActive(!fragment.cesUneQuêteEtNonUnService);
+            // la valeur de sauvegarde est :
+            // 0 : La quête n'as pas commancer.
+            // 1 : La quête est en cours.
+            // 2 : La quête est terminée.
+            if (fragment.cesUneQuêteEtNonUnService){
+                quête.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLa quête à été ajouter au menu des requêtes.";
+                NewDataCenter.Instance.SauvegarderSTR("quête-"+fragment.nom,"1");
+            } else {
+                quête.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLe service à été ajouter au menu des requêtes.";
+                NewDataCenter.Instance.SauvegarderSTR("service-"+fragment.nom,"1");
+            }
         }
     }
 
@@ -252,6 +269,7 @@ public class DialcodePrinted : MonoBehaviour{
         choix.SetActive(choix == fenêtre);
         choixBoutique.SetActive(choixBoutique == fenêtre);
         boutiqueAcheter.SetActive(boutiqueAcheter == fenêtre);
+        quête.SetActive(quête == fenêtre);
     }
 
     void ChangerPositionChoix(){

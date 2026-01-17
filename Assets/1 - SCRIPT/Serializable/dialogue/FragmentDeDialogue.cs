@@ -17,5 +17,7 @@ public class FragmentDeDialogue{
     public bool cesUneExclamation;
     public Sprite imageDePrésentation;
     public List<int> listeProduitBoutique = new List<int>();
+    public bool cesUneQuêteEtNonUnService = true;
+    
 }
 
