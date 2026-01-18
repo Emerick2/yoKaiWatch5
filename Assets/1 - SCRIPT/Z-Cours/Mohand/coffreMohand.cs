@@ -1,0 +1,42 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class coffreMohand : MonoBehaviour
+{
+    [Range(0,5)]public int test_range;
+    [Min(0)]public int id_nourriture;
+    private bool joueur_dedans = true;
+
+    //// Update is called once per frame
+    void Update(){
+        if(joueur_dedans==true && Input.GetButtonDown("A"))
+        {
+            Debug.Log("test");
+        }
+
+    }
+
+    void OnTriggerEnter(Collider collider)
+    {
+        if (collider.gameObject.CompareTag("Player"))
+        {
+            joueur_dedans = true;
+        } else {
+            Debug.Log("non");
+        }
+
+    }
+    private void OnTriggerExit(Collider collider)
+    {
+        if (collider.gameObject.CompareTag("Player"))
+        {
+            joueur_dedans = false;
+        }
+    }
+    
+
+
+
+
+}

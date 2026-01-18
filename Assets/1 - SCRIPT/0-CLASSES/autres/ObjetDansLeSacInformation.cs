@@ -1,0 +1,11 @@
+using UnityEngine;
+
+[System.Serializable]
+public class ObjetDansLeSacInformation{
+    public int quantitée;
+    public string nom;
+    public Sprite sprite;
+    public Nouriture infoNouriture = null;
+    public Annimal infoAnimal = null;
+    public Équipement infoÉquipement = null;
+}
