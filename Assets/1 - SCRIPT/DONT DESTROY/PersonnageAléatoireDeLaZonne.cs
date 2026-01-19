@@ -51,7 +51,7 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
             return;
         }
         Rang r = médalium.dictionnaire[ID].rang;
-        composant.rang = r.ToString();
+        composant.rang = r;
         composant.niveauDuYoKaiPrésent = Random.Range(yoKaiRandom.niveauMinimum, yoKaiRandom.niveauMaximum);
     }
 }

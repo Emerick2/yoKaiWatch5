@@ -61,8 +61,8 @@ public class GestionnaireMenu : MonoBehaviour{
             SuivreEtapeSuivante();
         }
         if (enAttenteDeUneRéponce){
-            if (Input.GetButtonDown("flèche droite")) SeDéplaceDansLaSélection(1);
-            if (Input.GetButtonDown("flèche gauche")) SeDéplaceDansLaSélection(-1);
+            if (Input.GetButtonDown("right")) SeDéplaceDansLaSélection(1);
+            if (Input.GetButtonDown("left")) SeDéplaceDansLaSélection(-1);
         }
     }
     void ChoieDeUneRéponceAUneQuestion(int choie){

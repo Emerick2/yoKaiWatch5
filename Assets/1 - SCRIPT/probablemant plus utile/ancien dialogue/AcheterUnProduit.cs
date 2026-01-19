@@ -26,13 +26,13 @@ public class AcheterUnProduit : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButtonDown("flèche gauche")){
+        if (Input.GetButtonDown("left")){
             AugmenterQuantité(-1);
-        } else if (Input.GetButtonDown("flèche droite")){
+        } else if (Input.GetButtonDown("right")){
             AugmenterQuantité(1);
-        } else if (Input.GetButtonDown("flèche haut")){
+        } else if (Input.GetButtonDown("up")){
             AugmenterQuantité(10);
-        } else if (Input.GetButtonDown("flèche bas")){
+        } else if (Input.GetButtonDown("down")){
             AugmenterQuantité(-10);
         } else if (Input.GetButtonDown("A")){
             Payer();

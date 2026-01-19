@@ -108,10 +108,10 @@ public class GestionnaireCombat : MonoBehaviour{
         } else if (Input.GetButtonDown("R")){
             // TourneLaRoue(1);
             rotationDemander=1;
-        } else if (Input.GetButtonDown("flèche droite") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
+        } else if (Input.GetButtonDown("right") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
             cibleOption++;
             ChangerCibleOption();
-        } else if (Input.GetButtonDown("flèche gauche") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
+        } else if (Input.GetButtonDown("left") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
             cibleOption--;
             ChangerCibleOption();
         } else if (Input.GetButtonDown("X")){

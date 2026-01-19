@@ -36,13 +36,13 @@ public class Cible : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButton("flèche droite")){
+        if (Input.GetButton("right")){
             transform.Translate(directionDroit * vitesseCible * Time.deltaTime);
-        }else if (Input.GetButton("flèche gauche")){
+        }else if (Input.GetButton("left")){
             transform.Translate(directionGauche * vitesseCible * Time.deltaTime);
-        }else if (Input.GetButton("flèche haut")){
+        }else if (Input.GetButton("up")){
             transform.Translate(directionHaut * vitesseCible * Time.deltaTime);
-        }else if (Input.GetButton("flèche bas")){
+        }else if (Input.GetButton("down")){
             transform.Translate(directionBas * vitesseCible * Time.deltaTime);
         }
     }

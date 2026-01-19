@@ -85,9 +85,9 @@ public class BoutiqueDialcode : MonoBehaviour{
 
     void Update(){
         if (!acheterUnProduitFenêtreOuverte){
-            if (Input.GetButtonDown("flèche bas")){
+            if (Input.GetButtonDown("down")){
                 ChangerDeCible(1);
-            } else if (Input.GetButtonDown("flèche haut")){
+            } else if (Input.GetButtonDown("up")){
                 ChangerDeCible(-1);
             } else if (Input.GetButtonDown("A")){
                 acheterUnProduitScript.gameObject.SetActive(true);

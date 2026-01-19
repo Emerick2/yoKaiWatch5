@@ -24,16 +24,16 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
         if (!bloquer){
             Vector3 position = transform.position;
 
-            if (Input.GetButton("flèche droite") && position.x < maxXPosition){
+            if (Input.GetButton("right") && position.x < maxXPosition){
                 position.x += vitesse * Time.deltaTime;
             }
-            if (Input.GetButton("flèche gauche") && position.x > minXPosition){
+            if (Input.GetButton("left") && position.x > minXPosition){
                 position.x -= vitesse * Time.deltaTime;
             }
-            if (Input.GetButton("flèche haut") && position.z < maxZPosition){
+            if (Input.GetButton("up") && position.z < maxZPosition){
                 position.z += vitesse * Time.deltaTime;
             }
-            if (Input.GetButton("flèche bas") && position.z > minZPosition){
+            if (Input.GetButton("down") && position.z > minZPosition){
                 position.z -= vitesse * Time.deltaTime;
             }
             transform.position = position;

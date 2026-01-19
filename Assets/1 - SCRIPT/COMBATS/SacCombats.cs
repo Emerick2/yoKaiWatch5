@@ -119,13 +119,13 @@ public class SacCombats : MonoBehaviour{
 
     void Update() {
         if (utiliser) {
-            if (Input.GetButtonDown("flèche gauche")){
+            if (Input.GetButtonDown("left")){
                 ChangerDePosition(-1,0);
-            } else if (Input.GetButtonDown("flèche droite")){
+            } else if (Input.GetButtonDown("right")){
                 ChangerDePosition(1,0);
-            } else if (Input.GetButtonDown("flèche haut")){
+            } else if (Input.GetButtonDown("up")){
                 ChangerDePosition(0,-1);
-            } else if (Input.GetButtonDown("flèche bas")){
+            } else if (Input.GetButtonDown("down")){
                 ChangerDePosition(0,1);
             } else if (Input.GetButtonDown("A")){
                 Input.ResetInputAxes();

@@ -61,7 +61,7 @@
 //     }
 //     void Update(){
 //         if (jeSuisUtile){
-//             if (Input.GetButtonDown("flèche droite")){
+//             if (Input.GetButtonDown("right")){
 //                 position++;
 //                 if (position > nombre){
 //                     position = 0;
@@ -76,7 +76,7 @@
 //                 }
 //                 //objetSélection.transform.position=objet[position].transform.position;
 //                 //objetSélection.transform.position.x+=10.82f;
-//             }else if (Input.GetButtonDown("flèche gauche")){
+//             }else if (Input.GetButtonDown("left")){
 //                 position--;
 //                 if (position > nombre){
 //                     position = 0;

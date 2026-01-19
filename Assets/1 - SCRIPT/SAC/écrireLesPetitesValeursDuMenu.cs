@@ -54,7 +54,7 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         string argent2 = argent;
         if (double.TryParse(argent, out double valeur)){
             argent2 = valeur.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
-            argent2 = argent2.Replace(",", " "); // remplace les virgules par des espaces
+            argent2 = argent2.Replace(",", " ");
         }
         textArgent.text = argent2+"€";
         for (int i = 0; i < lesEspaceYoKai.Count; i++){

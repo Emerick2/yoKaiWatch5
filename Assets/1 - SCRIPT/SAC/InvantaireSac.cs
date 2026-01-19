@@ -59,16 +59,16 @@ public class InvantaireSac : MonoBehaviour{
             L.sprite=spriteLNonSélection;
             cible++;
             ChangerPositionCible();
-        } else if (Input.GetButtonDown("flèche gauche")){
+        } else if (Input.GetButtonDown("left")){
             cible2.x--;
             ChangerPositionCible2();
-        } else if (Input.GetButtonDown("flèche droite")){
+        } else if (Input.GetButtonDown("right")){
             cible2.x++;
             ChangerPositionCible2();
-        } else if (Input.GetButtonDown("flèche bas")){
+        } else if (Input.GetButtonDown("down")){
             cible2.y++;
             ChangerPositionCible2();
-        } else if (Input.GetButtonDown("flèche haut")){
+        } else if (Input.GetButtonDown("up")){
             cible2.y--;
             ChangerPositionCible2();
         } else if (Input.GetButtonDown("B")) {

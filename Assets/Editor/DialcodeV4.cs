@@ -28,9 +28,9 @@ public class DialcodeV4 : EditorWindow{
 
     private List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
 
-    [MenuItem("Tools/Dialcode V4")]
+    [MenuItem("Tools/DialcodeV4")]
     public static void ShowWindow(){
-        GetWindow<DialcodeV4>("Dialcode V4");
+        GetWindow<DialcodeV4>("DialcodeV4");
     }
 
     private void OnSelectionChange(){
@@ -397,19 +397,16 @@ public class DialcodeV4 : EditorWindow{
                 hauteurConditionnele--;
                 if (hauteurConditionnele < 0) f.type = TypeDialogue.nul;
                 break;
-            case TypeDialogue.quête:
+            case TypeDialogue.quete:
+                f.categorieQuete = AjouterUnEnumGénérique("Quel est la catégorie de cette requête ?", f.categorieQuete);
                 f.nom = AjoutTexte("Nom",f.nom);
-                f.cesUneQuêteEtNonUnService = AjouterUnBool("C'est une quête (coche) ?",f.cesUneQuêteEtNonUnService);
-                string clef = "quête-";
-                if (!f.cesUneQuêteEtNonUnService){
-                    clef = "service-";
-                }
-                clef+=f.nom;
+                f.endQuest = AjouterUnBool("La requête est terminé ?", f.endQuest);
+                string clef = f.categorieQuete.ToString()+"-"+f.nom;
                 GUILayout.Box("La clef de sauvegarde est : "+clef, monStyleHelpBox);
                 GUILayout.Box("Les valeurs possibles sont :"+clef, monStyleHelpBox);
-                GUILayout.Box("0 : La quête n'as pas commancer."+clef, monStyleHelpBox);
-                GUILayout.Box("1 : La quête est en cours."+clef, monStyleHelpBox);
-                GUILayout.Box("2 : La quête est terminée."+clef, monStyleHelpBox);
+                GUILayout.Box("0 : La requête n'as pas commancer."+clef, monStyleHelpBox);
+                GUILayout.Box("1 : La requête est en cours."+clef, monStyleHelpBox);
+                GUILayout.Box("2 : La requête est terminée."+clef, monStyleHelpBox);
                 break;
         }
     }

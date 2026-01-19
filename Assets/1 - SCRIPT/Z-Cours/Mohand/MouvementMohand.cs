@@ -37,23 +37,23 @@ public class MouvementMohand : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButton("flèche droite"))
+        if(Input.GetButton("right"))
         {
             parents.transform.Translate(directionGauche * vitesse * Time.deltaTime);
             transform.rotation = Quaternion.Euler(0f,90f,0f);
         }
         
-        else if(Input.GetButton("flèche gauche"))
+        else if(Input.GetButton("left"))
         {
             parents.transform.Translate(directionDroite * vitesse * Time.deltaTime);
             transform.rotation = Quaternion.Euler(0f, -90f, 0f);
         }
-        else if(Input.GetButton("flèche bas"))
+        else if(Input.GetButton("down"))
         {
             parents.transform.Translate(directionAvant * vitesse * Time.deltaTime);
             transform.rotation = Quaternion.Euler(0f, 180f, 0f);
         }
-        else if(Input.GetButton("flèche haut"))
+        else if(Input.GetButton("up"))
         {
             parents.transform.Translate(directionArriere * vitesse * Time.deltaTime);
             transform.rotation = Quaternion.Euler(0f, 0f, 0f);

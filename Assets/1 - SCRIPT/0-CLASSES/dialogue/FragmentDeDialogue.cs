@@ -11,13 +11,14 @@ public class FragmentDeDialogue{
     public string nom;
     public Sprite image;
     [Min(1)]public int quantitée = 1;//si ces un cadeau, il y a une quantitée
-    public TypeObjet typeObjet;
+    public CatégorieItem typeObjet;
     [Header("Opération")]
     public List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
     public bool cesUneExclamation;
     public Sprite imageDePrésentation;
     public List<int> listeProduitBoutique = new List<int>();
-    public bool cesUneQuêteEtNonUnService = true;
+    public CatégorieQuête categorieQuete;
+    public bool endQuest;
     
 }
 

@@ -14,7 +14,7 @@ public class sacMouvement : MonoBehaviour{
     [HideInInspector] public bool bloquer;
     void Update(){   
         if (!pause && !bloquer){
-            if (Input.GetButtonDown("flèche droite")){
+            if (Input.GetButtonDown("right")){
                 indexGauche++;
                 if (indexGauche < 0){
                     indexGauche=sélectionnéHaut.Count-1;
@@ -23,7 +23,7 @@ public class sacMouvement : MonoBehaviour{
                 }
                 changerDePosition();
             }
-            if (Input.GetButtonDown("flèche gauche")){
+            if (Input.GetButtonDown("left")){
                 indexGauche--;
                 if (indexGauche < 0){
                     indexGauche=sélectionnéHaut.Count-1;
@@ -32,12 +32,12 @@ public class sacMouvement : MonoBehaviour{
                 }
                 changerDePosition();
             }
-            if (Input.GetButtonDown("flèche haut")){
+            if (Input.GetButtonDown("up")){
                 if (indexHaut == 0){indexHaut=1;}
                 else {indexHaut=0;}
                 changerDePosition();
             }
-            if (Input.GetButtonDown("flèche bas")){
+            if (Input.GetButtonDown("down")){
                 if (indexHaut == 0){indexHaut=1;}
                 else {indexHaut=0;}
                 changerDePosition();

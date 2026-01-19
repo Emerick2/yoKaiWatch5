@@ -5,7 +5,6 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
-using Mono.Cecil;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 
@@ -15,9 +14,7 @@ public class medaliumDictionnaire : MonoBehaviour{
 
     /*[HideInInspector]*/
     public List<MedaliumNonPersonel> dictionnaire;
-    public List<Sprite> imageDesRang;
 
-    public ImageDesTribue imageDesTribue;
     public bool chargementFini = false;
     
     public GameObject AvoirLeGameObject(){
@@ -140,21 +137,6 @@ public class medaliumDictionnaire : MonoBehaviour{
 }
 
 [System.Serializable]
-public class ImageDesTribue{
-    public Sprite Vaillant;
-    public Sprite Mystérieu;
-    public Sprite Costaud;
-    public Sprite Mignon;
-    public Sprite Bienveillant;
-    public Sprite Sombre;
-    public Sprite Sinistre;
-    public Sprite Insaisissable;
-    public Sprite Perfide;
-    public Sprite Enma;
-    public Sprite Wandroïd;
-}
-
-[System.Serializable]
 public class MedaliumNonPersonel{
     public Sprite médaillon;
     public Sprite faceImage;
@@ -213,9 +195,6 @@ public class Ammultime{
     //[Header("Paramètres à rensegner si c'est une ammultime d'envoutement (ce n'est pas fini désolé) :")]
     */
 }
-
-
-
 
 
 /*

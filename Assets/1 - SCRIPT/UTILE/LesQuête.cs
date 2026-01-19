@@ -43,12 +43,12 @@ public class LesQuête : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButtonDown("flèche haut")){
+        if (Input.GetButtonDown("up")){
             espaceDeQuête[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
             sélection--;
             Choisir();
         }
-        else if (Input.GetButtonDown("flèche bas")){
+        else if (Input.GetButtonDown("down")){
             espaceDeQuête[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
             sélection++;
             Choisir();

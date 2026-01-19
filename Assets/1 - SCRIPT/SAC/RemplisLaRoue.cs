@@ -56,10 +56,10 @@ public class RemplisLaRoue : MonoBehaviour{
         page3.gameObject.transform.Find("BLOC CHOIX").gameObject.SetActive(numéroPageActuelle==5);
 
         if (numéroPageActuelle == 2){
-            if (Input.GetButtonDown("flèche droite")){
+            if (Input.GetButtonDown("right")){
                 cible++;
                 NouvelleCiblePage2();
-            } else if (Input.GetButtonDown("flèche gauche")){
+            } else if (Input.GetButtonDown("left")){
                 cible--;
                 NouvelleCiblePage2();
             } else if (Input.GetButtonDown("X")){
@@ -122,10 +122,10 @@ public class RemplisLaRoue : MonoBehaviour{
             }
         }
         else if (numéroPageActuelle == 3) {
-            if (Input.GetButtonDown("flèche bas")){
+            if (Input.GetButtonDown("down")){
                 cible++;
                 NouvelleCiblePage3(1);
-            } else if (Input.GetButtonDown("flèche haut")){
+            } else if (Input.GetButtonDown("up")){
                 cible--;
                 NouvelleCiblePage3(-1);
             } else if (Input.GetButtonDown("X")){
@@ -152,10 +152,10 @@ public class RemplisLaRoue : MonoBehaviour{
             }
         }
         else if (numéroPageActuelle == 4) {
-             if (Input.GetButtonDown("flèche bas")){
+             if (Input.GetButtonDown("down")){
                 cible2++;
                 ChangerPositionCible2(page2,4);
-            } else if (Input.GetButtonDown("flèche haut")){
+            } else if (Input.GetButtonDown("up")){
                 cible2--;
                 ChangerPositionCible2(page2,4);
             } else if (Input.GetButtonDown("A") && page2.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.tag != "spriteBoutonVerouiller"){
@@ -181,10 +181,10 @@ public class RemplisLaRoue : MonoBehaviour{
                 }
             }
         } else if (numéroPageActuelle == 5) {
-             if (Input.GetButtonDown("flèche bas")){
+             if (Input.GetButtonDown("down")){
                 cible2++;
                 ChangerPositionCible2(page3,4);
-            } else if (Input.GetButtonDown("flèche haut")){
+            } else if (Input.GetButtonDown("up")){
                 cible2--;
                 ChangerPositionCible2(page3,4);
             } else if (Input.GetButtonDown("A") && page3.gameObject.transform.Find("BLOC CHOIX/choix ("+(cible2+1).ToString()+")/texte").gameObject.transform.tag != "spriteBoutonVerouiller"){

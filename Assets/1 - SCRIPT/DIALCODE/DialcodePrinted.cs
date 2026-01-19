@@ -33,7 +33,7 @@ public class DialcodePrinted : MonoBehaviour{
     private GameObject choix;
     private GameObject choixBoutique;
     private GameObject boutiqueAcheter;
-    private GameObject quête;
+    private GameObject quete;
     private int auteurConditionnelle;
     private int auteurConditionnelleRéel;
     private int positionChoix;
@@ -61,7 +61,7 @@ public class DialcodePrinted : MonoBehaviour{
         choix = transform.Find("-- CHOIX --").gameObject;
         choixBoutique = transform.Find("-- CHOIX BOUTIQUE --").gameObject;
         boutiqueAcheter = transform.Find("-- ACHETER --").gameObject;
-        quête = transform.Find("-- QUÊTE --").gameObject;
+        quete = transform.Find("-- QUÊTE --").gameObject;
         imageDePrésentation = bulle.transform.Find("imageDePrésentation").gameObject;
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null) {
@@ -75,7 +75,7 @@ public class DialcodePrinted : MonoBehaviour{
     void Update(){
         if (dansUneZoneDeDialogue){
             if (choixEnCours) {
-                if (Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
+                if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
                     positionChoix++;
                     ChangerPositionChoix();
                 } else if (Input.GetButtonDown("A")){
@@ -90,7 +90,7 @@ public class DialcodePrinted : MonoBehaviour{
                 }
             }
             if (choixEnCoursBoutique1) {
-                if (Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
+                if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
                     ChangerPositionCibleChoixBoutique1(1);
                 } else if (Input.GetButtonDown("A")){
                     choixEnCoursBoutique1 = false;
@@ -154,13 +154,13 @@ public class DialcodePrinted : MonoBehaviour{
         }
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
             if (fragment.quantitée <= 0) fragment.quantitée = 1;
-            if (fragment.typeObjet == TypeObjet.nouriture){
+            if (fragment.typeObjet == CatégorieItem.Nouriture){
                 fragment.nom = Item._instance.listeDesNouritures[fragment.IdÉlément].nom;
                 fragment.image = Item._instance.listeDesNouritures[fragment.IdÉlément].image;
-            } else if (fragment.typeObjet == TypeObjet.équipement){
+            } else if (fragment.typeObjet == CatégorieItem.Equipement){
                 fragment.nom = Item._instance.listeDesÉquipements[fragment.IdÉlément].nom;
                 fragment.image = Item._instance.listeDesÉquipements[fragment.IdÉlément].sprite;
-            } else if (fragment.typeObjet == TypeObjet.annimaux){
+            } else if (fragment.typeObjet == CatégorieItem.Animal){
                 fragment.nom = Item._instance.listeDesAnnimaux[fragment.IdÉlément].nom;
                 fragment.image = Item._instance.listeDesAnnimaux[fragment.IdÉlément].image;
             }
@@ -236,21 +236,44 @@ public class DialcodePrinted : MonoBehaviour{
             choixEnCoursBoutique2 = false;
             cibleChoixBoutique1 = 0;
             ChangerPositionCibleChoixBoutique1(0);
-        } else if (fragment.type == TypeDialogue.quête){
-            OuvertureFenêtre(quête);
-            quête.transform.Find("icone requête").gameObject.SetActive(fragment.cesUneQuêteEtNonUnService);
-            quête.transform.Find("icone service").gameObject.SetActive(!fragment.cesUneQuêteEtNonUnService);
+        } else if (fragment.type == TypeDialogue.quete){
+            OuvertureFenêtre(quete);
             // la valeur de sauvegarde est :
-            // 0 : La quête n'as pas commancer.
-            // 1 : La quête est en cours.
-            // 2 : La quête est terminée.
-            if (fragment.cesUneQuêteEtNonUnService){
-                quête.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLa quête à été ajouter au menu des requêtes.";
-                NewDataCenter.Instance.SauvegarderSTR("quête-"+fragment.nom,"1");
+            // 0 : La requête n'as pas commancer.
+            // 1 : La requête est en cours.
+            // 2 : La requête est terminée.
+            quete.transform.Find("icone requête").gameObject.SetActive(fragment.categorieQuete == CatégorieQuête.Quête);
+            quete.transform.Find("icone service").gameObject.SetActive(fragment.categorieQuete == CatégorieQuête.Service);
+
+            if (!fragment.endQuest){                    
+                NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"1");
+                if (fragment.categorieQuete == CatégorieQuête.Quête || fragment.categorieQuete == CatégorieQuête.Histoire || fragment.categorieQuete == CatégorieQuête.Clef){
+                    quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLa quête à été ajouter au menu des requêtes.";
+                } else if (fragment.categorieQuete == CatégorieQuête.Service) {
+                    quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLe service à été ajouter au menu des requêtes.";
+                } 
             } else {
-                quête.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLe service à été ajouter au menu des requêtes.";
-                NewDataCenter.Instance.SauvegarderSTR("service-"+fragment.nom,"1");
+                NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"1");
+                quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" est terminé !";
+                /*
+                ajouter le script movie.
+                il vas :
+                    - faire apparaitre un écran sur la scène
+                    - bloquer les mouvement du joueur
+                    - faire visioner une vidéo
+                    - avoir un booléen pour savoir si la vidéo à terminé de se jouer ou non.
+                                
+                notre scirpt :
+                    - vas faire apparaitre wisper content sur la bulle de dialogue
+                    - vas jouer la musique "bien jouer"
+                    - quand je joueur cliqueras sur A, le script déclancheras le movie
+                    - toutes les 0.3f, le script vas regarder si la vidéo est fini
+                    - si la vidéo est fini, il fait fermer le movie (movie à une variable start et end).
+                    - on affiche les récompanse du joueur et les niveau gagner par l'équipe
+                    - on poursuit le dialogue.
+                */
             }
+            position++;
         }
     }
 
@@ -269,7 +292,7 @@ public class DialcodePrinted : MonoBehaviour{
         choix.SetActive(choix == fenêtre);
         choixBoutique.SetActive(choixBoutique == fenêtre);
         boutiqueAcheter.SetActive(boutiqueAcheter == fenêtre);
-        quête.SetActive(quête == fenêtre);
+        quete.SetActive(quete == fenêtre);
     }
 
     void ChangerPositionChoix(){

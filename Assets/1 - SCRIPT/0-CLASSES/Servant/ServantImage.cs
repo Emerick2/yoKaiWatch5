@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using UnityEngine;
 
 [System.Serializable]
@@ -49,6 +48,7 @@ public class ServantImage{
             case Tribue.Wandroïd:
                 return FindImage(sentence+"_16");
             default:
+                Debug.Log("dans le default");
                 return null;
         }
     }
@@ -109,7 +109,28 @@ public class ServantImage{
         }
     }
 
-    private Sprite FindImage(string file){
+    private Sprite FindImageNoMultiple(string file){
+        Debug.Log(file);
         return Resources.Load<Sprite>(file);
+    }
+
+    private Sprite FindImage(string fullPath) {
+        int lastUnderscore = fullPath.LastIndexOf('_');
+        
+        if (lastUnderscore == -1) return Resources.Load<Sprite>(fullPath);
+
+        string fileName = fullPath.Substring(0, lastUnderscore); 
+        string spriteName = fullPath.Substring(lastUnderscore + 1);
+
+        Sprite[] allSprites = Resources.LoadAll<Sprite>(fileName);
+
+        foreach (Sprite s in allSprites) {
+            if (s.name == fileName.Substring(fileName.LastIndexOf('/') + 1) + "_" + spriteName) {
+                return s;
+            }
+        }
+
+        Debug.LogError("Sprite introuvable : " + spriteName + " dans " + fileName);
+        return null;
     }
 }

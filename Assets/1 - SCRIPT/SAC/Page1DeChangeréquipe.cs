@@ -20,7 +20,7 @@ public class Page1DeChangeréquipe : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
+        if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
             cible = (cible+1)%2;
             ChangerChoie();
         } 

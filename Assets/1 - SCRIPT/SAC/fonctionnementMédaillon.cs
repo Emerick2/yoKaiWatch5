@@ -150,13 +150,13 @@ public class fonctionnementMédaillon : MonoBehaviour{
 
     }
     void Update(){
-        if (Input.GetButtonDown("flèche bas")){
+        if (Input.GetButtonDown("down")){
             MouvementDansLaPage(3);
-        }else if (Input.GetButtonDown("flèche haut")){
+        }else if (Input.GetButtonDown("up")){
             MouvementDansLaPage(-3);
-        }else if (Input.GetButtonDown("flèche droite")){
+        }else if (Input.GetButtonDown("right")){
             MouvementDansLaPage(1);
-        }else if (Input.GetButtonDown("flèche gauche")){
+        }else if (Input.GetButtonDown("left")){
             MouvementDansLaPage(-1);
         }else if (Input.GetButtonDown("B")){
             numéroDeLaPage = 1;
@@ -258,29 +258,9 @@ public class fonctionnementMédaillon : MonoBehaviour{
             }
             blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
             blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.nom;
-
-            string maTribue = google.tribue.ToString();
-            if (maTribue == "Vaillant") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Vaillant;
-            else if (maTribue == "Mystérieu") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Mystérieu;
-            else if (maTribue == "Costaud") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Costaud;
-            else if (maTribue == "Mignon") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Mignon;
-            else if (maTribue == "Insaisissable") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Insaisissable;
-            else if (maTribue == "Bienveillant") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Bienveillant;
-            else if (maTribue == "Sombre") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Sombre;
-            else if (maTribue == "Sinistre") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Sinistre;
-            else if (maTribue == "Perfide") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Perfide;
-            else if (maTribue == "Enma") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Enma;
-            else if (maTribue == "Wandroïd") blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = médailum.imageDesTribue.Wandroïd;
-
-
-            int monRang = 0;
-            string monRangSTR  = google.rang.ToString();
-            if (monRangSTR == "D") monRang=1;
-            else if (monRangSTR == "C") monRang=2;
-            else if (monRangSTR == "B") monRang=3;
-            else if (monRangSTR == "A") monRang=4;
-            else if (monRangSTR == "S") monRang=5;
-            blocInformatif.transform.Find("rang").GetComponent<Image>().sprite = médailum.imageDesRang[monRang];
+            
+            blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = new ServantImage().ReadImage_Tribue(google.tribue);
+            blocInformatif.transform.Find("rang").GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(google.rang);
         }else {
             blocInformatif.SetActive(false);
         }

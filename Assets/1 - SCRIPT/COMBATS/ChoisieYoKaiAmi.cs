@@ -29,10 +29,10 @@ public class ChoisieYoKaiAmi : MonoBehaviour{
     }
     void Update(){
         if (activé){
-            if (Input.GetButtonDown("flèche gauche")){
+            if (Input.GetButtonDown("left")){
                 cible--;
                 ChangerCible();
-            } else if (Input.GetButtonDown("flèche droite")){
+            } else if (Input.GetButtonDown("right")){
                 cible++;
                 ChangerCible();
             } else if (Input.GetButtonDown("A")){

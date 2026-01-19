@@ -27,19 +27,19 @@ public class PlaceLesApplicationsSac : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButtonDown("flèche droite")){
+        if (Input.GetButtonDown("right")){
             ChangerPositionCurseur((cible+1)%lesLieux.Count);
         }
-        else if (Input.GetButtonDown("flèche gauche")){
+        else if (Input.GetButtonDown("left")){
             cible -= 1;
             if (cible < 0){
                 cible = lesLieux.Count+cible;
             }
             ChangerPositionCurseur(cible);
-        } else if (Input.GetButtonDown("flèche bas")){
+        } else if (Input.GetButtonDown("down")){
             ChangerPositionCurseur((cible+nombreApplicationParEtage)%lesLieux.Count);
         }
-        else if (Input.GetButtonDown("flèche haut")){
+        else if (Input.GetButtonDown("up")){
             cible -= nombreApplicationParEtage;
             if (cible < 0){
                 cible = lesLieux.Count+cible;

@@ -40,11 +40,11 @@ public class vendreDesProduits : MonoBehaviour{
     void Update(){
         boiteDeMenuDeJeu.SetActive(false);
         if (!acheter){
-            if (Input.GetButtonDown("flèche haut")){
+            if (Input.GetButtonDown("up")){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 sélection--;
                 Choisir();
-            }else if (Input.GetButtonDown("flèche bas")){
+            }else if (Input.GetButtonDown("down")){
                 espaceDeVante[sélection].GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
                 sélection++;
                 Choisir();

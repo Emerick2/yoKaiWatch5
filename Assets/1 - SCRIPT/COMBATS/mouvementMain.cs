@@ -23,16 +23,16 @@ public class MouvementMain : MonoBehaviour
         if (!bloquer){
             Vector2 position = rectTransform.anchoredPosition;
 
-            if (Input.GetButtonDown("flèche droite") && position.x < maxXPosition){
+            if (Input.GetButtonDown("right") && position.x < maxXPosition){
                 position.x += vitesse * Time.deltaTime;
             }
-            if (Input.GetButtonDown("flèche gauche") && position.x > minXPosition){
+            if (Input.GetButtonDown("left") && position.x > minXPosition){
                 position.x -= vitesse * Time.deltaTime;
             }
-            if (Input.GetButtonDown("flèche haut") && position.y < maxYPosition){
+            if (Input.GetButtonDown("up") && position.y < maxYPosition){
                 position.y += vitesse * Time.deltaTime;
             }
-            if (Input.GetButtonDown("flèche bas") && position.y > minYPosition){
+            if (Input.GetButtonDown("down") && position.y > minYPosition){
                 position.y -= vitesse * Time.deltaTime;
             }
 

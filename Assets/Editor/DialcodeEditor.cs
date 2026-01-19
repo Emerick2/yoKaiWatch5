@@ -134,7 +134,7 @@ public class DialcodeEditor : EditorWindow{
             case TypeDialogue.vol:
             case TypeDialogue.volDiscret:
             case TypeDialogue.donDiscret:
-                f.typeObjet = (TypeObjet)EditorGUILayout.EnumPopup("Type Objet", f.typeObjet);
+                f.typeObjet = (CatégorieItem)EditorGUILayout.EnumPopup("Type Objet", f.typeObjet);
                 f.IdÉlément = EditorGUILayout.IntField("ID Objet", f.IdÉlément);
                 f.nom = EditorGUILayout.TextField("Nom Objet", f.nom);
                 f.image = (Sprite)EditorGUILayout.ObjectField("Image", f.image, typeof(Sprite), false);

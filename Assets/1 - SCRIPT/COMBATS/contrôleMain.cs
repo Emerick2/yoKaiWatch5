@@ -21,7 +21,7 @@ public class contrôleMain : MonoBehaviour{
     public GameObject eventObjet;
     private bool attendChoieAmultime;
     void Update(){
-        if(Input.GetButtonDown("flèche droite") || Input.GetButtonDown("flèche gauche")){
+        if(Input.GetButtonDown("right") || Input.GetButtonDown("left")){
             MainDroiteBas.SetActive(false);MainGaucheBas.SetActive(false); MainDroiteHaut.SetActive(false);MainGaucheHaut.SetActive(false); 
             if (ouSuisJe == 1) MainGaucheHaut.SetActive(true);//2
             else if (ouSuisJe == 2) MainDroiteHaut.SetActive(true);//1
@@ -33,7 +33,7 @@ public class contrôleMain : MonoBehaviour{
             else if (ouSuisJe==3){ouSuisJe=4;}
             else {ouSuisJe=3;}
 
-        }else if(Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){ MainDroiteBas.SetActive(false);MainGaucheBas.SetActive(false); MainDroiteHaut.SetActive(false);MainGaucheHaut.SetActive(false); 
+        }else if(Input.GetButtonDown("up") || Input.GetButtonDown("down")){ MainDroiteBas.SetActive(false);MainGaucheBas.SetActive(false); MainDroiteHaut.SetActive(false);MainGaucheHaut.SetActive(false); 
             if (ouSuisJe == 1) MainDroiteBas.SetActive(true);//2
             else if (ouSuisJe == 3) MainDroiteHaut.SetActive(true);//4
             else if (ouSuisJe == 2) MainGaucheBas.SetActive(true);//1
@@ -49,11 +49,11 @@ public class contrôleMain : MonoBehaviour{
             else if (ouSuisJe == 2) {MainGaucheHaut.GetComponent<Animator>().SetBool("clic",true); ClicAmultime();}//2
             else if (ouSuisJe == 3) {MainDroiteBas.GetComponent<Animator>().SetBool("clic",true); ClicObjet();}//3
             else if (ouSuisJe == 4) {MainGaucheBas.GetComponent<Animator>().SetBool("clic",true); ClicPurification();}//4
-        } else if (Input.GetButtonDown("flèche gauche") && finDeAttanteDeRotation){
+        } else if (Input.GetButtonDown("left") && finDeAttanteDeRotation){
             finDeAttanteDeRotation=false;
             gestionnaireDeCombas.RotationDeLaRoue(1);
             StartCoroutine(RotateSmoothly(-60f));
-        } else if (Input.GetButtonDown("flèche droite") && finDeAttanteDeRotation){
+        } else if (Input.GetButtonDown("right") && finDeAttanteDeRotation){
             finDeAttanteDeRotation=false;
             gestionnaireDeCombas.RotationDeLaRoue(-1);
             StartCoroutine(RotateSmoothly(60f));

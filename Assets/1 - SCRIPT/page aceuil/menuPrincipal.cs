@@ -34,7 +34,7 @@ public class menuPrincipal : MonoBehaviour{
     }
     void Update(){
         if (jeSuisSurLeDéplacementMouvementPrincipal){
-            if (Input.GetButtonDown("flèche droite") || Input.GetButtonDown("flèche gauche") || Input.GetButtonDown("flèche haut") || Input.GetButtonDown("flèche bas")){
+            if (Input.GetButtonDown("right") || Input.GetButtonDown("left") || Input.GetButtonDown("up") || Input.GetButtonDown("down")){
                 if (jeSuisSurContinuer){//je vais viser la nouvelle partie
                     jeSuisSurContinuer = false;
                     cible = positionFlameNouvellePartie;
