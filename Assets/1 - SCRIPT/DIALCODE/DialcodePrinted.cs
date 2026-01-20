@@ -40,6 +40,7 @@ public class DialcodePrinted : MonoBehaviour{
     private bool choixEnCours;
     private bool choixEnCoursBoutique1;
     private bool choixEnCoursBoutique2;
+    private int awaitTheClicForTheEndQuest = 0;//0 : valeur par défaut / 1 : en attente de la fin de la pause / 2 : en attente du clique.
     private int cibleChoixBoutique1;
     private GameObject imageDePrésentation;
     private int nChoix;
@@ -121,7 +122,13 @@ public class DialcodePrinted : MonoBehaviour{
                     Action();
                 }
             }
-            if (!choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
+            if (awaitTheClicForTheEndQuest == 2){
+                if (Input.GetButtonDown("A")){
+                    quete.transform.Find("super").GetComponent<Animator>().SetBool("afficher", false);
+                    awaitTheClicForTheEndQuest = 0;
+                }
+            }
+            if (awaitTheClicForTheEndQuest == 0 && !choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
                 if (Input.GetButtonDown("A")){
                     Input.ResetInputAxes();
                     if (boiteFermer){
@@ -253,6 +260,7 @@ public class DialcodePrinted : MonoBehaviour{
                     quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLe service à été ajouter au menu des requêtes.";
                 } 
             } else {
+                StartCoroutine(AnimationEndQuest());
                 NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"1");
                 quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" est terminé !";
                 /*
@@ -275,6 +283,21 @@ public class DialcodePrinted : MonoBehaviour{
             }
             position++;
         }
+    }
+
+    IEnumerator AnimationEndQuest(){
+        awaitTheClicForTheEndQuest = 1;
+        AudioClip audioClip = Resources.Load<AudioClip>("Musique/évent/Quest Complete");
+        GestionnaireMusique._Komasan.JouerUnEffetSonore(audioClip,false);
+        quete.transform.Find("miniBlocContinuer").gameObject.SetActive(false);
+        yield return new WaitForSeconds(4f);
+        //faire apparaitre le wisper
+        quete.transform.Find("super").GetComponent<Animator>().SetBool("afficher", true);
+        yield return new WaitForSeconds(0.5f);
+        quete.transform.Find("miniBlocContinuer").gameObject.SetActive(true);
+        awaitTheClicForTheEndQuest = 2;
+        //permettre à l'utilisateur de cliquer pour continuer
+        //new ServantMovie().StartMovie(this, "test");
     }
 
     void ChangerPositionCibleChoixBoutique1(int suplémant){
@@ -311,6 +334,7 @@ public class DialcodePrinted : MonoBehaviour{
         choixEnCoursBoutique1 = false;
         choixEnCoursBoutique2 = false;
         cibleChoixBoutique1 = 0;
+        awaitTheClicForTheEndQuest = 0;
         StartCoroutine(AnnimationOuverture());
         position = 0;
         if (fragmentDeDialogue.Count == 0){
