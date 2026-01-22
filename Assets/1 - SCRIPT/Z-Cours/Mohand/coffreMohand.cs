@@ -6,15 +6,13 @@ public class coffreMohand : MonoBehaviour
 {
     [Range(0,5)]public int test_range;
     [Min(0)]public int id_nourriture;
-    private bool joueur_dedans = true;
+    public bool joueur_dedans = false;
 
-    //// Update is called once per frame
     void Update(){
         if(joueur_dedans==true && Input.GetButtonDown("A"))
         {
             Debug.Log("test");
         }
-
     }
 
     void OnTriggerEnter(Collider collider)
@@ -34,9 +32,4 @@ public class coffreMohand : MonoBehaviour
             joueur_dedans = false;
         }
     }
-    
-
-
-
-
 }

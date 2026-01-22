@@ -185,45 +185,8 @@ public class DialcodePrinted : MonoBehaviour{
                     position++;
                 }
             }
-        } else if (fragment.type == TypeDialogue.cadeau){
-            OuvertureFenêtre(cadeau);
-            if (fragment.image != null){
-                cadeau.transform.Find("cintille").gameObject.SetActive(true);
-                cadeau.transform.Find("cintille/cadeau").GetComponent<Image>().sprite = fragment.image;
-            } else {
-                cadeau.transform.Find("cintille").gameObject.SetActive(false);
-            }
-            string phrase = "Tu as obtenu un cadeau !";
-            if (fragment.nom.Length > 0){
-                if (fragment.quantitée == 1) phrase = "Tu as obtenu : <color=#4C714F>\n"+fragment.nom+"</color> !";
-                else phrase = "Tu as obtenu : <color=#4C714F>\n"+fragment.quantitée +" "+ fragment.nom+"</color> !";
-            }
-            NewDataCenter.Instance.SauvegarderINT(fragment.nom,fragment.quantitée);
-            //Utiliser <C12><ITEM_NAME></C> sur qui ?
-            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
-            position++;
-        } else if (fragment.type == TypeDialogue.vol){
-            OuvertureFenêtre(cadeau);
-            cadeau.transform.Find("cintille").gameObject.SetActive(false);
-            string phrase = "Tu as remis :";
-            if (fragment.nom.Length > 0){
-                if (fragment.quantitée == 1) phrase = "Tu as remis : <color=#4C714F>\n"+fragment.nom+"</color>.";
-                else phrase = "Tu as remis : <color=#4C714F>\n"+fragment.quantitée +" "+ fragment.nom+"</color>.";
-            }
-            NewDataCenter.Instance.SauvegarderINT(fragment.nom,fragment.quantitée*(-1));
-            //Utiliser <C12><ITEM_NAME></C> sur qui ?
-            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
-            position++;
-        } else if (fragment.type == TypeDialogue.volDiscret){
-            Vole(fragment.nom, fragment.quantitée);
-            position++;
-            AvancerJusqueAuProchainDialogue();
-            Action();
-        } else if (fragment.type == TypeDialogue.donDiscret){
-            DonDiscret(fragment.nom, fragment.quantitée);
-            position++;
-            AvancerJusqueAuProchainDialogue();
-            Action();
+        } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret){
+            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true);
         } else if (fragment.type == TypeDialogue.information){
             OuvertureFenêtre(information);
             information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
@@ -285,6 +248,75 @@ public class DialcodePrinted : MonoBehaviour{
         }
     }
 
+    /// <summary>
+    /// Si ont appelle se script hors du dialogue, il faut appeller OuvertureFenêtre();
+    /// </summary>
+    /// <param name="type">le type de cadeau</param>
+    /// <param name="quantitée">la quantitée à donnée</param>
+    /// <param name="typeObjet">la catégorie de l'objet donné</param>
+    /// <param name="IdÉlément">l'id de l'élément donné</param>
+    /// <param name="image">l'image de l'élément (facultatif)</param>
+    /// <param name="nom">le nom de l'élément (facultatif)</param>
+    /// <param name="dansUnDialogue">c'est sur true si sa fait partie d'un dialogue</param>
+    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false){
+        if (quantitée <= 0) quantitée = 1;
+        if (typeObjet == CatégorieItem.Nouriture){
+            nom = Item._instance.listeDesNouritures[IdÉlément].nom;
+            image = Item._instance.listeDesNouritures[IdÉlément].image;
+        } else if (typeObjet == CatégorieItem.Equipement){
+            nom = Item._instance.listeDesÉquipements[IdÉlément].nom;
+            image = Item._instance.listeDesÉquipements[IdÉlément].sprite;
+        } else if (typeObjet == CatégorieItem.Animal){
+            nom = Item._instance.listeDesAnnimaux[IdÉlément].nom;
+            image = Item._instance.listeDesAnnimaux[IdÉlément].image;
+        }
+
+        if (type == TypeDialogue.cadeau){
+            OuvertureFenêtre(cadeau);
+            if (image != null){
+                cadeau.transform.Find("cintille").gameObject.SetActive(true);
+                cadeau.transform.Find("cintille/cadeau").GetComponent<Image>().sprite = image;
+            } else {
+                cadeau.transform.Find("cintille").gameObject.SetActive(false);
+            }
+            string phrase = "Tu as obtenu un cadeau !";
+            if (nom.Length > 0){
+                if (quantitée == 1) phrase = "Tu as obtenu : <color=#4C714F>\n"+nom+"</color> !";
+                else phrase = "Tu as obtenu : <color=#4C714F>\n"+quantitée +" "+ nom+"</color> !";
+            }
+            NewDataCenter.Instance.SauvegarderINT(nom,quantitée);
+            //Utiliser <C12><ITEM_NAME></C> sur qui ?
+            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
+            if (dansUnDialogue) position++;
+        } else if (type == TypeDialogue.vol){
+            OuvertureFenêtre(cadeau);
+            cadeau.transform.Find("cintille").gameObject.SetActive(false);
+            string phrase = "Tu as remis :";
+            if (nom.Length > 0){
+                if (quantitée == 1) phrase = "Tu as remis : <color=#4C714F>\n"+nom+"</color>.";
+                else phrase = "Tu as remis : <color=#4C714F>\n"+quantitée +" "+ nom+"</color>.";
+            }
+            NewDataCenter.Instance.SauvegarderINT(nom,quantitée*(-1));
+            //Utiliser <C12><ITEM_NAME></C> sur qui ?
+            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
+            if (dansUnDialogue) position++;
+        } else if (type == TypeDialogue.volDiscret){
+            Vole(nom, quantitée);
+            if (dansUnDialogue) {
+                position++;
+                AvancerJusqueAuProchainDialogue();
+                Action();
+            }
+        } else if (type == TypeDialogue.donDiscret){
+            DonDiscret(nom, quantitée);
+            if (dansUnDialogue) {
+                position++;
+                AvancerJusqueAuProchainDialogue();
+                Action();
+            }
+        }
+    }
+
     IEnumerator AnimationEndQuest(){
         awaitTheClicForTheEndQuest = 1;
         AudioClip audioClip = Resources.Load<AudioClip>("Musique/évent/Quest Complete");
@@ -308,14 +340,24 @@ public class DialcodePrinted : MonoBehaviour{
         choixBoutique.transform.Find("Bouton2/fond-inactif").gameObject.SetActive(cibleChoixBoutique1 != 1);
     }
 
-    void OuvertureFenêtre(GameObject fenêtre){
-        bulle.SetActive(bulle == fenêtre);
-        cadeau.SetActive(cadeau == fenêtre);
-        information.SetActive(information == fenêtre);
-        choix.SetActive(choix == fenêtre);
-        choixBoutique.SetActive(choixBoutique == fenêtre);
-        boutiqueAcheter.SetActive(boutiqueAcheter == fenêtre);
-        quete.SetActive(quete == fenêtre);
+    void OuvertureFenêtre(GameObject fenêtre = null){
+        if (fenêtre != null){
+            bulle.SetActive(bulle == fenêtre);
+            cadeau.SetActive(cadeau == fenêtre);
+            information.SetActive(information == fenêtre);
+            choix.SetActive(choix == fenêtre);
+            choixBoutique.SetActive(choixBoutique == fenêtre);
+            boutiqueAcheter.SetActive(boutiqueAcheter == fenêtre);
+            quete.SetActive(quete == fenêtre);
+        } else {
+            bulle.SetActive(false);
+            cadeau.SetActive(false);
+            information.SetActive(false);
+            choix.SetActive(false);
+            choixBoutique.SetActive(false);
+            boutiqueAcheter.SetActive(false);
+            quete.SetActive(false);
+        }
     }
 
     void ChangerPositionChoix(){

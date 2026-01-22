@@ -6,9 +6,11 @@ public class CrééUnYoKaiMohand : MonoBehaviour
 {
     public GameObject monYoKai;
     public Transform position;
+    public float taux = 0.01f;
+    public int idDuYoKai = 8;
     void Start()
     {
-        StartCoroutine(ApparitionDeYoKai(8));
+        StartCoroutine(ApparitionDeYoKai(idDuYoKai));
         monYoKai.transform.position = position.position;
     }
     IEnumerator ApparitionDeYoKai(int id)
@@ -23,6 +25,7 @@ public class CrééUnYoKaiMohand : MonoBehaviour
         GameObject modèle = medaliumDictionnaire._instance.dictionnaire[id].yoKai;
         monYoKai = Instantiate(modèle);
         monYoKai.AddComponent<MouvementMohand>();
+        new ServantBoxCollider3D().CreateBoxCollider(taux, monYoKai);
         monYoKai.transform.tag = "Player";
 
     }

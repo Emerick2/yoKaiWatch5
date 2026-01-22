@@ -14,7 +14,7 @@ public class PNJDialcode : MonoBehaviour{
     void Start(){
         dialcode = DialcodePrinted.Instance;
         LoadConditionOfTheDialoguePage();
-        CrééUnBoxCollider(taux);
+        new ServantBoxCollider3D().CreateBoxCollider(taux, gameObject);
         if (TrouverBonDialogue()) {
             gameObject.SetActive(true);
         } else {
@@ -77,37 +77,6 @@ public class PNJDialcode : MonoBehaviour{
         }
 
         return dialcode.CalculerLogiqueComplexe(valeurs, conditionnelle);
-    }
-
-    public void CrééUnBoxCollider(float bonus){
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-
-        if (renderers.Length == 0){
-            Debug.LogWarning("Aucun enfant avec un Renderer n'a été trouvé.");
-            return;
-        }
-
-        Bounds bounds = renderers[0].bounds;
-
-        for (int i = 1; i < renderers.Length; i++){
-            bounds.Encapsulate(renderers[i].bounds);
-        }
-
-        BoxCollider bc = GetComponent<BoxCollider>();
-        if (bc == null){
-            bc = gameObject.AddComponent<BoxCollider>();
-        }
-
-        bc.center = transform.InverseTransformPoint(bounds.center);
-
-        Vector3 localSize = transform.InverseTransformVector(bounds.size);
-
-        float extensionX = Mathf.Abs(localSize.x) + bonus;
-        float extensionZ = Mathf.Abs(localSize.z) + bonus;
-        
-        bc.size = new Vector3(extensionX, localSize.y, extensionZ);
-        bc.isTrigger = true;
-        Debug.Log($"Box Collider créé avec un bonus de {bonus} sur les côtés !");
     }
 }
 

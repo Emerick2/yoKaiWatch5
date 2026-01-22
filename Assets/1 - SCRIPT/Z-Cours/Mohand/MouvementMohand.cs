@@ -20,21 +20,11 @@ public class MouvementMohand : MonoBehaviour
         transform.parent = parents.transform;
         gameObject.AddComponent<Rigidbody>();
         //gameObject.GetComponent<Rigidbody>().isKinematic = true;
-        // gameObject.GetComponent<Rigidbody>().isKinematic = true;
         gameObject.GetComponent<Rigidbody>().useGravity = false;
     }
 
 
 
-
-
-
-
-
-
-
-
-    // Update is called once per frame
     void Update()
     {
         if(Input.GetButton("right"))
