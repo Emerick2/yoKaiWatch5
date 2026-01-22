@@ -9,12 +9,12 @@ public class PNJDialcode : MonoBehaviour{
     [Header("Données")]
     /*[HideInInspector]*/ public List<FragmentDeDialogue> maListeDeFraguement = new List<FragmentDeDialogue>();
     public List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
-    public float taux = 0.01f;
+    private float taux = 0f;
 
     void Start(){
         dialcode = DialcodePrinted.Instance;
         LoadConditionOfTheDialoguePage();
-        new ServantBoxCollider3D().CreateBoxCollider(taux, gameObject);
+        if (gameObject.GetComponent<yoKaiMModel3D>() == null) new ServantBoxCollider3D().CreateBoxCollider(taux, gameObject, false);
         if (TrouverBonDialogue()) {
             gameObject.SetActive(true);
         } else {

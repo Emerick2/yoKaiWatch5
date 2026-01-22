@@ -17,9 +17,10 @@ public class yoKaiMModel3D : MonoBehaviour{
     private Animator animator;
     public bool neBougeraPas;
     public float vitesseDeRechargement=0.2f;
-    private medaliumDictionnaire médalium;
 
     private GameObject préfabIconeMiniMap;
+    [HideInInspector] public GameObject yoKaiInTheScene;
+    private string name = "";
     IEnumerator UpdateLant(float vitesse){
         while (true){
             préfabIconeMiniMap.transform.position = transform.position;
@@ -38,50 +39,53 @@ public class yoKaiMModel3D : MonoBehaviour{
             Debug.Log("Le préfab est null...");
         }
         Transform enfantNom = transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
-        médalium = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-
-        string ID = gameObject.name;
-        ID.Replace("²","");
-        ID.Replace("!","");
-        ID.Replace("(Clone)","");
-        bool nombre = true;
-
-        for (int i = 0; i < ID.Length; i++){
-            if (ID[0]!='0' && ID[0]!='1' && ID[0]!='2' && ID[0]!='3' && ID[0]!='4' && ID[0]!='5' && ID[0]!='6' && ID[0]!='7' && ID[0]!='8' && ID[0]!='9'){
-                nombre = false;
-            }
+        if (enfantNom != null) {
+            name = enfantNom.name;
+        } else {
+            name = gameObject.name;
         }
-        /*
-        ID.Replace("(Clone)","");
-        if (nombre && médalium.dictionnaire.Count < int.Parse(ID)){        
-            string x = médalium.dictionnaire[int.Parse(ID)].nomDeMonSquellette;
-            string nomDeBase = enfantNom.name.Substring(4);
-            if (x != ""){
-                enfantNom.name="nom:"+x;
-                transform.Find(nomDeBase+"_output").transform.parent = transform;
-                transform.Find(nomDeBase+"_output").gameObject.name = x;
-            }            
-        }
-        */
-        if (enfantNom != null){
-            string nouveauNom = enfantNom.name.Substring(4); // Retire "nom:"
-            gameObject.name = nouveauNom;
-        }
-        gameObject.name = gameObject.name.Replace("_mod", "");
-
-
-
-        gameObject.name = gameObject.name.Replace("(Clone)", "");
+        name = name.Replace("²","");
+        name = name.Replace("!","");
+        name = name.Replace("(Clone)","");
+        name = name.Replace("_mod","");
+        name = name.Substring(4); // Retire "nom:"
+        gameObject.name = name;
         
-        if (neBougeraPas){vitesseDeRechargement=1;}
-        
+        if (neBougeraPas) vitesseDeRechargement=1;
+        CreateAnimator();
+        GameObject vraisYoKai = gameObject.transform.Find(name).gameObject;
+        if (vraisYoKai != null){
+            new ServantBoxCollider3D().CreateBoxCollider(0,vraisYoKai, true);
+            new ServantBoxCollider3D().CreateACopieOfAColliderWithABonus(0.005f,gameObject, vraisYoKai.GetComponent<BoxCollider>(), false);
+        }
+
+        StartCoroutine(Vitesse());
+    }
+    IEnumerator Vitesse(){
+        while (animator != null){
+            float p1x = transform.position.x;
+            float p1z = transform.position.z;
+            yield return new WaitForSeconds(vitesseDeRechargement);
+            float p2x = transform.position.x;
+            float p2z = transform.position.z;
+            float rx = p2x-p1x;
+            if (rx <0) rx = rx*(-1);
+            float rz = p2z-p1z;
+            if (rz <0) rz = rz*(-1);
+            float rt = 0;
+            if (rz > rx) rt = rz;
+            else rt = rx;
+            animator.SetFloat("vitesse",rt);
+        }
+    }
+
+    void CreateAnimator(){
         if (animController1 != null){
-            animator = gameObject.AddComponent<Animator>();
-            animator.runtimeAnimatorController = animController1;
-            string yoKaiName = transform.name;
             GameObject modèle3DDuYoKai = gameObject;
-            Animator modeleAnimator = modèle3DDuYoKai.GetComponent<Animator>();
-            RuntimeAnimatorController animController = modeleAnimator.runtimeAnimatorController;
+            if (modèle3DDuYoKai.GetComponent<Animator>() == null) animator = modèle3DDuYoKai.AddComponent<Animator>();
+            else animator = modèle3DDuYoKai.GetComponent<Animator>();
+            animator.runtimeAnimatorController = animController1;
+            RuntimeAnimatorController animController = animator.runtimeAnimatorController;
             if (animController == null) {
                 Debug.LogError("Aucun RuntimeAnimatorController n'est assigné à l'Animator !");
                 return;
@@ -113,20 +117,16 @@ public class yoKaiMModel3D : MonoBehaviour{
                 "_p20_28001s_pwl"
             };
 
-            // Dictionnaire pour stocker les correspondances entre anciennes et nouvelles animations
             List<KeyValuePair<AnimationClip, AnimationClip>> overrides = new List<KeyValuePair<AnimationClip, AnimationClip>>();
 
             for (int i = 0; i < aRemplacer.Count; i++){
                 string suffixe = aRemplacer[i];
                 string nomAnimationOrigine = nomDuYoKaiDeAnimatorParDéfaut + suffixe;
 
-                // Trouve l'animation existante dans le contrôleur d'origine
                 AnimationClip clipOrigine = clips.FirstOrDefault(c => c.name == nomAnimationOrigine);
 
-                // Charge la nouvelle animation dans le projet
-                string nomAnimationRemplacement = yoKaiName + suffixe;
-                AnimationClip clipRemplacement = Resources.Load<AnimationClip>("AnimationsExtraites/" + yoKaiName + "/" + nomAnimationRemplacement);
-                //print (clipRemplacement.ToString());
+                string nomAnimationRemplacement = name + suffixe;
+                AnimationClip clipRemplacement = Resources.Load<AnimationClip>("AnimationsExtraites/" + name + "/" + nomAnimationRemplacement);
                 if (clipOrigine != null && clipRemplacement != null){
                     AnimationClip clip = clipRemplacement;
                     SerializedObject serializedClip = new SerializedObject(clip);
@@ -141,24 +141,6 @@ public class yoKaiMModel3D : MonoBehaviour{
             animator.runtimeAnimatorController = overrideController;
         }else{
             Debug.Log("erreur d'asignation");
-        }
-        StartCoroutine(Vitesse());
-    }
-    IEnumerator Vitesse(){
-        while (animator != null){
-            float p1x = transform.position.x;
-            float p1z = transform.position.z;
-            yield return new WaitForSeconds(vitesseDeRechargement);
-            float p2x = transform.position.x;
-            float p2z = transform.position.z;
-            float rx = p2x-p1x;
-            if (rx <0) rx = rx*(-1);
-            float rz = p2z-p1z;
-            if (rz <0) rz = rz*(-1);
-            float rt = 0;
-            if (rz > rx) rt = rz;
-            else rt = rx;
-            animator.SetFloat("vitesse",rt);
         }
     }
 }

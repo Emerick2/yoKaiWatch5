@@ -25,9 +25,8 @@ public class CrééUnYoKaiMohand : MonoBehaviour
         GameObject modèle = medaliumDictionnaire._instance.dictionnaire[id].yoKai;
         monYoKai = Instantiate(modèle);
         monYoKai.AddComponent<MouvementMohand>();
-        new ServantBoxCollider3D().CreateBoxCollider(taux, monYoKai);
+        new ServantBoxCollider3D().CreateBoxCollider(taux, monYoKai,true);
         monYoKai.transform.tag = "Player";
-
     }
 
     void Update()

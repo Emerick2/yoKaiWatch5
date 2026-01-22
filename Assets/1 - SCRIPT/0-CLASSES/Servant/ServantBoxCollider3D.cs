@@ -2,7 +2,11 @@ using UnityEngine;
 
 [System.Serializable]
 public class ServantBoxCollider3D {
-    public void CreateBoxCollider(float bonus, GameObject objet) {
+    public void CreateBoxCollider(float bonus, GameObject objet, bool solide) {
+        if (objet == null){
+            Debug.LogWarning("Ont à essayer de créé un collider sur un gameObject vide !");
+            return;
+        }
         Renderer[] renderers = objet.GetComponentsInChildren<Renderer>();
 
         if (renderers.Length == 0) {
@@ -10,23 +14,18 @@ public class ServantBoxCollider3D {
             return;
         }
 
-        // 1. Calculer les bounds globales
         Bounds bounds = renderers[0].bounds;
         for (int i = 1; i < renderers.Length; i++) {
             bounds.Encapsulate(renderers[i].bounds);
         }
 
-        // 2. Récupérer ou ajouter le BoxCollider
         BoxCollider bc = objet.GetComponent<BoxCollider>();
         if (bc == null) {
             bc = objet.AddComponent<BoxCollider>();
         }
 
-        // 3. Positionnement du centre (Conversion World -> Local)
         bc.center = objet.transform.InverseTransformPoint(bounds.center);
 
-        // 4. Calcul de la taille locale
-        // On divise la taille du monde par le scale global pour obtenir la taille locale
         Vector3 worldSize = bounds.size;
         Vector3 localScale = objet.transform.lossyScale;
 
@@ -34,10 +33,21 @@ public class ServantBoxCollider3D {
         float localY = worldSize.y / localScale.y;
         float localZ = worldSize.z / localScale.z;
 
-        // 5. Application du bonus et assignation
         bc.size = new Vector3(localX + bonus, localY, localZ + bonus);
         
-        bc.isTrigger = true;
+        bc.isTrigger = !solide;
+    }
+
+    public void CreateACopieOfAColliderWithABonus(float bonus, GameObject objet, BoxCollider colliderToDuplicate, bool solide) {
+        BoxCollider bc = objet.GetComponent<BoxCollider>();
+        if (bc == null) bc = objet.AddComponent<BoxCollider>();
+
+        if (colliderToDuplicate != null) {
+            bc.center = colliderToDuplicate.center;
+            Vector3 baseSize = colliderToDuplicate.size;
+            bc.size = new Vector3(baseSize.x + bonus, baseSize.y, baseSize.z + bonus);
+            bc.isTrigger = !solide;
+        }
     }
 }
 
