@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,12 +21,17 @@ public class ServantGrille{
     private RectTransform rtMasque;
     private bool start = false;
     private int marge = 1;
+    private MonoBehaviour runner;
+    private Coroutine coroutineMouvement;
     private Func<GameObject, GameObject, int, GameObject> maFonctionDePlacement;
-    public void Initialisation(int numberOfItems, GameObject conteneur2, RectTransform rtMasque2, Func<GameObject, GameObject, int, GameObject> laFonction){
+    private Func<GameObject> appllerAuChangemantDePosition;
+    public void Initialisation(int numberOfItems, GameObject conteneur2, RectTransform rtMasque2, Func<GameObject, GameObject, int, GameObject> laFonction, MonoBehaviour runner2, Func<GameObject> appllerAuChangemantDePosition2){
         conteneur = conteneur2;
         position = new Vector2(0,0);
         rtMasque = rtMasque2;
         maFonctionDePlacement = laFonction;
+        runner = runner2;
+        appllerAuChangemantDePosition = appllerAuChangemantDePosition2;
         grid = conteneur.GetComponent<GridLayoutGroup>();
         rt = conteneur.GetComponent<RectTransform>();
         rt.pivot = new Vector2(1, 1); // le pivot du conteneur est en haut (1) à gauche (0).
@@ -113,26 +119,34 @@ public class ServantGrille{
         }
     }
 
-    public bool Update(){// cette Update doit être appeller dans l'Update.
-        if (!start) return false;
+    public void Update(){
+        if (!start) return;
         if (Input.GetButtonDown("left")){
             position.x--;
             ChangePosition();
-            return true;
+            if (coroutineMouvement != null) runner.StopCoroutine(coroutineMouvement);
+            coroutineMouvement = runner.StartCoroutine(Bouge(new Vector2(-1,0)));
         } else if (Input.GetButtonDown("right")){
             position.x++;
             ChangePosition();
-            return true;
+            if (coroutineMouvement != null) runner.StopCoroutine(coroutineMouvement);
+            coroutineMouvement = runner.StartCoroutine(Bouge(new Vector2(1,0)));
         } else if (Input.GetButtonDown("down")){
             position.y++;
             ChangePosition();
-            return true;
+            if (coroutineMouvement != null) runner.StopCoroutine(coroutineMouvement);
+            coroutineMouvement = runner.StartCoroutine(Bouge(new Vector2(0,1)));
         } else if (Input.GetButtonDown("up")){
             position.y--;
             ChangePosition();
-            return true;
+            if (coroutineMouvement != null) runner.StopCoroutine(coroutineMouvement);
+            coroutineMouvement = runner.StartCoroutine(Bouge(new Vector2(0,-1)));
+        } else if (Input.GetButtonUp("up") || Input.GetButtonUp("down") || Input.GetButtonUp("left") || Input.GetButtonUp("right")) {
+            if (coroutineMouvement != null){
+                runner.StopCoroutine(coroutineMouvement);
+                coroutineMouvement = null;
+            }
         }
-        return false;
     }
 
     private void ChangePosition(){
@@ -167,6 +181,7 @@ public class ServantGrille{
             bool laCible = i == position.y * maxInHorizontale + position.x;
             gameObjectInTheBlock[i].GetComponent<Image>().enabled = laCible;
         }
+        appllerAuChangemantDePosition();
         ChangeHeightBlock(mandatoryChange);
     }
 
@@ -216,5 +231,16 @@ public class ServantGrille{
 
     public int MyPosition(){
         return (int)position.y * maxVisibleInHorizontale + (int)position.x;
+    }
+
+    IEnumerator Bouge(Vector2 pos){
+        yield return new WaitForSeconds(1f);
+        while (true){
+            Debug.Log(position);
+            position+=pos;
+            Debug.Log(position);
+            ChangePosition();  
+            yield return new WaitForSeconds(0.3f);
+        }
     }
 }

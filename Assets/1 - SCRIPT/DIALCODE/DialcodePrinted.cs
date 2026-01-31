@@ -259,6 +259,7 @@ public class DialcodePrinted : MonoBehaviour{
     /// <param name="nom">le nom de l'élément (facultatif)</param>
     /// <param name="dansUnDialogue">c'est sur true si sa fait partie d'un dialogue</param>
     public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false){
+        canvasGroup.alpha = 1f;
         if (quantitée <= 0) quantitée = 1;
         if (typeObjet == CatégorieItem.Nouriture){
             nom = Item._instance.listeDesNouritures[IdÉlément].nom;

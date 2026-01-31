@@ -59,8 +59,6 @@ public class medaliumDictionnaire : MonoBehaviour{
                         break;
                     }
                 }
-            } else {
-                Debug.Log("Le yo-kai était null");
             }
         }
         chargementFini = true;
