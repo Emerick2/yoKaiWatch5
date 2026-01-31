@@ -405,7 +405,7 @@ public class DialcodePrinted : MonoBehaviour{
         canvasGroup.blocksRaycasts = true;
         peutCliquer = true;
     }
-    void Fermeture(bool rapide){
+    public void Fermeture(bool rapide){
         boiteFermer = true;
         if (rapide){
             canvasGroup.alpha = 0f;
