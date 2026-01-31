@@ -4,5 +4,9 @@ public enum CatégorieItem{
     Animal,
     Equipement,
     Ame,
-    ObjetClef
+    ObjetClef,
+    Tous,
+    YoKai,
+    Filet,
+    CanneAPeche
 }

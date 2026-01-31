@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[System.Serializable]
+[System.Serializable] 
 public class ServantImage{
     public Sprite ReadImage_Rang(Rang rang){
         string sentence = "servantImage/image (22)";
@@ -109,6 +109,50 @@ public class ServantImage{
         }
     }
 
+    public Sprite ReadImage_TypeItem(CatégorieItem element){
+        string sentence = "servantImage/image (37)";
+        switch (element){
+            case CatégorieItem.Tous :
+                return FindImage(sentence+"_0");
+            case CatégorieItem.Nouriture :
+                return FindImage(sentence+"_1");
+            case CatégorieItem.Objet :
+                return FindImage(sentence+"_2");
+            case CatégorieItem.Animal :
+                return FindImage(sentence+"_3");
+            case CatégorieItem.Equipement :
+                return FindImage(sentence+"_4");
+            case CatégorieItem.Ame :
+                return FindImage(sentence+"_5");
+            case CatégorieItem.YoKai :
+                return FindImage(sentence+"_6");
+            case CatégorieItem.Filet :
+                return FindImage(sentence+"_7");
+            case CatégorieItem.CanneAPeche :
+                return FindImage(sentence+"_8");
+            case CatégorieItem.ObjetClef :
+                return FindImage(sentence+"_9");
+            default :
+                return null;
+        }
+    }
+
+    public Sprite ReadImage_LR(string element){
+        string sentence = "servantImage/échange yokai";
+        switch (element) {
+            case "L" :
+                return FindImage(sentence+"_18");
+            case "notL" :
+                return FindImage(sentence+"_19");
+            case "R" :
+                return FindImage(sentence+"_21");
+            case "notR" :
+                return FindImage(sentence+"_22");
+            default :
+                return null;
+        }
+    }
+            
     private Sprite FindImageNoMultiple(string file){
         Debug.Log(file);
         return Resources.Load<Sprite>(file);
