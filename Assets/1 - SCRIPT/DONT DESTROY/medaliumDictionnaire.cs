@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
+using System.Linq;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 
@@ -62,6 +63,32 @@ public class medaliumDictionnaire : MonoBehaviour{
             }
         }
         chargementFini = true;
+
+        // Pour connaitre le nom des modèles 3D :
+        bool debug = false;
+        if (debug){
+            string texte = "[";
+            foreach (MedaliumNonPersonel item in dictionnaire){
+                string name = "";
+                GameObject model = item.yoKai;
+                if (model != null){
+                    Transform enfantNom = model.transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
+                    if (enfantNom != null) {
+                        name = enfantNom.name;
+                    } else {
+                        name = model.name;
+                    }
+                    name = name.Replace("²","");
+                    name = name.Replace("!","");
+                    name = name.Replace("(Clone)","");
+                    name = name.Replace("_mod","");
+                    name = name.Substring(4); // Retire "nom:"
+                }
+                texte += "\""+name+"\",";
+            }
+            texte+="]";
+            Debug.Log(texte);
+        }
     }
 
     public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
