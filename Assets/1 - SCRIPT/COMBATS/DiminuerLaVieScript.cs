@@ -69,8 +69,8 @@ public class DiminuerLaVieScript : MonoBehaviour{
         float correction = CalculerCorrection(attaquant, typeAttaque, TousLesYoKaiSurRoue(attaquant.estUnAmi,ordreDePassage));
         int rollStep = Random.Range(0, 21);
         float rouleau = 0.90f + rollStep / 100f;
-        MedaliumNonPersonel dataAttaquant = medaliumDictionnaire._instance.dictionnaire[attaquant.ID];
-        MedaliumNonPersonel dataCible = medaliumDictionnaire._instance.dictionnaire[attaquant.ID];
+        MedaliumNonPersonel dataAttaquant = medaliumDictionnaire._instance.ServantYoKai(attaquant.ID);
+        MedaliumNonPersonel dataCible = medaliumDictionnaire._instance.ServantYoKai(attaquant.ID);
         float faiblesseOuRésistance = CalculerMultiplicateurElementaire(dataAttaquant.technique, typeAttaque == TypeAttaque.Physique, dataCible);
         float multiplicateurDeCompétance = 1;
         float gardeEnnemie = cible.garde;

@@ -42,15 +42,15 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
         }
         ID--;
         composant.IDduYoKaiPrésent = ID;
-        if (médalium == null || médalium.dictionnaire == null){
+        if (médalium == null){
             Debug.LogError("médalium ou médalium.dictionnaire est null !");
             return;
         }
-        if (ID < 0 || ID >= médalium.dictionnaire.Count) {
+        if (ID < 0 || ID >= médalium.MAX) {
             Debug.LogError("ID hors limites : " + ID);
             return;
         }
-        Rang r = médalium.dictionnaire[ID].rang;
+        Rang r = médalium.ServantYoKai(ID).rang;
         composant.rang = r;
         composant.niveauDuYoKaiPrésent = Random.Range(yoKaiRandom.niveauMinimum, yoKaiRandom.niveauMaximum);
     }

@@ -74,12 +74,12 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
 
     void PlacerUnYoKai(ListeDeMesYoKai yoKai, GameObject blocDePostionUI){
         blocDePostionUI.SetActive(true);
-        MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.dictionnaire[yoKai.ID];
+        MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.ServantYoKai(yoKai.ID);
 
         blocDePostionUI.transform.Find("bloc image/médaillon").gameObject.GetComponent<Image>().sprite=informationGénéral.médaillon;
         blocDePostionUI.transform.Find("Niveau").gameObject.GetComponent<TextMeshProUGUI>().text=yoKai.niveau.ToString();
         blocDePostionUI.transform.Find("bloc nom/nom").gameObject.GetComponent<TextMeshProUGUI>().text=yoKai.surnom;
-        blocDePostionUI.transform.Find("bloc info/nombre max vie").gameObject.GetComponent<TextMeshProUGUI>().text=(informationGénéral.vie*yoKai.niveau).ToString();
+        blocDePostionUI.transform.Find("bloc info/nombre max vie").gameObject.GetComponent<TextMeshProUGUI>().text=(informationGénéral.PV*yoKai.niveau).ToString();
         blocDePostionUI.transform.Find("tribue").gameObject.GetComponent<Image>().sprite=new ServantImage().ReadImage_Tribue(informationGénéral.tribue);
     }
 

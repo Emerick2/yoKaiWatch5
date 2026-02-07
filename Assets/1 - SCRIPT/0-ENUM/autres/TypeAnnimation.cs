@@ -1,0 +1,23 @@
+public enum TypeAnnimation {
+    Neutre,
+    Courir,
+    Marche,
+    Coup,
+    Amultime1,
+    Amultime2,
+    Attaque,
+    Parle,
+    Relever,
+    feter,
+    Fatiguer,
+    Assis,
+    CrisDeVictoire,
+    LeverLePied,
+    Deffance,
+    DeffanceAccrue,
+    EnvoieAmultime,
+    DanseDeVictoire,
+    Heureu,
+    Mort1,
+    Mort2
+}

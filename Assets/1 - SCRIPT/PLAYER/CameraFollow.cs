@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public int pX;
-    public int pY=3;
-    public int pZ=7;
+    public float pX;
+    public float pY=3;
+    public float pZ=7;
     private Vector3 offset = new Vector3(0f, 0f, -10f);
     public float smoothTime = 0.25f;
     private Vector3 velocity = Vector3.zero;
@@ -12,7 +12,7 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Transform target;
 
     private void Update(){
-        Vector3 targetPosition = target.position + offset;
+        Vector3 targetPosition = target.position;
         targetPosition.x += pX;
         targetPosition.y += pY;
         targetPosition.z += pZ;

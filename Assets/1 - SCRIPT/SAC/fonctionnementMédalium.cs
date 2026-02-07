@@ -27,10 +27,10 @@ public class fonctionnementMédalium : MonoBehaviour{
 
         if (cesLeMédalium){
             int i=1;
-            foreach (MedaliumNonPersonel item in médailum.dictionnaire){
-                lesIdAInséré.Add(i);
-                i++;
-            }
+            // foreach (MedaliumNonPersonel item in médailum.dictionnaire){
+            //     lesIdAInséré.Add(i);
+            //     i++;
+            // }
         }else{
             foreach (ListeDeMesYoKai item in mesYoKai.maListe){
                 lesIdAInséré.Add(item.ID);
@@ -63,7 +63,7 @@ public class fonctionnementMédalium : MonoBehaviour{
         }
     }
     public MedaliumNonPersonel CeluiSurQuiJeSuis(){
-        return médailum.dictionnaire[lesIdAInséré[IDTotal]];
+        return médailum.ServantYoKai(lesIdAInséré[IDTotal]);
     }
     public int IDDeCeluiSurQuiJeSuis(){
         if (lesIdAInséré.Count > ID){
@@ -140,7 +140,7 @@ public class fonctionnementMédalium : MonoBehaviour{
             espaceDesMédailles[i].transform.Find("numéro").GetComponent<Image>().sprite = imageDesNuméro[i];
             if (lesIdAInséré.Count > IDTotal+i){
                 espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite =  médailum.dictionnaire[lesIdAInséré[IDTotal+i]].médaillon;
+                espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite =  médailum.ServantYoKai(lesIdAInséré[IDTotal+i]).médaillon;
             }else {
                 espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(false);
             }
@@ -153,10 +153,10 @@ public class fonctionnementMédalium : MonoBehaviour{
         if (lesIdAInséré.Count > IDTotal){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.dictionnaire[lesIdAInséré[IDTotal]];
+            MedaliumNonPersonel google = médailum.ServantYoKai(lesIdAInséré[IDTotal]);
             blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
-            blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.nom;
-            if (cesLeMédalium) blocInformatif.transform.Find("description").GetComponent<Text>().text = google.description;
+            blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.Nom;
+            if (cesLeMédalium) blocInformatif.transform.Find("description").GetComponent<Text>().text = google.Description;
 
             blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = new ServantImage().ReadImage_Tribue(google.tribue);
             blocInformatif.transform.Find("rang").GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(google.rang);

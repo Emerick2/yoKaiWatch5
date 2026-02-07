@@ -14,7 +14,7 @@ public class CrééUnYoKaiEmerick : MonoBehaviour{
         while (medaliumDictionnaire._instance.chargementFini == false){
             yield return new WaitForSeconds(0.1f);
         }
-        GameObject modèle = medaliumDictionnaire._instance.dictionnaire[id].yoKai;
+        GameObject modèle = medaliumDictionnaire._instance.ServantYoKai(id).yoKai;
         monYoKai = Instantiate(modèle);
         
     }

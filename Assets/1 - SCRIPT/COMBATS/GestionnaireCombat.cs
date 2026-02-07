@@ -63,17 +63,18 @@ public class GestionnaireCombat : MonoBehaviour{
     }
     void AjouterUnEnnemie(int ID, int niveau){
         StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
-        nouv.gameObjectDeBase = medaliumDictionnaire._instance.dictionnaire[ID].yoKai;
+        MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
+        nouv.gameObjectDeBase = y.yoKai;
         nouv.estUnAmi = false;
         nouv.ID = ID;
-        nouv.nom = medaliumDictionnaire._instance.dictionnaire[ID].nom;
-        nouv.imageMédaillon = medaliumDictionnaire._instance.dictionnaire[ID].médaillon;
-        nouv.vie = medaliumDictionnaire._instance.dictionnaire[ID].vie;
+        nouv.nom = y.Nom;
+        nouv.imageMédaillon = y.médaillon;
+        nouv.vie = y.PV;
         nouv.vieMaximum = nouv.vie;
-        nouv.vitesse= medaliumDictionnaire._instance.dictionnaire[ID].vitesse;
-        nouv.esprit= medaliumDictionnaire._instance.dictionnaire[ID].esprit;
-        nouv.force= medaliumDictionnaire._instance.dictionnaire[ID].force;
-        nouv.défance= medaliumDictionnaire._instance.dictionnaire[ID].défance;
+        nouv.vitesse= y.Vitesse;
+        nouv.esprit= y.Esprit;
+        nouv.force= y.Force;
+        nouv.défance= y.Défense;
         nouv.niveau = niveau;
         nouv.estDevant = true;
         listeYoKaiEnnemieSurLeTerrain.Add(nouv);
@@ -220,19 +221,20 @@ public class GestionnaireCombat : MonoBehaviour{
             int IDspécifique = MesYoKai.Instance.yoKaiDeMonEquipe[i];
             int ID = MesYoKai.Instance.maListe[IDspécifique].ID;
             StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
-            nouv.gameObjectDeBase = medaliumDictionnaire._instance.dictionnaire[ID].yoKai;
+            MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
+            nouv.gameObjectDeBase = y.yoKai;
             nouv.possitionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
             nouv.estUnAmi = true;
             nouv.ID = ID;
             nouv.IDListeYoKai = IDspécifique;//permet de différancier deux Woko par exemple
             nouv.nom = MesYoKai.Instance.maListe[IDspécifique].surnom;
-            nouv.imageMédaillon = medaliumDictionnaire._instance.dictionnaire[ID].médaillon;
-            nouv.vie = medaliumDictionnaire._instance.dictionnaire[ID].vie;
+            nouv.imageMédaillon = y.médaillon;
+            nouv.vie = y.PV;
             nouv.vieMaximum = nouv.vie;
-            nouv.vitesse= medaliumDictionnaire._instance.dictionnaire[ID].vitesse;
-            nouv.esprit= medaliumDictionnaire._instance.dictionnaire[ID].esprit;
-            nouv.force= medaliumDictionnaire._instance.dictionnaire[ID].force;
-            nouv.défance= medaliumDictionnaire._instance.dictionnaire[ID].défance;
+            nouv.vitesse= y.Vitesse;
+            nouv.esprit= y.Esprit;
+            nouv.force= y.Force;
+            nouv.défance= y.Défense;
             nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
             nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
             listeYoKaiAmiSurLeTerrain.Add(nouv);

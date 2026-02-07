@@ -156,8 +156,8 @@ public class DialcodePrinted : MonoBehaviour{
         fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         if (fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai){
-            if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.dictionnaire[fragment.IdÉlément].nom;
-            if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.dictionnaire[fragment.IdÉlément].faceImage;
+            if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
+            if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
         }
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
             if (fragment.quantitée <= 0) fragment.quantitée = 1;

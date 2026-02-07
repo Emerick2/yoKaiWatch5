@@ -18,7 +18,7 @@ public class assignerImageDeYoKai : MonoBehaviour
             for (int i = 0; i < yoKaiDansEquipe.Count; i++){
                 if (i<médaille.Count && i<icôneMédaille.Count){
                     médaille[i].SetActive(true);
-                    icôneMédaille[i].sprite = médailum.dictionnaire[int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))].médaillon;
+                    icôneMédaille[i].sprite = médailum.ServantYoKai(int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))).médaillon;
                 }else{
                     Debug.LogError("Le i est en "+i);
                 }

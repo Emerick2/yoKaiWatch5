@@ -37,11 +37,11 @@ public class ChangementEquipe : MonoBehaviour{
                 continue; // évite le crash
             }
 
-            if (i<espaceImagePourMonEquipe.Count)espaceImagePourMonEquipe[i].sprite = médailum.dictionnaire[mesYoKai.maListe[index].ID].médaillon;
+            if (i<espaceImagePourMonEquipe.Count)espaceImagePourMonEquipe[i].sprite = médailum.ServantYoKai(mesYoKai.maListe[index].ID).médaillon;
             else Debug.LogWarning("Dépassement de la pile i avec un i="+i);
         }
         if (médaliumFonction.IDDeCeluiSurQuiJeSuis() != -1){
-            imageDuYoKaiChoisie.sprite = médailum.dictionnaire[mesYoKai.maListe[médaliumFonction.IDDeCeluiSurQuiJeSuis()].ID].médaillon;
+            imageDuYoKaiChoisie.sprite = médailum.ServantYoKai(mesYoKai.maListe[médaliumFonction.IDDeCeluiSurQuiJeSuis()].ID).médaillon;
             imageDuYoKaiChoisie.gameObject.SetActive(true);
         }else{
             imageDuYoKaiChoisie.gameObject.SetActive(false);

@@ -70,12 +70,12 @@ public class fonctionnementMédaillon : MonoBehaviour{
             if (numéroDeLaPage>1){
                 if (mesYoKai.maListe.Count-1 >= 12*numéroDeLaPage+i){
                     espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.dictionnaire[mesYoKai.maListe[(12*numéroDeLaPage)+i].ID].médaillon;
+                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.ServantYoKai(mesYoKai.maListe[(12*numéroDeLaPage)+i].ID).médaillon;
                 }
             }else{
                 if (mesYoKai.maListe.Count-1 >= i){
                     espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.dictionnaire[mesYoKai.maListe[i].ID].médaillon;
+                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.ServantYoKai(mesYoKai.maListe[i].ID).médaillon;
                 }
             }
         }
@@ -87,9 +87,9 @@ public class fonctionnementMédaillon : MonoBehaviour{
         if (mesYoKai.maListe.Count > ID){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.dictionnaire[mesYoKai.maListe[ID].ID]; 
+            MedaliumNonPersonel google = médailum.ServantYoKai(mesYoKai.maListe[ID].ID); 
             if (numéroDeLaPage > 1  && médailum.dictionnaire.Count > (12*numéroDeLaPage)+ID-1){
-                google = médailum.dictionnaire[mesYoKai.maListe[(12*numéroDeLaPage)+ID-1].ID]; 
+                google = médailum.ServantYoKai(mesYoKai.maListe[(12*numéroDeLaPage)+ID-1].ID); 
             }
             blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
             blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.nom;
@@ -235,12 +235,12 @@ public class fonctionnementMédaillon : MonoBehaviour{
             if (numéroDeLaPage>1){
                 if (mesYoKai.maListe.Count-1 >= 12*numéroDeLaPage+i){
                     espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.dictionnaire[mesYoKai.maListe[(12*numéroDeLaPage)+i].ID].médaillon;
+                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.ServantYoKai(mesYoKai.maListe[(12*numéroDeLaPage)+i].ID).médaillon;
                 }
             }else{
                 if (mesYoKai.maListe.Count-1 >= i){
                     espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.dictionnaire[mesYoKai.maListe[i].ID].médaillon;
+                    espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite = médailum.ServantYoKai(mesYoKai.maListe[i].ID).médaillon;
                 }
             }
         }
@@ -252,12 +252,12 @@ public class fonctionnementMédaillon : MonoBehaviour{
         if (mesYoKai.maListe.Count > ID){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.dictionnaire[mesYoKai.maListe[ID].ID]; 
-            if (numéroDeLaPage > 1  && médailum.dictionnaire.Count > (12*numéroDeLaPage)+ID-1){
-                google = médailum.dictionnaire[mesYoKai.maListe[(12*numéroDeLaPage)+ID-1].ID]; 
+            MedaliumNonPersonel google = médailum.ServantYoKai(mesYoKai.maListe[ID].ID); 
+            if (numéroDeLaPage > 1  && médailum.MAX > (12*numéroDeLaPage)+ID-1){
+                google = médailum.ServantYoKai(mesYoKai.maListe[(12*numéroDeLaPage)+ID-1].ID); 
             }
             blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
-            blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.nom;
+            blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.Nom;
             
             blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = new ServantImage().ReadImage_Tribue(google.tribue);
             blocInformatif.transform.Find("rang").GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(google.rang);

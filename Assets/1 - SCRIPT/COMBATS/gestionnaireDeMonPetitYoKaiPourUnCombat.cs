@@ -62,29 +62,29 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
     }
     void OuvrirLeYoKai(){
         //yo-kai en général :
-        if (IDduYoKaiMedalium < 0 || IDduYoKaiMedalium >= MedaliumDictionnaire.dictionnaire.Count){
+        if (IDduYoKaiMedalium < 0 || IDduYoKaiMedalium >= MedaliumDictionnaire.MAX){
             Debug.LogError("Index hors limites ! IDduYoKaiMedalium = " + IDduYoKaiMedalium);
         }
-        MedaliumNonPersonel mimi = MedaliumDictionnaire.dictionnaire[IDduYoKaiMedalium];
+        MedaliumNonPersonel mimi = MedaliumDictionnaire.ServantYoKai(IDduYoKaiMedalium);
         if (IDduYoKaiSpécifique!=-1){
-            nom = mimi.nom.ToString();
+            nom = mimi.Nom.ToString();
         }else {
-            nom=mimi.nom.ToString();
+            nom=mimi.Nom.ToString();
         }
         yoKai = mimi.yoKai;
         tribue = mimi.tribue.ToString();
         rang = mimi.rang.ToString();
-        description = mimi.description.ToString();
+        description = mimi.Description.ToString();
         personalité = mimi.personalité.ToString();
         talent = mimi.talent.ToString();
         technique = mimi.technique.ToString();
         platPréféré = mimi.platPréféré.ToString();
         type = mimi.type.ToString();
         envoutement = mimi.envoutement.ToString();
-        dégatInfligé = mimi.force;
-        vitesse = mimi.vitesse;
-        esprit = mimi.esprit;
-        pointDeVie = mimi.vie;
+        dégatInfligé = mimi.Force;
+        vitesse = mimi.Vitesse;
+        esprit = mimi.Esprit;
+        pointDeVie = mimi.PV;
         /*
         nomDeAmultime = mimi.amultime.nomDeAmultime.ToString();
         multiplicationDeLaPuissance = mimi.amultime.multiplicationDeLaPuissance;

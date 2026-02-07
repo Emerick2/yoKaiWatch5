@@ -1,19 +1,22 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class AutoColliderGenerator : MonoBehaviour
-{
+public class AutoColliderGenerator : MonoBehaviour{
+    public List<SkinnedMeshRenderer> listeOfSkinnedMeshesIgnore = new List<SkinnedMeshRenderer>();
     void Start()
     {
         AddColliders();
     }
 
-    void AddColliders()
+    public void AddColliders()
     {
         SkinnedMeshRenderer[] skinnedMeshes = GetComponentsInChildren<SkinnedMeshRenderer>();
         int addedCount = 0;
 
-        foreach (SkinnedMeshRenderer smr in skinnedMeshes)
-        {
+        foreach (SkinnedMeshRenderer smr in skinnedMeshes){
+            if (listeOfSkinnedMeshesIgnore.Contains(smr)){
+                continue;
+            }
             if (smr.sharedMesh == null)
             {
                 Debug.LogWarning($"Pas de mesh sur {smr.gameObject.name}, skip.");

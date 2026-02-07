@@ -65,11 +65,11 @@ public class BingoKai : MonoBehaviour{
                 NewDataCenter.Instance.SauvegarderINT(cadeauObjet,1);
             }
         }else{
-            MedaliumNonPersonel leYoKai = medaliumDictionnaire._instance.dictionnaire[cadeauYoKai];
+            MedaliumNonPersonel leYoKai = medaliumDictionnaire._instance.ServantYoKai(cadeauYoKai);
             TV = Instantiate(leYoKai.yoKai);
             TV.transform.position = positionDeUnModèle3D.position;
 
-            MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", leYoKai.nom);
+            MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", leYoKai.Nom);
         }
         autorisationDeContinuer2 = true;
     }

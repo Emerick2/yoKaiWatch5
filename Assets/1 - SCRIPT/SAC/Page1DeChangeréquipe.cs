@@ -16,7 +16,7 @@ public class Page1DeChangeréquipe : MonoBehaviour{
     void Initialisation(){
         cible=0;
         ChangerChoie();
-        espacesNombres.text = MesYoKai.Instance.maListe.Count.ToString()+" / "+medaliumDictionnaire._instance.dictionnaire.Count.ToString();
+        espacesNombres.text = MesYoKai.Instance.maListe.Count.ToString()+" / "+medaliumDictionnaire._instance.MAX.ToString();
     }
 
     void Update(){

@@ -6,17 +6,19 @@ using System.ComponentModel;
 using UnityEngine.UI;
 using System.Reflection;
 using System.Linq;
+using Newtonsoft.Json;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
-
+// Je vais changer se script pour qu'il charge petit à petit les yo-kai et non plus tout d'un coup
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
     public Sprite imageDeUneMédailleInconnue;
 
     /*[HideInInspector]*/
-    public List<MedaliumNonPersonel> dictionnaire;
+    [SerializeField] private List<MedaliumNonPersonel> dictionnaire;
 
-    public bool chargementFini = false;
+    public bool chargementFini = true;
+    public int MAX = 905;
     
     public GameObject AvoirLeGameObject(){
         return gameObject;
@@ -31,65 +33,183 @@ public class medaliumDictionnaire : MonoBehaviour{
             Destroy(gameObject);
         }
     }
-    void Start(){
-        int i = 0;
+    
+    // void Start(){
+    //     ServantYoKai(7);
+    //     InstantiateYoKai("7");
+    // }
+
+    // void Start(){
+    //     int i = 0;
+    //     foreach (MedaliumNonPersonel item in dictionnaire){
+    //         if (item.médaillon == null){
+    //             item.médaillon = imageDeUneMédailleInconnue;
+    //         }
+            
+    //         //inversion squellette et description :
+    //         string t = item.nomDeMonSquellette;
+    //         item.nomDeMonSquellette = item.description;
+    //         item.description = t;
+            
+    //         item.monElement = ObtenirElementDeLaTechnique(item.technique);
+
+    //         item.faceImage = Resources.Load<Sprite>("PuniArt/"+i);
+    //         i++;
+
+    //         string nom = "";
+    //         if (item.yoKai != null){
+    //             foreach (Transform obj in item.yoKai.transform){
+    //                 if (obj.name[0]=='n'&&obj.name[1]=='o'&&obj.name[2]=='m'&&obj.name[3]==':'){
+    //                     nom = obj.name;
+    //                     nom = nom.Replace("nom:","");
+    //                     nom = nom.Replace("_p00","");
+    //                     nom = nom.Replace("_mod","");
+    //                     item.faceRondImage = Resources.Load<Sprite>("Face icon/"+nom+".xi.00");
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     chargementFini = true;
+
+    //     // Pour connaitre le nom des modèles 3D :
+    //     bool debug = false;
+    //     if (debug){
+    //         string texte = "[";
+    //         foreach (MedaliumNonPersonel item in dictionnaire){
+    //             string name = "";
+    //             GameObject model = item.yoKai;
+    //             if (model != null){
+    //                 Transform enfantNom = model.transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
+    //                 if (enfantNom != null) {
+    //                     name = enfantNom.name;
+    //                 } else {
+    //                     name = model.name;
+    //                 }
+    //                 name = name.Replace("²","");
+    //                 name = name.Replace("!","");
+    //                 name = name.Replace("(Clone)","");
+    //                 name = name.Replace("_mod","");
+    //                 name = name.Substring(4); // Retire "nom:"
+    //             }
+    //             texte += "\""+name+"\",";
+    //         }
+    //         texte+="]";
+    //         Debug.Log(texte);
+    //     }
+    // }
+
+   public MedaliumNonPersonel ServantYoKai(int ID) {
         foreach (MedaliumNonPersonel item in dictionnaire){
-            if (item.médaillon == null){
-                item.médaillon = imageDeUneMédailleInconnue;
-            }
-            
-            //inversion squellette et description :
-            string t = item.nomDeMonSquellette;
-            item.nomDeMonSquellette = item.description;
-            item.description = t;
-            
-            item.monElement = ObtenirElementDeLaTechnique(item.technique);
-
-            item.faceImage = Resources.Load<Sprite>("PuniArt/"+i);
-            i++;
-
-            string nom = "";
-            if (item.yoKai != null){
-                foreach (Transform obj in item.yoKai.transform){
-                    if (obj.name[0]=='n'&&obj.name[1]=='o'&&obj.name[2]=='m'&&obj.name[3]==':'){
-                        nom = obj.name;
-                        nom = nom.Replace("nom:","");
-                        nom = nom.Replace("_p00","");
-                        nom = nom.Replace("_mod","");
-                        item.faceRondImage = Resources.Load<Sprite>("Face icon/"+nom+".xi.00");
-                        break;
-                    }
-                }
+            if (item.ID == ID){
+                return item;
             }
         }
-        chargementFini = true;
+        TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/yokai_data/" + ID.ToString());
 
-        // Pour connaitre le nom des modèles 3D :
-        bool debug = false;
-        if (debug){
-            string texte = "[";
-            foreach (MedaliumNonPersonel item in dictionnaire){
-                string name = "";
-                GameObject model = item.yoKai;
-                if (model != null){
-                    Transform enfantNom = model.transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
-                    if (enfantNom != null) {
-                        name = enfantNom.name;
-                    } else {
-                        name = model.name;
-                    }
-                    name = name.Replace("²","");
-                    name = name.Replace("!","");
-                    name = name.Replace("(Clone)","");
-                    name = name.Replace("_mod","");
-                    name = name.Substring(4); // Retire "nom:"
-                }
-                texte += "\""+name+"\",";
-            }
-            texte+="]";
-            Debug.Log(texte);
+        if (targetFile != null) {
+            MedaliumNonPersonel yoKai = JsonUtility.FromJson<MedaliumNonPersonel>(targetFile.text);
+            yoKai.ID = ID;
+            yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/data/picture/" + ID.ToString());
+            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/data/face/" + ID.ToString());
+            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/data/face/" + ID.ToString());
+            yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/data/song/" + ID.ToString());
+            Debug.Log("Le nom du Yo-Kai est : " + yoKai.Nom);
+            dictionnaire.Add(yoKai);
+        
+            return yoKai;
+        } else {
+            Debug.LogError("Fichier JSON introuvable pour l'ID : " + ID);
+            return null;
         }
     }
+
+    public GameObject InstantiateYoKai(string ID){
+        TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
+
+        if (targetFile != null) {
+            var allData = JsonConvert.DeserializeObject<Dictionary<string, Yokai_assets_mapping>>(targetFile.text);
+            Debug.Log(allData.Count);
+
+            if (allData.ContainsKey(ID)) {
+                Yokai_assets_mapping map = allData[ID];
+                GameObject modelFile = Resources.Load<GameObject>("yo-kai-API/data/_3D/models/"+map.modelFile.Replace(".fbx",""));
+                List<Sprite> textureFiles = new List<Sprite>();
+                foreach (string item in map.textureFiles){
+                    textureFiles.Add(Resources.Load<Sprite>("yo-kai-API/data/_3D/textures/"+item.Replace(".png","")));
+                }
+                GameObject TV = Instantiate(modelFile);
+
+
+                Renderer renderer = TV.GetComponentInChildren<Renderer>();
+                if (renderer != null && map.textureFiles.Length > 0) {
+                    
+                    // On crée un tableau de matériaux basé sur le nombre de textures
+                    Material[] mats = renderer.materials;
+
+                    for (int i = 0; i < map.textureFiles.Length; i++) {
+                        if (i >= mats.Length) break; // Sécurité si plus de textures que de slots
+
+                        // On charge en Texture2D (pas en Sprite !)
+                        string texPath = "yo-kai-API/data/_3D/textures/" + map.textureFiles[i].Replace(".png", "");
+                        Texture2D tex = Resources.Load<Texture2D>(texPath);
+
+                        if (tex != null) {
+                            mats[i].mainTexture = tex;
+                        }
+                    }
+                    
+                    // Très important : Réassigner le tableau de matériaux
+                    renderer.materials = mats;
+                }
+
+                return TV;
+            } else {
+                Debug.Log("Modèle non trouvé");
+            }
+        }
+        return null;
+    }
+
+    // public GameObject InstantiateYoKai(string ID) {
+    //     // 1. Récupérer les données (via ta méthode Newtonsoft ou autre)
+    //     // Yokai_assets_mapping map = ...
+
+    //     // 2. Charger le modèle
+    //     // Attention : Resources.Load ne veut pas de l'extension ".fbx"
+    //     string modelPath = "yo-kai-API/data/_3D/models/" + map.modelFile.Replace(".fbx", "");
+    //     GameObject modelPrefab = Resources.Load<GameObject>(modelPath);
+
+    //     if (modelPrefab == null) return null;
+
+    //     // 3. Instancier le modèle
+    //     GameObject TV = Instantiate(modelPrefab);
+
+    //     // 4. Appliquer les textures
+    //     Renderer renderer = TV.GetComponentInChildren<Renderer>();
+    //     if (renderer != null && map.textureFiles.Length > 0) {
+            
+    //         // On crée un tableau de matériaux basé sur le nombre de textures
+    //         Material[] mats = renderer.materials;
+
+    //         for (int i = 0; i < map.textureFiles.Length; i++) {
+    //             if (i >= mats.Length) break; // Sécurité si plus de textures que de slots
+
+    //             // On charge en Texture2D (pas en Sprite !)
+    //             string texPath = "yo-kai-API/data/_3D/textures/" + map.textureFiles[i].Replace(".png", "");
+    //             Texture2D tex = Resources.Load<Texture2D>(texPath);
+
+    //             if (tex != null) {
+    //                 mats[i].mainTexture = tex;
+    //             }
+    //         }
+            
+    //         // Très important : Réassigner le tableau de matériaux
+    //         renderer.materials = mats;
+    //     }
+
+    //     return TV;
+    // }
 
     public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
         nomDeLaTribue = nomDeLaTribue.ToLower();
@@ -162,13 +282,20 @@ public class medaliumDictionnaire : MonoBehaviour{
 }
 
 [System.Serializable]
+public class Yokai_assets_mapping{
+    public string modelFile;
+    public string[] textureFiles;
+}
+
+[System.Serializable]
 public class MedaliumNonPersonel{
+    public int ID;
     public Sprite médaillon;
     public Sprite faceImage;
     public Sprite faceRondImage;
     public bool rare;
-    public string nom;
-    public string description;
+    public string Nom;
+    public string Description;
     public GameObject yoKai;
     public Tribue tribue;
     public Rang rang;
@@ -179,17 +306,18 @@ public class MedaliumNonPersonel{
     public Type type;
     public Ammultime amultime;
     public Envoutement envoutement;
-    public int force;
-    public int vitesse;
-    public int esprit;
-    public int défance;// IL faut le rensaigner dans le CSV
-    public int vie;
+    public int Force;
+    public int Vitesse;
+    public int Esprit;
+    public int Défense;// IL faut le rensaigner dans le CSV
+    public int PV;
     public string nomDeMonSquellette;
 
     [Header("Affinités Élémentaires")]
     public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)
     public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
     public Element monElement;
+    public AudioClip Bruit;
 }
 public static class EnumExtensions{
     public static string GetDescription(this Enum value){

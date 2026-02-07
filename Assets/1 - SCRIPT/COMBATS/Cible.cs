@@ -71,9 +71,9 @@ public class Cible : MonoBehaviour{
                 imageEstUnAmi.sprite = nonIlEstPasUnAmi;
             }
             imageEstUnAmi.transform.localScale = new Vector3(1,1,1);
-            texteAlliment.text = medaliumDictionnaire._instance.dictionnaire[gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID].platPréféré.ToString();
+            texteAlliment.text = medaliumDictionnaire._instance.ServantYoKai(gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID).platPréféré.ToString();
 
-            imageElement.sprite = new ServantImage().ReadImage_Element(medaliumDictionnaire._instance.dictionnaire[gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID].monElement);
+            imageElement.sprite = new ServantImage().ReadImage_Element(medaliumDictionnaire._instance.ServantYoKai(gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID).monElement);
             imageElement.transform.localScale = new Vector3(1,1,1);
 
             imageElement.gameObject.SetActive(true);

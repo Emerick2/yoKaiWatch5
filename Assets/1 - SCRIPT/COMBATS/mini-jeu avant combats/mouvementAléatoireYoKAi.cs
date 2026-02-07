@@ -17,7 +17,7 @@ public class mouvementAléatoireYoKAi : MonoBehaviour{
     void Start(){            
         MedaliumDictionnaire = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         BaladeDeCombat livraison = FindObjectOfType<BaladeDeCombat>();
-        GameObject TV = Instantiate(MedaliumDictionnaire.dictionnaire[livraison.listeYoKai[0].ID].yoKai);
+        GameObject TV = Instantiate(MedaliumDictionnaire.ServantYoKai(livraison.listeYoKai[0].ID).yoKai);
         
         TV.transform.localScale = new Vector3(200,200,200);
         TV.transform.parent = transform;

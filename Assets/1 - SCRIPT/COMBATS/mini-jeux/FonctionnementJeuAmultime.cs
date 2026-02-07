@@ -47,7 +47,7 @@ public class FonctionnementJeuAmultime : MonoBehaviour{
 
 
     public void UtilisationAmultime(){
-        MedaliumNonPersonel yoKai = medaliumDictionnaire._instance.dictionnaire[MesYoKai.Instance.maListe[identifiantDansMesYoKaiDuJoueur].ID];
+        MedaliumNonPersonel yoKai = medaliumDictionnaire._instance.ServantYoKai(MesYoKai.Instance.maListe[identifiantDansMesYoKaiDuJoueur].ID);
         GameObject TV = Instantiate(yoKai.yoKai);
         TV.transform.position = positionCibleAmultime.position;
         TV.transform.rotation = positionCibleAmultime.rotation;

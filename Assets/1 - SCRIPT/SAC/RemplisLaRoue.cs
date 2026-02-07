@@ -339,7 +339,7 @@ public class RemplisLaRoue : MonoBehaviour{
 
             if (estUnYoKai){ 
                 lesMédaillon[i].GetComponent<Image>().enabled = true;
-                lesMédaillon[i].GetComponent<Image>().sprite = medaliumDictionnaire._instance.dictionnaire[MesYoKai.Instance.maListe[positionCible].ID].médaillon;
+                lesMédaillon[i].GetComponent<Image>().sprite = medaliumDictionnaire._instance.ServantYoKai(MesYoKai.Instance.maListe[positionCible].ID).médaillon;
             } else {
                 lesMédaillon[i].GetComponent<Image>().enabled = false;
             }
@@ -442,7 +442,7 @@ public class RemplisLaRoue : MonoBehaviour{
         }
         if (estUnYoKai){
             ListeDeMesYoKai informationSpécifique = MesYoKai.Instance.maListe[positionCible];
-            MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.dictionnaire[informationSpécifique.ID];
+            MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
             MettreLesElementInfo(informationSpécifique,informationGénéral);
         } else {
             infoYokaiBandeau.SetActive(false);
@@ -473,10 +473,10 @@ public class RemplisLaRoue : MonoBehaviour{
             // panneauDeInfo.transform.Find("page 3").gameObject.SetActive(false);
             // panneauDeInfo.transform.Find("page/Numéro").gameObject.GetComponent<TextMeshProUGUI>().text = "1 / 3";
             
-            panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.force * informationSpécifique.niveau).ToString();
-            panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.vie * informationSpécifique.niveau).ToString();
-            panneauDeInfo.transform.Find("page 1/esprit/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.esprit * informationSpécifique.niveau).ToString();
-            panneauDeInfo.transform.Find("page 1/vitesse/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.vitesse * informationSpécifique.niveau).ToString();
+            panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Force * informationSpécifique.niveau).ToString();
+            panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.PV * informationSpécifique.niveau).ToString();
+            panneauDeInfo.transform.Find("page 1/esprit/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Esprit * informationSpécifique.niveau).ToString();
+            panneauDeInfo.transform.Find("page 1/vitesse/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Vitesse * informationSpécifique.niveau).ToString();
 
             panneauDeInfo.transform.Find("page 1/Personalité/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.personnalité.ToString();
             panneauDeInfo.transform.Find("page 1/Talent/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationGénéral.talent.ToString();
@@ -507,7 +507,7 @@ public class RemplisLaRoue : MonoBehaviour{
         }
         lesBlocDansLaListeEspaceBlocListeYokai[cible].GetComponent<Image>().color = new Color(1f, 0.5f, 0.5f, 1f);
         ListeDeMesYoKai informationSpécifique = MesYoKai.Instance.maListe[int.Parse(lesBlocDansLaListeEspaceBlocListeYokai[cible].transform.name)];
-        MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.dictionnaire[informationSpécifique.ID];
+        MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
         MettreLesElementInfo(informationSpécifique,informationGénéral);
         PositionDansLaListeDéfilementAutomatiquePage3(direction, forcer);
     }
@@ -556,11 +556,11 @@ public class RemplisLaRoue : MonoBehaviour{
                 break;
             case 2 :
                 espaceTexte.text = "Rang";
-                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => medaliumDictionnaire._instance.dictionnaire[yoKai.ID].rang.ToString()).ToList();
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => medaliumDictionnaire._instance.ServantYoKai(yoKai.ID).rang.ToString()).ToList();
                 break;
             case 3 :
                 espaceTexte.text = "Tribu";
-                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => medaliumDictionnaire._instance.dictionnaire[yoKai.ID].tribue.ToString()).ToList();
+                listeTriée = MesYoKai.Instance.maListe.OrderBy(yoKai => medaliumDictionnaire._instance.ServantYoKai(yoKai.ID).tribue.ToString()).ToList();
                 break;
             case 4 :
                 espaceTexte.text = "Nom";
@@ -582,9 +582,9 @@ public class RemplisLaRoue : MonoBehaviour{
                 TV.transform.parent = espaceBlocListeYokai.transform;
                 TV.transform.localScale = new Vector3(1, 1, 1);
                 TV.transform.Find("dans l'équipe").gameObject.SetActive(EstDansEquipe(listeTriée[i].IDUnique));
-                TV.transform.Find("médaille").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.dictionnaire[listeTriée[i].ID].médaillon;
+                TV.transform.Find("médaille").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.ServantYoKai(listeTriée[i].ID).médaillon;
                 TV.transform.Find("Nom").gameObject.GetComponent<TextMeshProUGUI>().text = listeTriée[i].surnom;
-                TV.transform.Find("rang/Image rang").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(medaliumDictionnaire._instance.dictionnaire[listeTriée[i].ID].rang);
+                TV.transform.Find("rang/Image rang").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(medaliumDictionnaire._instance.ServantYoKai(listeTriée[i].ID).rang);
                 TV.transform.Find("Niveau/nombre text").gameObject.GetComponent<TextMeshProUGUI>().text = listeTriée[i].niveau.ToString();
                 TV.transform.name = listeTriée[i].IDUnique.ToString();
                 TV.SetActive(true);

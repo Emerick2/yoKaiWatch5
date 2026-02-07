@@ -44,19 +44,19 @@ public class ComplétéLeMédaliumAvecCSV : MonoBehaviour{
                 int IDD = int.Parse(ligne[0]);
                 //IDD--;
                 string ID = IDD.ToString();
-                while (médailum.dictionnaire.Count <= int.Parse(ID)){
-                    var v = new MedaliumNonPersonel();
-                    médailum.dictionnaire.Add(v);
-                }
-                MedaliumNonPersonel l = médailum.dictionnaire[int.Parse(ID)];
-                l.nom = ligne[1];
+                // while (médailum.MAX <= int.Parse(ID)){
+                //     var v = new MedaliumNonPersonel();
+                //     médailum.dictionnaire.Add(v);
+                // }
+                MedaliumNonPersonel l = médailum.ServantYoKai(int.Parse(ID));
+                l.Nom = ligne[1];
                 if (ligne[2] != "")médailum.AjouterUneTribue(int.Parse(ID), ligne[2]);
                 if (ligne[3] != "")médailum.AjouterUnRang(int.Parse(ID), ligne[3]);
-                if (ligne[4] != "") l.vie = int.Parse(ligne[4]);
-                if (ligne[5] != "")l.esprit = int.Parse(ligne[5]);
-                if (ligne[6] != "")l.vitesse = int.Parse(ligne[6]);
-                if (ligne[7] != "")l.force = int.Parse(ligne[7]);
-                l.description = ligne[8];
+                if (ligne[4] != "") l.PV = int.Parse(ligne[4]);
+                if (ligne[5] != "")l.Esprit = int.Parse(ligne[5]);
+                if (ligne[6] != "")l.Vitesse = int.Parse(ligne[6]);
+                if (ligne[7] != "")l.Force = int.Parse(ligne[7]);
+                l.Description = ligne[8];
                 
                 string chemin = "Medaillons/" + ID;
                 Sprite image = Resources.Load<Sprite>(chemin);

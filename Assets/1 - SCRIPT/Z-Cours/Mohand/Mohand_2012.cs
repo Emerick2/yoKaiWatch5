@@ -9,9 +9,9 @@ public class Mohand_2012 : MonoBehaviour
     IEnumerator DémarrageDuScript()
     {
         yield return new WaitForSeconds(0.2f);
-        while (medaliumDictionnaire._instance.dictionnaire.Count>incrémentation)
+        while (medaliumDictionnaire._instance.MAX>incrémentation)
         {
-            image.sprite = medaliumDictionnaire._instance.dictionnaire[incrémentation].médaillon;
+            image.sprite = medaliumDictionnaire._instance.ServantYoKai(incrémentation).médaillon;
             incrémentation++;
             yield return new WaitForSeconds(1f);
         }

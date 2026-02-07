@@ -23,8 +23,8 @@ public class CrééMédaillon : MonoBehaviour{
     }
 
     public void Créé(int id){
-        if (id >= 0 && id < medaliumDictionnaire._instance.dictionnaire.Count){
-            MedaliumNonPersonel yokai = medaliumDictionnaire._instance.dictionnaire[id];
+        if (id >= 0 && id < medaliumDictionnaire._instance.MAX){
+            MedaliumNonPersonel yokai = medaliumDictionnaire._instance.ServantYoKai(id);
             espaceIcone.sprite = yokai.faceRondImage;
             espaceRare.enabled = yokai.rare;
 
