@@ -460,7 +460,7 @@ public class RemplisLaRoue : MonoBehaviour{
         if (informationSpécifique.ID <= 0){
             return;
         }
-        TV = Instantiate(informationGénéral.yoKai);
+        TV = medaliumDictionnaire._instance.InstantiateYoKai(informationGénéral.ID.ToString());
             TV.transform.parent = leParentDuModèle3DGénéré.transform;
             TV.transform.localPosition = Vector3.zero;
             int layerUI = LayerMask.NameToLayer("CaméraUImodèle3D");

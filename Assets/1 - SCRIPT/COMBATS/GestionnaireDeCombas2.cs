@@ -92,7 +92,7 @@ public class GestionnaireDeCombas2 : MonoBehaviour{
             créationEnnemie.niveau = item.niveau;
             créationEnnemie.IDMédalium = item.ID;
             créationEnnemie.jaugeAmultime = 0;
-            créationEnnemie.objetDansLaScène = Instantiate(y.yoKai);
+            créationEnnemie.objetDansLaScène = medaliumDictionnaire._instance.InstantiateYoKai(y.ID.ToString());
             créationEnnemie.objetDansLaScène.transform.position = pointApparitionEnnemie[yoKaiEnnemieEnVie.Count].position;
             créationEnnemie.nom = y.Nom;
             créationEnnemie.médaille = y.médaillon;
@@ -112,7 +112,7 @@ public class GestionnaireDeCombas2 : MonoBehaviour{
             créationJoueur.niveau = infoYoaiAmi.niveau;
             créationJoueur.IDMédalium = infoYoaiAmi.ID;
             créationJoueur.jaugeAmultime = 0;
-            créationJoueur.objetDansLaScène = Instantiate(y.yoKai);
+            créationJoueur.objetDansLaScène = medaliumDictionnaire._instance.InstantiateYoKai(y.ID.ToString());
             créationJoueur.objetDansLaScène.transform.position = pointApparitionJoueur[yoKaiJoueurEnVie.Count].position;
             créationJoueur.nom = infoYoaiAmi.surnom;
             créationJoueur.médaille = y.médaillon;

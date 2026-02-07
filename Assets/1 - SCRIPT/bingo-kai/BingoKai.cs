@@ -66,7 +66,7 @@ public class BingoKai : MonoBehaviour{
             }
         }else{
             MedaliumNonPersonel leYoKai = medaliumDictionnaire._instance.ServantYoKai(cadeauYoKai);
-            TV = Instantiate(leYoKai.yoKai);
+            TV = medaliumDictionnaire._instance.InstantiateYoKai(cadeauYoKai.ToString());
             TV.transform.position = positionDeUnModèle3D.position;
 
             MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", leYoKai.Nom);
