@@ -12,9 +12,16 @@ public class PNJDialcode : MonoBehaviour{
     private float taux = 0f;
 
     void Start(){
+        ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
+        servantBC.CreateBoxCollider(1,gameObject,false);
+        foreach (Transform item in gameObject.transform){
+            servantBC.CreateBoxCollider(0,item.gameObject,true);
+        }
+
+
         dialcode = DialcodePrinted.Instance;
         LoadConditionOfTheDialoguePage();
-        if (gameObject.GetComponent<yoKaiMModel3D>() == null) new ServantBoxCollider3D().CreateBoxCollider(taux, gameObject, false);
+        // if (gameObject.GetComponent<yoKaiMModel3D>() == null) new ServantBoxCollider3D().CreateBoxCollider(taux, gameObject, false);
         if (TrouverBonDialogue()) {
             gameObject.SetActive(true);
         } else {
