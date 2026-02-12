@@ -212,6 +212,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     // }
 
     public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
+        if (dictionnaire.Count >= IDdeLaCible) return;
         nomDeLaTribue = nomDeLaTribue.ToLower();
         nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
         if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
@@ -219,6 +220,7 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
     public void AjouterUnRang(int IDdeLaCible, string nomDuRang){
+        if (dictionnaire.Count >= IDdeLaCible) return;
         nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
         nomDuRang = nomDuRang.ToUpper();
         if (Enum.IsDefined(typeof(Rang), nomDuRang)){

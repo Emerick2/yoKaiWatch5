@@ -11,32 +11,32 @@ public class AnimationManager : MonoBehaviour {
     private AnimationLayerMixerPlayable mixer;
     private string namExample = "";
 
-    void Start() {
-        if (gameObject.GetComponent<Animator>() == null){
-            gameObject.AddComponent<Animator>();
-        }
-        new ServantBoxCollider3D().CreateBoxCollider(0,gameObject, true);
-        // --- (Toujours en mode Editor ici) ---
-        Object[] objects = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(UnityEditor.AssetDatabase.GetAssetPath(myModelFBX));
-        foreach (var obj in objects) {
-            if (obj is AnimationClip clip) {
-                if (!clip.name.Contains("__")) {
-                    if(!animationLibrary.ContainsKey(clip.name))
-                        animationLibrary.Add(clip.name, clip);
-                        namExample = clip.name;
-                }
-            }
-        }
+    // void Start() {
+    //     if (gameObject.GetComponent<Animator>() == null){
+    //         gameObject.AddComponent<Animator>();
+    //     }
+    //     new ServantBoxCollider3D().CreateBoxCollider(0,gameObject, true);
+    //     // --- (Toujours en mode Editor ici) ---
+    //     Object[] objects = UnityEditor.AssetDatabase.LoadAllAssetsAtPath(UnityEditor.AssetDatabase.GetAssetPath(myModelFBX));
+    //     foreach (var obj in objects) {
+    //         if (obj is AnimationClip clip) {
+    //             if (!clip.name.Contains("__")) {
+    //                 if(!animationLibrary.ContainsKey(clip.name))
+    //                     animationLibrary.Add(clip.name, clip);
+    //                     namExample = clip.name;
+    //             }
+    //         }
+    //     }
 
-        graph = PlayableGraph.Create("AnimationGraph_" + gameObject.name);
-        graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
+    //     graph = PlayableGraph.Create("AnimationGraph_" + gameObject.name);
+    //     graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
 
-        var playableOutput = AnimationPlayableOutput.Create(graph, "Layer", GetComponentInChildren<Animator>());
-        graph.Play();
+    //     var playableOutput = AnimationPlayableOutput.Create(graph, "Layer", GetComponentInChildren<Animator>());
+    //     graph.Play();
 
-        // PlayAnnimation("y101000_p20_27501d_wil", true);
-        PlayAnnimation(NameAnnimation(TypeAnnimation.Neutre),true);
-    }
+    //     // PlayAnnimation("y101000_p20_27501d_wil", true);
+    //     PlayAnnimation(NameAnnimation(TypeAnnimation.Neutre),true);
+    // }
 
     public void PlayAnnimation(string name, bool loop) {
         if (animationLibrary.ContainsKey(name)) {
