@@ -11,6 +11,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Globalization;
+using Newtonsoft.Json.Linq;
 
 public class NewDataCenter : MonoBehaviour{
     private static NewDataCenter _instance;
@@ -19,7 +20,8 @@ public class NewDataCenter : MonoBehaviour{
     public bool lesDonnéesDoiventÊtreChiffré=false; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
     private string clefDeChiffrement="g89d56566fg4d32fsdf1gsdfsf32";
     private string crypted = "";
-    private List<string> lesLieuDeData = new List<string> {"mesData.json","équipe.json","position.json"};
+    public int journalNumber = 1;
+    public string journalNameKeys = "journal";//journal1, journal2, journal3
 
     public static NewDataCenter Instance{
         get{
@@ -52,19 +54,73 @@ public class NewDataCenter : MonoBehaviour{
             Destroy(gameObject);
         }
         //filePath = Application.persistentDataPath + "/mesData.json";
+        NewJournalNumber(1);
+    }
+
+    public void NewJournalNumber(int newNumber){
+        journalNumber = newNumber;
         ChargerDonnées();
         MeilleurScoreADéfinir();
     }
+    public void ResetJournal(int number){
+        if (dataContainer != null) dataContainer.Clear();
+        if (dataDict != null) dataDict.Clear();
+        string fileName = journalNameKeys + number.ToString() + ".json";
+        string path = Path.Combine(filePath, fileName);
+        if (File.Exists(path)) {
+            string newFileName = journalNameKeys + number.ToString() + "_supr-"+DateTime.Now.ToString("dd-MM-yyyy_HHmm")+".json";
+            string newPath = Path.Combine(filePath, newFileName);
+
+            try {
+                if (File.Exists(newPath)) {
+                    File.Delete(newPath);
+                }
+
+                File.Move(path, newPath);
+                Debug.Log($"Journal {number} archivé avec succès sous : {newFileName}");
+            }
+            catch (System.Exception e) {
+                Debug.LogError($"Erreur lors du reset du journal : {e.Message}");
+            }
+        }
+    }
+    public string NameOfPlayerInJournalNumber(int number, string clef = "nomDuJoueur") {
+        string fileName = journalNameKeys + number.ToString() + ".json";
+        string path = Path.Combine(filePath, fileName);
+
+        if (File.Exists(path)) {
+            string jsonContent = File.ReadAllText(path);
+            var data = JObject.Parse(jsonContent);
+
+            JArray keys = (JArray)data["keys"];
+            JArray values = (JArray)data["values"];
+
+            int index = -1;
+            for (int i = 0; i < keys.Count; i++) {
+                if (keys[i].ToString() == clef) {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index != -1 && index < values.Count) {
+                return values[index].ToString();
+            }
+        }
+        return "";
+    }
 
     public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json"){
-        dossier = CorrigerNom(dossier);
+        // dossier = CorrigerNom(dossier);
+        dossier = journalNameKeys+journalNumber.ToString()+".json";
         valeur=chiffrerLesDonnées(valeur);
         dataDict[clef] = valeur;
         string json = JsonUtility.ToJson(new DataContainer(dataDict));
         File.WriteAllText(Path.Combine(filePath+dossier), json);
     }
     public void SauvegarderINT(string clef, int valeur, string dossier="mesData.json"){
-        dossier = CorrigerNom(dossier);
+        // dossier = CorrigerNom(dossier);
+        dossier = journalNameKeys+journalNumber.ToString()+".json";
         string valeurLue = Lire(clef);
         int valeurExistante = int.TryParse(valeurLue, out int resultat) ? resultat : 0;
 
@@ -76,7 +132,8 @@ public class NewDataCenter : MonoBehaviour{
     }
 
     public string Lire(string clef, string dossier="mesData.json"){
-        dossier = CorrigerNom(dossier);
+        // dossier = CorrigerNom(dossier);
+        dossier = journalNameKeys+journalNumber.ToString()+".json";
         if (dataDict.TryGetValue(clef, out string valeur)){
             valeur = déchiffrerLesDonnées(valeur);
             //if (int.TryParse(valeur, out int intValue)){
@@ -119,20 +176,19 @@ public class NewDataCenter : MonoBehaviour{
 
     private void ChargerDonnées(){
         dataDict = new Dictionary<string, string>(); // Reset de base
-        foreach (string item in lesLieuDeData){
-            string path = Path.Combine(filePath + item);
-            if (File.Exists(path)){
-                string json = File.ReadAllText(path);
-                dataContainer = JsonUtility.FromJson<DataContainer>(json);
-                Dictionary<string, string> tempDict = dataContainer.ToDictionary();
-
-                foreach (var pair in tempDict){
-                    if (!dataDict.ContainsKey(pair.Key)) {
-                        dataDict.Add(pair.Key, pair.Value);
-                    } else {
-                        // Optionnel : tu peux choisir de remplacer ou d’ignorer
-                        dataDict[pair.Key] = pair.Value; // ou bien ne rien faire
-                    }
+        string name = journalNameKeys+journalNumber.ToString()+".json";
+        
+        string path = Path.Combine(filePath + name);
+        if (File.Exists(path)){
+            string json = File.ReadAllText(path);
+            dataContainer = JsonUtility.FromJson<DataContainer>(json);
+            Dictionary<string, string> tempDict = dataContainer.ToDictionary();
+            foreach (var pair in tempDict){
+                if (!dataDict.ContainsKey(pair.Key)) {
+                    dataDict.Add(pair.Key, pair.Value);
+                } else {
+                    // Optionnel : tu peux choisir de remplacer ou d’ignorer
+                    dataDict[pair.Key] = pair.Value; // ou bien ne rien faire
                 }
             }
         }
@@ -185,5 +241,10 @@ public class DataContainer{
             dict[keys[i]] = values[i];
         }
         return dict;
+    }
+
+    public void Clear() {
+        keys.Clear();
+        values.Clear();
     }
 }

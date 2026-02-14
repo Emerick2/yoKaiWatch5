@@ -81,7 +81,7 @@ public class MesYoKai : MonoBehaviour{
 
         // 3 - appliquer les positions au yo-kai :
         for (int i = 0; i < yoKaiDeMonEquipe.Count; i++){
-            if (lesPositions.Count > i){
+            if (lesPositions.Count > i && maListe.Count > yoKaiDeMonEquipe[i]){
                 maListe[yoKaiDeMonEquipe[i]].positionRoue = lesPositions[i];
             }
         }
