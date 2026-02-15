@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class mouvementDuJoueur : MonoBehaviour{
+    private GameObject interfasse;
     public static bool droitDeMarcher = true;//mouvementDuJoueur.droitDeMarcher = true;
     public GameObject joueur;
     public Animator animator;
@@ -22,6 +23,7 @@ public class mouvementDuJoueur : MonoBehaviour{
         if (livrer != null){ 
             livrer.Déplacer(joueur.transform);
         }
+        interfasse = GameObject.FindWithTag("interfasse");
     }
 
     void Update(){
@@ -50,6 +52,7 @@ public class mouvementDuJoueur : MonoBehaviour{
         if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+") && NewDataCenter.Instance != null){
             Sauvgarder();
         }
+        if (interfasse != null) interfasse.SetActive(droitDeMarcher);
     } 
 
     public void Sauvgarder(){

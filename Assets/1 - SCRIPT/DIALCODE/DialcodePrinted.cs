@@ -150,12 +150,12 @@ public class DialcodePrinted : MonoBehaviour{
         AvancerJusqueAuProchainDialogue();
         if (fragmentDeDialogue.Count <= position){
             Fermeture(false);
-            return;
+            return; 
         }
         FragmentDeDialogue fragment = fragmentDeDialogue[position];
         fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
-        if (fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai){
+        if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément>0){
             if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
             if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
         }

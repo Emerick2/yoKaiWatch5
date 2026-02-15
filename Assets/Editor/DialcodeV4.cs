@@ -28,6 +28,9 @@ public class DialcodeV4 : EditorWindow{
 
     private List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
 
+    private double nextSaveTime = 0;
+    private const double SAVE_INTERVAL = 30.0;
+
     [MenuItem("Tools/DialcodeV4")]
     public static void ShowWindow(){
         GetWindow<DialcodeV4>("DialcodeV4");
@@ -38,6 +41,7 @@ public class DialcodeV4 : EditorWindow{
         GameObject go = Selection.activeGameObject;
         if (go != null){
             if (go.GetComponent<PNJDialcode>() != null){
+                if (!GUI.changed) nextSaveTime = EditorApplication.timeSinceStartup + SAVE_INTERVAL;
                 selectedPNJ = go.GetComponent<PNJDialcode>();
                 positionPage = 0;
                 LireLaSauvegarde(positionPage);
@@ -81,7 +85,28 @@ public class DialcodeV4 : EditorWindow{
         DrawInterface();
 
         if (EditorGUI.EndChangeCheck()) {
-            EnregistrerPage(positionPage); 
+            EditorUtility.SetDirty(this);
+        }
+        // if (GUI.changed &&/*&& (Event.current.type == EventType.MouseUp || Event.current.type == EventType.KeyUp)*/) {
+        //     EnregistrerPage(positionPage);
+        //     Debug.Log("<color=green>SAUVEGARDE EFFECTUÉE : </color> Page " + (positionPage + 1));
+        // }
+        if (GUI.changed && EditorApplication.timeSinceStartup > nextSaveTime) {
+            EnregistrerPage(positionPage);
+            Debug.Log("<color=grey>Sauvegarde automatique effectuée...</color>");
+        }
+    }
+
+    private void OnLostFocus() {
+        if (selectedPNJ != null && GUI.changed){
+            EnregistrerPage(positionPage);
+            Debug.Log("<color=grey>Sauvegarde au changement de sélection effectuée...</color>");
+        }
+    }
+
+    private void OnDisable() {
+        if (selectedPNJ != null && GUI.changed) {
+            EnregistrerPage(positionPage);
         }
     }
 
@@ -130,6 +155,7 @@ public class DialcodeV4 : EditorWindow{
             }
             if (positionPage == i) GUI.color = Color.green;
             if (GUILayout.Button((i+1).ToString(), GUILayout.Width(50), GUILayout.Height(50))) {  
+                if (GUI.changed) EnregistrerPage(positionPage);
                 positionPage = i;      
                 LireLaSauvegarde(positionPage);
             }
@@ -138,12 +164,19 @@ public class DialcodeV4 : EditorWindow{
             GUILayout.Space(5);
         }
         if (GUILayout.Button("+", GUILayout.Width(50), GUILayout.Height(50))) {    
+            if (GUI.changed) EnregistrerPage(positionPage);
             nombrePage++;    
             SaveConditionOfTheDialoguePage();
             positionPage = nombrePage-1;      
             fragment.Clear();
             LireLaSauvegarde(positionPage);
         }
+        GUI.color = Color.cyan;
+        if (GUILayout.Button("SAUVEGARDER", EditorStyles.toolbarButton, GUILayout.Width(100))) {
+            EnregistrerPage(positionPage);
+            Debug.Log("Dialogue sauvegardé manuellement !");
+        }
+        GUI.color = Color.white;
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
@@ -402,6 +435,7 @@ public class DialcodeV4 : EditorWindow{
                 f.nom = AjoutTexte("Nom",f.nom);
                 f.endQuest = AjouterUnBool("La requête est terminé ?", f.endQuest);
                 string clef = f.categorieQuete.ToString()+"-"+f.nom;
+                Debug.Log(clef);
                 GUILayout.Box("La clef de sauvegarde est : "+clef, monStyleHelpBox);
                 GUILayout.Box("Les valeurs possibles sont :"+clef, monStyleHelpBox);
                 GUILayout.Box("0 : La requête n'as pas commancer."+clef, monStyleHelpBox);
@@ -474,6 +508,7 @@ public class DialcodeV4 : EditorWindow{
 
 
     void EnregistrerPage(int numéro){
+        nextSaveTime = EditorApplication.timeSinceStartup + SAVE_INTERVAL;
         if (selectedPNJ == null) return;
         SaveConditionOfTheDialoguePage();
         string directory = Application.dataPath + "/Resources/texte";
@@ -492,6 +527,7 @@ public class DialcodeV4 : EditorWindow{
 
         EditorUtility.SetDirty(selectedPNJ);
         AssetDatabase.Refresh();
+        Debug.Log($"<color=cyan>Fichier sauvegardé :</color> {selectedPNJ.jsonPath}-page{numéro}.json à {DateTime.Now.ToLongTimeString()}");
     }
 
     void SaveConditionOfTheDialoguePage(){
