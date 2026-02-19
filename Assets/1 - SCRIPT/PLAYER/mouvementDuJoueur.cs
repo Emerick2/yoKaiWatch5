@@ -16,9 +16,26 @@ public class mouvementDuJoueur : MonoBehaviour{
     public float vitesseRotation = 10f;
     public Transform caméra;
     public Transform iconeMiniMap;
-
+    // private CharacterController controller;
+    public CameraFollow camera;
 
     void Start(){
+        bool isAGirl = NewDataCenter.Instance.Lire("thisIsAGirl") == "True";
+        GameObject katie = transform.Find("Katie").gameObject;
+        GameObject nathan = transform.Find("Nathan").gameObject;
+        if (isAGirl){
+            Destroy(nathan);
+            joueur = katie;
+        } else {
+            Destroy(katie);
+            joueur = nathan;
+        }
+        camera.target = joueur.transform;
+        joueur.SetActive(true);
+        joueur.GetComponent<Rigidbody>().useGravity = true;
+
+        // if (gameObject.GetComponent<CharacterController>() != null) controller = gameObject.GetComponent<CharacterController>();
+        // else controller = gameObject.AddComponent<CharacterController>();
         LivraisonDébutUnePartie livrer = FindObjectOfType<LivraisonDébutUnePartie>();
         if (livrer != null){ 
             livrer.Déplacer(joueur.transform);
@@ -35,6 +52,7 @@ public class mouvementDuJoueur : MonoBehaviour{
             // if ((h > 0.03f || h < -0.03f) && (v > 0.03f || v < -0.03f)){
             if (maDirection.magnitude > 0.1f){
                 transform.Translate(maDirection.normalized * vitesse * Time.deltaTime, Space.World);
+                // controller.Move(maDirection * vitesse * Time.deltaTime);
                 Quaternion rotationCible = Quaternion.LookRotation(maDirection);
                 joueur.transform.rotation = Quaternion.Slerp(joueur.transform.rotation, rotationCible, vitesseRotation * Time.deltaTime);
             } else {
