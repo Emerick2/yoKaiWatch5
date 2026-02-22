@@ -51,7 +51,7 @@ public class DialcodePrinted : MonoBehaviour{
         if (Instance == null){
             Instance = this;
         } else {
-            Destroy(this);
+            Destroy(gameObject);
         }
         dansUneZoneDeDialogue = false;
     }
@@ -77,7 +77,7 @@ public class DialcodePrinted : MonoBehaviour{
         if (dansUneZoneDeDialogue){
             if (choixEnCours) {
                 if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
-                    positionChoix++;
+                    positionChoix = (positionChoix + 1) % 2;
                     ChangerPositionChoix();
                 } else if (Input.GetButtonDown("A")){
                     string valeur = "0";
@@ -224,7 +224,7 @@ public class DialcodePrinted : MonoBehaviour{
                 } 
             } else {
                 StartCoroutine(AnimationEndQuest());
-                NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"1");
+                NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"2");
                 quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" est terminé !";
                 /*
                 ajouter le script movie.
@@ -290,19 +290,23 @@ public class DialcodePrinted : MonoBehaviour{
             cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
             if (dansUnDialogue) position++;
         } else if (type == TypeDialogue.vol){
-            OuvertureFenêtre(cadeau);
-            cadeau.transform.Find("cintille").gameObject.SetActive(false);
-            string phrase = "Tu as remis :";
-            if (nom.Length > 0){
-                if (quantitée == 1) phrase = "Tu as remis : <color=#4C714F>\n"+nom+"</color>.";
-                else phrase = "Tu as remis : <color=#4C714F>\n"+quantitée +" "+ nom+"</color>.";
+            if (int.Parse(NewDataCenter.Instance.Lire(nom)) > 0){
+                OuvertureFenêtre(cadeau);
+                cadeau.transform.Find("cintille").gameObject.SetActive(false);
+                string phrase = "Tu as remis :";
+                if (nom.Length > 0){
+                    if (quantitée == 1) phrase = "Tu as remis : <color=#4C714F>\n"+nom+"</color>.";
+                    else phrase = "Tu as remis : <color=#4C714F>\n"+quantitée +" "+ nom+"</color>.";
+                }
+                NewDataCenter.Instance.SauvegarderINT(nom,quantitée*(-1));
+                //Utiliser <C12><ITEM_NAME></C> sur qui ?
+                cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
             }
-            NewDataCenter.Instance.SauvegarderINT(nom,quantitée*(-1));
-            //Utiliser <C12><ITEM_NAME></C> sur qui ?
-            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
             if (dansUnDialogue) position++;
         } else if (type == TypeDialogue.volDiscret){
-            Vole(nom, quantitée);
+            if (int.Parse(NewDataCenter.Instance.Lire(nom)) > 0){
+                Vole(nom, quantitée);
+            }
             if (dansUnDialogue) {
                 position++;
                 AvancerJusqueAuProchainDialogue();
@@ -362,7 +366,6 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void ChangerPositionChoix(){
-        positionChoix%=2;
         choix.transform.Find("Bouton1/fond-actif").gameObject.SetActive(positionChoix == 0);
         choix.transform.Find("Bouton1/fond-inactif").gameObject.SetActive(positionChoix != 0);
         choix.transform.Find("Bouton2/fond-actif").gameObject.SetActive(positionChoix == 1);
@@ -378,8 +381,8 @@ public class DialcodePrinted : MonoBehaviour{
         choixEnCoursBoutique2 = false;
         cibleChoixBoutique1 = 0;
         awaitTheClicForTheEndQuest = 0;
-        StartCoroutine(AnnimationOuverture());
         position = 0;
+        StartCoroutine(AnnimationOuverture());
         if (fragmentDeDialogue.Count == 0){
             Debug.LogWarning("Il n'y a pas de phrase pour le dialogue !");
         }
@@ -515,44 +518,48 @@ public class DialcodePrinted : MonoBehaviour{
         image.rectTransform.sizeDelta = new Vector2(nouvelleLargeur, image.rectTransform.sizeDelta.y);
     }
 
-    void AvancerJusqueAuProchainDialogue(){
-        // cette fonction permet seulement de sauter les structures conditionelles.
-        for (int i = position; i < fragmentDeDialogue.Count; i++){
-            if (fragmentDeDialogue[position].type != TypeDialogue.conditionDePassage && fragmentDeDialogue[position].type != TypeDialogue.finDeCondition){
-                if (fragmentDeDialogue[position].type == TypeDialogue.nul){
+    void AvancerJusqueAuProchainDialogue() {
+        while (position < fragmentDeDialogue.Count) {
+            FragmentDeDialogue dialogueActuel = fragmentDeDialogue[position];
+
+            if (dialogueActuel.type != TypeDialogue.conditionDePassage && dialogueActuel.type != TypeDialogue.finDeCondition) {
+                if (dialogueActuel.type == TypeDialogue.nul) {
                     position++;
-                    if (position >= fragmentDeDialogue.Count){
-                        Fermeture(false);
-                        peutCliquer = false;
-                        return;
-                    }
+                    if (position >= fragmentDeDialogue.Count) break;
+                    dialogueActuel = fragmentDeDialogue[position];
                 }
-                if (fragmentDeDialogue[position].auteurConditionnelle <= auteurConditionnelle){
-                    return;
-                } //else {
-                //     Debug.Log("On as pas vu ça comme ma hauteur est "+auteurConditionnelle +" et la scienne est "+fragmentDeDialogue[position].auteurConditionnelle);
-                // }
+                Debug.Log(dialogueActuel.auteurConditionnelle);
+                
+                if (dialogueActuel.auteurConditionnelle <= auteurConditionnelle) {
+                    return; 
+                }
             }
-            if (fragmentDeDialogue[position].type == TypeDialogue.conditionDePassage){
+
+            if (dialogueActuel.type == TypeDialogue.conditionDePassage) {
                 bool valeur = RéponceALaCondition();
-                if (valeur){
+                
+                if (valeur) {
                     auteurConditionnelle++;
+                } else {
+                    position++; 
                 }
                 auteurConditionnelleRéel++;
-            } else if (fragmentDeDialogue[position].type == TypeDialogue.finDeCondition){
+            } 
+            else if (dialogueActuel.type == TypeDialogue.finDeCondition) {
                 auteurConditionnelleRéel--;
-                if (auteurConditionnelleRéel < auteurConditionnelle){
-                    auteurConditionnelle=auteurConditionnelleRéel;
+                if (auteurConditionnelleRéel < auteurConditionnelle) {
+                    auteurConditionnelle = auteurConditionnelleRéel;
                 }
             }
             position++;
         }
-        if (position >= fragmentDeDialogue.Count){
+
+        if (position >= fragmentDeDialogue.Count) {
             Fermeture(false);
             peutCliquer = false;
         }
     }
-
+    
     bool RéponceALaCondition() {
         FragmentDeDialogue f = fragmentDeDialogue[position];
         if (f.conditionnelle == null || f.conditionnelle.Count == 0) return true;
@@ -576,11 +583,8 @@ public class DialcodePrinted : MonoBehaviour{
         if (!nombre){
             v2s = NewDataCenter.Instance.Lire(c.nomV2);
         }
-
         bool isV1Num = int.TryParse(v1s, out int v1);
         bool isV2Num = int.TryParse(v2s, out int v2);
-
-        // Debug.Log(v1+"  -  "+v2);
 
         switch (c.opérateur) {
             case Opérateur.supérieur: return isV1Num && isV2Num && v1 > v2;

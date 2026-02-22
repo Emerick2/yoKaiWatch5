@@ -435,7 +435,7 @@ public class DialcodeV4 : EditorWindow{
                 f.nom = AjoutTexte("Nom",f.nom);
                 f.endQuest = AjouterUnBool("La requête est terminé ?", f.endQuest);
                 string clef = f.categorieQuete.ToString()+"-"+f.nom;
-                Debug.Log(clef);
+                // Debug.Log(clef);
                 GUILayout.Box("La clef de sauvegarde est : "+clef, monStyleHelpBox);
                 GUILayout.Box("Les valeurs possibles sont :"+clef, monStyleHelpBox);
                 GUILayout.Box("0 : La requête n'as pas commancer."+clef, monStyleHelpBox);

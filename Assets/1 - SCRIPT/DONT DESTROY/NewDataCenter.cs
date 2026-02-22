@@ -16,12 +16,15 @@ using Newtonsoft.Json.Linq;
 public class NewDataCenter : MonoBehaviour{
     private static NewDataCenter _instance;
     private DataContainer dataContainer;
+    private Dictionary<string, string> dataDict = new Dictionary<string, string>();
+
     public string filePath;
     public bool lesDonnéesDoiventÊtreChiffré=false; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
     private string clefDeChiffrement="g89d56566fg4d32fsdf1gsdfsf32";
     private string crypted = "";
     public int journalNumber = 1;
     public string journalNameKeys = "journal";//journal1, journal2, journal3
+    private bool debug = false;
 
     public static NewDataCenter Instance{
         get{
@@ -33,18 +36,7 @@ public class NewDataCenter : MonoBehaviour{
             return _instance;
         }
     }
-    void Start(){
-        StartCoroutine(compterLeTempsDeJeu());
-    }
-    IEnumerator compterLeTempsDeJeu(){
-        while (true){
-            yield return new WaitForSeconds(60f);
-            SauvegarderINT("tempsDeJeu", 1);
-        }
-    }
-
-    private Dictionary<string, string> dataDict = new Dictionary<string, string>();
-
+    
     private void Awake(){
         filePath = Application.persistentDataPath+"/";
         if (_instance == null){
@@ -56,11 +48,22 @@ public class NewDataCenter : MonoBehaviour{
         //filePath = Application.persistentDataPath + "/mesData.json";
         NewJournalNumber(1);
     }
+    
+    void Start(){
+        StartCoroutine(compterLeTempsDeJeu());
+    }
+    IEnumerator compterLeTempsDeJeu(){
+        while (true){
+            yield return new WaitForSeconds(60f);
+            SauvegarderINT("tempsDeJeu", 1, "", true);
+        }
+    }
 
     public void NewJournalNumber(int newNumber){
         journalNumber = newNumber;
         ChargerDonnées();
         MeilleurScoreADéfinir();
+        RefreshPNJDialcode();
     }
     public void ResetJournal(int number){
         if (dataContainer != null) dataContainer.Clear();
@@ -83,6 +86,7 @@ public class NewDataCenter : MonoBehaviour{
                 Debug.LogError($"Erreur lors du reset du journal : {e.Message}");
             }
         }
+        RefreshPNJDialcode();
     }
     public string NameOfPlayerInJournalNumber(int number, string clef = "nomDuJoueur") {
         string fileName = journalNameKeys + number.ToString() + ".json";
@@ -110,25 +114,24 @@ public class NewDataCenter : MonoBehaviour{
         return "";
     }
 
-    public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json"){
+    public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json", bool thisIsATimeOfGame = false){
+        if (debug) Debug.Log(clef+" "+valeur);
         // dossier = CorrigerNom(dossier);
         dossier = journalNameKeys+journalNumber.ToString()+".json";
         valeur=chiffrerLesDonnées(valeur);
         dataDict[clef] = valeur;
-        string json = JsonUtility.ToJson(new DataContainer(dataDict));
+        dataContainer = new DataContainer(dataDict);
+        string json = JsonUtility.ToJson(dataContainer);
+
         File.WriteAllText(Path.Combine(filePath+dossier), json);
+        if (!thisIsATimeOfGame) RefreshPNJDialcode();
     }
-    public void SauvegarderINT(string clef, int valeur, string dossier="mesData.json"){
+    public void SauvegarderINT(string clef, int valeur, string dossier="mesData.json", bool thisIsATimeOfGame = false){
         // dossier = CorrigerNom(dossier);
         dossier = journalNameKeys+journalNumber.ToString()+".json";
         string valeurLue = Lire(clef);
         int valeurExistante = int.TryParse(valeurLue, out int resultat) ? resultat : 0;
-
-        valeur += valeurExistante;
-        string donnéDeLaValeur = chiffrerLesDonnées(valeur.ToString());
-        dataDict[clef] = donnéDeLaValeur;
-        string json = JsonUtility.ToJson(new DataContainer(dataDict));
-        File.WriteAllText(Path.Combine(filePath+dossier), json);
+        SauvegarderSTR(clef, (valeur+valeurExistante).ToString(), dossier);
     }
 
     public string Lire(string clef, string dossier="mesData.json"){
@@ -182,13 +185,14 @@ public class NewDataCenter : MonoBehaviour{
         if (File.Exists(path)){
             string json = File.ReadAllText(path);
             dataContainer = JsonUtility.FromJson<DataContainer>(json);
-            Dictionary<string, string> tempDict = dataContainer.ToDictionary();
-            foreach (var pair in tempDict){
-                if (!dataDict.ContainsKey(pair.Key)) {
-                    dataDict.Add(pair.Key, pair.Value);
-                } else {
-                    // Optionnel : tu peux choisir de remplacer ou d’ignorer
-                    dataDict[pair.Key] = pair.Value; // ou bien ne rien faire
+            if (dataContainer != null){
+                Dictionary<string, string> tempDict = dataContainer.ToDictionary();
+                foreach (var pair in tempDict){
+                    if (!dataDict.ContainsKey(pair.Key)) {
+                        dataDict.Add(pair.Key, pair.Value);
+                    } else {
+                        dataDict[pair.Key] = pair.Value;
+                    }
                 }
             }
         }
@@ -221,6 +225,13 @@ public class NewDataCenter : MonoBehaviour{
             return decrypted;
         }else{
             return data;
+        }
+    }
+
+    public void RefreshPNJDialcode(){
+        List<PNJDialcode> listOfPNJ = new List<PNJDialcode>(FindObjectsByType<PNJDialcode>(FindObjectsSortMode.None));
+        foreach (PNJDialcode pnj in listOfPNJ){
+            pnj.Refresh();
         }
     }
 }

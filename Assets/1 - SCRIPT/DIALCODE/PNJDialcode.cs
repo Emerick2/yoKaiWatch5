@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class PNJDialcode : MonoBehaviour{
     private DialcodePrinted dialcode;
@@ -11,22 +12,26 @@ public class PNJDialcode : MonoBehaviour{
     public List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
     private float taux = 0f;
 
+    void Awake() {
+        dialcode = DialcodePrinted.Instance;
+    }
+
     void Start(){
         ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
         servantBC.CreateBoxCollider(1,gameObject,false);
         foreach (Transform item in gameObject.transform){
             servantBC.CreateBoxCollider(0,item.gameObject,true);
+        }   
+        StartCoroutine(TheStart());
+    }
+
+    IEnumerator TheStart(){
+        while (DialcodePrinted.Instance == null){
+            yield return new WaitForSeconds(0.1f);
         }
-
-
         dialcode = DialcodePrinted.Instance;
         LoadConditionOfTheDialoguePage();
-        // if (gameObject.GetComponent<yoKaiMModel3D>() == null) new ServantBoxCollider3D().CreateBoxCollider(taux, gameObject, false);
-        if (TrouverBonDialogue()) {
-            gameObject.SetActive(true);
-        } else {
-            gameObject.SetActive(false);
-        }
+        Refresh();
     }
     public void ChargerDialogue(int ID){
         TextAsset targetFile = Resources.Load<TextAsset>("texte/" + jsonPath+"-page"+ID);
@@ -45,22 +50,30 @@ public class PNJDialcode : MonoBehaviour{
     }
     void OnTriggerEnter(Collider collider){
         if (collider.tag == "Player"){
-            if (TrouverBonDialogue()) {
+            if (Refresh()){
                 dialcode.fragmentDeDialogue = maListeDeFraguement;
                 dialcode.dansUneZoneDeDialogue = true;
-                gameObject.SetActive(true);
-            } else {
-                gameObject.SetActive(false);
             }
         }
     }
+
+    public bool Refresh(){
+        if (TrouverBonDialogue()) {
+            gameObject.SetActive(true);
+            return true;
+        } else {
+            gameObject.SetActive(false);
+            return false;
+        }
+    }
+
     void OnTriggerExit(Collider collider){
         if (collider.tag == "Player"){
             dialcode.dansUneZoneDeDialogue = false;
         }
     }
 
-    bool TrouverBonDialogue(){
+    public bool TrouverBonDialogue(){
         if (conditionOfTheDialoguePage.Count == 0){
             return true;
         }
@@ -78,6 +91,11 @@ public class PNJDialcode : MonoBehaviour{
     }
 
     bool CalculeCondition(List<Conditionnelle> conditionnelle){
+        if (dialcode == null) dialcode = DialcodePrinted.Instance;
+        if (dialcode == null) {
+            Debug.Log("DialcodePrinted.Instance est introuvable dans la scène !");
+            return false;
+        }
         List<bool> valeurs = new List<bool>();
         foreach (Conditionnelle c in conditionnelle) {
             valeurs.Add(dialcode.EvaluerConditionSimple(c));

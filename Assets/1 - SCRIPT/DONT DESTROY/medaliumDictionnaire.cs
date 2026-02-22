@@ -9,7 +9,6 @@ using System.Linq;
 using Newtonsoft.Json;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
-// Je vais changer se script pour qu'il charge petit à petit les yo-kai et non plus tout d'un coup
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
     public Sprite imageDeUneMédailleInconnue;
@@ -33,71 +32,6 @@ public class medaliumDictionnaire : MonoBehaviour{
             Destroy(gameObject);
         }
     }
-    
-    // void Start(){
-    //     ServantYoKai(7);
-    //     InstantiateYoKai("7");
-    // }
-
-    // void Start(){
-    //     int i = 0;
-    //     foreach (MedaliumNonPersonel item in dictionnaire){
-    //         if (item.médaillon == null){
-    //             item.médaillon = imageDeUneMédailleInconnue;
-    //         }
-            
-    //         //inversion squellette et description :
-    //         string t = item.nomDeMonSquellette;
-    //         item.nomDeMonSquellette = item.description;
-    //         item.description = t;
-            
-    //         item.monElement = ObtenirElementDeLaTechnique(item.technique);
-
-    //         item.faceImage = Resources.Load<Sprite>("PuniArt/"+i);
-    //         i++;
-
-    //         string nom = "";
-    //         if (item.yoKai != null){
-    //             foreach (Transform obj in item.yoKai.transform){
-    //                 if (obj.name[0]=='n'&&obj.name[1]=='o'&&obj.name[2]=='m'&&obj.name[3]==':'){
-    //                     nom = obj.name;
-    //                     nom = nom.Replace("nom:","");
-    //                     nom = nom.Replace("_p00","");
-    //                     nom = nom.Replace("_mod","");
-    //                     item.faceRondImage = Resources.Load<Sprite>("Face icon/"+nom+".xi.00");
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     chargementFini = true;
-
-    //     // Pour connaitre le nom des modèles 3D :
-    //     bool debug = false;
-    //     if (debug){
-    //         string texte = "[";
-    //         foreach (MedaliumNonPersonel item in dictionnaire){
-    //             string name = "";
-    //             GameObject model = item.yoKai;
-    //             if (model != null){
-    //                 Transform enfantNom = model.transform.Cast<Transform>().FirstOrDefault(t => t.name.StartsWith("nom:"));
-    //                 if (enfantNom != null) {
-    //                     name = enfantNom.name;
-    //                 } else {
-    //                     name = model.name;
-    //                 }
-    //                 name = name.Replace("²","");
-    //                 name = name.Replace("!","");
-    //                 name = name.Replace("(Clone)","");
-    //                 name = name.Replace("_mod","");
-    //                 name = name.Substring(4); // Retire "nom:"
-    //             }
-    //             texte += "\""+name+"\",";
-    //         }
-    //         texte+="]";
-    //         Debug.Log(texte);
-    //     }
-    // }
 
    public MedaliumNonPersonel ServantYoKai(int ID) {
         foreach (MedaliumNonPersonel item in dictionnaire){
@@ -114,7 +48,6 @@ public class medaliumDictionnaire : MonoBehaviour{
             yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/data/face/" + ID.ToString());
             yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/data/face/" + ID.ToString());
             yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/data/song/" + ID.ToString());
-            Debug.Log("Le nom du Yo-Kai est : " + yoKai.Nom);
             dictionnaire.Add(yoKai);
         
             return yoKai;
@@ -129,7 +62,6 @@ public class medaliumDictionnaire : MonoBehaviour{
 
         if (targetFile != null) {
             var allData = JsonConvert.DeserializeObject<Dictionary<string, Yokai_assets_mapping>>(targetFile.text);
-            Debug.Log(allData.Count);
 
             if (allData.ContainsKey(ID)) {
                 Yokai_assets_mapping map = allData[ID];
@@ -170,46 +102,6 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
         return null;
     }
-
-    // public GameObject InstantiateYoKai(string ID) {
-    //     // 1. Récupérer les données (via ta méthode Newtonsoft ou autre)
-    //     // Yokai_assets_mapping map = ...
-
-    //     // 2. Charger le modèle
-    //     // Attention : Resources.Load ne veut pas de l'extension ".fbx"
-    //     string modelPath = "yo-kai-API/data/_3D/models/" + map.modelFile.Replace(".fbx", "");
-    //     GameObject modelPrefab = Resources.Load<GameObject>(modelPath);
-
-    //     if (modelPrefab == null) return null;
-
-    //     // 3. Instancier le modèle
-    //     GameObject TV = Instantiate(modelPrefab);
-
-    //     // 4. Appliquer les textures
-    //     Renderer renderer = TV.GetComponentInChildren<Renderer>();
-    //     if (renderer != null && map.textureFiles.Length > 0) {
-            
-    //         // On crée un tableau de matériaux basé sur le nombre de textures
-    //         Material[] mats = renderer.materials;
-
-    //         for (int i = 0; i < map.textureFiles.Length; i++) {
-    //             if (i >= mats.Length) break; // Sécurité si plus de textures que de slots
-
-    //             // On charge en Texture2D (pas en Sprite !)
-    //             string texPath = "yo-kai-API/data/_3D/textures/" + map.textureFiles[i].Replace(".png", "");
-    //             Texture2D tex = Resources.Load<Texture2D>(texPath);
-
-    //             if (tex != null) {
-    //                 mats[i].mainTexture = tex;
-    //             }
-    //         }
-            
-    //         // Très important : Réassigner le tableau de matériaux
-    //         renderer.materials = mats;
-    //     }
-
-    //     return TV;
-    // }
 
     public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
         if (dictionnaire.Count >= IDdeLaCible) return;

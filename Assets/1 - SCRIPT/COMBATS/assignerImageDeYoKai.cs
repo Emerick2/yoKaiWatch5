@@ -10,7 +10,7 @@ public class assignerImageDeYoKai : MonoBehaviour
     private medaliumDictionnaire médailum;
     void Start(){
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
-        StartCoroutine(AffichageImageYoKai());
+        // StartCoroutine(AffichageImageYoKai());
     }
     IEnumerator AffichageImageYoKai(){
         while(true){

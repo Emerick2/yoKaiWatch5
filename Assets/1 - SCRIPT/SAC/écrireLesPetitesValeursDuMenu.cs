@@ -13,16 +13,19 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     public List<GameObject> lesPagesApplications;
     public GameObject choieApplication;
     private bool peutChoisireUneApplication;
+    private bool windowClose;
     void Start(){
         if (MesYoKai.Instance != null){
             StartCoroutine(Attend());
         }
         RevenirAuMenu();
+        windowClose = true;
+        transform.Find("C").gameObject.SetActive(false);
     }
 
     void Update(){
         if (Input.GetButtonDown("A")){
-            if (peutChoisireUneApplication && lesPagesApplications.Count > choieApplication.GetComponent<PlaceLesApplicationsSac>().cible){
+            if (!windowClose && peutChoisireUneApplication && lesPagesApplications.Count > choieApplication.GetComponent<PlaceLesApplicationsSac>().cible){
                 for (int i = 0; i < lesPagesApplications.Count; i++){
                     lesPagesApplications[i].SetActive(false);
                 }
@@ -37,6 +40,17 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
                 if (application.GetComponent<InvantaireSac>() != null){
                     application.GetComponent<InvantaireSac>().Initialiser();
                 }
+            }
+        } else if (Input.GetButtonDown("X") && windowClose) {
+            windowClose = false;
+            transform.Find("C").gameObject.SetActive(true);
+            mouvementDuJoueur.droitDeMarcher = false;
+            RevenirAuMenu();
+        } else if (Input.GetButtonDown("B")){
+            if (peutChoisireUneApplication) {
+                windowClose = true;
+                transform.Find("C").gameObject.SetActive(false);
+                mouvementDuJoueur.droitDeMarcher = true;
             }
         }
     }
@@ -60,13 +74,15 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         for (int i = 0; i < lesEspaceYoKai.Count; i++){
             lesEspaceYoKai[i].SetActive(false);
             for (int j = 0; j < MesYoKai.Instance.yoKaiDeMonEquipe.Count; j++){
-                ListeDeMesYoKai yoKai = MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]];
-                yoKai.positionRoue %= lesEspaceYoKai.Count;
-                if (yoKai.positionRoue<0){
-                    yoKai.positionRoue=0;
-                }
-                if (yoKai.positionRoue==i){
-                    PlacerUnYoKai(yoKai,lesEspaceYoKai[i]);
+                if (MesYoKai.Instance.maListe.Count > MesYoKai.Instance.yoKaiDeMonEquipe[j]) {
+                    ListeDeMesYoKai yoKai = MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]];
+                    yoKai.positionRoue %= lesEspaceYoKai.Count;
+                    if (yoKai.positionRoue<0){
+                        yoKai.positionRoue=0;
+                    }
+                    if (yoKai.positionRoue==i){
+                        PlacerUnYoKai(yoKai,lesEspaceYoKai[i]);
+                    }
                 }
             }
         }

@@ -5,7 +5,7 @@ using System.Collections;
 public class mouvementDuJoueur : MonoBehaviour{
     private GameObject interfasse;
     public static bool droitDeMarcher = true;//mouvementDuJoueur.droitDeMarcher = true;
-    public GameObject joueur;
+    public static GameObject player;
     public Animator animator;
     public Animator oeuilSauvegarde;
     Vector3 directionHaut = new Vector3(0, 0, 1);
@@ -18,27 +18,26 @@ public class mouvementDuJoueur : MonoBehaviour{
     public Transform iconeMiniMap;
     // private CharacterController controller;
     public CameraFollow camera;
-
     void Start(){
         bool isAGirl = NewDataCenter.Instance.Lire("thisIsAGirl") == "True";
         GameObject katie = transform.Find("Katie").gameObject;
         GameObject nathan = transform.Find("Nathan").gameObject;
         if (isAGirl){
             Destroy(nathan);
-            joueur = katie;
+            player = katie;
         } else {
             Destroy(katie);
-            joueur = nathan;
+            player = nathan;
         }
-        camera.target = joueur.transform;
-        joueur.SetActive(true);
-        joueur.GetComponent<Rigidbody>().useGravity = true;
+        camera.target = player.transform;
+        player.SetActive(true);
+        player.GetComponent<Rigidbody>().useGravity = true;
 
         // if (gameObject.GetComponent<CharacterController>() != null) controller = gameObject.GetComponent<CharacterController>();
         // else controller = gameObject.AddComponent<CharacterController>();
         LivraisonDébutUnePartie livrer = FindObjectOfType<LivraisonDébutUnePartie>();
         if (livrer != null){ 
-            livrer.Déplacer(joueur.transform);
+            livrer.Déplacer(player.transform);
         }
         interfasse = GameObject.FindWithTag("interfasse");
     }
@@ -54,15 +53,15 @@ public class mouvementDuJoueur : MonoBehaviour{
                 transform.Translate(maDirection.normalized * vitesse * Time.deltaTime, Space.World);
                 // controller.Move(maDirection * vitesse * Time.deltaTime);
                 Quaternion rotationCible = Quaternion.LookRotation(maDirection);
-                joueur.transform.rotation = Quaternion.Slerp(joueur.transform.rotation, rotationCible, vitesseRotation * Time.deltaTime);
+                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, rotationCible, vitesseRotation * Time.deltaTime);
             } else {
                 non = false;
             }
             if (animator != null) animator.SetBool("avence", non);
             if (caméra != null){
                 Vector3 nouvellePositionCaméra = caméra.position;
-                nouvellePositionCaméra.x = joueur.transform.position.x;
-                nouvellePositionCaméra.z = joueur.transform.position.z;
+                nouvellePositionCaméra.x = player.transform.position.x;
+                nouvellePositionCaméra.z = player.transform.position.z;
                 caméra.position = nouvellePositionCaméra;
             }
             //iconeMiniMap.position = joueur.transform.position;
@@ -77,9 +76,9 @@ public class mouvementDuJoueur : MonoBehaviour{
         if (oeuilSauvegarde != null){
             oeuilSauvegarde.SetTrigger("ouvre");
         }
-        NewDataCenter.Instance.SauvegarderSTR("pos1", joueur.transform.position.x.ToString(),"position");
-        NewDataCenter.Instance.SauvegarderSTR("pos2", joueur.transform.position.y.ToString(),"position");
-        NewDataCenter.Instance.SauvegarderSTR("pos3", joueur.transform.position.z.ToString(),"position");
+        NewDataCenter.Instance.SauvegarderSTR("pos1", player.transform.position.x.ToString(),"position");
+        NewDataCenter.Instance.SauvegarderSTR("pos2", player.transform.position.y.ToString(),"position");
+        NewDataCenter.Instance.SauvegarderSTR("pos3", player.transform.position.z.ToString(),"position");
         NewDataCenter.Instance.SauvegarderSTR("scenne", SceneManager.GetActiveScene().name,"position");
     }
 }

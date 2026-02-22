@@ -35,7 +35,7 @@ public class montre : MonoBehaviour{
             boîte.Add(composant.gameObject);
         }
         if (boîte.Count == 0) {
-            Debug.Log("Aucun enfant trouvé avec le script trouverUnYoKai.");
+            // Debug.Log("Aucun enfant trouvé avec le script trouverUnYoKai.");
         }
     }
 

@@ -28,6 +28,9 @@ public class CrééUnYoKaiMohand : MonoBehaviour
         monYoKai.AddComponent<MouvementMohand>();
         new ServantBoxCollider3D().CreateBoxCollider(taux, monYoKai,true);
         monYoKai.transform.tag = "Player";
+        if (monYoKai.GetComponent<Rigidbody>() != null){
+            monYoKai.GetComponent<Rigidbody>().freezeRotation = true;
+        }
     }
 
     void Update()

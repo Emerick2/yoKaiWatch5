@@ -16,7 +16,7 @@ public class MakeATexture : MonoBehaviour{
             string searchKey = ID.ToString();
             if (allData.ContainsKey(searchKey)){
                 currentData = allData[searchKey];
-                Debug.Log($"Modèle trouvé pour l'ID {ID} : {currentData.modelFile}");
+                // Debug.Log($"Modèle trouvé pour l'ID {ID} : {currentData.modelFile}");
             } else {
                 Debug.LogError($"L'ID {ID} n'existe pas dans le JSON.");
             }
