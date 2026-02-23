@@ -22,6 +22,7 @@ public class MakeATexture : MonoBehaviour{
             }
         }
         ApplyTexture();
+        // if (gameObject.GetComponent<MakeAShader>() == null) gameObject.AddComponent<MakeAShader>();
     }
 
     void ApplyTexture(){
