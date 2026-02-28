@@ -50,7 +50,7 @@ public class PNJDialcode : MonoBehaviour{
     }
     void OnTriggerEnter(Collider collider){
         if (collider.tag == "Player"){
-            if (Refresh()){
+            if (Refresh() && dialcode != null){
                 dialcode.fragmentDeDialogue = maListeDeFraguement;
                 dialcode.dansUneZoneDeDialogue = true;
             }
@@ -68,7 +68,7 @@ public class PNJDialcode : MonoBehaviour{
     }
 
     void OnTriggerExit(Collider collider){
-        if (collider.tag == "Player"){
+        if (collider.tag == "Player" && dialcode != null){
             dialcode.dansUneZoneDeDialogue = false;
         }
     }
