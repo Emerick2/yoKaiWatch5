@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class coffreMohand : MonoBehaviour
 {
@@ -10,11 +12,21 @@ public class coffreMohand : MonoBehaviour
     private DialcodePrinted dialcodePrinted;
     public bool estClické;
     public bool estRécuperee;
+    public string clé;
+    public AudioClip musique;
 
 
     void Start()
     {
         dialcodePrinted = DialcodePrinted.Instance;
+        clé = transform.position.x.ToString() + "-" + transform.position.x.ToString() + "-" + SceneManager.GetActiveScene().name;
+        if (NewDataCenter.Instance.Lire(clé) != "0")
+        {
+            estRécuperee = true;
+            GetComponent<Animator>().SetTrigger("Ouverture de Coffre");
+
+
+        }
             
     }
 
@@ -39,6 +51,8 @@ public class coffreMohand : MonoBehaviour
                 
                 dialcodePrinted.RecevoirUnCadeau(TypeDialogue.cadeau, 1, CatégorieItem.Nouriture, 0, null, "", false);
                 estClické = true;
+                NewDataCenter.Instance.SauvegarderSTR(clé, "1");
+                GestionnaireMusique._Komasan.ChangerLaMusique(musique, false);
             }
 
             Debug.Log("test");
