@@ -66,19 +66,6 @@ public class mouvementDuJoueur : MonoBehaviour{
             }
             //iconeMiniMap.position = joueur.transform.position;
         }
-        if (Input.GetKeyDown(KeyCode.N)||Input.GetButtonDown("+") && NewDataCenter.Instance != null){
-            Sauvgarder();
-        }
         if (interfasse != null) interfasse.SetActive(droitDeMarcher);
     } 
-
-    public void Sauvgarder(){
-        if (oeuilSauvegarde != null){
-            oeuilSauvegarde.SetTrigger("ouvre");
-        }
-        NewDataCenter.Instance.SauvegarderSTR("pos1", player.transform.position.x.ToString(),"position");
-        NewDataCenter.Instance.SauvegarderSTR("pos2", player.transform.position.y.ToString(),"position");
-        NewDataCenter.Instance.SauvegarderSTR("pos3", player.transform.position.z.ToString(),"position");
-        NewDataCenter.Instance.SauvegarderSTR("scenne", SceneManager.GetActiveScene().name,"position");
-    }
 }

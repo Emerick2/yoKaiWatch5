@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System;
 using System.Globalization;
 using Newtonsoft.Json.Linq;
+using UnityEngine.SceneManagement;
 
 public class NewDataCenter : MonoBehaviour{
     private static NewDataCenter _instance;
@@ -19,12 +20,12 @@ public class NewDataCenter : MonoBehaviour{
     private Dictionary<string, string> dataDict = new Dictionary<string, string>();
 
     public string filePath;
-    public bool lesDonnéesDoiventÊtreChiffré=false; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
+    private bool lesDonnéesDoiventÊtreChiffré=true; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
     private string clefDeChiffrement="g89d56566fg4d32fsdf1gsdfsf32";
     private string crypted = "";
     public int journalNumber = 1;
     public string journalNameKeys = "journal";//journal1, journal2, journal3
-    private bool debug = false;
+    private bool debug = true;
 
     public static NewDataCenter Instance{
         get{
@@ -115,15 +116,9 @@ public class NewDataCenter : MonoBehaviour{
     }
 
     public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json", bool thisIsATimeOfGame = false){
-        if (debug) Debug.Log(clef+" "+valeur);
-        // dossier = CorrigerNom(dossier);
-        dossier = journalNameKeys+journalNumber.ToString()+".json";
-        valeur=chiffrerLesDonnées(valeur);
+        valeur = chiffrerLesDonnées(valeur);
+        if (debug) Debug.Log(clef + " " + valeur);
         dataDict[clef] = valeur;
-        dataContainer = new DataContainer(dataDict);
-        string json = JsonUtility.ToJson(dataContainer);
-
-        File.WriteAllText(Path.Combine(filePath+dossier), json);
         if (!thisIsATimeOfGame) RefreshPNJDialcode();
     }
     public void SauvegarderINT(string clef, int valeur, string dossier="mesData.json", bool thisIsATimeOfGame = false){
@@ -232,6 +227,34 @@ public class NewDataCenter : MonoBehaviour{
         List<PNJDialcode> listOfPNJ = new List<PNJDialcode>(FindObjectsByType<PNJDialcode>(FindObjectsSortMode.None));
         foreach (PNJDialcode pnj in listOfPNJ){
             pnj.Refresh();
+        }
+    }
+
+    public bool Sauvgarder(){
+        if (mouvementDuJoueur.player == null){
+            Debug.LogWarning("ERREUR l'or de la sauvegarde. Le player est introuvable.");
+            return false;
+        }
+        GameObject player = mouvementDuJoueur.player;
+        SauvegarderSTR("pos1", player.transform.position.x.ToString(),"position");
+        SauvegarderSTR("pos2", player.transform.position.y.ToString(),"position");
+        SauvegarderSTR("pos3", player.transform.position.z.ToString(),"position");
+        SauvegarderSTR("scenne", SceneManager.GetActiveScene().name,"position");
+        EcrireSurDisque();
+        return true;
+    }
+
+    public void EcrireSurDisque() {
+        string dossier = journalNameKeys + journalNumber.ToString() + ".json";
+        dataContainer = new DataContainer(dataDict);
+        string json = JsonUtility.ToJson(dataContainer);
+        
+        try {
+            File.WriteAllText(Path.Combine(filePath, dossier), json);
+            Debug.Log("Sauvegarde physique effectuée dans : " + dossier);
+        }
+        catch (System.Exception e) {
+            Debug.LogError("Erreur lors de l'écriture du fichier : " + e.Message);
         }
     }
 }

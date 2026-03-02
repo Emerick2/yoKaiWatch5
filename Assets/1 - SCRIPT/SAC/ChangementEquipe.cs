@@ -101,10 +101,5 @@ public class ChangementEquipe : MonoBehaviour{
         NewDataCenter.Instance.SauvegarderSTR("yoKaiDansEquipe",t,"équipe.json");
 
         PlacerMesYoKai();
-        if (joueur != null){
-            joueur.Sauvgarder();
-        }else{
-            Debug.Log("le joueur n'est pas assigner");
-        }
     }    
 }
