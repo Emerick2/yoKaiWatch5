@@ -17,8 +17,14 @@ public class complétéLeJournal : MonoBehaviour{
     public GameObject bouton2;
     public bool takeAChouce = true;
     private int cible;
+    private écrireLesPetitesValeursDuMenu menu;
 
     void Start(){
+        Initialiser(null);
+    }
+
+    public void Initialiser(écrireLesPetitesValeursDuMenu m){
+        if (m != null) menu = m;
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         nomDuJoueur.text = NewDataCenter.Instance.Lire("nomDuJoueur");
         if (nomDuJoueur.text == "0") nomDuJoueur.text = "";
@@ -37,9 +43,21 @@ public class complétéLeJournal : MonoBehaviour{
         tempsDeJeu.text = heures+":"+minutesSTR;
         List<int> yoKaiDansEquipe = MesYoKai.Instance.yoKaiDeMonEquipe;
         for (int i = 0; i < yoKaiDansEquipe.Count; i++){
+            int ID = int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"));
             médaille[i].SetActive(true);
-            icôneMédaille[i].sprite = médailum.ServantYoKai(int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"))).médaillon;
+            if (icôneMédaille.Count > i && ID > 0) {
+                icôneMédaille[i].sprite = médailum.ServantYoKai(ID).médaillon;
+            }
         }
+
+        cible = 0;
+        bouton1.transform.Find("fond-actif").gameObject.SetActive(cible==0);
+        bouton1.transform.Find("fond-inactif").gameObject.SetActive(cible!=0);
+        bouton2.transform.Find("fond-actif").gameObject.SetActive(cible==1);
+        bouton2.transform.Find("fond-inactif").gameObject.SetActive(cible!=1);
+        if (bouton1 != null) bouton1.SetActive(true);
+        if (bouton2 != null) bouton2.SetActive(true);
+        if (transform.Find("livre/Sauvegarder ?") != null) transform.Find("livre/Sauvegarder ?").gameObject.SetActive(true);
     }
 
     void Update() {
@@ -55,13 +73,24 @@ public class complétéLeJournal : MonoBehaviour{
                 bouton2.transform.Find("fond-actif").gameObject.SetActive(cible==1);
                 bouton2.transform.Find("fond-inactif").gameObject.SetActive(cible!=1);
             }
-            if (Input.GetButtonDown("A") && cible==0){
-                NewDataCenter.Instance.SauvegarderSTR("theTime", TheTime());
-                if (NewDataCenter.Instance.Sauvgarder()){
+            if (Input.GetButtonDown("A")){
+                bool disparitionMenu = true;
+                if (cible==0){
+                    NewDataCenter.Instance.SauvegarderSTR("theTime", TheTime());
+                    disparitionMenu = NewDataCenter.Instance.Sauvgarder();                  
+                }
+                if (disparitionMenu){
                     if (bouton1 != null) bouton1.SetActive(false);
                     if (bouton2 != null) bouton2.SetActive(false);
-                    if (transform.Find("Sauvegarder ?") != null) transform.Find("Sauvegarder ?").gameObject.SetActive(false);
+                    if (transform.Find("livre/Sauvegarder ?") != null) transform.Find("livre/Sauvegarder ?").gameObject.SetActive(false);
                 }
+            }
+        }
+        if (Input.GetButtonDown("B")){
+            Debug.Log("1");
+            if (menu != null){
+                Debug.Log("2");
+                menu.RevenirAuMenu();
             }
         }
     }

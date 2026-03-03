@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class PlaceLesApplicationsSac : MonoBehaviour{
+    public écrireLesPetitesValeursDuMenu menu;
     public GameObject blocOrigine;
     public List<Sprite> listeImageApplication = new List<Sprite>();
     public List<GameObject> lesLieux = new List<GameObject>();
@@ -15,6 +16,21 @@ public class PlaceLesApplicationsSac : MonoBehaviour{
     }
 
     void Initialisation(){
+        if (menu != null){
+            for (int i = 0; i < listeImageApplication.Count; i++){
+                bool delet = true;
+                for (int j = 0; j < menu.applicationMenus.Count; j++){
+                    if (menu.applicationMenus[j].sprite == listeImageApplication[i]){
+                        delet = false;
+                        break;
+                    }
+                }
+                if (delet){
+                    listeImageApplication.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
         for (int i = 0; i < listeImageApplication.Count; i++){
             GameObject TV = Instantiate(blocOrigine);
             TV.transform.Find("icone").GetComponent<Image>().sprite = listeImageApplication[i];

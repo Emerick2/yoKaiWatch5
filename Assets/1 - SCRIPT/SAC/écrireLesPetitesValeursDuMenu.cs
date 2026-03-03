@@ -4,16 +4,17 @@ using TMPro;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using System;
 
 public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     public TextMeshProUGUI textArgent;
     public TextMeshProUGUI textToursBingoKai;
     public List<GameObject> lesEspaceYoKai;
     public GameObject boutDroit;
-    public List<GameObject> lesPagesApplications;
     public GameObject choieApplication;
     private bool peutChoisireUneApplication;
     private bool windowClose;
+    public List<ApplicationMenu> applicationMenus = new List<ApplicationMenu>();
     void Start(){
         if (MesYoKai.Instance != null){
             StartCoroutine(Attend());
@@ -25,20 +26,41 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
 
     void Update(){
         if (Input.GetButtonDown("A")){
-            if (!windowClose && peutChoisireUneApplication && lesPagesApplications.Count > choieApplication.GetComponent<PlaceLesApplicationsSac>().cible){
-                for (int i = 0; i < lesPagesApplications.Count; i++){
-                    lesPagesApplications[i].SetActive(false);
+            ApplicationMenu app = null;
+            int cible = choieApplication.GetComponent<PlaceLesApplicationsSac>().cible;
+                Sprite spriteExample = choieApplication.GetComponent<PlaceLesApplicationsSac>().listeImageApplication[cible];
+                for (int i = 0; i < applicationMenus.Count; i++){
+                    if (applicationMenus[i].sprite == spriteExample){
+                        app = applicationMenus[i];
+                    }
+                
+            }
+            
+            if (!windowClose && peutChoisireUneApplication && app != null){
+                for (int i = 0; i < applicationMenus.Count; i++){
+                    applicationMenus[i].page.SetActive(false);
                 }
                 boutDroit.SetActive(false);
                 choieApplication.SetActive(false);
-                GameObject application = lesPagesApplications[choieApplication.GetComponent<PlaceLesApplicationsSac>().cible];
+                GameObject application = app.page;
                 application.SetActive(true);
                 peutChoisireUneApplication = false;
-                if (application.GetComponent<RemplisLaRoue>() != null){
-                    application.GetComponent<RemplisLaRoue>().Initialisation(true);
+                if (app.scriptAInitialiser == null){
+                    app.scriptAInitialiser = app.page;
                 }
-                if (application.GetComponent<InvantaireSac>() != null){
-                    application.GetComponent<InvantaireSac>().Initialiser();
+                if (app.scriptAInitialiser != null){
+                    if (app.scriptAInitialiser.GetComponent<RemplisLaRoue>() != null){
+                        app.scriptAInitialiser.GetComponent<RemplisLaRoue>().Initialisation(true);
+                    }
+                    if (app.scriptAInitialiser.GetComponent<InvantaireSac>() != null){
+                        app.scriptAInitialiser.GetComponent<InvantaireSac>().Initialiser();
+                    }
+                    if (app.scriptAInitialiser.GetComponent<complétéLeJournal>() != null){
+                        app.scriptAInitialiser.GetComponent<complétéLeJournal>().Initialiser(this);
+                    }
+                    if (app.scriptAInitialiser.GetComponent<QuestMenu>() != null){
+                        app.scriptAInitialiser.GetComponent<QuestMenu>().Initialiser(this);
+                    }
                 }
             }
         } else if (Input.GetButtonDown("X") && windowClose) {
@@ -100,12 +122,19 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     }
 
     public void RevenirAuMenu(){
-        for (int i = 0; i < lesPagesApplications.Count; i++){
-            lesPagesApplications[i].SetActive(false);
+        for (int i = 0; i < applicationMenus.Count; i++){
+            applicationMenus[i].page.SetActive(false);
         }
         boutDroit.SetActive(true);
         choieApplication.SetActive(true);
         peutChoisireUneApplication = true;
         Initialisation();
     }
+}
+
+[System.Serializable]
+public class ApplicationMenu{
+    public Sprite sprite;
+    public GameObject page;
+    public GameObject scriptAInitialiser;
 }
