@@ -11,6 +11,7 @@ public class PNJDialcode : MonoBehaviour{
     /*[HideInInspector]*/ public List<FragmentDeDialogue> maListeDeFraguement = new List<FragmentDeDialogue>();
     public List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
     private float taux = 0f;
+    private bool inTheZonne = false;
 
     void Awake() {
         dialcode = DialcodePrinted.Instance;
@@ -49,7 +50,8 @@ public class PNJDialcode : MonoBehaviour{
         }
     }
     void OnTriggerEnter(Collider collider){
-        if (collider.tag == "Player"){
+        if (collider.tag == "Player" && mouvementDuJoueur.droitDeMarcher){
+            inTheZonne = true;
             if (Refresh() && dialcode != null){
                 dialcode.fragmentDeDialogue = maListeDeFraguement;
                 dialcode.dansUneZoneDeDialogue = true;
@@ -60,9 +62,15 @@ public class PNJDialcode : MonoBehaviour{
     public bool Refresh(){
         if (TrouverBonDialogue()) {
             gameObject.SetActive(true);
+            if (inTheZonne){
+                dialcode.fragmentDeDialogue = maListeDeFraguement;
+            }
             return true;
         } else {
             gameObject.SetActive(false);
+            if (inTheZonne){
+                dialcode.fragmentDeDialogue = new();
+            }
             return false;
         }
     }
@@ -70,6 +78,7 @@ public class PNJDialcode : MonoBehaviour{
     void OnTriggerExit(Collider collider){
         if (collider.tag == "Player" && dialcode != null){
             dialcode.dansUneZoneDeDialogue = false;
+            inTheZonne = false;
         }
     }
 
