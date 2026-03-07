@@ -12,6 +12,7 @@ public class PNJDialcode : MonoBehaviour{
     public List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
     private float taux = 0f;
     private bool inTheZonne = false;
+    private bool characterVisibel = true;
 
     void Awake() {
         dialcode = DialcodePrinted.Instance;
@@ -61,16 +62,15 @@ public class PNJDialcode : MonoBehaviour{
 
     public bool Refresh(){
         if (TrouverBonDialogue()) {
+            characterVisibel = true;
             gameObject.SetActive(true);
             if (inTheZonne){
-                dialcode.fragmentDeDialogue = maListeDeFraguement;
+                StartCoroutine(UpdateDialcodePrinted());
             }
             return true;
         } else {
+            characterVisibel = false;
             gameObject.SetActive(false);
-            if (inTheZonne){
-                dialcode.fragmentDeDialogue = new();
-            }
             return false;
         }
     }
@@ -111,6 +111,15 @@ public class PNJDialcode : MonoBehaviour{
         }
 
         return dialcode.CalculerLogiqueComplexe(valeurs, conditionnelle);
+    }
+
+    IEnumerator UpdateDialcodePrinted(){
+        while(DialcodePrinted.Instance.discussionInProgress){
+            yield return new WaitForSeconds(0.2f);
+        }
+        if (inTheZonne){
+            dialcode.fragmentDeDialogue = maListeDeFraguement;
+        }
     }
 }
 

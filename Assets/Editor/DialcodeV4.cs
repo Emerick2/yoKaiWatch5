@@ -442,6 +442,13 @@ public class DialcodeV4 : EditorWindow{
                 GUILayout.Box("1 : La requête est en cours."+clef, monStyleHelpBox);
                 GUILayout.Box("2 : La requête est terminée."+clef, monStyleHelpBox);
                 break;
+            case TypeDialogue.infoQuest:
+                f.infoQuest.name = AjoutTexte("Nom",f.infoQuest.name);
+                f.infoQuest.description = AjoutTexte("Description",f.infoQuest.description);
+                f.infoQuest.objective = AjoutTexte("Objectif",f.infoQuest.objective);
+                f.infoQuest.level = AjoutNombre("Niveau recommandé",f.infoQuest.level);
+                f.infoQuest.xp = AjoutNombre("Points d'expériences",f.infoQuest.xp);
+                break;
         }
     }
 

@@ -15,7 +15,11 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     private bool peutChoisireUneApplication;
     private bool windowClose;
     public List<ApplicationMenu> applicationMenus = new List<ApplicationMenu>();
+    public List<GameObject> objetOpen;
     void Start(){
+        foreach (GameObject item in objetOpen){
+            item.SetActive(true);
+        }
         if (MesYoKai.Instance != null){
             StartCoroutine(Attend());
         }

@@ -10,5 +10,6 @@ public enum TypeDialogue{
     vol,
     boutique,
     nul,
-    quete
+    quete,
+    infoQuest
 }

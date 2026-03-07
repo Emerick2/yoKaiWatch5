@@ -25,7 +25,7 @@ public class NewDataCenter : MonoBehaviour{
     private string crypted = "";
     public int journalNumber = 1;
     public string journalNameKeys = "journal";//journal1, journal2, journal3
-    private bool debug = false;
+    private bool debug = true;
 
     public static NewDataCenter Instance{
         get{
@@ -116,8 +116,8 @@ public class NewDataCenter : MonoBehaviour{
     }
 
     public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json", bool thisIsATimeOfGame = false){
-        valeur = chiffrerLesDonnées(valeur);
         if (debug) Debug.Log(clef + " " + valeur);
+        valeur = chiffrerLesDonnées(valeur);
         dataDict[clef] = valeur;
         if (!thisIsATimeOfGame) RefreshPNJDialcode();
     }
@@ -256,6 +256,22 @@ public class NewDataCenter : MonoBehaviour{
         catch (System.Exception e) {
             Debug.LogError("Erreur lors de l'écriture du fichier : " + e.Message);
         }
+    }
+
+    public List<string> ReadWithTag(string tag){
+        List<string> result = new List<string>();
+
+        if (string.IsNullOrEmpty(tag)){
+            return result;
+        }
+
+        foreach (var pair in dataDict){
+            if (pair.Key.StartsWith(tag, StringComparison.Ordinal)){
+                result.Add(pair.Key);
+            }
+        }
+
+        return result;
     }
 }
 

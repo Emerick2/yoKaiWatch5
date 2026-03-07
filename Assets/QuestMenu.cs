@@ -20,6 +20,7 @@ public class QuestMenu : MonoBehaviour{
     public int minProposition = 1;//on part de 1
     private GridLayoutGroup grid;
     private int left;
+    public Sprite iconeDefault;
     void Start(){
         livre = transform.Find("livre").gameObject;
         page1 = livre.transform.Find("PAGE-1").gameObject;
@@ -29,7 +30,9 @@ public class QuestMenu : MonoBehaviour{
         Initialiser(null);
     }
 
+
     public void Initialiser(écrireLesPetitesValeursDuMenu m){
+        FindInformationInQuest();
         if (m != null) menu=m;
         numberPage = 0;
         ChangePage(false);
@@ -46,8 +49,12 @@ public class QuestMenu : MonoBehaviour{
                 TV.transform.parent = blockListeOfQuest.transform;
                 TV.transform.localScale = new Vector3(1f, 1f, 1f);
                 TV.transform.name = (i+1).ToString();
-                if (TV.GetComponent<Image>() != null && listOfQuestMenuInformation[i].sprite != null) {
-                    TV.GetComponent<Image>().sprite = listOfQuestMenuInformation[i].sprite;
+                if (TV.GetComponent<Image>() != null) {
+                    if (listOfQuestMenuInformation[i].sprite != null){
+                        TV.GetComponent<Image>().sprite = listOfQuestMenuInformation[i].sprite;
+                    } else {
+                        TV.GetComponent<Image>().sprite = iconeDefault;
+                    }
                 }
                 TV.SetActive(true);
             }
@@ -56,6 +63,11 @@ public class QuestMenu : MonoBehaviour{
             }
         }
 
+        StartCoroutine(InitHighlightNextFrame());
+    }
+
+    IEnumerator InitHighlightNextFrame(){
+        yield return null;
         ChangeQuest();
     }
 
@@ -111,8 +123,8 @@ public class QuestMenu : MonoBehaviour{
                 numberPage = 0;
             }
         }
-        page1.SetActive(numberPage==0);
-        page2.SetActive(numberPage==1);
+        if (page1 != null) page1.SetActive(numberPage==0);
+        if (page2 != null) page2.SetActive(numberPage==1);
     }
 
     void PousserPageQuest() {
@@ -133,4 +145,36 @@ public class QuestMenu : MonoBehaviour{
 
         LayoutRebuilder.ForceRebuildLayoutImmediate(grid.GetComponent<RectTransform>());
     }
+
+    void FindInformationInQuest(){
+        listOfQuestMenuInformation.Clear();
+        NewDataCenter data = NewDataCenter.Instance;
+        List<string> listOfQuest = data.ReadWithTag("Quête-");
+        for (int i = 0; i < listOfQuest.Count; i++){
+            listOfQuest[i] = listOfQuest[i].Replace("Quête-","");
+        }
+        foreach (string item in listOfQuest){
+            if (data.Lire("Quête-"+item) != "0"){
+                QuestMenuInformation q = new QuestMenuInformation();
+                q.name = item;
+                q.description = data.Lire("Quête_description%"+item);
+                q.objective = data.Lire("Quête_objectif%"+item);
+                q.level = int.Parse(data.Lire("Quête_niveau%"+item));
+                q.xp = int.Parse(data.Lire("Quête_xp%"+item));
+                q.finish = data.Lire("Quête-"+item) == "2";
+                q.sprite = Resources.Load<Sprite>("image-quest/"+item);
+                listOfQuestMenuInformation.Add(q);
+            }
+        }
+    }
 }
+
+
+/*
+Clef de quête :
+Quête-le nom : 0,1,2
+Quête_description%le nom : "blablaba"
+Quête_objectif%le nom : "blabla"
+Quête_niveau%le nom : 20
+Quête_xp%le nom : 30
+*/

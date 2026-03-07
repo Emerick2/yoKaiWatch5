@@ -46,6 +46,7 @@ public class DialcodePrinted : MonoBehaviour{
     private int nChoix;
     public static DialcodePrinted Instance;
     public bool dansUneZoneDeDialogue;
+    public bool discussionInProgress;
 
     void Awake(){
         if (Instance == null){
@@ -88,6 +89,7 @@ public class DialcodePrinted : MonoBehaviour{
                     nChoix++;
                     position++;
                     choixEnCours = false;
+                    // Action();
                 }
             }
             if (choixEnCoursBoutique1) {
@@ -245,6 +247,18 @@ public class DialcodePrinted : MonoBehaviour{
                 */
             }
             position++;
+        } else if (fragment.type == TypeDialogue.infoQuest) {
+            QuestMenuInformation q = fragment.infoQuest;
+            Debug.Log("Ici !");
+            if (q.name != ""){
+                if (q.description != "") NewDataCenter.Instance.SauvegarderSTR("Quête_description%"+q.name, q.description);
+                if (q.objective != "") NewDataCenter.Instance.SauvegarderSTR("Quête_objectif%"+q.name, q.objective);
+                if (q.level > 0) NewDataCenter.Instance.SauvegarderSTR("Quête_niveau%"+q.name, q.level.ToString());
+                if (q.xp > 0) NewDataCenter.Instance.SauvegarderSTR("Quête_xp%"+q.name, q.xp.ToString());
+            }
+            position++;
+            AvancerJusqueAuProchainDialogue();
+            if (position < fragmentDeDialogue.Count) Action();
         }
     }
 
@@ -382,6 +396,7 @@ public class DialcodePrinted : MonoBehaviour{
         cibleChoixBoutique1 = 0;
         awaitTheClicForTheEndQuest = 0;
         position = 0;
+        discussionInProgress = true;
         StartCoroutine(AnnimationOuverture());
         if (fragmentDeDialogue.Count == 0){
             Debug.LogWarning("Il n'y a pas de phrase pour le dialogue !");
@@ -410,6 +425,7 @@ public class DialcodePrinted : MonoBehaviour{
     }
     public void Fermeture(bool rapide){
         boiteFermer = true;
+        discussionInProgress = false;
         if (rapide){
             canvasGroup.alpha = 0f;
             canvasGroup.blocksRaycasts = false;
@@ -528,7 +544,6 @@ public class DialcodePrinted : MonoBehaviour{
                     if (position >= fragmentDeDialogue.Count) break;
                     dialogueActuel = fragmentDeDialogue[position];
                 }
-                Debug.Log(dialogueActuel.auteurConditionnelle);
                 
                 if (dialogueActuel.auteurConditionnelle <= auteurConditionnelle) {
                     return; 
@@ -541,7 +556,12 @@ public class DialcodePrinted : MonoBehaviour{
                 if (valeur) {
                     auteurConditionnelle++;
                 } else {
-                    position++; 
+                    int niveauASauter = auteurConditionnelleRéel;
+                    while (position + 1 < fragmentDeDialogue.Count && 
+                        !(fragmentDeDialogue[position + 1].type == TypeDialogue.finDeCondition && 
+                            fragmentDeDialogue[position + 1].auteurConditionnelle == niveauASauter)) {
+                        position++;
+                    }
                 }
                 auteurConditionnelleRéel++;
             } 

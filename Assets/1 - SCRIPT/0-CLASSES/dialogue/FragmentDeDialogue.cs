@@ -19,6 +19,6 @@ public class FragmentDeDialogue{
     public List<int> listeProduitBoutique = new List<int>();
     public CatégorieQuête categorieQuete;
     public bool endQuest;
-    
+    public QuestMenuInformation infoQuest = new QuestMenuInformation();
 }
 
