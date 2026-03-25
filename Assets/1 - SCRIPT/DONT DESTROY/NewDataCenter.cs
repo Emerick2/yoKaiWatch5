@@ -25,7 +25,7 @@ public class NewDataCenter : MonoBehaviour{
     private string crypted = "";
     public int journalNumber = 1;
     public string journalNameKeys = "journal";//journal1, journal2, journal3
-    private bool debug = true;
+    public bool debug = true;
 
     public static NewDataCenter Instance{
         get{

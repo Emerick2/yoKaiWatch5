@@ -8,5 +8,6 @@ public enum CatégorieItem{
     Tous,
     YoKai,
     Filet,
-    CanneAPeche
+    CanneAPeche,
+    Nouveau
 }

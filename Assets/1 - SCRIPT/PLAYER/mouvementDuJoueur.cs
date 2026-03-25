@@ -66,6 +66,12 @@ public class mouvementDuJoueur : MonoBehaviour{
             }
             //iconeMiniMap.position = joueur.transform.position;
         }
-        if (interfasse != null) interfasse.SetActive(droitDeMarcher);
+        if (interfasse != null && interfasse.GetComponent<CanvasGroup>() != null){
+            if (droitDeMarcher){
+                interfasse.GetComponent<CanvasGroup>().alpha = 1;
+            } else {
+                interfasse.GetComponent<CanvasGroup>().alpha = 0;
+            }
+        }
     } 
 }

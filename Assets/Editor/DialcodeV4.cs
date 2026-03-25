@@ -16,7 +16,6 @@ public class DialcodeV4 : EditorWindow{
 
     private bool styleChargé = false;
     private int nombreDeChoix = 1;
-    private int nombreDeFragument = 0;
     private List<FragmentDeDialogue> fragment = new List<FragmentDeDialogue>();
     private Vector2 scrollPosition;
     private int hauteurConditionnele = 0;
@@ -29,11 +28,23 @@ public class DialcodeV4 : EditorWindow{
     private List<ConditionOfTheDialoguePage> conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>();
 
     private double nextSaveTime = 0;
-    private const double SAVE_INTERVAL = 30.0;
+    private const double SAVE_INTERVAL = 10.0;
+    private bool aDesModificationsNonSauvegardees = false;
+    private bool vientDeSauvegarder = false;
+
+    private Dictionary<Color, Texture2D> textureCache = new Dictionary<Color, Texture2D>();
+    
 
     [MenuItem("Tools/DialcodeV4")]
     public static void ShowWindow(){
         GetWindow<DialcodeV4>("DialcodeV4");
+    }
+
+    private Texture2D GetCachedTex(Color col) {
+        if (!textureCache.ContainsKey(col)) {
+            textureCache[col] = MakeTex(2, 2, col);
+        }
+        return textureCache[col];
     }
 
     private void OnSelectionChange(){
@@ -41,20 +52,21 @@ public class DialcodeV4 : EditorWindow{
         GameObject go = Selection.activeGameObject;
         if (go != null){
             if (go.GetComponent<PNJDialcode>() != null){
-                if (!GUI.changed) nextSaveTime = EditorApplication.timeSinceStartup + SAVE_INTERVAL;
+                if (!GUI.changed && !aDesModificationsNonSauvegardees) nextSaveTime = EditorApplication.timeSinceStartup + SAVE_INTERVAL;
                 selectedPNJ = go.GetComponent<PNJDialcode>();
                 positionPage = 0;
                 LireLaSauvegarde(positionPage);
+                aDesModificationsNonSauvegardees = false;
                 nothingHappened = false;
             }
         }
         if(nothingHappened){
             selectedPNJ = null;
             fragment.Clear();
-            nombreDeFragument = 0;
             nombrePage = 1;
             positionPage = 0;
             conditionOfTheDialoguePage.Clear();
+            aDesModificationsNonSauvegardees = false;
         }
         Repaint();
     }
@@ -75,38 +87,38 @@ public class DialcodeV4 : EditorWindow{
                     OnSelectionChange();
                 }
             }
-            // if (Selection.activeGameObject != null && (Selection.activeGameObject.GetComponent<PNJDialcode>() != null || GUILayout.Button("Ajouter PNJDialcode à " + Selection.activeGameObject.name))){
-            //     Debug.Log("ici");
-            //     if (Selection.activeGameObject.GetComponent<PNJDialcode>() == null) Selection.activeGameObject.AddComponent<PNJDialcode>();
-            //     OnSelectionChange();
-            // }
         }
 
         DrawInterface();
 
         if (EditorGUI.EndChangeCheck()) {
+            if (!vientDeSauvegarder) {
+                aDesModificationsNonSauvegardees = true;
+            }
             EditorUtility.SetDirty(this);
         }
-        // if (GUI.changed &&/*&& (Event.current.type == EventType.MouseUp || Event.current.type == EventType.KeyUp)*/) {
-        //     EnregistrerPage(positionPage);
-        //     Debug.Log("<color=green>SAUVEGARDE EFFECTUÉE : </color> Page " + (positionPage + 1));
-        // }
-        if (GUI.changed && EditorApplication.timeSinceStartup > nextSaveTime) {
+        vientDeSauvegarder = false;
+
+        if ((aDesModificationsNonSauvegardees || GUI.changed) && EditorApplication.timeSinceStartup > nextSaveTime) {
             EnregistrerPage(positionPage);
             Debug.Log("<color=grey>Sauvegarde automatique effectuée...</color>");
         }
     }
 
     private void OnLostFocus() {
-        if (selectedPNJ != null && GUI.changed){
+        if (selectedPNJ != null && (aDesModificationsNonSauvegardees || GUI.changed)){
             EnregistrerPage(positionPage);
             Debug.Log("<color=grey>Sauvegarde au changement de sélection effectuée...</color>");
         }
     }
 
     private void OnDisable() {
-        if (selectedPNJ != null && GUI.changed) {
-            EnregistrerPage(positionPage);
+        if (selectedPNJ != null) {
+            try {
+                EnregistrerPage(positionPage);
+            } catch (Exception e) {
+                Debug.LogWarning("Échec de la sauvegarde automatique à la fermeture : " + e.Message);
+            }
         }
     }
 
@@ -116,6 +128,7 @@ public class DialcodeV4 : EditorWindow{
         while (conditionOfTheDialoguePage.Count < nombrePage){
             conditionOfTheDialoguePage.Add(new ConditionOfTheDialoguePage());
         }
+        positionPage = Mathf.Clamp(positionPage, 0, conditionOfTheDialoguePage.Count - 1);
 
         for (int i = 0; i < nombrePage; i++){
             GUILayout.BeginVertical();
@@ -142,12 +155,16 @@ public class DialcodeV4 : EditorWindow{
                     }
 
                     nombrePage--;
-                    SaveConditionOfTheDialoguePage();
                     positionPage = Mathf.Clamp(positionPage, 0, nombrePage - 1);
+                    SaveConditionOfTheDialoguePage();
                     LireLaSauvegarde(positionPage);
                     
                     AssetDatabase.Refresh();
                     
+                    GUILayout.EndVertical();
+                    GUILayout.EndHorizontal();
+                    GUIUtility.ExitGUI(); 
+                    return;
                     // GUI.color = Color.white;
                     // break; 
                 }
@@ -155,21 +172,28 @@ public class DialcodeV4 : EditorWindow{
             }
             if (positionPage == i) GUI.color = Color.green;
             if (GUILayout.Button((i+1).ToString(), GUILayout.Width(50), GUILayout.Height(50))) {  
-                if (GUI.changed) EnregistrerPage(positionPage);
+                if (GUI.changed || aDesModificationsNonSauvegardees) EnregistrerPage(positionPage);
                 positionPage = i;      
                 LireLaSauvegarde(positionPage);
+                aDesModificationsNonSauvegardees = false;
+                GUIUtility.ExitGUI();
+                return;
             }
             if (positionPage == i) GUI.color = Color.white;
             GUILayout.EndVertical();
             GUILayout.Space(5);
         }
         if (GUILayout.Button("+", GUILayout.Width(50), GUILayout.Height(50))) {    
-            if (GUI.changed) EnregistrerPage(positionPage);
+            if (GUI.changed || aDesModificationsNonSauvegardees) EnregistrerPage(positionPage);
             nombrePage++;    
+            conditionOfTheDialoguePage.Add(new ConditionOfTheDialoguePage());
             SaveConditionOfTheDialoguePage();
             positionPage = nombrePage-1;      
             fragment.Clear();
             LireLaSauvegarde(positionPage);
+            aDesModificationsNonSauvegardees = false;
+            GUIUtility.ExitGUI();
+            return;
         }
         GUI.color = Color.cyan;
         if (GUILayout.Button("SAUVEGARDER", EditorStyles.toolbarButton, GUILayout.Width(100))) {
@@ -180,28 +204,34 @@ public class DialcodeV4 : EditorWindow{
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
-        conditionOfTheDialoguePage[positionPage].visibleCharacter = AjouterUnBool("Personnage visible ?",conditionOfTheDialoguePage[positionPage].visibleCharacter);
+        if (conditionOfTheDialoguePage.Count > 0 && positionPage < conditionOfTheDialoguePage.Count) {
+            conditionOfTheDialoguePage[positionPage].visibleCharacter = AjouterUnBool("Personnage visible ?", conditionOfTheDialoguePage[positionPage].visibleCharacter);
 
-        // condition :
-        if (GUILayout.Button("+ Ajouter Condition")) conditionOfTheDialoguePage[positionPage].listOfConditions.Add(new Conditionnelle());
-                
-        for (int j = 0; j < conditionOfTheDialoguePage[positionPage].listOfConditions.Count; j++){
-            Conditionnelle c = conditionOfTheDialoguePage[positionPage].listOfConditions[j];
-            Rect rectLabelTemporaire = CrééLeRect();
-            GUILayout.BeginHorizontal();
-            c.nomV1 =  AjoutTexte("Valeur", c.nomV1);
-            c.opérateur = AjouterUnEnumGénérique("Opérateur", c.opérateur);
-            c.nomV2 =  AjoutTexte("Valeur", c.nomV2);
-            GUI.color = Color.red;
-            if (GUILayout.Button("X", GUILayout.Width(20))) {
-                conditionOfTheDialoguePage[positionPage].listOfConditions.RemoveAt(j);
-                j--;
+            // condition :
+            if (GUILayout.Button("+ Ajouter Condition")) {
+                conditionOfTheDialoguePage[positionPage].listOfConditions.Add(new Conditionnelle());
+                aDesModificationsNonSauvegardees = true;
             }
-            GUI.color = Color.white;
-            GUILayout.EndHorizontal();
-            if (j+1 < conditionOfTheDialoguePage[positionPage].listOfConditions.Count){
-                c.opérateurEtape2 = AjouterUnEnumGénérique("Lien suite", c.opérateurEtape2);
-            }                
+                    
+            for (int j = 0; j < conditionOfTheDialoguePage[positionPage].listOfConditions.Count; j++){
+                Conditionnelle c = conditionOfTheDialoguePage[positionPage].listOfConditions[j];
+                Rect rectLabelTemporaire = CrééLeRect();
+                GUILayout.BeginHorizontal();
+                c.nomV1 =  AjoutTexte("Valeur", c.nomV1);
+                c.opérateur = AjouterUnEnumGénérique("Opérateur", c.opérateur);
+                c.nomV2 =  AjoutTexte("Valeur", c.nomV2);
+                GUI.color = Color.red;
+                if (GUILayout.Button("X", GUILayout.Width(20))) {
+                    conditionOfTheDialoguePage[positionPage].listOfConditions.RemoveAt(j);
+                    j--;
+                    aDesModificationsNonSauvegardees = true;
+                }
+                GUI.color = Color.white;
+                GUILayout.EndHorizontal();
+                if (j+1 < conditionOfTheDialoguePage[positionPage].listOfConditions.Count){
+                    c.opérateurEtape2 = AjouterUnEnumGénérique("Lien suite", c.opérateurEtape2);
+                }                
+            }
         }
     }
 
@@ -212,7 +242,8 @@ public class DialcodeV4 : EditorWindow{
         if (!styleChargé) Style();
         // Style();
         Rect rectangleFenêtre = new Rect(0,0,position.width,position.height);
-        EditorGUI.DrawRect(rectangleFenêtre,Color.white);
+        Color backgroundColor = aDesModificationsNonSauvegardees ? new Color(0.5f, 0.5f, 0.86f) : Color.white;
+        EditorGUI.DrawRect(rectangleFenêtre, backgroundColor);
 
         scrollPosition = GUILayout.BeginScrollView(scrollPosition);
         GUILayout.BeginHorizontal();//<>
@@ -221,7 +252,7 @@ public class DialcodeV4 : EditorWindow{
 
         PlacerEnTête();
 
-        for (int i = 0; i < nombreDeFragument; i++){
+        for (int i = 0; i < fragment.Count; i++){
             FragmentDeDialogue f = null;
             if (fragment.Count < i+1){
                 f = new FragmentDeDialogue();
@@ -231,24 +262,30 @@ public class DialcodeV4 : EditorWindow{
             }
             ChoisirUneCouleurSelonLeType(f.type);
             GUILayout.BeginVertical(styleCadre); 
-            // if (GUILayout.Button("Suprimer le bloc ci-dessou", GUILayout.Height(30))) {
-            //     nombreDeFragument--;
-            //     fragment.RemoveAt(i);
-            //     i--;
-            // }
+
             GUILayout.BeginHorizontal();
             GUI.color = Color.red;
             if (GUILayout.Button("X", GUILayout.Width(20))) {
-                nombreDeFragument--;
                 fragment.RemoveAt(i);
-                i--;
+                GUI.changed = true;
+                aDesModificationsNonSauvegardees = true;
+
+                GUILayout.EndHorizontal(); 
+                GUILayout.EndVertical(); 
+                GUILayout.EndVertical(); 
+                GUILayout.EndHorizontal();
+                GUILayout.EndScrollView();
+
+                Event.current.Use();
+                return;
             }
             GUI.color = Color.white;
             GUI.color = Color.green;
             if (GUILayout.Button("V", GUILayout.Width(20))) {
-                nombreDeFragument++;
                 fragment.Insert(i, new FragmentDeDialogue());
                 i--;
+                GUI.changed = true;
+                aDesModificationsNonSauvegardees = true;
             }
             GUI.color = Color.white;          
             GUILayout.EndHorizontal();
@@ -260,7 +297,10 @@ public class DialcodeV4 : EditorWindow{
         }
 
         if (GUILayout.Button("Ajouter un nouveau bloc", GUILayout.Height(30))) {
-            nombreDeFragument++;
+            fragment.Add(new FragmentDeDialogue());
+            GUI.changed = true;
+            aDesModificationsNonSauvegardees = true;
+            Event.current.Use();
         }
         
         GUILayout.EndVertical();//</>
@@ -332,11 +372,17 @@ public class DialcodeV4 : EditorWindow{
                 color = new Color(0.1f, 0.1f, 0.1f);
                 break;
         }
-        styleCadre.normal.background = MakeTex(2, 2, color);
+        styleCadre.normal.background = GetCachedTex(color);
+        int x = (type == TypeDialogue.finDeCondition && hauteurConditionnele > 0) ? 1 : 0;
+        styleCadre.margin = new RectOffset(30 * (hauteurConditionnele - x), 0, 10, 10);
+    }
 
-        int x = 0;
-        if (type == TypeDialogue.finDeCondition && hauteurConditionnele>0) x = 1;
-        styleCadre.margin = new RectOffset(30*(hauteurConditionnele-x), 0, 10, 10);
+    //Cette fonction est appeller à la fermeture de la fenêtre.
+    private void OnDestroy() {
+        foreach (var tex in textureCache.Values) {
+            DestroyImmediate(tex);
+        }
+        textureCache.Clear();
     }
 
     void AjouterUnFragument(FragmentDeDialogue f){
@@ -383,6 +429,7 @@ public class DialcodeV4 : EditorWindow{
                 }
                 if (GUILayout.Button("+ Ajouter un produit au magasin")) {
                     f.listeProduitBoutique.Add(0);
+                    aDesModificationsNonSauvegardees = true;
                 }
 
                 for (int i = 0; i < f.listeProduitBoutique.Count; i++) {
@@ -393,6 +440,7 @@ public class DialcodeV4 : EditorWindow{
                     GUI.color = Color.red;
                     if (GUILayout.Button("X", GUILayout.Width(20))) {
                         f.listeProduitBoutique.RemoveAt(i);
+                        aDesModificationsNonSauvegardees = true;
                         EditorGUILayout.EndHorizontal();
                         break; 
                     }
@@ -403,7 +451,10 @@ public class DialcodeV4 : EditorWindow{
             case TypeDialogue.conditionDePassage:
                 hauteurConditionnele++;
                 if (f.conditionnelle == null) f.conditionnelle = new List<Conditionnelle>();
-                if (GUILayout.Button("+ Ajouter Condition")) f.conditionnelle.Add(new Conditionnelle());
+                if (GUILayout.Button("+ Ajouter Condition")) {
+                    f.conditionnelle.Add(new Conditionnelle());
+                    aDesModificationsNonSauvegardees = true;
+                }
                 
                 for (int j = 0; j < f.conditionnelle.Count; j++){
                     // EditorGUILayout.BeginVertical(GUI.skin.textField);
@@ -418,6 +469,7 @@ public class DialcodeV4 : EditorWindow{
                     if (GUILayout.Button("X", GUILayout.Width(20))) {
                         f.conditionnelle.RemoveAt(j);
                         j--;
+                        aDesModificationsNonSauvegardees = true;
                     }
                     GUI.color = Color.white;
                     GUILayout.EndHorizontal();
@@ -503,18 +555,22 @@ public class DialcodeV4 : EditorWindow{
 
         if (File.Exists(fullPath)) {
             string json = File.ReadAllText(fullPath);
-            DialogueData data = JsonUtility.FromJson<DialogueData>(json);
+            DialogueData data = JsonUtility.FromJson<DialogueData>(json);            
             fragment = data.fragments ?? new List<FragmentDeDialogue>();
         } else {
             fragment = new List<FragmentDeDialogue>();
         }
+
+        nombrePage = Mathf.Max(1, conditionOfTheDialoguePage.Count);
     
-        nombreDeFragument = fragment.Count;
         selectedPNJ.maListeDeFraguement = new List<FragmentDeDialogue>(fragment);
     }
 
 
     void EnregistrerPage(int numéro){
+        GUI.FocusControl(null); // Retire le focus pour valider les modifications de texte en cours
+        aDesModificationsNonSauvegardees = false;
+        vientDeSauvegarder = true;
         nextSaveTime = EditorApplication.timeSinceStartup + SAVE_INTERVAL;
         if (selectedPNJ == null) return;
         SaveConditionOfTheDialoguePage();
@@ -531,7 +587,6 @@ public class DialcodeV4 : EditorWindow{
         string fullPath = directory + "/" + selectedPNJ.jsonPath + "-page" + numéro + ".json";
 
         File.WriteAllText(fullPath, json);
-
         EditorUtility.SetDirty(selectedPNJ);
         AssetDatabase.Refresh();
         Debug.Log($"<color=cyan>Fichier sauvegardé :</color> {selectedPNJ.jsonPath}-page{numéro}.json à {DateTime.Now.ToLongTimeString()}");

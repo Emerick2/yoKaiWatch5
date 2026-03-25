@@ -50,6 +50,7 @@ public class QuestMenu : MonoBehaviour{
                 TV.transform.localScale = new Vector3(1f, 1f, 1f);
                 TV.transform.name = (i+1).ToString();
                 if (TV.GetComponent<Image>() != null) {
+                    TV.GetComponent<Image>().enabled = true;
                     if (listOfQuestMenuInformation[i].sprite != null){
                         TV.GetComponent<Image>().sprite = listOfQuestMenuInformation[i].sprite;
                     } else {
