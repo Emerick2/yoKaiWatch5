@@ -69,6 +69,10 @@ public class PNJDialcode : MonoBehaviour{
             }
             return true;
         } else {
+            if (inTheZonne && dialcode!=null){
+                dialcode.dansUneZoneDeDialogue = false;
+                dialcode.Fermeture(false);
+            }
             characterVisibel = false;
             gameObject.SetActive(false);
             return false;
