@@ -13,6 +13,7 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     public GameObject boutDroit;
     public GameObject choieApplication;
     private bool peutChoisireUneApplication;
+    private bool seMenuEstFermer = true;
     private bool windowClose;
     public List<ApplicationMenu> applicationMenus = new List<ApplicationMenu>();
     public List<GameObject> objetOpen;
@@ -71,12 +72,14 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
             windowClose = false;
             transform.Find("C").gameObject.SetActive(true);
             mouvementDuJoueur.droitDeMarcher = false;
+            seMenuEstFermer=false;
             RevenirAuMenu();
         } else if (Input.GetButtonDown("B")){
-            if (peutChoisireUneApplication) {
+            if (peutChoisireUneApplication && !seMenuEstFermer) {
                 windowClose = true;
                 transform.Find("C").gameObject.SetActive(false);
                 mouvementDuJoueur.droitDeMarcher = true;
+                seMenuEstFermer = true;
             }
         }
     }

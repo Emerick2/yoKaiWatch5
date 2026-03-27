@@ -29,10 +29,12 @@ public class DialcodeV4 : EditorWindow{
 
     private double nextSaveTime = 0;
     private const double SAVE_INTERVAL = 10.0;
+    private bool sauvegardeAutomatique = false;
     private bool aDesModificationsNonSauvegardees = false;
     private bool vientDeSauvegarder = false;
 
     private Dictionary<Color, Texture2D> textureCache = new Dictionary<Color, Texture2D>();
+    private int lastFocusedControl = 0;
     
 
     [MenuItem("Tools/DialcodeV4")]
@@ -72,10 +74,18 @@ public class DialcodeV4 : EditorWindow{
     }
 
     void OnGUI(){
+        Event e = Event.current;
+        if (e.type == EventType.KeyDown && e.control && e.keyCode == KeyCode.S) {
+            EnregistrerPage(positionPage);
+            Debug.Log("<color=grey>Sauvegarde manuelle (Ctrl+S) effectuée...</color>");
+            e.Use();
+        }
+
         EditorGUI.BeginChangeCheck();
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
         GUILayout.Label("Éditeur de Dialogue : " + (selectedPNJ != null ? selectedPNJ.name : "Aucun PNJ sélectionné"));
         GUILayout.FlexibleSpace();
+        sauvegardeAutomatique = GUILayout.Toggle(sauvegardeAutomatique, "Sauv. Auto (Temps)", EditorStyles.toolbarButton);
         EditorGUILayout.EndHorizontal();
 
         if (selectedPNJ == null){
@@ -99,9 +109,18 @@ public class DialcodeV4 : EditorWindow{
         }
         vientDeSauvegarder = false;
 
-        if ((aDesModificationsNonSauvegardees || GUI.changed) && EditorApplication.timeSinceStartup > nextSaveTime) {
+        if (sauvegardeAutomatique && (aDesModificationsNonSauvegardees || GUI.changed) && EditorApplication.timeSinceStartup > nextSaveTime) {
             EnregistrerPage(positionPage);
-            Debug.Log("<color=grey>Sauvegarde automatique effectuée...</color>");
+            Debug.Log("<color=grey>Sauvegarde automatique (temps) effectuée...</color>");
+        }
+
+        int currentFocus = GUIUtility.keyboardControl;
+        if (currentFocus != lastFocusedControl) {
+            if (aDesModificationsNonSauvegardees && lastFocusedControl != 0) {
+                EnregistrerPage(positionPage, false);
+                Debug.Log("<color=grey>Sauvegarde au changement de champ effectuée...</color>");
+            }
+            lastFocusedControl = currentFocus;
         }
     }
 
@@ -525,7 +544,7 @@ public class DialcodeV4 : EditorWindow{
         Rect rectLabelTemporaire = CrééLeRect();
         // EditorGUI.DrawRect(rectLabelTemporaire, couleurTitre);
         EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
-        return EditorGUILayout.TextField(valeurParDéfaut, monStyleChampDeSaisie, GUILayout.Height(hauteurDeToutLesElement));
+        return EditorGUILayout.TextField(valeurParDéfaut, monStyleChampDeSaisie, GUILayout.Height(28));
     }
     int AjoutNombre(string valeurLabel, int valeurParDéfaut){
         Rect rectLabelTemporaire = CrééLeRect();
@@ -538,7 +557,7 @@ public class DialcodeV4 : EditorWindow{
     T AjouterUnEnumGénérique<T>(string texteLabel, T valeurActuelle) where T : System.Enum {
         Rect rectLabelTemporaire = CrééLeRect();
         EditorGUI.LabelField(rectLabelTemporaire, texteLabel, monStyleTitreElement);
-        return (T)EditorGUILayout.EnumPopup(valeurActuelle, monStyleChampDeSaisie, GUILayout.Height(30));
+        return (T)EditorGUILayout.EnumPopup(valeurActuelle, monStyleChampDeSaisie, GUILayout.Height(28));
     }
 
     bool AjouterUnBool(string texteLabel, bool valeurParDéfaut){
@@ -567,8 +586,8 @@ public class DialcodeV4 : EditorWindow{
     }
 
 
-    void EnregistrerPage(int numéro){
-        GUI.FocusControl(null); // Retire le focus pour valider les modifications de texte en cours
+    void EnregistrerPage(int numéro, bool retirerFocus = true){
+        if (retirerFocus) GUI.FocusControl(null); // Retire le focus pour valider les modifications de texte en cours
         aDesModificationsNonSauvegardees = false;
         vientDeSauvegarder = true;
         nextSaveTime = EditorApplication.timeSinceStartup + SAVE_INTERVAL;

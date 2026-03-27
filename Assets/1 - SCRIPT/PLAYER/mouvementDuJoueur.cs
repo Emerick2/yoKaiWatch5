@@ -65,6 +65,8 @@ public class mouvementDuJoueur : MonoBehaviour{
                 caméra.position = nouvellePositionCaméra;
             }
             //iconeMiniMap.position = joueur.transform.position;
+        } else {
+            if (animator != null) animator.SetBool("avence", false);
         }
         if (interfasse != null && interfasse.GetComponent<CanvasGroup>() != null){
             if (droitDeMarcher){

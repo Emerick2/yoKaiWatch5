@@ -47,6 +47,7 @@ public class DialcodePrinted : MonoBehaviour{
     public static DialcodePrinted Instance;
     public bool dansUneZoneDeDialogue;
     public bool discussionInProgress;
+    [HideInInspector] public PNJDialcode pnjTalk;
 
     void Awake(){
         if (Instance == null){
@@ -132,15 +133,19 @@ public class DialcodePrinted : MonoBehaviour{
             }
             if (awaitTheClicForTheEndQuest == 0 && !choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
                 if (Input.GetButtonDown("A")){
-                    Input.ResetInputAxes();
                     if (boiteFermer){
-                        Ouverture();
-                        peutCliquer = false;
-                        Action();
+                        if (mouvementDuJoueur.droitDeMarcher){
+                            Input.ResetInputAxes();
+                            Ouverture();
+                            peutCliquer = false;
+                            Action();
+                        }
                     } else if (position >= fragmentDeDialogue.Count){
+                        Input.ResetInputAxes();
                         Fermeture(false);
                         peutCliquer = false;
                     } else if (peutCliquer) {
+                        Input.ResetInputAxes();
                         Action();
                     }
                 }
@@ -249,7 +254,6 @@ public class DialcodePrinted : MonoBehaviour{
             position++;
         } else if (fragment.type == TypeDialogue.infoQuest) {
             QuestMenuInformation q = fragment.infoQuest;
-            Debug.Log("Ici !");
             if (q.name != ""){
                 if (q.description != "") NewDataCenter.Instance.SauvegarderSTR("Quête_description%"+q.name, q.description);
                 if (q.objective != "") NewDataCenter.Instance.SauvegarderSTR("Quête_objectif%"+q.name, q.objective);
@@ -273,7 +277,6 @@ public class DialcodePrinted : MonoBehaviour{
     /// <param name="nom">le nom de l'élément (facultatif)</param>
     /// <param name="dansUnDialogue">c'est sur true si sa fait partie d'un dialogue</param>
     public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false){
-        Debug.Log(nom);
         canvasGroup.alpha = 1f;
         if (quantitée <= 0) quantitée = 1;
         if (typeObjet == CatégorieItem.Nouriture){
@@ -305,7 +308,7 @@ public class DialcodePrinted : MonoBehaviour{
             cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
             if (dansUnDialogue) position++;
         } else if (type == TypeDialogue.vol){
-            if (int.Parse(NewDataCenter.Instance.Lire(nom)) > 0){
+            if (int.Parse(NewDataCenter.Instance.Lire(nom)) >= quantitée){
                 OuvertureFenêtre(cadeau);
                 cadeau.transform.Find("cintille").gameObject.SetActive(false);
                 string phrase = "Tu as remis :";
@@ -319,7 +322,7 @@ public class DialcodePrinted : MonoBehaviour{
             }
             if (dansUnDialogue) position++;
         } else if (type == TypeDialogue.volDiscret){
-            if (int.Parse(NewDataCenter.Instance.Lire(nom)) > 0){
+            if (int.Parse(NewDataCenter.Instance.Lire(nom)) >= quantitée){
                 Vole(nom, quantitée);
             }
             if (dansUnDialogue) {
@@ -328,7 +331,6 @@ public class DialcodePrinted : MonoBehaviour{
                 Action();
             }
         } else if (type == TypeDialogue.donDiscret){
-            Debug.Log(nom);
             DonDiscret(nom, quantitée);
             if (dansUnDialogue) {
                 position++;
@@ -389,6 +391,7 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void Ouverture(){
+        mouvementDuJoueur.droitDeMarcher = false;
         nChoix = 1;
         boiteFermer = false;
         auteurConditionnelle = 0;
@@ -426,6 +429,7 @@ public class DialcodePrinted : MonoBehaviour{
         peutCliquer = true;
     }
     public void Fermeture(bool rapide){
+        mouvementDuJoueur.droitDeMarcher = true;
         boiteFermer = true;
         discussionInProgress = false;
         if (rapide){
@@ -439,6 +443,9 @@ public class DialcodePrinted : MonoBehaviour{
         }
         objetMasqueADémasquer.Clear();
         mouvementDuJoueur.droitDeMarcher = true;
+        if (pnjTalk != null){
+            pnjTalk.RetoursDeDiscution();
+        }
     }
     IEnumerator AnnimationFermeture(){
         float tempsEcoule = 0f;

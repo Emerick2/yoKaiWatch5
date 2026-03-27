@@ -13,6 +13,7 @@ public class PNJDialcode : MonoBehaviour{
     private float taux = 0f;
     private bool inTheZonne = false;
     private bool characterVisibel = true;
+    private bool doitDisparètreALaFinDuDialogue = false;
 
     void Awake() {
         dialcode = DialcodePrinted.Instance;
@@ -56,6 +57,7 @@ public class PNJDialcode : MonoBehaviour{
             if (Refresh() && dialcode != null){
                 dialcode.fragmentDeDialogue = maListeDeFraguement;
                 dialcode.dansUneZoneDeDialogue = true;
+                dialcode.pnjTalk = this;
             }
         }
     }
@@ -67,15 +69,25 @@ public class PNJDialcode : MonoBehaviour{
             if (inTheZonne){
                 StartCoroutine(UpdateDialcodePrinted());
             }
+            doitDisparètreALaFinDuDialogue = false;
             return true;
         } else {
             if (inTheZonne && dialcode!=null){
-                dialcode.dansUneZoneDeDialogue = false;
-                dialcode.Fermeture(false);
+                doitDisparètreALaFinDuDialogue = true;
+            } else {
+                characterVisibel = false;
+                gameObject.SetActive(false);
             }
+            return false;
+        }
+    }
+
+    public void RetoursDeDiscution(){
+        if (doitDisparètreALaFinDuDialogue) {
+            dialcode.dansUneZoneDeDialogue = false;
+            // dialcode.Fermeture(false);
             characterVisibel = false;
             gameObject.SetActive(false);
-            return false;
         }
     }
 
