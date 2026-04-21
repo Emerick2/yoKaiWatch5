@@ -21,6 +21,8 @@ public class QuestMenu : MonoBehaviour{
     private GridLayoutGroup grid;
     private int left;
     public Sprite iconeDefault;
+
+    public GameObject panelPasDeQuête;
     void Start(){
         livre = transform.Find("livre").gameObject;
         page1 = livre.transform.Find("PAGE-1").gameObject;
@@ -42,6 +44,7 @@ public class QuestMenu : MonoBehaviour{
             if (example == null) example = child.gameObject;
             else Destroy(child.gameObject);
         }
+        if (panelPasDeQuête != null) panelPasDeQuête.SetActive(listOfQuestMenuInformation.Count == 0);
         if (example != null){
             example.SetActive(false);
             for (int i = 0; i < listOfQuestMenuInformation.Count; i++){

@@ -2,78 +2,104 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class mouvementDuJoueur : MonoBehaviour{
+public class mouvementDuJoueur : MonoBehaviour {
     private GameObject interfasse;
-    public static bool droitDeMarcher = true;//mouvementDuJoueur.droitDeMarcher = true;
+    public static bool droitDeMarcher = true;
     public static GameObject player;
+    private Rigidbody rb;
+
     public Animator animator;
     public Animator oeuilSauvegarde;
-    Vector3 directionHaut = new Vector3(0, 0, 1);
-    Vector3 directionBas = new Vector3(0, 0, -1);
-    Vector3 directionGauche = new Vector3(-1, 0, 0);
-    Vector3 directionDroit = new Vector3(1, 0, 0);
-    public float vitesse = 2;
+    public float vitesse = 5f;
     public float vitesseRotation = 10f;
     public Transform caméra;
-    public Transform iconeMiniMap;
-    // private CharacterController controller;
-    public CameraFollow camera;
-    void Start(){
+    public CameraFollow cameraFollow;
+    public float distanceObstacle = 0.3f;
+
+    void Start() {
         bool isAGirl = NewDataCenter.Instance.Lire("thisIsAGirl") == "True";
         GameObject katie = transform.Find("Katie").gameObject;
         GameObject nathan = transform.Find("Nathan").gameObject;
-        if (isAGirl){
+
+        if (isAGirl) {
             Destroy(nathan);
             player = katie;
         } else {
             Destroy(katie);
             player = nathan;
         }
-        camera.target = player.transform;
-        player.SetActive(true);
-        player.GetComponent<Rigidbody>().useGravity = true;
 
-        // if (gameObject.GetComponent<CharacterController>() != null) controller = gameObject.GetComponent<CharacterController>();
-        // else controller = gameObject.AddComponent<CharacterController>();
+        cameraFollow.target = player.transform;
+        player.SetActive(true);
+
+        rb = player.GetComponent<Rigidbody>();
+        if (rb == null) rb = player.AddComponent<Rigidbody>();
+        
+        rb.useGravity = true;
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
         LivraisonDébutUnePartie livrer = FindObjectOfType<LivraisonDébutUnePartie>();
-        if (livrer != null){ 
+        if (livrer != null) { 
             livrer.Déplacer(player.transform);
         }
         interfasse = GameObject.FindWithTag("interfasse");
     }
 
-    void Update(){
-        if (droitDeMarcher){
-            bool non = true;
+    void FixedUpdate() {
+        if (droitDeMarcher && rb != null) {
             float h = Input.GetAxisRaw("Horizontal");
             float v = Input.GetAxisRaw("Vertical");
-            Vector3 maDirection = new Vector3(h, 0, v);
-            // if ((h > 0.03f || h < -0.03f) && (v > 0.03f || v < -0.03f)){
-            if (maDirection.magnitude > 0.1f){
-                transform.Translate(maDirection.normalized * vitesse * Time.deltaTime, Space.World);
-                // controller.Move(maDirection * vitesse * Time.deltaTime);
+            Vector3 maDirection = new Vector3(h, 0, v).normalized;
+
+            if (maDirection.magnitude > 0.1f) {
+                bool obstacleDevant = Physics.Raycast(player.transform.position + Vector3.up * 0.5f, maDirection, distanceObstacle);
+
+                if (!obstacleDevant) {
+                    rb.MovePosition(rb.position + maDirection * vitesse * Time.fixedDeltaTime);
+                    
+                    
+                    if (animator != null) animator.SetBool("avence", true);
+                } else  {
+                    if (animator != null) animator.SetBool("avence", false);
+                }
                 Quaternion rotationCible = Quaternion.LookRotation(maDirection);
-                player.transform.rotation = Quaternion.Slerp(player.transform.rotation, rotationCible, vitesseRotation * Time.deltaTime);
+                rb.rotation = Quaternion.Slerp(rb.rotation, rotationCible, vitesseRotation * Time.fixedDeltaTime);
+                    
+
+
+
+
+                // Vector3 mouvement = maDirection * vitesse * Time.fixedDeltaTime;
+                // rb.MovePosition(rb.position + mouvement);
+
+                // Quaternion rotationCible = Quaternion.LookRotation(maDirection);
+                // rb.rotation = Quaternion.Slerp(rb.rotation, rotationCible, vitesseRotation * Time.fixedDeltaTime);
+                
+                // if (animator != null) animator.SetBool("avence", true);
             } else {
-                non = false;
+                if (animator != null) animator.SetBool("avence", false);
+                rb.velocity = new Vector3(0, rb.velocity.y, 0);
             }
-            if (animator != null) animator.SetBool("avence", non);
-            if (caméra != null){
-                Vector3 nouvellePositionCaméra = caméra.position;
-                nouvellePositionCaméra.x = player.transform.position.x;
-                nouvellePositionCaméra.z = player.transform.position.z;
-                caméra.position = nouvellePositionCaméra;
-            }
-            //iconeMiniMap.position = joueur.transform.position;
         } else {
             if (animator != null) animator.SetBool("avence", false);
         }
-        if (interfasse != null && interfasse.GetComponent<CanvasGroup>() != null){
-            if (droitDeMarcher){
-                interfasse.GetComponent<CanvasGroup>().alpha = 1;
-            } else {
-                interfasse.GetComponent<CanvasGroup>().alpha = 0;
-            }
+
+        UpdateCameraPosition();
+        UpdateInterface();
+    }
+
+    void UpdateCameraPosition() {
+        if (caméra != null && player != null) {
+            Vector3 nouvellePositionCaméra = caméra.position;
+            nouvellePositionCaméra.x = player.transform.position.x;
+            nouvellePositionCaméra.z = player.transform.position.z;
+            caméra.position = nouvellePositionCaméra;
         }
-    } 
+    }
+
+    void UpdateInterface() {
+        if (interfasse != null && interfasse.GetComponent<CanvasGroup>() != null) {
+            interfasse.GetComponent<CanvasGroup>().alpha = droitDeMarcher ? 1 : 0;
+        }
+    }
 }
