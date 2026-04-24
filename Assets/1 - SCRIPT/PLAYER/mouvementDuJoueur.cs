@@ -15,6 +15,7 @@ public class mouvementDuJoueur : MonoBehaviour {
     public Transform caméra;
     public CameraFollow cameraFollow;
     public float distanceObstacle = 0.3f;
+    public float distanceObstaclePNJ = 0.05f;
 
     void Start() {
         bool isAGirl = NewDataCenter.Instance.Lire("thisIsAGirl") == "True";
@@ -45,6 +46,11 @@ public class mouvementDuJoueur : MonoBehaviour {
         interfasse = GameObject.FindWithTag("interfasse");
     }
 
+    private bool DetectionObstacle(Vector3 maDirection){
+        Vector3 origine = player.transform.position + Vector3.up * 0.5f;
+        return Physics.Raycast(origine, maDirection, distanceObstacle, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);    
+    }
+
     void FixedUpdate() {
         if (droitDeMarcher && rb != null) {
             float h = Input.GetAxisRaw("Horizontal");
@@ -52,7 +58,7 @@ public class mouvementDuJoueur : MonoBehaviour {
             Vector3 maDirection = new Vector3(h, 0, v).normalized;
 
             if (maDirection.magnitude > 0.1f) {
-                bool obstacleDevant = Physics.Raycast(player.transform.position + Vector3.up * 0.5f, maDirection, distanceObstacle);
+                bool obstacleDevant = DetectionObstacle(maDirection);
 
                 if (!obstacleDevant) {
                     rb.MovePosition(rb.position + maDirection * vitesse * Time.fixedDeltaTime);
@@ -64,18 +70,6 @@ public class mouvementDuJoueur : MonoBehaviour {
                 }
                 Quaternion rotationCible = Quaternion.LookRotation(maDirection);
                 rb.rotation = Quaternion.Slerp(rb.rotation, rotationCible, vitesseRotation * Time.fixedDeltaTime);
-                    
-
-
-
-
-                // Vector3 mouvement = maDirection * vitesse * Time.fixedDeltaTime;
-                // rb.MovePosition(rb.position + mouvement);
-
-                // Quaternion rotationCible = Quaternion.LookRotation(maDirection);
-                // rb.rotation = Quaternion.Slerp(rb.rotation, rotationCible, vitesseRotation * Time.fixedDeltaTime);
-                
-                // if (animator != null) animator.SetBool("avence", true);
             } else {
                 if (animator != null) animator.SetBool("avence", false);
                 rb.velocity = new Vector3(0, rb.velocity.y, 0);
