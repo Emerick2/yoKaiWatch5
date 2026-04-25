@@ -68,7 +68,7 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
                     }
                 }
             }
-        } else if (Input.GetButtonDown("X") && windowClose) {
+        } else if (Input.GetButtonDown("X") && windowClose && mouvementDuJoueur.droitDeMarcher) {
             windowClose = false;
             transform.Find("C").gameObject.SetActive(true);
             mouvementDuJoueur.droitDeMarcher = false;
