@@ -22,7 +22,6 @@ public class NewDataCenter : MonoBehaviour{
     public string filePath;
     private bool lesDonnéesDoiventÊtreChiffré=true; //il faudras l'activé pour les publication du jeu mais pour annalyser les sauvegard il est plus simple de ne pas chiffré
     private string clefDeChiffrement="g89d56566fg4d32fsdf1gsdfsf32";
-    private string crypted = "";
     public int journalNumber = 1;
     public string journalNameKeys = "journal";//journal1, journal2, journal3
     public bool debug = true;
@@ -109,7 +108,7 @@ public class NewDataCenter : MonoBehaviour{
             }
 
             if (index != -1 && index < values.Count) {
-                return values[index].ToString();
+                return ChiffrerEtDechiffrer(values[index].ToString());
             }
         }
         return "";
@@ -117,7 +116,6 @@ public class NewDataCenter : MonoBehaviour{
 
     public void SauvegarderSTR(string clef, string valeur, string dossier="mesData.json", bool thisIsATimeOfGame = false){
         if (debug) Debug.Log(clef + " " + valeur);
-        valeur = chiffrerLesDonnées(valeur);
         dataDict[clef] = valeur;
         if (!thisIsATimeOfGame) RefreshPNJDialcode();
     }
@@ -133,7 +131,6 @@ public class NewDataCenter : MonoBehaviour{
         // dossier = CorrigerNom(dossier);
         dossier = journalNameKeys+journalNumber.ToString()+".json";
         if (dataDict.TryGetValue(clef, out string valeur)){
-            valeur = déchiffrerLesDonnées(valeur);
             //if (int.TryParse(valeur, out int intValue)){
                 //return intValue;
             //}
@@ -173,7 +170,7 @@ public class NewDataCenter : MonoBehaviour{
     }
 
     private void ChargerDonnées(){
-        dataDict = new Dictionary<string, string>(); // Reset de base
+        dataDict = new Dictionary<string, string>();
         string name = journalNameKeys+journalNumber.ToString()+".json";
         
         string path = Path.Combine(filePath + name);
@@ -191,6 +188,7 @@ public class NewDataCenter : MonoBehaviour{
                 }
             }
         }
+        if (lesDonnéesDoiventÊtreChiffré) ToutCripterOuDecripter();
     }
 
     public void MeilleurScoreADéfinir(){
@@ -200,18 +198,8 @@ public class NewDataCenter : MonoBehaviour{
             SauvegarderINT("dataMeilleurScore", nombreLarvuce);
         }
     }
-    string chiffrerLesDonnées(string data){
-        if (lesDonnéesDoiventÊtreChiffré){
-            crypted="";
-            for (int i=0;i<data.Length;i++){
-                crypted += (char)(data[i] ^ clefDeChiffrement[i % clefDeChiffrement.Length]);
-            }
-            return crypted;
-        }else{
-            return data;
-        }
-    }
-    private string déchiffrerLesDonnées(string data){
+    
+    private string ChiffrerEtDechiffrer(string data){
         if (lesDonnéesDoiventÊtreChiffré){
             string decrypted = "";
             for (int i = 0; i < data.Length; i++){
@@ -245,6 +233,7 @@ public class NewDataCenter : MonoBehaviour{
     }
 
     public void EcrireSurDisque() {
+        if (lesDonnéesDoiventÊtreChiffré) ToutCripterOuDecripter();
         string dossier = journalNameKeys + journalNumber.ToString() + ".json";
         dataContainer = new DataContainer(dataDict);
         string json = JsonUtility.ToJson(dataContainer);
@@ -256,6 +245,7 @@ public class NewDataCenter : MonoBehaviour{
         catch (System.Exception e) {
             Debug.LogError("Erreur lors de l'écriture du fichier : " + e.Message);
         }
+        if (lesDonnéesDoiventÊtreChiffré) ToutCripterOuDecripter();
     }
 
     public List<string> ReadWithTag(string tag){
@@ -273,6 +263,17 @@ public class NewDataCenter : MonoBehaviour{
 
         return result;
     }
+
+    public void ToutCripterOuDecripter() {
+        List<string> keys = new List<string>(dataDict.Keys);
+
+        foreach (string key in keys) {
+            string valeurTransformee = ChiffrerEtDechiffrer(dataDict[key]);
+            dataDict[key] = valeurTransformee;
+        }
+
+        if (debug) Debug.Log("Toutes les données en mémoire ont été transformées (Cripter/Décripter).");
+    }
 }
 
 [System.Serializable]
@@ -287,7 +288,7 @@ public class DataContainer{
 
     public Dictionary<string, string> ToDictionary() {
         Dictionary<string, string> dict = new Dictionary<string, string>();
-        for (int i = 0; i < keys.Count && i < values.Count; i++) { // Vérification
+        for (int i = 0; i < keys.Count && i < values.Count; i++) {
             dict[keys[i]] = values[i];
         }
         return dict;

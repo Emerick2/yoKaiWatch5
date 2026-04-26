@@ -55,7 +55,7 @@ public class PNJDialcode : MonoBehaviour{
         if (collider.tag == "Player" && mouvementDuJoueur.droitDeMarcher){
             inTheZonne = true;
             if (Refresh() && dialcode != null){
-                dialcode.fragmentDeDialogue = maListeDeFraguement;
+                // dialcode.fragmentDeDialogue = maListeDeFraguement;
                 dialcode.dansUneZoneDeDialogue = true;
                 dialcode.pnjTalk = this;
             }
@@ -66,9 +66,9 @@ public class PNJDialcode : MonoBehaviour{
         if (TrouverBonDialogue()) {
             characterVisibel = true;
             gameObject.SetActive(true);
-            if (inTheZonne){
-                StartCoroutine(UpdateDialcodePrinted());
-            }
+            // if (inTheZonne){
+            //     StartCoroutine(UpdateDialcodePrinted());
+            // }
             doitDisparètreALaFinDuDialogue = false;
             return true;
         } else {
@@ -129,14 +129,14 @@ public class PNJDialcode : MonoBehaviour{
         return dialcode.CalculerLogiqueComplexe(valeurs, conditionnelle);
     }
 
-    IEnumerator UpdateDialcodePrinted(){
-        while(DialcodePrinted.Instance.discussionInProgress){
-            yield return new WaitForSeconds(0.2f);
-        }
-        if (inTheZonne){
-            dialcode.fragmentDeDialogue = maListeDeFraguement;
-        }
-    }
+    // IEnumerator UpdateDialcodePrinted(){
+    //     while(DialcodePrinted.Instance.discussionInProgress){
+    //         yield return new WaitForSeconds(0.2f);
+    //     }
+    //     if (inTheZonne){
+    //         // dialcode.fragmentDeDialogue = maListeDeFraguement;
+    //     }
+    // }
 }
 
 [System.Serializable]

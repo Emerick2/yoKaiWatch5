@@ -77,6 +77,12 @@ public class DialcodePrinted : MonoBehaviour{
 
     void Update(){
         if (dansUneZoneDeDialogue){
+            if (pnjTalk != null && !discussionInProgress){
+                fragmentDeDialogue = pnjTalk.maListeDeFraguement;
+            } else if (discussionInProgress && pnjTalk == null){
+                Fermeture(false);
+                return;
+            }
             if (choixEnCours) {
                 if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
                     positionChoix = (positionChoix + 1) % 2;
@@ -390,10 +396,10 @@ public class DialcodePrinted : MonoBehaviour{
         choix.transform.Find("Bouton2/fond-inactif").gameObject.SetActive(positionChoix != 1);
     }
 
-    void Ouverture(){
-        mouvementDuJoueur.droitDeMarcher = false;
+    public void INIT(bool rapide){
+        boiteFermer = true;
+        discussionInProgress = false;
         nChoix = 1;
-        boiteFermer = false;
         auteurConditionnelle = 0;
         auteurConditionnelleRéel = 0;
         choixEnCoursBoutique1 = false;
@@ -401,6 +407,26 @@ public class DialcodePrinted : MonoBehaviour{
         cibleChoixBoutique1 = 0;
         awaitTheClicForTheEndQuest = 0;
         position = 0;
+        
+
+        foreach (GameObject item in objetMasqueADémasquer){
+            item.SetActive(true);
+        }
+        objetMasqueADémasquer.Clear();
+
+        if (rapide){
+            canvasGroup.alpha = 0f;
+            canvasGroup.blocksRaycasts = false;
+        } else {
+            StartCoroutine(AnnimationFermeture());
+        }
+    }
+
+    void Ouverture(){
+        INIT(true);
+        mouvementDuJoueur.droitDeMarcher = false;
+        
+        boiteFermer = false;
         discussionInProgress = true;
         StartCoroutine(AnnimationOuverture());
         if (fragmentDeDialogue.Count == 0){
@@ -413,7 +439,6 @@ public class DialcodePrinted : MonoBehaviour{
                 item.SetActive(false);
             }
         }
-        mouvementDuJoueur.droitDeMarcher = false;
     }
 
     IEnumerator AnnimationOuverture(){
@@ -430,19 +455,7 @@ public class DialcodePrinted : MonoBehaviour{
     }
     public void Fermeture(bool rapide){
         mouvementDuJoueur.droitDeMarcher = true;
-        boiteFermer = true;
-        discussionInProgress = false;
-        if (rapide){
-            canvasGroup.alpha = 0f;
-            canvasGroup.blocksRaycasts = false;
-        } else {
-            StartCoroutine(AnnimationFermeture());
-        }
-        foreach (GameObject item in objetMasqueADémasquer){
-            item.SetActive(true);
-        }
-        objetMasqueADémasquer.Clear();
-        mouvementDuJoueur.droitDeMarcher = true;
+        INIT(rapide);
         if (pnjTalk != null){
             pnjTalk.RetoursDeDiscution();
         }
