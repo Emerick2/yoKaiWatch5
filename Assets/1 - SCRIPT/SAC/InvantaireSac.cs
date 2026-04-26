@@ -37,6 +37,7 @@ public class InvantaireSac : MonoBehaviour{
         for (int i = 0; i < laListeDesCatégorie.Count; i++){
             laListeDesCatégorie[i].GetComponent<Image>().enabled = cible==i;
         }
+        if (lesItems[cible].Count == 0) blocInformation.SetActive(false);
         if (cible < lesItems.Count){
             servantGrille.Initialisation(lesItems[cible].Count,conteneur, masque, PlaceObject, this, AppllerAuChangemantDePosition);
             RemplireLeBlocInformation(0);
@@ -79,6 +80,7 @@ public class InvantaireSac : MonoBehaviour{
         if (cesLeL) L.sprite=servantImage.ReadImage_LR("notL");
         else R.sprite=servantImage.ReadImage_LR("notR");
     }
+
 
     GameObject PlaceObject(GameObject exemple, GameObject block, int ID) {
         if (lesItems.Count <= cible) return null;

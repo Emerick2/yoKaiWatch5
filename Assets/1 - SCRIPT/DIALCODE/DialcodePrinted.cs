@@ -77,11 +77,8 @@ public class DialcodePrinted : MonoBehaviour{
 
     void Update(){
         if (dansUneZoneDeDialogue){
-            if (pnjTalk != null && !discussionInProgress){
+            if (pnjTalk != null && !discussionInProgress) {
                 fragmentDeDialogue = pnjTalk.maListeDeFraguement;
-            } else if (discussionInProgress && pnjTalk == null){
-                Fermeture(false);
-                return;
             }
             if (choixEnCours) {
                 if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
@@ -99,7 +96,7 @@ public class DialcodePrinted : MonoBehaviour{
                     // Action();
                 }
             }
-            if (choixEnCoursBoutique1) {
+            else if (choixEnCoursBoutique1) {
                 if (Input.GetButtonDown("up") || Input.GetButtonDown("down")){
                     ChangerPositionCibleChoixBoutique1(1);
                 } else if (Input.GetButtonDown("A")){
@@ -124,20 +121,20 @@ public class DialcodePrinted : MonoBehaviour{
                         OuvertureFenêtre(boutiqueAcheter);
                     }
                 }
-            } if (choixEnCoursBoutique2){
+            } else if (choixEnCoursBoutique2){
                 if (Input.GetButtonDown("B") && boutiqueAcheter.GetComponent<BoutiqueDialcode>().acheterUnProduitFenêtreOuverte == false){
                     choixEnCoursBoutique2 = false;
                     position++;
                     Action();
                 }
             }
-            if (awaitTheClicForTheEndQuest == 2){
+            else if (awaitTheClicForTheEndQuest == 2){
                 if (Input.GetButtonDown("A")){
                     quete.transform.Find("super").GetComponent<Animator>().SetBool("afficher", false);
                     awaitTheClicForTheEndQuest = 0;
                 }
             }
-            if (awaitTheClicForTheEndQuest == 0 && !choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
+            else if (awaitTheClicForTheEndQuest == 0 && !choixEnCours && !choixEnCoursBoutique1 && !choixEnCoursBoutique2){
                 if (Input.GetButtonDown("A")){
                     if (boiteFermer){
                         if (mouvementDuJoueur.droitDeMarcher){
@@ -161,13 +158,19 @@ public class DialcodePrinted : MonoBehaviour{
 
     void Action(){
         AvancerJusqueAuProchainDialogue();
-        if (fragmentDeDialogue.Count <= position){
-            Fermeture(false);
+        if (fragmentDeDialogue == null || position >= fragmentDeDialogue.Count || !discussionInProgress) {
+            if (discussionInProgress) Fermeture(false);
             return; 
         }
         FragmentDeDialogue fragment = fragmentDeDialogue[position];
-        fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
-        fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
+        if (fragment == null) return;
+        if (fragment.type == TypeDialogue.cadeau && fragment.IdÉlément >= Item._instance.listeDesNouritures.Count) {
+            Debug.LogError("ID d'item invalide !");
+            return;
+        }
+
+        if (fragment.nom != null) fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
+        if (fragment.phrase != null) fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément>0){
             if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
             if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;

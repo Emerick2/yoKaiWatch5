@@ -40,7 +40,11 @@ public class PNJDialcode : MonoBehaviour{
         TextAsset targetFile = Resources.Load<TextAsset>("texte/" + jsonPath+"-page"+ID);
         if (targetFile != null){
             DialogueData wrapper = JsonUtility.FromJson<DialogueData>(targetFile.text);
-            maListeDeFraguement = wrapper.fragments;
+            if (wrapper == null || wrapper.fragments == null){
+                maListeDeFraguement = new List<FragmentDeDialogue>();
+            } else {
+                maListeDeFraguement = wrapper.fragments;
+            }
         }
     }
 
@@ -95,11 +99,13 @@ public class PNJDialcode : MonoBehaviour{
         if (collider.tag == "Player" && dialcode != null){
             dialcode.dansUneZoneDeDialogue = false;
             inTheZonne = false;
+            if (dialcode.pnjTalk == this) dialcode.pnjTalk = null;
         }
     }
 
     public bool TrouverBonDialogue(){
-        if (conditionOfTheDialoguePage.Count == 0){
+        if (conditionOfTheDialoguePage.Count == 0) {
+            ChargerDialogue(0); 
             return true;
         }
         for (int i = conditionOfTheDialoguePage.Count-1; i >= 0; i--){
