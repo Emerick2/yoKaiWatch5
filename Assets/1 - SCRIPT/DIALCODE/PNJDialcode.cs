@@ -124,8 +124,11 @@ public class PNJDialcode : MonoBehaviour{
     bool CalculeCondition(List<Conditionnelle> conditionnelle){
         if (dialcode == null) dialcode = DialcodePrinted.Instance;
         if (dialcode == null) {
-            Debug.Log("DialcodePrinted.Instance est introuvable dans la scène !");
-            return false;
+            dialcode = GameObject.FindObjectOfType<DialcodePrinted>();
+            if (dialcode == null){
+                Debug.Log("DialcodePrinted.Instance est introuvable dans la scène !");
+                return false;
+            }
         }
         List<bool> valeurs = new List<bool>();
         foreach (Conditionnelle c in conditionnelle) {
