@@ -7,6 +7,9 @@ using UnityEngine.UI;
 using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Text;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 // le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 public class medaliumDictionnaire : MonoBehaviour{
@@ -44,10 +47,10 @@ public class medaliumDictionnaire : MonoBehaviour{
         if (targetFile != null) {
             MedaliumNonPersonel yoKai = JsonUtility.FromJson<MedaliumNonPersonel>(targetFile.text);
             yoKai.ID = ID;
-            yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/data/picture/" + ID.ToString());
-            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/data/face/" + ID.ToString());
-            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/data/face/" + ID.ToString());
-            yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/data/song/" + ID.ToString());
+            yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.Nom));
+            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.Nom));
+            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.Nom));
+            yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.Nom));
             dictionnaire.Add(yoKai);
         
             return yoKai;
@@ -55,6 +58,25 @@ public class medaliumDictionnaire : MonoBehaviour{
             Debug.LogError("Fichier JSON introuvable pour l'ID : " + ID);
             return null;
         }
+    }
+
+
+    public static string MakeAnUrl(object valeur){
+        if (valeur == null) return string.Empty;
+        string texte = valeur.ToString().Normalize(NormalizationForm.FormD);
+        StringBuilder sb = new StringBuilder();
+        foreach (char c in texte){
+            UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (uc != UnicodeCategory.NonSpacingMark){
+                sb.Append(c);
+            }
+        }
+        texte = sb.ToString();
+        texte = texte.ToLowerInvariant().Trim();
+        texte = Regex.Replace(texte, @"\s+", "-");
+        texte = Regex.Replace(texte, @"[^\w\-]+", "");
+        texte = Regex.Replace(texte, @"--+", "-");
+        return texte;
     }
 
     public GameObject InstantiateYoKai(string ID){
