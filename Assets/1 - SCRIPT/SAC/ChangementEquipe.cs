@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class ChangementEquipe : MonoBehaviour{
     public GameObject choie;
     public List<Image> espaceImagePourMonEquipe;
-    public fonctionnementMédalium médaliumFonction;
+    public FonctionnementMédalium médaliumFonction;
     private medaliumDictionnaire médailum;
     private MesYoKai mesYoKai;//mesYoKai.maListe
     [HideInInspector]public bool ouvert;

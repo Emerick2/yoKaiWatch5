@@ -11,7 +11,6 @@ using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-// le scripte qui lie le fichier "Médalium.csv" est ComplétéLeMédaliumAvecCSV
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
     public Sprite imageDeUneMédailleInconnue;
@@ -48,9 +47,17 @@ public class medaliumDictionnaire : MonoBehaviour{
             MedaliumNonPersonel yoKai = JsonUtility.FromJson<MedaliumNonPersonel>(targetFile.text);
             yoKai.ID = ID;
             yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.Nom));
-            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.Nom));
-            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.Nom));
+            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.Nom));
+            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.Nom));
+            if (yoKai.médaillon == null) {
+                yoKai.médaillon = yoKai.faceRondImage;
+            }
+            if (yoKai.médaillon == null) {
+                yoKai.médaillon = yoKai.faceImage;
+            }
             yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.Nom));
+            yoKai.tribue = AjouterUneTribue(yoKai.Tribue);
+            yoKai.rang = AjouterUnRang(yoKai.Rang);
             dictionnaire.Add(yoKai);
         
             return yoKai;
@@ -59,7 +66,6 @@ public class medaliumDictionnaire : MonoBehaviour{
             return null;
         }
     }
-
 
     public static string MakeAnUrl(object valeur){
         if (valeur == null) return string.Empty;
@@ -97,14 +103,11 @@ public class medaliumDictionnaire : MonoBehaviour{
 
                 Renderer renderer = TV.GetComponentInChildren<Renderer>();
                 if (renderer != null && map.textureFiles.Length > 0) {
-                    
-                    // On crée un tableau de matériaux basé sur le nombre de textures
                     Material[] mats = renderer.materials;
 
                     for (int i = 0; i < map.textureFiles.Length; i++) {
-                        if (i >= mats.Length) break; // Sécurité si plus de textures que de slots
+                        if (i >= mats.Length) break;
 
-                        // On charge en Texture2D (pas en Sprite !)
                         string texPath = "yo-kai-API/data/_3D/textures/" + map.textureFiles[i].Replace(".png", "");
                         Texture2D tex = Resources.Load<Texture2D>(texPath);
 
@@ -113,7 +116,6 @@ public class medaliumDictionnaire : MonoBehaviour{
                         }
                     }
                     
-                    // Très important : Réassigner le tableau de matériaux
                     renderer.materials = mats;
                 }
 
@@ -125,21 +127,30 @@ public class medaliumDictionnaire : MonoBehaviour{
         return null;
     }
 
-    public void AjouterUneTribue(int IDdeLaCible, string nomDeLaTribue){
-        if (dictionnaire.Count >= IDdeLaCible) return;
-        nomDeLaTribue = nomDeLaTribue.ToLower();
-        nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
-        if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
-            dictionnaire[IDdeLaCible].tribue = (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
+    public Tribue AjouterUneTribue(string nomDeLaTribue){
+        if (nomDeLaTribue != null && nomDeLaTribue.Length > 0){
+            nomDeLaTribue = nomDeLaTribue.ToLower();
+            nomDeLaTribue = nomDeLaTribue.Replace("mystérieux","mystérieu");
+            nomDeLaTribue = nomDeLaTribue.Replace("insaisisables","insaisissable");
+            
+            nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
+            if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
+                return (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
+            }
+            Debug.Log("La tribue "+nomDeLaTribue+" n'as pas été trouver...");
         }
+        return Tribue.Bienveillant;
     }
-    public void AjouterUnRang(int IDdeLaCible, string nomDuRang){
-        if (dictionnaire.Count >= IDdeLaCible) return;
-        nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
-        nomDuRang = nomDuRang.ToUpper();
-        if (Enum.IsDefined(typeof(Rang), nomDuRang)){
-            dictionnaire[IDdeLaCible].rang = (Rang)Enum.Parse(typeof(Rang), nomDuRang);
+    public Rang AjouterUnRang(string nomDuRang){
+        if (nomDuRang != null && nomDuRang.Length > 0){
+            nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
+            nomDuRang = nomDuRang.ToUpper();
+            if (Enum.IsDefined(typeof(Rang), nomDuRang)){
+                return (Rang)Enum.Parse(typeof(Rang), nomDuRang);
+            }
+            Debug.Log("Le rang "+nomDuRang+" n'as pas été trouver...");
         }
+        return Rang.E;
     }
     public Element ObtenirElementDeLaTechnique(Technique technique){
         switch (technique){
@@ -234,6 +245,8 @@ public class MedaliumNonPersonel{
     public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
     public Element monElement;
     public AudioClip Bruit;
+    public string Tribue;
+    public string Rang;
 }
 public static class EnumExtensions{
     public static string GetDescription(this Enum value){

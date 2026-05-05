@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class fonctionnementMédalium : MonoBehaviour{
+public class FonctionnementMédalium : MonoBehaviour{
     public Text texteDuNuméro;
     public GameObject blocInformatif;
     public List<GameObject> espaceDesMédailles;
@@ -20,17 +20,21 @@ public class fonctionnementMédalium : MonoBehaviour{
     private MesYoKai mesYoKai;//mesYoKai.maListe
     public bool bloquer = false;
     public ChangementEquipe changementEquipe;
+    private int idMax = 905;
 
-    void Start(){
+    private écrireLesPetitesValeursDuMenu gestionnaireMenu;
+
+    public void Initialiser(écrireLesPetitesValeursDuMenu m){
+        if (m != null) gestionnaireMenu = m;
         médailum = NewDataCenter.Instance.transform.Find("DICTIONNAIRE").GetComponent<medaliumDictionnaire>();
         mesYoKai = NewDataCenter.Instance.transform.Find("DICTIONNAIRE DE MES YO-KAI").GetComponent<MesYoKai>();
-
+        idMax = médailum.MAX;
+        ID = 0;
+        numéroDeLaPage = 1;
         if (cesLeMédalium){
-            int i=1;
-            // foreach (MedaliumNonPersonel item in médailum.dictionnaire){
-            //     lesIdAInséré.Add(i);
-            //     i++;
-            // }
+            for (int i = 1; i < idMax; i++){
+                lesIdAInséré.Add(i);
+            }
         }else{
             foreach (ListeDeMesYoKai item in mesYoKai.maListe){
                 lesIdAInséré.Add(item.ID);
@@ -58,6 +62,7 @@ public class fonctionnementMédalium : MonoBehaviour{
                 numéroDeLaPage = 1;
                 PlacerLesMédailles();
                 MouvementDansLaPage(0);
+                gestionnaireMenu.RevenirAuMenu();
                 gameObject.SetActive(false);
             }
         }

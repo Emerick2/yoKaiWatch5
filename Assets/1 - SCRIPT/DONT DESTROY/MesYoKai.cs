@@ -36,6 +36,8 @@ public class MesYoKai : MonoBehaviour{
     void Start(){
         ChargerLesYoKai();
         ChargerMonEquipe();
+        AjouterUnYoKai(6,2,"","ee");
+        AjouterUnYoKai(12,8,"","ee");
     }
     public void ChargerMonEquipe(){
         string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe", "équipe.json");

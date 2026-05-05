@@ -461,32 +461,32 @@ public class RemplisLaRoue : MonoBehaviour{
             return;
         }
         TV = medaliumDictionnaire._instance.InstantiateYoKai(informationGénéral.ID.ToString());
-            TV.transform.parent = leParentDuModèle3DGénéré.transform;
-            TV.transform.localPosition = Vector3.zero;
-            int layerUI = LayerMask.NameToLayer("CaméraUImodèle3D");
-            AppliquerLayer(TV, layerUI);
+        TV.transform.parent = leParentDuModèle3DGénéré.transform;
+        TV.transform.localPosition = Vector3.zero;
+        int layerUI = LayerMask.NameToLayer("CaméraUImodèle3D");
+        AppliquerLayer(TV, layerUI);
 
-            panneauDeInfo.SetActive(true);
-            // numéroDePageInfo = 1;
-            // panneauDeInfo.transform.Find("page 1").gameObject.SetActive(true);
-            // panneauDeInfo.transform.Find("page 2").gameObject.SetActive(false);
-            // panneauDeInfo.transform.Find("page 3").gameObject.SetActive(false);
-            // panneauDeInfo.transform.Find("page/Numéro").gameObject.GetComponent<TextMeshProUGUI>().text = "1 / 3";
+        panneauDeInfo.SetActive(true);
+        // numéroDePageInfo = 1;
+        // panneauDeInfo.transform.Find("page 1").gameObject.SetActive(true);
+        // panneauDeInfo.transform.Find("page 2").gameObject.SetActive(false);
+        // panneauDeInfo.transform.Find("page 3").gameObject.SetActive(false);
+        // panneauDeInfo.transform.Find("page/Numéro").gameObject.GetComponent<TextMeshProUGUI>().text = "1 / 3";
             
-            panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Force * informationSpécifique.niveau).ToString();
-            panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.PV * informationSpécifique.niveau).ToString();
-            panneauDeInfo.transform.Find("page 1/esprit/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Esprit * informationSpécifique.niveau).ToString();
-            panneauDeInfo.transform.Find("page 1/vitesse/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Vitesse * informationSpécifique.niveau).ToString();
+        panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Force * informationSpécifique.niveau).ToString();
+        panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.PV * informationSpécifique.niveau).ToString();
+        panneauDeInfo.transform.Find("page 1/esprit/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Esprit * informationSpécifique.niveau).ToString();
+        panneauDeInfo.transform.Find("page 1/vitesse/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Vitesse * informationSpécifique.niveau).ToString();
 
-            panneauDeInfo.transform.Find("page 1/Personalité/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.personnalité.ToString();
-            panneauDeInfo.transform.Find("page 1/Talent/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationGénéral.talent.ToString();
-            panneauDeInfo.transform.Find("page 1/Talent/text (1)").gameObject.GetComponent<TextMeshProUGUI>().text = "";
+        panneauDeInfo.transform.Find("page 1/Personalité/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.personnalité.ToString();
+        panneauDeInfo.transform.Find("page 1/Talent/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationGénéral.talent.ToString();
+        panneauDeInfo.transform.Find("page 1/Talent/text (1)").gameObject.GetComponent<TextMeshProUGUI>().text = "";
             
-            infoYokaiBandeau.SetActive(true);
-            infoYokaiBandeau.transform.Find("tribue").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Tribue(informationGénéral.tribue);
-            infoYokaiBandeau.transform.Find("rang").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(informationGénéral.rang);
-            infoYokaiBandeau.transform.Find("nom").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.surnom;
-            infoYokaiBandeau.transform.Find("niveau").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.niveau.ToString();
+        infoYokaiBandeau.SetActive(true);
+        infoYokaiBandeau.transform.Find("tribue").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Tribue(informationGénéral.tribue);
+        infoYokaiBandeau.transform.Find("rang").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(informationGénéral.rang);
+        infoYokaiBandeau.transform.Find("nom").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.surnom;
+        infoYokaiBandeau.transform.Find("niveau").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.niveau.ToString();
     }
 
     void NouvelleCiblePage3(int direction){
@@ -505,10 +505,14 @@ public class RemplisLaRoue : MonoBehaviour{
         if (TV != null){
             Destroy(TV);
         }
-        lesBlocDansLaListeEspaceBlocListeYokai[cible].GetComponent<Image>().color = new Color(1f, 0.5f, 0.5f, 1f);
-        ListeDeMesYoKai informationSpécifique = MesYoKai.Instance.maListe[int.Parse(lesBlocDansLaListeEspaceBlocListeYokai[cible].transform.name)];
-        MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
-        MettreLesElementInfo(informationSpécifique,informationGénéral);
+        if (cible < lesBlocDansLaListeEspaceBlocListeYokai.Count){
+            lesBlocDansLaListeEspaceBlocListeYokai[cible].GetComponent<Image>().color = new Color(1f, 0.5f, 0.5f, 1f);
+            ListeDeMesYoKai informationSpécifique = MesYoKai.Instance.maListe[int.Parse(lesBlocDansLaListeEspaceBlocListeYokai[cible].transform.name)];
+            MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
+            MettreLesElementInfo(informationSpécifique,informationGénéral);
+        } else {
+            Debug.Log("La cible dépasse la varibale lesBlocDansLaListeEspaceBlocListeYokai");
+        }
         PositionDansLaListeDéfilementAutomatiquePage3(direction, forcer);
     }
 

@@ -66,6 +66,9 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
                     if (app.scriptAInitialiser.GetComponent<QuestMenu>() != null){
                         app.scriptAInitialiser.GetComponent<QuestMenu>().Initialiser(this);
                     }
+                    if (app.scriptAInitialiser.GetComponent<FonctionnementMédalium>() != null){
+                        app.scriptAInitialiser.GetComponent<FonctionnementMédalium>().Initialiser(this);
+                    }
                 }
             }
         } else if (Input.GetButtonDown("X") && windowClose && mouvementDuJoueur.droitDeMarcher) {
