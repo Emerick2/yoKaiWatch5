@@ -64,7 +64,6 @@ public class GestionnaireCombat : MonoBehaviour{
     void AjouterUnEnnemie(int ID, int niveau){
         StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
         MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
-        nouv.gameObjectDeBase = y.yoKai;
         nouv.estUnAmi = false;
         nouv.ID = ID;
         nouv.nom = y.Nom;
@@ -222,7 +221,6 @@ public class GestionnaireCombat : MonoBehaviour{
             int ID = MesYoKai.Instance.maListe[IDspécifique].ID;
             StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
             MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
-            nouv.gameObjectDeBase = y.yoKai;
             nouv.possitionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
             nouv.estUnAmi = true;
             nouv.ID = ID;
@@ -269,9 +267,10 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         for (int i = 0; i < 3; i++){
             StructureYoKaiCombat yk = RécupéréUnYoKaiParPositionSurLaRoue(i);
-            if (yk != null && yk.gameObjectDeBase !=null){
-                GameObject TV = Instantiate(yk.gameObjectDeBase);
+            if (yk != null){
+                GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
                 TV.transform.position = troisPositionAmi[i].position;
+                TV.transform.localScale = new Vector3(2,2,2);
                 if (yk.estUnAmi){
                     TV.transform.Rotate(0, 180, 0);
                 }
@@ -288,10 +287,12 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         for (int i = 0; i < listeYoKaiEnnemieSurLeTerrain.Count; i++){
             StructureYoKaiCombat yk = listeYoKaiEnnemieSurLeTerrain[i];
-            if (yk != null && yk.gameObjectDeBase !=null){
-                GameObject TV = Instantiate(yk.gameObjectDeBase);
+            if (yk != null){
+                GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
                 TV.transform.position = troisPositionEnnemie[i].position;
                 if (yk.estUnAmi){
+                    TV.transform.Rotate(0, 180, 0);
+                } else {
                     TV.transform.Rotate(0, 180, 0);
                 }
                 yk.gameObjectSurLaScène = TV;
@@ -612,7 +613,6 @@ public class GestionnaireCombat : MonoBehaviour{
 [System.Serializable]
 public class StructureYoKaiCombat{
     public bool estUnAmi = false;
-    public GameObject gameObjectDeBase;
     public GameObject gameObjectSurLaScène;
     public Sprite imageMédaillon;
     public string nom;

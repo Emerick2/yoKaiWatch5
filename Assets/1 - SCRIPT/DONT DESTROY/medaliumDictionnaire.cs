@@ -119,6 +119,8 @@ public class medaliumDictionnaire : MonoBehaviour{
                     renderer.materials = mats;
                 }
 
+                TV.AddComponent<MakeATexture>();
+                TV.AddComponent<MakeAShader>();
                 return TV;
             } else {
                 Debug.Log("Modèle non trouvé");
