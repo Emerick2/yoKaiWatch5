@@ -45,6 +45,7 @@ public class GestionnaireCombat : MonoBehaviour{
     public Sprite spriteRaté;
     private int nouritureChoisie = 0;
 
+    private bool combatEnCours = true;
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
         ChangerCibleOption();
@@ -102,79 +103,84 @@ public class GestionnaireCombat : MonoBehaviour{
     }
 
     void Update(){
-        if (Input.GetButtonDown("L")){
-            // TourneLaRoue(-1);
-            rotationDemander=-1;
-        } else if (Input.GetButtonDown("R")){
-            // TourneLaRoue(1);
-            rotationDemander=1;
-        } else if (Input.GetButtonDown("right") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
-            cibleOption++;
-            ChangerCibleOption();
-        } else if (Input.GetButtonDown("left") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
-            cibleOption--;
-            ChangerCibleOption();
-        } else if (Input.GetButtonDown("X")){
-            if (vitesseAccéléré){
-                vitesseAccéléré = false;
-                imageVitesseAccéléré.gameObject.SetActive(false);
-                Time.timeScale = 1;
-            } else {
-                imageVitesseAccéléré.gameObject.SetActive(true);
-                Time.timeScale = 2;
-                vitesseAccéléré = true;
-                StartCoroutine(CoroutineVitesseAccéléré());
-            }
-        } else if (Input.GetButtonDown("A")){
-            if (!utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
-                Input.ResetInputAxes();
-                switch(cibleOption){
-                    case 0:
-                        utiliseAmultime = true;
-                        GetComponent<ChoisieYoKaiAmi>().Initialiser();
-                        blocDesBoutonGénéraux.SetActive(false);
-                        break;
-                    case 1:
-                        utiliseLaCible = true;
-                        cible.GetComponent<Cible>().Initialisation();
-                        cible.SetActive(true);
-                        blocDesBoutonGénéraux.SetActive(false);
-                        break;
-                    case 2:
-                        utilisePurification = true;
-                        GetComponent<ChoisieYoKaiAmi>().Initialiser();
-                        blocDesBoutonGénéraux.SetActive(false);
-                        break;
-                    case 3:
-                        utiliseLeSac = true;
-                        GetComponent<SacCombats>().Initialiser();
-                        blocDesBoutonGénéraux.SetActive(false);
-                        break;
+        if (combatEnCours) {
+            if (Input.GetButtonDown("L")){
+                // TourneLaRoue(-1);
+                rotationDemander=-1;
+            } else if (Input.GetButtonDown("R")){
+                // TourneLaRoue(1);
+                rotationDemander=1;
+            } else if (Input.GetButtonDown("right") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
+                cibleOption++;
+                ChangerCibleOption();
+            } else if (Input.GetButtonDown("left") && !utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
+                cibleOption--;
+                ChangerCibleOption();
+            } else if (Input.GetButtonDown("X")){
+                if (vitesseAccéléré){
+                    vitesseAccéléré = false;
+                    imageVitesseAccéléré.gameObject.SetActive(false);
+                    Time.timeScale = 1;
+                } else {
+                    imageVitesseAccéléré.gameObject.SetActive(true);
+                    Time.timeScale = 2;
+                    vitesseAccéléré = true;
+                    StartCoroutine(CoroutineVitesseAccéléré());
+                }
+            } else if (Input.GetButtonDown("A")){
+                if (!utiliseLaCible && !utiliseLeSac && !utiliseAmultime && !utilisePurification){
+                    Input.ResetInputAxes();
+                    switch(cibleOption){
+                        case 0:
+                            utiliseAmultime = true;
+                            GetComponent<ChoisieYoKaiAmi>().Initialiser();
+                            blocDesBoutonGénéraux.SetActive(false);
+                            break;
+                        case 1:
+                            utiliseLaCible = true;
+                            cible.GetComponent<Cible>().Initialisation();
+                            cible.SetActive(true);
+                            blocDesBoutonGénéraux.SetActive(false);
+                            break;
+                        case 2:
+                            utilisePurification = true;
+                            GetComponent<ChoisieYoKaiAmi>().Initialiser();
+                            blocDesBoutonGénéraux.SetActive(false);
+                            break;
+                        case 3:
+                            utiliseLeSac = true;
+                            GetComponent<SacCombats>().Initialiser();
+                            blocDesBoutonGénéraux.SetActive(false);
+                            break;
+                    }
+                }
+            } else if (Input.GetButtonDown("B")){
+                if (utiliseLaCible){
+                    utiliseLaCible = false;
+                    cible.SetActive(false);
+                    blocDesBoutonGénéraux.SetActive(true);
+                }
+                if (utiliseLeSac){
+                    utiliseLeSac = false;
+                    GetComponent<ChoisieYoKaiAmi>().Arrêter();
+                    GetComponent<SacCombats>().Arrêter();
+                    blocDesBoutonGénéraux.SetActive(true);
+                }
+                if (utiliseAmultime){
+                    utiliseAmultime = false;
+                    GetComponent<ChoisieYoKaiAmi>().Arrêter();
+                    blocDesBoutonGénéraux.SetActive(true);
+                }
+                if (utilisePurification){
+                    utilisePurification = false;
+                    GetComponent<ChoisieYoKaiAmi>().Arrêter();
+                    blocDesBoutonGénéraux.SetActive(true);
                 }
             }
-        } else if (Input.GetButtonDown("B")){
-            if (utiliseLaCible){
-                utiliseLaCible = false;
-                cible.SetActive(false);
-                blocDesBoutonGénéraux.SetActive(true);
-            }
-            if (utiliseLeSac){
-                utiliseLeSac = false;
-                GetComponent<ChoisieYoKaiAmi>().Arrêter();
-                GetComponent<SacCombats>().Arrêter();
-                blocDesBoutonGénéraux.SetActive(true);
-            }
-            if (utiliseAmultime){
-                utiliseAmultime = false;
-                GetComponent<ChoisieYoKaiAmi>().Arrêter();
-                blocDesBoutonGénéraux.SetActive(true);
-            }
-            if (utilisePurification){
-                utilisePurification = false;
-                GetComponent<ChoisieYoKaiAmi>().Arrêter();
-                blocDesBoutonGénéraux.SetActive(true);
-            }
         }
+
+        combatEnCours = !UnGroupeDeYoKaiEstMort();
+        Debug.Log(combatEnCours);
     }
 
     public void ChoisieAllimant(int ID){
@@ -205,7 +211,7 @@ public class GestionnaireCombat : MonoBehaviour{
     }
 
     IEnumerator CoroutineVitesseAccéléré(){
-        while (vitesseAccéléré){
+        while (vitesseAccéléré && combatEnCours){
             imageVitesseAccéléré.gameObject.SetActive(true);
             imageVitesseAccéléré.sprite = spritePourLaVitesse[numéroSpritePourLaVitesse];
             numéroSpritePourLaVitesse = (numéroSpritePourLaVitesse+1)%spritePourLaVitesse.Count;
@@ -561,7 +567,7 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
         yield return new WaitForSeconds(0.5f);//temps avent le début du combat qui permet notament le chargement des animator
-        while (true){
+        while (combatEnCours){
             if (rotationDemander != 0){
                 TourneLaRoue(rotationDemander);
                 rotationDemander = 0;
@@ -607,6 +613,36 @@ public class GestionnaireCombat : MonoBehaviour{
             }
             yield return null;
         }
+    }
+
+    bool UnGroupeDeYoKaiEstMort(){
+        if (listeYoKaiAmiSurLeTerrain.Count == 0 || listeYoKaiEnnemieSurLeTerrain.Count == 0){
+            return true;
+        }
+        bool unAmiOuPlusEstEnVie = false;
+        bool unEnnemieOuPlusEstEnVie = false;
+
+        foreach (StructureYoKaiCombat yoKai in listeYoKaiAmiSurLeTerrain){
+            if (yoKai.vie > 0){
+                unAmiOuPlusEstEnVie = true;
+                break;
+            }
+        }
+        if (!unAmiOuPlusEstEnVie){
+            return true;
+        }
+
+        foreach (StructureYoKaiCombat yoKai in listeYoKaiEnnemieSurLeTerrain){
+            if (yoKai.vie > 0){
+                unEnnemieOuPlusEstEnVie = true;
+                break;
+            }
+        }
+        if (!unEnnemieOuPlusEstEnVie){
+            return true;
+        }
+
+        return false;
     }
 }
 
