@@ -8,7 +8,7 @@ public class coffreMohand : MonoBehaviour
 {
     [Range(0,5)]public int test_range;
     [Min(0)]public int id_nourriture;
-    public bool joueur_dedans = false;
+    private bool joueur_dedans = false;
     private DialcodePrinted dialcodePrinted;
     public bool estClické;
     public bool estRécuperee;
