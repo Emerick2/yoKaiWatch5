@@ -13,10 +13,6 @@ public class Item : MonoBehaviour{
     public List<Annimal> listeDesAnnimaux;
     public bool chargementTerminé = false;
 
-    private char séparateur = ';';
-    List<string[]> lignesNom = new List<string[]>();
-
-
     private void Awake(){
         if (_instance == null){
             _instance = this;
@@ -109,6 +105,7 @@ public class Item : MonoBehaviour{
                 nouv.nom = data.name;
                 nouv.description = data.description;
                 data.imageUrl = data.imageUrl.Replace("https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/","yo-kai-API/");
+                data.imageUrl = data.imageUrl.Replace(".png","");
                 nouv.image = Resources.Load<Sprite>(data.imageUrl);
                 
                 // Conversion des prix
@@ -121,19 +118,6 @@ public class Item : MonoBehaviour{
                 encoreDesFichiers = false;
             }
         }
-        // lignesNom.Clear();
-        // lignesNom = LireCSV("CSV/CSV_Nouriture");
-        // listeDesNouritures.Clear();
-        // lignesNom.RemoveAt(0);
-        // foreach (string[] ligne in lignesNom){
-        //     Nouriture nouv = new Nouriture{};
-        //     nouv.nom = ligne[1];
-        //     nouv.image = Resources.Load<Sprite>("Image_Objet/alliment/"+ligne[3]);
-        //     nouv.description = ligne[6];
-        //     nouv.prixAchat = TransformeTexteEnNombre(ligne[4],1);
-        //     nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
-        //     listeDesNouritures.Add(nouv);
-        // }
     }
 
     void RemplirePourÉquipement(){
@@ -150,6 +134,7 @@ public class Item : MonoBehaviour{
                 nouv.nom = data.name;
                 nouv.description = data.description;
                 data.imageUrl = data.imageUrl.Replace("https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/","yo-kai-API/");
+                data.imageUrl = data.imageUrl.Replace(".png","");
                 nouv.sprite = Resources.Load<Sprite>(data.imageUrl);
                 
                 // Conversion des prix
@@ -200,82 +185,7 @@ public class Item : MonoBehaviour{
             } else {
                 encoreDesFichiers = false;
             }
-        }
-        
-        // lignesNom.Clear();
-        // lignesNom = LireCSV("CSV/CSV_Équipements");
-        // listeDesÉquipements.Clear();
-        // if (lignesNom.Count > 0) lignesNom.RemoveAt(0);
-        // // Debug.Log("nombre :"+lignesNom.Count.ToString());
-        // //8-4-5
-        // for (int i = 0; i < lignesNom.Count; i++){
-        //     if (lignesNom[i].Length==4 && i+1<lignesNom.Count){
-        //         string[] nouvelleLigne = new string[lignesNom[i].Length+lignesNom[i+1].Length];
-        //         for (int k = 0; k < lignesNom[i].Length; k++){
-        //             if (k != 3){
-        //                 nouvelleLigne[k] = lignesNom[i][k];
-        //             } else {
-        //                 nouvelleLigne[3] = lignesNom[i][3]+lignesNom[i+1][0];
-        //                 // Debug.Log(nouvelleLigne[3]);
-        //             }
-        //         }
-        //         for (int k = 1; k < lignesNom[i+1].Length; k++){
-        //             nouvelleLigne[k+lignesNom[i].Length-1] = lignesNom[i+1][k];
-        //         }
-        //         lignesNom[i] = nouvelleLigne;
-        //         lignesNom.RemoveAt(i+1);
-        //     }
-        // }
-        // foreach (string[] ligne in lignesNom){
-        //     if (ligne[1].Length>0){
-        //         Équipement nouv = new Équipement{};
-        //         nouv.nom = ligne[1];
-        //         nouv.sprite = Resources.Load<Sprite>("Image_Objet/équipement/"+ligne[2]);
-        //         if (ligne.Length > 6) nouv.description = ligne[6];
-        //         nouv.prixAchat = TransformeTexteEnNombre(ligne[4],1);
-        //         nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
-
-        //         string texteEffet = ligne[3].Replace(" ","");
-        //         texteEffet = texteEffet.Replace("\"","");
-        //         List<object> lesEffets = SéparerTexteEtNombre(texteEffet);
-        //         for (int i = 0; i <= 1; i++){
-        //             string v1 = "";
-        //             int nombre = 0;
-        //             if (i==0 && lesEffets.Count>=2){
-        //                 v1 = lesEffets[0].ToString();
-        //                 if (int.TryParse(lesEffets[1].ToString(), out nombre)){
-        //                     nombre = int.Parse(lesEffets[1].ToString());
-        //                 }
-        //             } else if (i == 1 && lesEffets.Count>=4) {
-        //                 v1 = lesEffets[2].ToString();
-        //                 if (int.TryParse(lesEffets[3].ToString(), out nombre)){
-        //                     nombre = int.Parse(lesEffets[3].ToString());
-        //                 }
-        //             }
-        //             if (v1 == "DÉF" || v1 == "VIT" || v1 == "ESP" || v1 == "FOR"){
-        //                 switch (v1){
-        //                     case "DÉF":
-        //                         nouv.effetSur_Défance = nombre;
-        //                         break;
-        //                     case "VIT":
-        //                         nouv.effetSur_Vitesse = nombre;
-        //                         break;
-        //                     case "ESP":
-        //                         nouv.effetSur_Esprit = nombre;
-        //                         break;
-        //                     case "FOR":
-        //                         nouv.effetSur_Force = nombre;
-        //                         break;
-        //                 }
-        //             } else if (i==0) {
-        //                 if (nouv.effetSur_ELSE != ""){
-        //                     nouv.effetSur_ELSE = ligne[3].Replace("\"","");
-        //                 }
-        //             }
-        //         }
-        //         listeDesÉquipements.Add(nouv);
-        //     }
-        // }
+        }        
     }
 
     void RemplirePourAnnimal(){
@@ -292,6 +202,7 @@ public class Item : MonoBehaviour{
                 nouv.nom = data.name;
                 nouv.description = data.description;
                 data.imageUrl = data.imageUrl.Replace("https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/","yo-kai-API/");
+                data.imageUrl = data.imageUrl.Replace(".png","");
                 nouv.image = Resources.Load<Sprite>(data.imageUrl);
                 
                 // Conversion des prix
@@ -309,45 +220,7 @@ public class Item : MonoBehaviour{
                 encoreDesFichiers = false;
             }
         }
-        // lignesNom.Clear();
-        // lignesNom = LireCSV("CSV/CSV_Animaux");
-        // listeDesAnnimaux.Clear();
-        // lignesNom.RemoveAt(0);
-        // foreach (string[] ligne in lignesNom){
-        //     if (ligne[3] != ""){
-        //         ligne[1] = ligne[1].Replace('?','★');
-        //         ligne[3] = ligne[3].Replace('?','★');
-        //         Annimal nouv = new Annimal{};
-        //         nouv.nom = ligne[1];
-        //         nouv.image = Resources.Load<Sprite>("Image_Objet/annimal/"+ligne[3]);
-        //         nouv.description = ligne[6];
-        //         nouv.prixAchat = TransformeTexteEnNombre(ligne[4],1);
-        //         nouv.prixVente = TransformeTexteEnNombre(ligne[5],0);
-        //         nouv.rare = ligne[1].Contains('★');
-        //         string t = ligne[1];
-        //         t = t.Replace("★","");
-        //         nouv.modèle3D = Resources.Load<GameObject>("annimal/"+t);
-        //         listeDesAnnimaux.Add(nouv);
-        //     }
-        // }
     }
-
-    // public List<string[]> LireCSV(string nomFichierSansExtension){
-    //     string chemin = Application.dataPath + "/Resources/" + nomFichierSansExtension + ".csv";
-    //     List<string[]> resultat = new List<string[]>();
-    //     try{
-    //         string contenuPropre = File.ReadAllText(chemin, Encoding.GetEncoding("windows-1252")); 
-    //         string[] lignes = contenuPropre.Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
-    //         foreach (string ligne in lignes){
-    //             string[] valeurs = ligne.Split(séparateur); 
-    //             resultat.Add(valeurs);
-    //         }
-    //     }
-    //     catch (FileNotFoundException){
-    //         Debug.LogError("Fichier CSV non trouvé : " + chemin);
-    //     }
-    //     return resultat;
-    // }
 
     public float TransformeTexteEnNombre(string texte, float valeurParDéfaut){
         if (float.TryParse(texte, NumberStyles.Any, CultureInfo.InvariantCulture, out float nombre)) {
@@ -357,11 +230,6 @@ public class Item : MonoBehaviour{
     }
 }
 
-/*
-NullReferenceException: Object reference not set to an instance of an object
-RemplisLaRoue.ChangerPositionCible2 (UnityEngine.GameObject pageGameObject, System.Int32 maximum) (at Assets/RemplisLaRoue.cs:240)
-RemplisLaRoue.Update () (at Assets/RemplisLaRoue.cs:133)
-*/
 /*
 Nouriture
 Objet

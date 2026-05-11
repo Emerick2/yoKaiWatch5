@@ -52,6 +52,7 @@ public class NewDataCenter : MonoBehaviour{
     void Start(){
         StartCoroutine(compterLeTempsDeJeu());
     }
+
     IEnumerator compterLeTempsDeJeu(){
         while (true){
             yield return new WaitForSeconds(60f);
