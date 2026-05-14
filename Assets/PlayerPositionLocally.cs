@@ -35,8 +35,7 @@ public class PlayerPositionLocally : MonoBehaviour {
         if (whitTheButonB && Input.GetButtonDown("B") && nameOfTheScene != "" && nameOfTheScene != null){
             whitTheButonB = false;
             mustChangeThePositionDirectly = true;
-            SceneManager.LoadScene(nameOfTheScene);
-            nameOfTheScene = "";
+            StartCoroutine(Teleport(nameOfTheScene));
         }
     }
 
@@ -64,5 +63,24 @@ public class PlayerPositionLocally : MonoBehaviour {
             yield return new WaitForSeconds(0.02f);
         }
         mouvementDuJoueur.player.transform.position = vector;
+    }
+
+    public IEnumerator Teleport(string sceneName){
+        mouvementDuJoueur.droitDeMarcher = false;
+
+        bool lancer = false;
+        GameObject theInterface = GameObject.FindWithTag("interfasse");
+        if (theInterface != null){
+            theInterface = theInterface.transform.Find("fondu").gameObject;
+            if (theInterface != null && theInterface.GetComponent<Animator>() != null){
+                theInterface.GetComponent<Animator>().SetBool("fonduActif",true);
+                lancer = true;
+            }
+        }
+
+        if (lancer) yield return new WaitForSeconds(1f);
+        else Debug.Log("Le fond de chargement n'est pas correctement référancer.");
+
+        SceneManager.LoadScene(sceneName);
     }
 }
