@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
-using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 public class GestionnaireCombat : MonoBehaviour{
     public List<Image> lesEspacesMédaillonDansLaRoue;
@@ -46,6 +46,9 @@ public class GestionnaireCombat : MonoBehaviour{
     private int nouritureChoisie = 0;
 
     private bool combatEnCours = true;
+
+    public GameObject panelVictory;
+    private bool panelVictoryIsClose = true;
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
         ChangerCibleOption();
@@ -61,6 +64,7 @@ public class GestionnaireCombat : MonoBehaviour{
         utilisePurification = false;
         cible.SetActive(false);
         blocDesBoutonGénéraux.SetActive(true);
+        if (panelVictory != null) panelVictory.SetActive(false);
     }
     void AjouterUnEnnemie(int ID, int niveau){
         StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
@@ -69,6 +73,7 @@ public class GestionnaireCombat : MonoBehaviour{
         nouv.ID = ID;
         nouv.nom = y.Nom;
         nouv.imageMédaillon = y.médaillon;
+        nouv.imageFace = y.faceRondImage;
         nouv.vie = y.PV;
         nouv.vieMaximum = nouv.vie;
         nouv.vitesse= y.Vitesse;
@@ -178,9 +183,14 @@ public class GestionnaireCombat : MonoBehaviour{
                 }
             }
         }
-
+        else {
+            if (panelVictoryIsClose) OpenPanelVictory();
+            if (Input.GetButtonDown("A")){
+                PlayerPositionLocally._instance.ReturnFromASceneStore("Combat2");
+                
+            }
+        }
         combatEnCours = !UnGroupeDeYoKaiEstMort();
-        Debug.Log(combatEnCours);
     }
 
     public void ChoisieAllimant(int ID){
@@ -644,6 +654,23 @@ public class GestionnaireCombat : MonoBehaviour{
 
         return false;
     }
+
+    void OpenPanelVictory(){
+        panelVictoryIsClose = false;
+        if (panelVictory){
+            panelVictory.SetActive(true);
+            for (int i = 0; i < 6; i++){
+                GameObject bloque = panelVictory.transform.Find(i.ToString()).gameObject;
+                if (i < listeYoKaiAmiSurLeTerrain.Count){
+                    bloque.SetActive(true);
+                    bloque.transform.Find("unYoKai/bloc image/médaillon").GetComponent<Image>().sprite = listeYoKaiAmiSurLeTerrain[i].imageFace;
+                    bloque.transform.Find("unYoKai/Niveau").GetComponent<TextMeshProUGUI>().text = listeYoKaiAmiSurLeTerrain[i].niveau.ToString();
+                } else {
+                    bloque.SetActive(false);
+                }
+            }
+        }
+    }
 }
 
 [System.Serializable]
@@ -651,6 +678,7 @@ public class StructureYoKaiCombat{
     public bool estUnAmi = false;
     public GameObject gameObjectSurLaScène;
     public Sprite imageMédaillon;
+    public Sprite imageFace;
     public string nom;
     public int possitionRoue;
     public bool estDevant;

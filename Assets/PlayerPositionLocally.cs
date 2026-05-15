@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -32,9 +31,17 @@ public class PlayerPositionLocally : MonoBehaviour {
     }
 
     void Update() {
-        if (whitTheButonB && Input.GetButtonDown("B") && nameOfTheScene != "" && nameOfTheScene != null){
+        if (whitTheButonB && Input.GetButtonDown("B")){
+            ReturnToTheSaveScene();
+        }
+    }
+
+    public void ReturnToTheSaveScene(){
+        if (nameOfTheScene != "" && nameOfTheScene != null){
             whitTheButonB = false;
             mustChangeThePositionDirectly = true;
+            mouvementDuJoueur.droitDeMarcher = false;
+            Time.timeScale = 1;
             StartCoroutine(Teleport(nameOfTheScene));
         }
     }
@@ -65,8 +72,8 @@ public class PlayerPositionLocally : MonoBehaviour {
         mouvementDuJoueur.player.transform.position = vector;
     }
 
-    public IEnumerator Teleport(string sceneName){
-        mouvementDuJoueur.droitDeMarcher = false;
+    public IEnumerator Teleport(string sceneName, bool stock = false, GameObject objectForDestroy = null){
+        // mouvementDuJoueur.droitDeMarcher = false;
 
         bool lancer = false;
         GameObject theInterface = GameObject.FindWithTag("interfasse");
@@ -81,6 +88,28 @@ public class PlayerPositionLocally : MonoBehaviour {
         if (lancer) yield return new WaitForSeconds(1f);
         else Debug.Log("Le fond de chargement n'est pas correctement référancer.");
 
-        SceneManager.LoadScene(sceneName);
+        if (objectForDestroy != null) Destroy(objectForDestroy);
+
+        if (!stock){
+            SceneManager.LoadScene(sceneName);
+        } else {
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
+            // Time.timeScale = 0f;
+            mouvementDuJoueur.droitDeMarcher = false;
+        }
+    }
+
+    public void ReturnFromASceneStore(string nameOfScene){
+        SceneManager.UnloadSceneAsync(nameOfScene);
+        Time.timeScale = 1f; 
+        mouvementDuJoueur.droitDeMarcher = true;
+
+        GameObject theInterface = GameObject.FindWithTag("interfasse");
+        if (theInterface != null){
+            theInterface = theInterface.transform.Find("fondu").gameObject;
+            if (theInterface != null && theInterface.GetComponent<Animator>() != null){
+                theInterface.GetComponent<Animator>().SetBool("fonduActif",false);
+            }
+        }
     }
 }
