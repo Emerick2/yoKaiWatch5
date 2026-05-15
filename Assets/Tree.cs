@@ -8,7 +8,7 @@ public class Tree : MonoBehaviour {
     void Update() {
         if (playerInTheZone && Input.GetButtonDown("A") && mouvementDuJoueur.droitDeMarcher){
             PlayerPositionLocally.Instance.StoreThePlayerPositionLocally(true);
-            StartCoroutine(PlayerPositionLocally.Instance.Teleport("attrape-insecte"));
+            StartCoroutine(PlayerPositionLocally.Instance.Teleport("attrape-insecte",true));
         }
     }
 

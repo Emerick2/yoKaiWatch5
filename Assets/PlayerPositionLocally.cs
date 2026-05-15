@@ -21,6 +21,8 @@ public class PlayerPositionLocally : MonoBehaviour {
         }
     }
     
+    private List<GameObject> rootObjectsDisabled = new List<GameObject>();
+    private bool thisIsAStock = false;
     private void Awake(){
         if (_instance == null){
             _instance = this;
@@ -42,7 +44,11 @@ public class PlayerPositionLocally : MonoBehaviour {
             mustChangeThePositionDirectly = true;
             mouvementDuJoueur.droitDeMarcher = false;
             Time.timeScale = 1;
-            StartCoroutine(Teleport(nameOfTheScene));
+            if (!thisIsAStock){
+                StartCoroutine(Teleport(nameOfTheScene));
+            } else {
+                ReturnFromASceneStore();
+            }
         }
     }
 
@@ -73,6 +79,7 @@ public class PlayerPositionLocally : MonoBehaviour {
     }
 
     public IEnumerator Teleport(string sceneName, bool stock = false, GameObject objectForDestroy = null){
+        thisIsAStock = stock;
         // mouvementDuJoueur.droitDeMarcher = false;
 
         bool lancer = false;
@@ -93,14 +100,22 @@ public class PlayerPositionLocally : MonoBehaviour {
         if (!stock){
             SceneManager.LoadScene(sceneName);
         } else {
+            HideAllObjectsFromTheScene();
             SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
             // Time.timeScale = 0f;
             mouvementDuJoueur.droitDeMarcher = false;
         }
     }
 
-    public void ReturnFromASceneStore(string nameOfScene){
-        SceneManager.UnloadSceneAsync(nameOfScene);
+    private void ReturnFromASceneStore(){
+        int countLoaded = SceneManager.sceneCount;    
+        Scene lastScene = SceneManager.GetSceneAt(countLoaded - 1);
+
+        if (lastScene.name != SceneManager.GetActiveScene().name) {
+            SceneManager.UnloadSceneAsync(lastScene.name);
+        }
+
+        ShowAllObjectsFromTheScene();
         Time.timeScale = 1f; 
         mouvementDuJoueur.droitDeMarcher = true;
 
@@ -111,5 +126,31 @@ public class PlayerPositionLocally : MonoBehaviour {
                 theInterface.GetComponent<Animator>().SetBool("fonduActif",false);
             }
         }
+    }
+
+    private void HideAllObjectsFromTheScene(){
+        rootObjectsDisabled.Clear();
+        Scene currentScene = SceneManager.GetActiveScene();
+        
+        GameObject[] rootObjects = currentScene.GetRootGameObjects();
+        
+        foreach (GameObject obj in rootObjects) {
+            if (obj != gameObject) {
+                if (obj.activeSelf) {
+                    obj.SetActive(false);
+                    rootObjectsDisabled.Add(obj);
+                }
+            }
+        }
+    }
+
+    private void ShowAllObjectsFromTheScene(){
+        foreach (GameObject obj in rootObjectsDisabled) {
+            if (obj != null) {
+                obj.SetActive(true);
+            }
+        }
+        
+        rootObjectsDisabled.Clear();
     }
 }

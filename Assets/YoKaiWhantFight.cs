@@ -12,8 +12,8 @@ public class YoKaiWhantFight : MonoBehaviour{
 
     void OnTriggerEnter(Collider other){
         if (other.CompareTag("Player")){
+            PlayerPositionLocally._instance.StoreThePlayerPositionLocally(false);
             StartCoroutine(PlayerPositionLocally._instance.Teleport("Combat2", true, gameObject));
-            // Destroy(this);
         }
     }
 }

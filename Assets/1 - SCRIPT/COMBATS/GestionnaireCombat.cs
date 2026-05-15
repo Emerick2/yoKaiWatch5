@@ -186,7 +186,7 @@ public class GestionnaireCombat : MonoBehaviour{
         else {
             if (panelVictoryIsClose) OpenPanelVictory();
             if (Input.GetButtonDown("A")){
-                PlayerPositionLocally._instance.ReturnFromASceneStore("Combat2");
+                PlayerPositionLocally._instance.ReturnToTheSaveScene();
                 
             }
         }
@@ -243,6 +243,7 @@ public class GestionnaireCombat : MonoBehaviour{
             nouv.IDListeYoKai = IDspécifique;//permet de différancier deux Woko par exemple
             nouv.nom = MesYoKai.Instance.maListe[IDspécifique].surnom;
             nouv.imageMédaillon = y.médaillon;
+            nouv.imageFace = y.faceRondImage;
             nouv.vie = y.PV;
             nouv.vieMaximum = nouv.vie;
             nouv.vitesse= y.Vitesse;
