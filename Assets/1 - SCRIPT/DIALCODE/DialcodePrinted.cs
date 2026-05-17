@@ -49,6 +49,10 @@ public class DialcodePrinted : MonoBehaviour{
     public bool discussionInProgress;
     [HideInInspector] public PNJDialcode pnjTalk;
 
+    private List<int> listeIdParler = new List<int>();
+    private bool yoKaiSonVoix = true;
+    private AudioClip audioPrecedent = null;
+
     void Awake(){
         if (Instance == null){
             Instance = this;
@@ -400,6 +404,7 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     public void INIT(bool rapide){
+        listeIdParler.Clear();
         boiteFermer = true;
         discussionInProgress = false;
         nChoix = 1;
@@ -489,6 +494,20 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void AjouterLeNomEtImagePersonnage(){
+        if (yoKaiSonVoix && fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai){
+            int id = fragmentDeDialogue[position].IdÉlément;
+            if (id > 0 && !listeIdParler.Contains(id)){
+                if (audioPrecedent != null){
+                    Destroy(audioPrecedent);
+                }
+                listeIdParler.Add(id);
+                AudioClip song = medaliumDictionnaire._instance.ServantYoKai(id).Bruit;
+                if (song != null){
+                    GestionnaireMusique._Komasan.JouerUnEffetSonore(song,false);
+                }
+            }
+        }
+
         if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héro || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
             blocNomUtilisé = bulle.transform.Find("-- D --").gameObject;
             bulle.transform.Find("-- G --").gameObject.SetActive(false);
