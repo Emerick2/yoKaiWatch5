@@ -3,7 +3,6 @@ using UnityEditor.Animations;
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 public class YokaiAnimatorBuilder : EditorWindow
 {
@@ -78,7 +77,18 @@ public class YokaiAnimatorBuilder : EditorWindow
                 return state;
             }
 
-            AnimatorState sti = CreateState("sti", "sti");
+            // FORCE LE CLIP À REBOUCLER SUR LUI-MÊME INSTANTANÉMENT
+            void ForceAnimationLoop(AnimatorState targetState)
+            {
+                // Crée une transition de l'état... vers lui-même !
+                var loopTransition = targetState.AddTransition(targetState);
+                loopTransition.hasExitTime = true;
+                loopTransition.exitTime = 1f;       // Se déclenche pile à la fin du clip (100%)
+                loopTransition.duration = 0f;       // Reset instantané à 0% sans transition visuelle
+            }
+
+            // Création des états principaux
+            AnimatorState sti = CreateState("stl", "stl");
             rootSM.defaultState = sti;
 
             AnimatorState spi = CreateState("spi", "spi");
@@ -92,6 +102,15 @@ public class YokaiAnimatorBuilder : EditorWindow
             AnimatorState trl = CreateState("trl", "trl");
             AnimatorState ati = CreateState("ati", "ati");
 
+            // Application de la boucle instantanée sur tes animations continues
+            ForceAnimationLoop(sti);  // Idle
+            ForceAnimationLoop(spi);  // Attente Amultime
+            ForceAnimationLoop(ml);   // Course
+            ForceAnimationLoop(wkl);  // Marche
+            ForceAnimationLoop(pwl);  // Protection
+            ForceAnimationLoop(trl);  // Fatigue
+
+            // --- Configuration des transitions et des conditions ---
 
             var tSpi = sti.AddTransition(spi);
             tSpi.AddCondition(AnimatorConditionMode.If, 0, "amultime");

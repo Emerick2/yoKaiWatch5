@@ -48,13 +48,15 @@ public class GestionnaireCombat : MonoBehaviour{
     private bool combatEnCours = true;
 
     public GameObject panelVictory;
+    public int stepPanelVictory = 0;
     private bool panelVictoryIsClose = true;
+
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
         ChangerCibleOption();
         AjouterUnEnnemie(8,1);
-        AjouterUnEnnemie(57,1);
-        AjouterUnEnnemie(57,1);
+        // AjouterUnEnnemie(57,1);
+        // AjouterUnEnnemie(57,1);
         if (MesYoKai.Instance != null){
             StartCoroutine(CoroutineDeDémarrage());
         }
@@ -184,10 +186,24 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
         else {
-            if (panelVictoryIsClose) OpenPanelVictory();
+            if (panelVictoryIsClose) {
+                OpenPanelVictory();
+                GameObject panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
+                if (panel != null) panel.SetActive(false);
+                stepPanelVictory = 1;
+                panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
+                if (panel != null) panel.SetActive(true);
+            }
             if (Input.GetButtonDown("A")){
-                PlayerPositionLocally._instance.ReturnToTheSaveScene();
-                
+                if (stepPanelVictory < 2){
+                    GameObject panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
+                    if (panel != null) panel.SetActive(false);
+                    stepPanelVictory++;
+                    panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
+                    if (panel != null) panel.SetActive(true);
+                } else {
+                    PlayerPositionLocally._instance.ReturnToTheSaveScene();
+                }
             }
         }
         combatEnCours = !UnGroupeDeYoKaiEstMort();
@@ -286,6 +302,7 @@ public class GestionnaireCombat : MonoBehaviour{
             StructureYoKaiCombat yk = RécupéréUnYoKaiParPositionSurLaRoue(i);
             if (yk != null){
                 GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
+                TV.AddComponent<AddAnimator>();
                 TV.transform.position = troisPositionAmi[i].position;
                 TV.transform.localScale = new Vector3(2,2,2);
                 if (yk.estUnAmi){
@@ -661,7 +678,7 @@ public class GestionnaireCombat : MonoBehaviour{
         if (panelVictory){
             panelVictory.SetActive(true);
             for (int i = 0; i < 6; i++){
-                GameObject bloque = panelVictory.transform.Find(i.ToString()).gameObject;
+                GameObject bloque = panelVictory.transform.Find("partie-2/"+i.ToString()).gameObject;
                 if (i < listeYoKaiAmiSurLeTerrain.Count){
                     bloque.SetActive(true);
                     bloque.transform.Find("unYoKai/bloc image/médaillon").GetComponent<Image>().sprite = listeYoKaiAmiSurLeTerrain[i].imageFace;

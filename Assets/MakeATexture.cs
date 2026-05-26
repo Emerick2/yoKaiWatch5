@@ -23,6 +23,7 @@ public class MakeATexture : MonoBehaviour{
         }
         ApplyTexture();
         if (gameObject.GetComponent<MakeAShader>() == null) gameObject.AddComponent<MakeAShader>();
+        if (gameObject.GetComponent<AddAnimator>() == null) gameObject.AddComponent<AddAnimator>();
     }
 
     void ApplyTexture(){
