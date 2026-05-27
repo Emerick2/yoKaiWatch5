@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Linq;
 using TMPro;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 public class GestionnaireCombat : MonoBehaviour{
     public List<Image> lesEspacesMédaillonDansLaRoue;
@@ -188,19 +189,30 @@ public class GestionnaireCombat : MonoBehaviour{
         else {
             if (panelVictoryIsClose) {
                 OpenPanelVictory();
-                GameObject panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
-                if (panel != null) panel.SetActive(false);
+                Transform panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
+                if (panel != null) panel.gameObject.SetActive(false);
                 stepPanelVictory = 1;
-                panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
-                if (panel != null) panel.SetActive(true);
+                panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
+                if (panel != null) panel.gameObject.SetActive(true);
+                if (stepPanelVictory == 1){
+                    GameObject win = panel.transform.Find("win").gameObject;
+                    GameObject lose = panel.transform.Find("lose").gameObject;
+                    if (UnGroupeDeYoKaiEstMort(true)){
+                        win.SetActive(true);
+                        lose.SetActive(false);
+                    } else {
+                        win.SetActive(false);
+                        lose.SetActive(true);
+                    }
+                }
             }
             if (Input.GetButtonDown("A")){
                 if (stepPanelVictory < 2){
-                    GameObject panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
-                    if (panel != null) panel.SetActive(false);
+                    Transform panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
+                    if (panel != null) panel.gameObject.SetActive(false);
                     stepPanelVictory++;
-                    panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString()).gameObject;
-                    if (panel != null) panel.SetActive(true);
+                    panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
+                    if (panel != null) panel.gameObject.SetActive(true);
                 } else {
                     PlayerPositionLocally._instance.ReturnToTheSaveScene();
                 }
@@ -643,7 +655,7 @@ public class GestionnaireCombat : MonoBehaviour{
         }
     }
 
-    bool UnGroupeDeYoKaiEstMort(){
+    bool UnGroupeDeYoKaiEstMort(bool savoirSiLeJoueurAGagner = false){
         if (listeYoKaiAmiSurLeTerrain.Count == 0 || listeYoKaiEnnemieSurLeTerrain.Count == 0){
             return true;
         }
@@ -657,6 +669,7 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
         if (!unAmiOuPlusEstEnVie){
+            if (savoirSiLeJoueurAGagner) return false;
             return true;
         }
 
@@ -667,6 +680,7 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
         if (!unEnnemieOuPlusEstEnVie){
+            if (savoirSiLeJoueurAGagner) return true;
             return true;
         }
 
