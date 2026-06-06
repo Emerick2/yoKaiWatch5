@@ -55,7 +55,7 @@ public class GestionnaireCombat : MonoBehaviour{
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
         ChangerCibleOption();
-        AjouterUnEnnemie(8,1);
+        AjouterUnEnnemie(6,1);
         // AjouterUnEnnemie(57,1);
         // AjouterUnEnnemie(57,1);
         if (MesYoKai.Instance != null){
@@ -316,7 +316,8 @@ public class GestionnaireCombat : MonoBehaviour{
                 GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
                 TV.AddComponent<AddAnimator>();
                 TV.transform.position = troisPositionAmi[i].position;
-                TV.transform.localScale = new Vector3(2,2,2);
+                // TV.transform.localScale = new Vector3(2,2,2);
+                TV.transform.localScale = troisPositionAmi[i].localScale;
                 if (yk.estUnAmi){
                     TV.transform.Rotate(0, 180, 0);
                 }
@@ -335,7 +336,10 @@ public class GestionnaireCombat : MonoBehaviour{
             StructureYoKaiCombat yk = listeYoKaiEnnemieSurLeTerrain[i];
             if (yk != null){
                 GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
+                TV.AddComponent<AddAnimator>();
                 TV.transform.position = troisPositionEnnemie[i].position;
+                TV.transform.localScale = Vector3.one;
+                TV.transform.localScale = troisPositionAmi[i].localScale;
                 if (yk.estUnAmi){
                     TV.transform.Rotate(0, 180, 0);
                 } else {

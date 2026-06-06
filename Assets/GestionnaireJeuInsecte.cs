@@ -108,7 +108,7 @@ public class GestionnaireJeuInsecte : MonoBehaviour {
                         targetBugForPlayImage.SetActive(true);
                         canMouve = false;
                         idBugTargetForThisGame = i;
-                        HideLine(10);
+                        HideLine(Random.Range(3,6));
                         StartCoroutine(TheWheelOfDestinyTurns());
                     }
                     break;
