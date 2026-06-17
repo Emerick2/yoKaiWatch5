@@ -5,7 +5,7 @@ using TMPro;
 
 public class Cible : MonoBehaviour{
     [HideInInspector] public GestionnaireCombat gestionnaireCombat;
-    [HideInInspector] public List<GameObject> yoKaiGameObjects;
+    public List<GameObject> yoKaiGameObjects;
     public Sprite imageSélection;
     public Sprite imageNonSélection;
     public int cibleVisée;
@@ -22,6 +22,8 @@ public class Cible : MonoBehaviour{
     Vector2 directionGauche = new Vector2(-1, 0);
     Vector2 directionDroit = new Vector2(1, 0);
     private Vector2 positionInitial = new Vector2(0, 0);
+
+    public List<GameObject> pointDeCibleEnnemies = new List<GameObject>();
 
     void Start(){
         positionInitial = transform.position;
@@ -45,6 +47,25 @@ public class Cible : MonoBehaviour{
         }else if (Input.GetButton("down")){
             transform.Translate(directionBas * vitesseCible * Time.deltaTime);
         }
+
+        // for (int i = 0; i < pointDeCibleEnnemies.Count; i++) {
+        //     if (pointDeCibleEnnemies[i] != null) {
+        //         RectTransform rectCible = GetComponent<RectTransform>();
+        //         RectTransform rectEnnemi = pointDeCibleEnnemies[i].GetComponent<RectTransform>();
+
+        //         float distance = Vector2.Distance(rectCible.anchoredPosition, rectEnnemi.anchoredPosition);
+
+        //         if (distance < 50f) {
+        //             if (cibleVisée != i) {
+        //                 cibleVisée = i;
+        //                 Debug.Log("Yo-Kai UI visé, index numéro : " + cibleVisée);
+                        
+        //                 // MettreAJourInfosUI(cibleVisée); 
+        //             }
+        //             break; 
+        //         }
+        //     }
+        // }
     }
 
     void OnTriggerEnter(Collider other){
