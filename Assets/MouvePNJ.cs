@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MouvePNJ : MonoBehaviour {
     public List<StopMouveStruct> listOfStopMouveStruct;
-    public float speed = 3f;
+    public float speed = 1.5f;
     public bool loop;
 
     [Header("Détection d'obstacle")]
@@ -17,6 +17,8 @@ public class MouvePNJ : MonoBehaviour {
     private int index = 0;
     private bool weAreMakingProgress = true;
     private float y = 0;
+
+    public bool livePointUpdates = false;
 
 
     void Start() {
@@ -52,6 +54,10 @@ public class MouvePNJ : MonoBehaviour {
                     yield return null;
                     continue;
                 }
+            }
+
+            if (livePointUpdates){
+                SetTarget();
             }
 
             transform.position = Vector3.MoveTowards(transform.position, target, speed * Time.deltaTime);
