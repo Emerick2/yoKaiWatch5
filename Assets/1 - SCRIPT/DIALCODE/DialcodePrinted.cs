@@ -179,6 +179,7 @@ public class DialcodePrinted : MonoBehaviour{
             if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
             if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
         }
+
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
             if (fragment.quantitée <= 0) fragment.quantitée = 1;
             if (fragment.typeObjet == CatégorieItem.Nouriture){
@@ -292,6 +293,10 @@ public class DialcodePrinted : MonoBehaviour{
     public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false){
         canvasGroup.alpha = 1f;
         if (quantitée <= 0) quantitée = 1;
+        int quantitéeTexte = quantitée;
+        if(nom == "€"){
+            quantitée*=100;
+        }
         if (typeObjet == CatégorieItem.Nouriture){
             nom = Item._instance.listeDesNouritures[IdÉlément].nom;
             image = Item._instance.listeDesNouritures[IdÉlément].image;
@@ -312,9 +317,10 @@ public class DialcodePrinted : MonoBehaviour{
                 cadeau.transform.Find("cintille").gameObject.SetActive(false);
             }
             string phrase = "Tu as obtenu un cadeau !";
+            
             if (nom.Length > 0){
-                if (quantitée == 1) phrase = "Tu as obtenu : <color=#4C714F>\n"+nom+"</color> !";
-                else phrase = "Tu as obtenu : <color=#4C714F>\n"+quantitée +" "+ nom+"</color> !";
+                if (quantitéeTexte == 1) phrase = "Tu as obtenu : <color=#4C714F>\n"+nom+"</color> !";
+                else phrase = "Tu as obtenu : <color=#4C714F>\n"+quantitéeTexte +" "+ nom+"</color> !";
             }
             NewDataCenter.Instance.SauvegarderINT(nom,quantitée);
             //Utiliser <C12><ITEM_NAME></C> sur qui ?
@@ -326,8 +332,8 @@ public class DialcodePrinted : MonoBehaviour{
                 cadeau.transform.Find("cintille").gameObject.SetActive(false);
                 string phrase = "Tu as remis :";
                 if (nom.Length > 0){
-                    if (quantitée == 1) phrase = "Tu as remis : <color=#4C714F>\n"+nom+"</color>.";
-                    else phrase = "Tu as remis : <color=#4C714F>\n"+quantitée +" "+ nom+"</color>.";
+                    if (quantitéeTexte == 1) phrase = "Tu as remis : <color=#4C714F>\n"+nom+"</color>.";
+                    else phrase = "Tu as remis : <color=#4C714F>\n"+quantitéeTexte +" "+ nom+"</color>.";
                 }
                 NewDataCenter.Instance.SauvegarderINT(nom,quantitée*(-1));
                 //Utiliser <C12><ITEM_NAME></C> sur qui ?

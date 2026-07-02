@@ -111,6 +111,8 @@ public class Item : MonoBehaviour{
                 // Conversion des prix
                 nouv.prixAchat = TransformeTexteEnNombre(data.purchasePrice, 1);
                 nouv.prixVente = TransformeTexteEnNombre(data.sellingPrice, 0);
+                nouv.allyEffect = data.allyEffect;
+                nouv.enemyEffect = data.enemyEffect;
 
                 listeDesNouritures.Add(nouv);
                 i++; 

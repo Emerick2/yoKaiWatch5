@@ -37,6 +37,7 @@ public class AcheterUnProduit : MonoBehaviour{
         } else if (Input.GetButtonDown("A")){
             Payer();
         }
+        
     }
 
 

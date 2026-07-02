@@ -29,15 +29,33 @@ public class BoutiqueDialcode : MonoBehaviour{
             pointLePlusHautVisible = 0;
             itemScript = Item._instance;
 
-            if (!acheterUser){
-                for (int i = produitAllimentaire.Count - 1; i >= 0; i--){
-                    int itemId = produitAllimentaire[i];
+            if (itemScript == null){
+                yield break;
+            }
+
+            List<int> produitsValides = new List<int>();
+            foreach (int itemId in produitAllimentaire){
+                if (itemId < 0 || itemId >= itemScript.listeDesNouritures.Count){
+                    continue;
+                }
+
+                if (!acheterUser){
                     if (int.Parse(NewDataCenter.Instance.Lire(itemScript.listeDesNouritures[itemId].nom)) <= 0){
-                        produitAllimentaire.RemoveAt(i);
+                        continue;
                     }
                 }
+
+                produitsValides.Add(itemId);
             }
+            produitAllimentaire = produitsValides;
         }
+        ReChargerMonArgent();
+        if (produitAllimentaire == null || produitAllimentaire.Count == 0) {
+            cible = 0;
+        } else if (cible < 0 || cible >= produitAllimentaire.Count) {
+            cible = 0;
+        }
+
         while (!itemScript.chargementTerminé){
             yield return new WaitForSeconds(0.1f);
         }
@@ -51,7 +69,6 @@ public class BoutiqueDialcode : MonoBehaviour{
         }
         ChangerDeCible(0);
         TailleLayoutGroup();
-        ReChargerMonArgent();
         acheterUnProduitScript.gameObject.SetActive(false);
         acheterUnProduitFenêtreOuverte = false;
     }
@@ -64,8 +81,8 @@ public class BoutiqueDialcode : MonoBehaviour{
             } else {
                 Destroy(item.gameObject);
             }
-            listeObjetsPosées.Clear();
         }
+        listeObjetsPosées.Clear();
     }
     void AjouterUnÉlémentAuBloc(Sprite image, string nom, float quantitée){
         GameObject TV = Instantiate(exemple);
@@ -90,10 +107,20 @@ public class BoutiqueDialcode : MonoBehaviour{
             } else if (Input.GetButtonDown("up")){
                 ChangerDeCible(-1);
             } else if (Input.GetButtonDown("A")){
+                if (itemScript == null || produitAllimentaire == null || produitAllimentaire.Count == 0 || cible < 0 || cible >= produitAllimentaire.Count){
+                    return;
+                }
+
                 acheterUnProduitScript.gameObject.SetActive(true);
                 acheterUnProduitFenêtreOuverte = true;
-                if (acheterUser) acheterUnProduitScript.Réinitialiser(itemScript.listeDesNouritures[produitAllimentaire[cible]].prixAchat, itemScript.listeDesNouritures[produitAllimentaire[cible]].nom);
-                else acheterUnProduitScript.Réinitialiser(itemScript.listeDesNouritures[produitAllimentaire[cible]].prixVente, itemScript.listeDesNouritures[produitAllimentaire[cible]].nom);
+                int itemId = produitAllimentaire[cible];
+                if (itemId < 0 || itemId >= itemScript.listeDesNouritures.Count){
+                    return;
+                }
+
+                Nouriture nourriture = itemScript.listeDesNouritures[itemId];
+                if (acheterUser) acheterUnProduitScript.Réinitialiser(nourriture.prixAchat, nourriture.nom);
+                else acheterUnProduitScript.Réinitialiser(nourriture.prixVente, nourriture.nom);
             }
         } else if (Input.GetButtonDown("B")){
             acheterUnProduitScript.gameObject.SetActive(false);
@@ -102,18 +129,56 @@ public class BoutiqueDialcode : MonoBehaviour{
     }
 
     void ChangerDeCible(int augmentation){
+        if (produitAllimentaire == null || produitAllimentaire.Count == 0 || listeObjetsPosées.Count == 0){
+            cible = 0;
+            if (blocInformation != null) blocInformation.gameObject.SetActive(false);
+            return;
+        }
+
+        if (cible < 0 || cible >= produitAllimentaire.Count){
+            cible = 0;
+        }
+
         foreach (GameObject item in listeObjetsPosées){
             item.GetComponent<Image>().color = new Color(1f, 1f, 1f, 1f);
         }
-        int n = listeObjetsPosées.Count;
-        cible = (((cible+augmentation)%n)+n)%n;
-        listeObjetsPosées[cible].GetComponent<Image>().color = new Color(2f, 0.94875f, 0f, 1f);
+
+        int n = Mathf.Min(listeObjetsPosées.Count, produitAllimentaire.Count);
+        if (n <= 0) return;
+
+        cible = (((cible + augmentation) % n) + n) % n;
+        if (cible < listeObjetsPosées.Count){
+            listeObjetsPosées[cible].GetComponent<Image>().color = new Color(2f, 0.94875f, 0f, 1f);
+        }
         RemplirBlocInformation();
         ChangementHauteur(augmentation);
     }
 
     public void RemplirBlocInformation(){
-        Nouriture élément = itemScript.listeDesNouritures[produitAllimentaire[cible]];
+        if (itemScript == null || produitAllimentaire == null || produitAllimentaire.Count == 0 || blocInformation == null){
+            cible = 0;
+            if (blocInformation != null) blocInformation.gameObject.SetActive(false);
+            return;
+        }
+
+        if (cible < 0 || cible >= produitAllimentaire.Count){
+            cible = 0;
+        }
+
+        if (cible < 0 || cible >= produitAllimentaire.Count){
+            blocInformation.gameObject.SetActive(false);
+            return;
+        }
+
+        int itemId = produitAllimentaire[cible];
+        if (itemId < 0 || itemId >= itemScript.listeDesNouritures.Count){
+            blocInformation.gameObject.SetActive(false);
+            return;
+        }
+
+        blocInformation.gameObject.SetActive(true);
+
+        Nouriture élément = itemScript.listeDesNouritures[itemId];
         blocInformation.Find("icone/Image").GetComponent<Image>().sprite = élément.image;
         blocInformation.Find("Nom").GetComponent<TextMeshProUGUI>().text = élément.nom;
         blocInformation.Find("Description").GetComponent<TextMeshProUGUI>().text = élément.description;
@@ -121,8 +186,18 @@ public class BoutiqueDialcode : MonoBehaviour{
 
         blocInformation.Find("Spécial équipement").gameObject.SetActive(false);
         blocInformation.Find("Spécial alliment").gameObject.SetActive(true);
-        blocInformation.Find("Spécial alliment/ami").GetComponent<TextMeshProUGUI>().text = Item._instance.listeDesEffetsNouritures[élément.IdEffetSiSurAmi].description;
-        blocInformation.Find("Spécial alliment/Ennemie").GetComponent<TextMeshProUGUI>().text = Item._instance.listeDesEffetsNouritures[élément.IdEffetSurSiSurEnnemie].description;
+
+        string texteAmi = "";
+        if (Item._instance.listeDesEffetsNouritures != null && élément.IdEffetSiSurAmi >= 0 && élément.IdEffetSiSurAmi < Item._instance.listeDesEffetsNouritures.Count){
+            texteAmi = Item._instance.listeDesEffetsNouritures[élément.IdEffetSiSurAmi].description;
+        }
+        blocInformation.Find("Spécial alliment/ami").GetComponent<TextMeshProUGUI>().text = texteAmi;
+
+        string texteEnnemi = "";
+        if (Item._instance.listeDesEffetsNouritures != null && élément.IdEffetSurSiSurEnnemie >= 0 && élément.IdEffetSurSiSurEnnemie < Item._instance.listeDesEffetsNouritures.Count){
+            texteEnnemi = Item._instance.listeDesEffetsNouritures[élément.IdEffetSurSiSurEnnemie].description;
+        }
+        blocInformation.Find("Spécial alliment/Ennemie").GetComponent<TextMeshProUGUI>().text = texteEnnemi;
     }
 
     void TailleLayoutGroup(){

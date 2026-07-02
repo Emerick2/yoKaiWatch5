@@ -8,4 +8,6 @@ public class Food_tampons {
     public string purchasePrice = "0";
     public string sellingPrice = "0";
     public string description = "";
+    public string allyEffect;
+    public string enemyEffect;
 }

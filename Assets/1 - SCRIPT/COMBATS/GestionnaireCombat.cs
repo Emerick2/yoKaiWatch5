@@ -51,6 +51,10 @@ public class GestionnaireCombat : MonoBehaviour{
     public GameObject panelVictory;
     public int stepPanelVictory = 0;
     private bool panelVictoryIsClose = true;
+    public List<GameObject> aAfficherSeulementAvecLaCible;
+
+    public int tauxPourRatéUneAttaque = 10;
+    public bool gameInStop = false;
 
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
@@ -68,6 +72,9 @@ public class GestionnaireCombat : MonoBehaviour{
         cible.SetActive(false);
         blocDesBoutonGénéraux.SetActive(true);
         if (panelVictory != null) panelVictory.SetActive(false);
+        foreach (GameObject gameObject in aAfficherSeulementAvecLaCible){
+            gameObject.SetActive(false);
+        }
     }
     void AjouterUnEnnemie(int ID, int niveau){
         StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
@@ -146,6 +153,9 @@ public class GestionnaireCombat : MonoBehaviour{
                             break;
                         case 1:
                             utiliseLaCible = true;
+                            foreach (GameObject gameObject in aAfficherSeulementAvecLaCible){
+                                gameObject.SetActive(true);
+                            }
                             cible.GetComponent<Cible>().Initialisation();
                             cible.SetActive(true);
                             blocDesBoutonGénéraux.SetActive(false);
@@ -156,6 +166,7 @@ public class GestionnaireCombat : MonoBehaviour{
                             blocDesBoutonGénéraux.SetActive(false);
                             break;
                         case 3:
+                            gameInStop = true;
                             utiliseLeSac = true;
                             GetComponent<SacCombats>().Initialiser();
                             blocDesBoutonGénéraux.SetActive(false);
@@ -164,6 +175,9 @@ public class GestionnaireCombat : MonoBehaviour{
                 }
             } else if (Input.GetButtonDown("B")){
                 if (utiliseLaCible){
+                    foreach (GameObject gameObject in aAfficherSeulementAvecLaCible){
+                        gameObject.SetActive(false);
+                    }
                     utiliseLaCible = false;
                     cible.SetActive(false);
                     blocDesBoutonGénéraux.SetActive(true);
@@ -234,10 +248,77 @@ public class GestionnaireCombat : MonoBehaviour{
         if (utiliseLeSac){
             utiliseLeSac = false;
             Debug.Log("Consome la nouriture "+nouritureChoisie);
+            string effetSurAmi = Item._instance.listeDesNouritures[nouritureChoisie].allyEffect;
+            int donPV = 0;
+            int donAme = 0;
+            StructureYoKaiCombat yoKai = listeYoKaiAmiSurLeTerrain[cible];
+            if (yoKai.amultime < 0){
+                yoKai.amultime = 0;
+            }
+            if (yoKai.vie < 0){
+                yoKai.vie=0;
+            }
+
+            switch (effetSurAmi) {
+                case "Rend très peu de PV" :
+                    donPV = 30;
+                    break;
+                case "Rend un peu de PV" :
+                    donPV = 60;
+                    break;
+                case "Rend pas mal de PV" :
+                    donPV = 80;
+                    break;
+                case "Rend beaucoup de PV" :
+                    donPV = 130;
+                    break;
+                case "Rend énormément de PV" :
+                    donPV = 180;
+                    break;
+                case "Rend tous les PV" :
+                    donPV = yoKai.vieMaximum;
+                    break;
+
+                case "Rend un peu d'âme" :
+                    donAme = 20;
+                    break;
+                case "Rend pas mal d'âme" :
+                    donAme = 40;
+                    break;
+                case "Rend énormément d'âme" :
+                    donAme = 70;
+                    break;
+                case "Rend toute l'âme" :
+                    donAme = 100;
+                    break;
+                case "Récupère 50% de l'âme total" :
+                    donAme = 50;
+                    break;
+                default :
+                    Debug.LogError("Cas du " + effetSurAmi + " non traité !");
+                    break;
+            }
+
+            yoKai.amultime += donAme;
+            if (yoKai.amultime > 100) {
+                yoKai.amultime = 100;
+            } else if (yoKai.amultime < 0) {
+                yoKai.amultime = 0;
+            }
+
+            yoKai.vie += donPV;
+            if (yoKai.vie > yoKai.vieMaximum) {
+                yoKai.vie = yoKai.vieMaximum;
+            } else if (yoKai.vie < 0) {
+                yoKai.vie = 0;
+            }
+
             nouritureChoisie = 0;
         }
         GetComponent<ChoisieYoKaiAmi>().Arrêter();
         blocDesBoutonGénéraux.SetActive(true);
+        gameInStop = false;
+        EcrireInformationUI();
     }
 
     void ChangerCibleOption(){
@@ -454,7 +535,7 @@ public class GestionnaireCombat : MonoBehaviour{
         StructureYoKaiCombat cibleDuCoup = null;
         if (item.estUnAmi) cibleDuCoup = YoKaiPrisAuHasard(listeYoKaiEnnemieSurLeTerrain);
         else cibleDuCoup = YoKaiPrisAuHasard(listeYoKaiAmiSurLeTerrain);
-        bool raté = Random.Range(0,100)<30;
+        bool raté = Random.Range(0,100)<tauxPourRatéUneAttaque;
         if (raté){
             EchecAttaqueCible(cibleDuCoup);
             cibleDuCoup = null;
@@ -622,6 +703,9 @@ public class GestionnaireCombat : MonoBehaviour{
                 .OrderByDescending(yokai => yokai.vitesse)
                 .ToList();
             foreach (StructureYoKaiCombat item in ordreDePassage){
+                while (gameInStop){
+                    yield return null;
+                }
                 if (item.vie <= 0){
                     continue;
                 }

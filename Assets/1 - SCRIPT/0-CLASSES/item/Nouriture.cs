@@ -9,4 +9,6 @@ public class Nouriture{
     public float prixVente;
     [Min(0)] public int IdEffetSurSiSurEnnemie;
     [Min(0)] public int IdEffetSiSurAmi;
+    public string allyEffect;
+    public string enemyEffect;
 }
