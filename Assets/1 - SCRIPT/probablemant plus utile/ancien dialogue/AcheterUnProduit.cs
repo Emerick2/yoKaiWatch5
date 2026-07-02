@@ -10,6 +10,14 @@ public class AcheterUnProduit : MonoBehaviour{
     public string nom;
     public BoutiqueDialcode vdp;
     private decimal total = 0m;
+
+    private BoutiqueDialcode ObtenirBoutique(){
+        if (vdp == null){
+            vdp = GetComponentInParent<BoutiqueDialcode>();
+        }
+        return vdp;
+    }
+
     public void Réinitialiser(float prixI, string nomI){
         nom = nomI;
         total = 0;
@@ -41,16 +49,28 @@ public class AcheterUnProduit : MonoBehaviour{
     }
 
 
+    int ObtenirQuantiteeMaxPossible(){
+        BoutiqueDialcode boutique = ObtenirBoutique();
+        if (boutique != null && !boutique.acheterUser){
+            if (int.TryParse(NewDataCenter.Instance.Lire(nom), out int quantitePossedee)){
+                return Mathf.Clamp(quantitePossedee, 0, 99);
+            }
+            return 0;
+        }
+
+        if (monArgent == 0 || prixDeUnProduit == 0){
+            return 0;
+        }
+
+        return Mathf.Clamp((int)(monArgent / prixDeUnProduit), 0, 99);
+    }
+
     /// <summary>
     /// Permet d'écrire le prix que l'utilisateur devras payer s'il payent.
     /// </summary>
     void EcrirePrixTotal(){
-        if (monArgent==0 || prixDeUnProduit == 0){
-            Debug.Log("Division par zéro interdite");
-            return;
-        }
         if (int.TryParse(nombre.text, out int quantiteeSouhaitee)) {
-            int quantiteeMaxPossible = (int)(monArgent / prixDeUnProduit);
+            int quantiteeMaxPossible = ObtenirQuantiteeMaxPossible();
             int quantiteeFinale = Math.Min(quantiteeSouhaitee, quantiteeMaxPossible);
 
             nombre.text = quantiteeFinale.ToString();
@@ -73,20 +93,14 @@ public class AcheterUnProduit : MonoBehaviour{
 
         valeur += i;
 
-        if (vdp.acheterUser) {
+        BoutiqueDialcode boutique = ObtenirBoutique();
+        if (boutique != null && boutique.acheterUser) {
             // Mode Achat
-            int quantiteeMaxPossible = (int)(monArgent / prixDeUnProduit);
+            int quantiteeMaxPossible = ObtenirQuantiteeMaxPossible();
             valeur = Mathf.Clamp(valeur, 0, quantiteeMaxPossible);
-            valeur = Mathf.Clamp(valeur, 0, 99);
         } else {
             // Mode Vente
-            int maxPossede = 0;
-            if(int.TryParse(NewDataCenter.Instance.Lire(nom), out int quantite)){
-                maxPossede = quantite;
-            }
-            if (maxPossede > 99){
-                maxPossede = 99;
-            }
+            int maxPossede = ObtenirQuantiteeMaxPossible();
             valeur = Mathf.Clamp(valeur, 0, maxPossede);
         }
         
@@ -98,20 +112,23 @@ public class AcheterUnProduit : MonoBehaviour{
     /// Cette fonction permet d'acheter le produit.
     /// </summary>
     public void Payer(){
-        if (vdp.acheterUser){
+        BoutiqueDialcode boutique = ObtenirBoutique();
+        if (boutique == null){
+            return;
+        }
+
+        if (boutique.acheterUser){
             NewDataCenter.Instance.SauvegarderMonaie(total*(-1));
             NewDataCenter.Instance.SauvegarderINT(nom,int.Parse(nombre.text));
         } else {
             NewDataCenter.Instance.SauvegarderMonaie(total);
             NewDataCenter.Instance.SauvegarderINT(nom,int.Parse(nombre.text)*(-1));
-            StartCoroutine(vdp.Initialisation(false));
+            StartCoroutine(boutique.Initialisation(false));
         }
-        if (vdp != null){ 
-            vdp.acheter=false;
-            vdp.ReChargerMonArgent();
-        }
-        vdp.acheterUnProduitFenêtreOuverte = false;
-        vdp.RemplirBlocInformation();
+        boutique.acheter=false;
+        boutique.ReChargerMonArgent();
+        boutique.acheterUnProduitFenêtreOuverte = false;
+        boutique.RemplirBlocInformation();
         gameObject.SetActive(false);
     }
 

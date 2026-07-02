@@ -20,7 +20,15 @@ public class BoutiqueDialcode : MonoBehaviour{
     [HideInInspector] public bool acheterUnProduitFenêtreOuverte = false;
 
     public bool acheterUser = true;
+
+    private void AssignerContexteAchat(){
+        if (acheterUnProduitScript != null){
+            acheterUnProduitScript.vdp = this;
+        }
+    }
+
     void Start(){
+        AssignerContexteAchat();
         StartCoroutine(Initialisation());
     }
     public IEnumerator Initialisation(bool initialisationTotal = true){
@@ -69,6 +77,7 @@ public class BoutiqueDialcode : MonoBehaviour{
         }
         ChangerDeCible(0);
         TailleLayoutGroup();
+        AssignerContexteAchat();
         acheterUnProduitScript.gameObject.SetActive(false);
         acheterUnProduitFenêtreOuverte = false;
     }
@@ -111,6 +120,7 @@ public class BoutiqueDialcode : MonoBehaviour{
                     return;
                 }
 
+                AssignerContexteAchat();
                 acheterUnProduitScript.gameObject.SetActive(true);
                 acheterUnProduitFenêtreOuverte = true;
                 int itemId = produitAllimentaire[cible];
@@ -248,6 +258,6 @@ public class BoutiqueDialcode : MonoBehaviour{
         }
     }
     public void ReChargerMonArgent(){
-        Debug.Log(NewDataCenter.Instance.LireMonaie());//*100 pour voir les centimes.
+        // Debug.Log(NewDataCenter.Instance.LireMonaie());//*100 pour voir les centimes.
     }
 }
