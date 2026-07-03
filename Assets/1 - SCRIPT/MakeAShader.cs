@@ -1,3 +1,4 @@
+using System.Data;
 using UnityEngine;
 
 public class MakeAShader : MonoBehaviour{
@@ -6,7 +7,11 @@ public class MakeAShader : MonoBehaviour{
     public Color outlineColor = Color.black;
 
     void Start(){
-        ApplyYokaiShader();
+        int ID = int.Parse(System.Text.RegularExpressions.Regex.Match(gameObject.name, @"\d+").Value);
+
+        if (ID == 0){   
+            ApplyYokaiShader();
+        }
     }
 
     public void ApplyYokaiShader() {

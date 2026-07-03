@@ -21,11 +21,17 @@ public class PNJDialcode : MonoBehaviour{
 
     void Start(){
         ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
-        servantBC.CreateBoxCollider(1,gameObject,false);
         foreach (Transform item in gameObject.transform){
             servantBC.CreateBoxCollider(0,item.gameObject,true);
         }   
+        servantBC.CreateBoxCollider(1,gameObject,false);
         StartCoroutine(TheStart());
+        if (GetComponent<MakeATexture>() == null){
+            gameObject.AddComponent<MakeATexture>();
+        }
+        if (GetComponent<MakeAShader>() == null){
+            gameObject.AddComponent<MakeAShader>();
+        }
     }
 
     IEnumerator TheStart(){
@@ -56,8 +62,22 @@ public class PNJDialcode : MonoBehaviour{
         }
     }
     void OnTriggerEnter(Collider collider){
-        if (collider.tag == "Player" && mouvementDuJoueur.droitDeMarcher){
+        BoxCollider bc = GetComponent<BoxCollider>();
+        if (collider.tag == "Player" && bc != null && bc.isTrigger){
+            Enter();
+        }
+    }
+
+    void OnCollisionEnter(Collision collision) {
+        if (collision.transform.tag == "Player"){
+            Enter();
+        }
+    }
+
+    private void Enter(){
+        if (mouvementDuJoueur.droitDeMarcher){
             inTheZonne = true;
+            Debug.Log("entrer : " + transform.name);
             if (Refresh() && dialcode != null){
                 // dialcode.fragmentDeDialogue = maListeDeFraguement;
                 dialcode.dansUneZoneDeDialogue = true;
@@ -96,9 +116,22 @@ public class PNJDialcode : MonoBehaviour{
     }
 
     void OnTriggerExit(Collider collider){
-        if (collider.tag == "Player" && dialcode != null){
+        if (collider.tag == "Player"){
+            Exit();
+        }
+    }
+
+    void OnCollisionExit(Collision collision){
+        if (collision.transform.tag == "Player"){
+            Exit();
+        }
+    }
+
+    private void Exit(){
+        if (dialcode != null){
             dialcode.dansUneZoneDeDialogue = false;
             inTheZonne = false;
+            Debug.Log("sortie");
             if (dialcode.pnjTalk == this) dialcode.pnjTalk = null;
         }
     }
