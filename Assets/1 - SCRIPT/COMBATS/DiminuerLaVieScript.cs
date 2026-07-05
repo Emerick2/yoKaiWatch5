@@ -8,7 +8,7 @@ public class DiminuerLaVieScript : MonoBehaviour{
 
     List<StructureYoKaiCombat> TousLesYoKaiSurRoue(bool ami, List<StructureYoKaiCombat> ordreDePassage){
         List<StructureYoKaiCombat> tousLesYoKaiSurRoue = new List<StructureYoKaiCombat>();
-        tousLesYoKaiSurRoue = ordreDePassage.Where(e => e.vie > 0 && e.estDevant && e.estUnAmi == ami).ToList();
+        tousLesYoKaiSurRoue = ordreDePassage.Where(e => e.hp_me > 0 && e.estDevant && e.estUnAmi == ami).ToList();
         return tousLesYoKaiSurRoue;
     }
 
@@ -33,20 +33,26 @@ public class DiminuerLaVieScript : MonoBehaviour{
         float valeurBase = 0;
 
         if (typeAttaque == TypeAttaque.Physique) {
-            valeurBase = yoKai.force;
+            valeurBase = yoKai.str_me;
         } else {
-            valeurBase = yoKai.esprit;
+            valeurBase = yoKai.spr_me;
         }
+
+        // StatFinale = ((2*base+iv+(ev/2)*niveau)/100)+5
+        float iv = 0;
+        float ev = 1;
+
+        float statFinale = ((2*valeurBase+iv+(ev/2)*yoKai.niveau)/100)+5;
 
         float bonusTribu = CalculerBonusTribu(yoKai, tousLesYoKaiSurRoue);
         if (bonusTribu > 1) {
-            valeurBase *= bonusTribu; 
+            statFinale *= bonusTribu;
         }
 
         float multiplicateurEnvoutement = ObtenirMultiplicateurEnvoutement(yoKai, typeAttaque);
-        valeurBase *= multiplicateurEnvoutement;
+        statFinale *= multiplicateurEnvoutement;
 
-        return (int)valeurBase;
+        return (int)statFinale;
     }
 
     public float CalculerMultiplicateurElementaire(Technique techniqueUtilisee, bool estAttaquePhysique, MedaliumNonPersonel dataDefenseur) {
@@ -73,13 +79,13 @@ public class DiminuerLaVieScript : MonoBehaviour{
         MedaliumNonPersonel dataCible = medaliumDictionnaire._instance.ServantYoKai(attaquant.ID);
         float faiblesseOuRésistance = CalculerMultiplicateurElementaire(dataAttaquant.technique, typeAttaque == TypeAttaque.Physique, dataCible);
         float multiplicateurDeCompétance = 1;
-        float gardeEnnemie = cible.garde;
+        float gardeEnnemie = cible.multiplicateurGarde;
 
-        float dégâtBase = correction / 2f + attaquant.force / 2f - cible.défance / 4f;
+        float dégâtBase = correction / 2f + attaquant.str_me / 2f - cible.def_me / 4f;
         float dégâtFinal = dégâtBase * rouleau * faiblesseOuRésistance * multiplicateurDeCompétance * gardeEnnemie;
 
         int taux = (int)Mathf.Max(1f, dégâtFinal);
-        cible.vie -= taux;
+        cible.hp_me -= taux;
         return taux;
     }
 }

@@ -84,14 +84,14 @@ public class GestionnaireCombat : MonoBehaviour{
         nouv.nom = y.Nom;
         nouv.imageMédaillon = y.médaillon;
         nouv.imageFace = y.faceRondImage;
-        nouv.vie = y.PV;
-        nouv.vieMaximum = nouv.vie;
-        nouv.vitesse= y.Vitesse;
-        nouv.esprit= y.Esprit;
-        nouv.force= y.Force;
-        nouv.défance= y.Défense;
+        nouv.hp_base = y.PV;
+        nouv.spd_base= y.Vitesse;
+        nouv.spr_base= y.Esprit;
+        nouv.str_base= y.Force;
+        nouv.def_base= y.Défense;
         nouv.niveau = niveau;
         nouv.estDevant = true;
+        nouv.Initialisation();
         listeYoKaiEnnemieSurLeTerrain.Add(nouv);
     }
 
@@ -255,8 +255,8 @@ public class GestionnaireCombat : MonoBehaviour{
             if (yoKai.amultime < 0){
                 yoKai.amultime = 0;
             }
-            if (yoKai.vie < 0){
-                yoKai.vie=0;
+            if (yoKai.hp_me < 0){
+                yoKai.hp_me=0;
             }
 
             switch (effetSurAmi) {
@@ -276,7 +276,7 @@ public class GestionnaireCombat : MonoBehaviour{
                     donPV = 180;
                     break;
                 case "Rend tous les PV" :
-                    donPV = yoKai.vieMaximum;
+                    donPV = yoKai.hp_max_me;
                     break;
 
                 case "Rend un peu d'âme" :
@@ -306,11 +306,11 @@ public class GestionnaireCombat : MonoBehaviour{
                 yoKai.amultime = 0;
             }
 
-            yoKai.vie += donPV;
-            if (yoKai.vie > yoKai.vieMaximum) {
-                yoKai.vie = yoKai.vieMaximum;
-            } else if (yoKai.vie < 0) {
-                yoKai.vie = 0;
+            yoKai.hp_me += donPV;
+            if (yoKai.hp_me > yoKai.hp_max_me) {
+                yoKai.hp_me = yoKai.hp_max_me;
+            } else if (yoKai.hp_me < 0) {
+                yoKai.hp_me = 0;
             }
 
             nouritureChoisie = 0;
@@ -346,28 +346,28 @@ public class GestionnaireCombat : MonoBehaviour{
             int ID = MesYoKai.Instance.maListe[IDspécifique].ID;
             StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
             MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
-            nouv.possitionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
+            nouv.positionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
             nouv.estUnAmi = true;
             nouv.ID = ID;
             nouv.IDListeYoKai = IDspécifique;//permet de différancier deux Woko par exemple
             nouv.nom = MesYoKai.Instance.maListe[IDspécifique].surnom;
             nouv.imageMédaillon = y.médaillon;
             nouv.imageFace = y.faceRondImage;
-            nouv.vie = y.PV;
-            nouv.vieMaximum = nouv.vie;
-            nouv.vitesse= y.Vitesse;
-            nouv.esprit= y.Esprit;
-            nouv.force= y.Force;
-            nouv.défance= y.Défense;
+            nouv.hp_base = y.PV;
+            nouv.spd_base= y.Vitesse;
+            nouv.spr_base= y.Esprit;
+            nouv.str_base= y.Force;
+            nouv.def_base= y.Défense;
             nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
             nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
+            nouv.Initialisation();
             listeYoKaiAmiSurLeTerrain.Add(nouv);
         }
     }
 
     StructureYoKaiCombat RécupéréUnYoKaiParPositionSurLaRoue(int position){
         for (int j = 0; j < listeYoKaiAmiSurLeTerrain.Count; j++){
-            if (listeYoKaiAmiSurLeTerrain[j].possitionRoue == position){
+            if (listeYoKaiAmiSurLeTerrain[j].positionRoue == position){
                 return listeYoKaiAmiSurLeTerrain[j];
             }
         }
@@ -379,8 +379,8 @@ public class GestionnaireCombat : MonoBehaviour{
             item.GetComponent<Image>().enabled = false;
         }
         foreach (StructureYoKaiCombat item in listeYoKaiAmiSurLeTerrain){
-            lesEspacesMédaillonDansLaRoue[item.possitionRoue].enabled = true;
-            lesEspacesMédaillonDansLaRoue[item.possitionRoue].GetComponent<Image>().sprite = item.imageMédaillon;
+            lesEspacesMédaillonDansLaRoue[item.positionRoue].enabled = true;
+            lesEspacesMédaillonDansLaRoue[item.positionRoue].GetComponent<Image>().sprite = item.imageMédaillon;
         }
     }
 
@@ -403,6 +403,12 @@ public class GestionnaireCombat : MonoBehaviour{
                     TV.transform.Rotate(0, 180, 0);
                 }
                 yk.gameObjectSurLaScène = TV;
+
+                ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
+                foreach (Transform item in yk.gameObjectSurLaScène.transform){
+                    servantBC.CreateBoxCollider(0, item.gameObject,true);
+                }
+                servantBC.CreateBoxCollider(0,gameObject,false);
             }
         }
     }
@@ -427,6 +433,12 @@ public class GestionnaireCombat : MonoBehaviour{
                     TV.transform.Rotate(0, 180, 0);
                 }
                 yk.gameObjectSurLaScène = TV;
+
+                ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
+                foreach (Transform item in yk.gameObjectSurLaScène.transform){
+                    servantBC.CreateBoxCollider(0,item.gameObject,true);
+                }
+                servantBC.CreateBoxCollider(0,gameObject,false);
             }
         }
     }
@@ -439,7 +451,7 @@ public class GestionnaireCombat : MonoBehaviour{
                 troisDisplateUIAmi[i].SetActive(true);
                 troisDisplateUIAmi[i].transform.Find("médaillon").gameObject.GetComponent<Image>().sprite = yk.imageMédaillon;
                 troisDisplateUIAmi[i].transform.Find("nom").gameObject.GetComponent<TextMeshProUGUI>().text = yk.nom;
-                troisDisplateUIAmi[i].transform.Find("vie/slider").gameObject.GetComponent<Image>().fillAmount = DonnezUnPourcentage(yk.vieMaximum,yk.vie);
+                troisDisplateUIAmi[i].transform.Find("vie/slider").gameObject.GetComponent<Image>().fillAmount = DonnezUnPourcentage(yk.hp_max_me,yk.hp_me);
                 troisDisplateUIAmi[i].transform.Find("amultime/slider").gameObject.GetComponent<Image>().fillAmount = (float)yk.amultime/100;
             } else {
                 troisDisplateUIAmi[i].SetActive(false);
@@ -451,7 +463,7 @@ public class GestionnaireCombat : MonoBehaviour{
             if (yk != null){
                 troisDisplateUIAmiDerrière[i].SetActive(true);
                 troisDisplateUIAmiDerrière[i].GetComponent<Image>().sprite = yk.imageMédaillon;
-                troisDisplateUIAmiDerrière[i].transform.Find("vie/slider").gameObject.GetComponent<Image>().fillAmount = DonnezUnPourcentage(yk.vieMaximum,yk.vie);
+                troisDisplateUIAmiDerrière[i].transform.Find("vie/slider").gameObject.GetComponent<Image>().fillAmount = DonnezUnPourcentage(yk.hp_max_me,yk.hp_me);
                 troisDisplateUIAmiDerrière[i].transform.Find("amultime/slider").gameObject.GetComponent<Image>().fillAmount = (float)yk.amultime/100;
             } else {
                 troisDisplateUIAmiDerrière[i].SetActive(false);
@@ -464,7 +476,7 @@ public class GestionnaireCombat : MonoBehaviour{
                 troisDisplateUIEnnemie[i].SetActive(true);
                 troisDisplateUIEnnemie[i].transform.Find("médaillon").gameObject.GetComponent<Image>().sprite = yk.imageMédaillon;
                 troisDisplateUIEnnemie[i].transform.Find("nom").gameObject.GetComponent<TextMeshProUGUI>().text = yk.nom;
-                troisDisplateUIEnnemie[i].transform.Find("vie/slider").gameObject.GetComponent<Image>().fillAmount = DonnezUnPourcentage(yk.vieMaximum,yk.vie);
+                troisDisplateUIEnnemie[i].transform.Find("vie/slider").gameObject.GetComponent<Image>().fillAmount = DonnezUnPourcentage(yk.hp_max_me,yk.hp_me);
                 troisDisplateUIEnnemie[i].transform.Find("amultime/slider").gameObject.GetComponent<Image>().fillAmount = (float)yk.amultime/100;
             } else {
                 troisDisplateUIEnnemie[i].SetActive(false);
@@ -473,20 +485,20 @@ public class GestionnaireCombat : MonoBehaviour{
     }
     void SavoirQuiEstDevant(){
         foreach (StructureYoKaiCombat item in listeYoKaiAmiSurLeTerrain){
-            item.estDevant = item.possitionRoue == (positionRotationRoue)%6 || item.possitionRoue == (positionRotationRoue+1)%6 || item.possitionRoue == (positionRotationRoue+2)%6;
+            item.estDevant = item.positionRoue == (positionRotationRoue)%6 || item.positionRoue == (positionRotationRoue+1)%6 || item.positionRoue == (positionRotationRoue+2)%6;
         }
     }
 
     void TourneLaRoue(int sense){
         if (autorisationDeTournerLaRoue){
             foreach (StructureYoKaiCombat item in listeYoKaiAmiSurLeTerrain){
-                item.possitionRoue+=sense;
-                if (item.possitionRoue<0){
-                    item.possitionRoue = 6+item.possitionRoue;
+                item.positionRoue+=sense;
+                if (item.positionRoue<0){
+                    item.positionRoue = 6+item.positionRoue;
                 }
-                item.possitionRoue%=6;
-                if (item.possitionRoue<0){
-                    item.possitionRoue = 5;//Normalement on ne passeras jamais ici.
+                item.positionRoue%=6;
+                if (item.positionRoue<0){
+                    item.positionRoue = 5;//Normalement on ne passeras jamais ici.
                     Debug.LogWarning("La position de la roue à reçus une valeur incorect. Il faut corrigé se problème au plus vite !");
                 }
             }
@@ -498,7 +510,7 @@ public class GestionnaireCombat : MonoBehaviour{
     }
 
     StructureYoKaiCombat YoKaiPrisAuHasard(List<StructureYoKaiCombat> liste){
-        List<StructureYoKaiCombat> lesChoix = liste.Where(e => e.vie > 0 && e.estDevant).ToList();
+        List<StructureYoKaiCombat> lesChoix = liste.Where(e => e.hp_me > 0 && e.estDevant).ToList();
         if (lesChoix.Count > 0) return lesChoix[Random.Range(0,lesChoix.Count)];
         else return null;
     }
@@ -524,10 +536,10 @@ public class GestionnaireCombat : MonoBehaviour{
 
     void PriseEnCompteObjet(StructureYoKaiCombat yoKai){
         if (yoKai.tienUnObjet && yoKai.numéroObjetTennu >= 0 && yoKai.numéroObjetTennu < Item._instance.listeDesÉquipements.Count){
-            yoKai.vitesse += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Vitesse;
-            yoKai.force += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Force;
-            yoKai.esprit += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Esprit;
-            yoKai.défance += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Défance;
+            yoKai.spd_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Vitesse;
+            yoKai.str_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Force;
+            yoKai.spr_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Esprit;
+            yoKai.def_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Défance;
         }      
     }
 
@@ -544,7 +556,7 @@ public class GestionnaireCombat : MonoBehaviour{
             JouerAnnimation(item, "attaque");
             yield return new WaitForSeconds(0.2f);
             int dégâts = diminuerLaVieScript.DiminueLaVie(item, cibleDuCoup,ordreDePassage);
-            if (cibleDuCoup.vie>0){
+            if (cibleDuCoup.hp_me>0){
                 JouerAnnimation(cibleDuCoup, "coup");
             } else {
                 JouerAnnimation(cibleDuCoup, "mort");
@@ -552,9 +564,9 @@ public class GestionnaireCombat : MonoBehaviour{
             // Debug.Log(item.estUnAmi+"   "+cibleDuCoup.estUnAmi);
 
             GameObject display = null;
-            if(cibleDuCoup.possitionRoue<3) {
-                if (cibleDuCoup.estUnAmi) display = troisDisplateUIAmi[cibleDuCoup.possitionRoue];
-                else display = troisDisplateUIEnnemie[cibleDuCoup.possitionRoue];
+            if(cibleDuCoup.positionRoue<3) {
+                if (cibleDuCoup.estUnAmi) display = troisDisplateUIAmi[cibleDuCoup.positionRoue];
+                else display = troisDisplateUIEnnemie[cibleDuCoup.positionRoue];
             }
             if(display != null) {
                 display.transform.Find("nombre").gameObject.GetComponent<EcrireUneQuantitéAvecDesImages>().EcrireLeNombre(dégâts);
@@ -611,9 +623,9 @@ public class GestionnaireCombat : MonoBehaviour{
         if (item.gameObjectSurLaScène != null){
             JouerAnnimationBOOL(item, "Flâne", leFait);
             GameObject display = null;
-            if(item.possitionRoue<3) {
-                if (item.estUnAmi) display = troisDisplateUIAmi[item.possitionRoue];
-                else display = troisDisplateUIEnnemie[item.possitionRoue];
+            if(item.positionRoue<3) {
+                if (item.estUnAmi) display = troisDisplateUIAmi[item.positionRoue];
+                else display = troisDisplateUIEnnemie[item.positionRoue];
             }
             if(display != null) {
                 display.transform.Find("bulle").gameObject.SetActive(leFait);
@@ -638,9 +650,9 @@ public class GestionnaireCombat : MonoBehaviour{
     void EchecAttaqueCible(StructureYoKaiCombat item){
         if (item == null) return;
         GameObject display = null;
-        if(item.possitionRoue<3) {
-            if (item.estUnAmi) display = troisDisplateUIAmi[item.possitionRoue];
-            else display = troisDisplateUIEnnemie[item.possitionRoue];
+        if(item.positionRoue<3) {
+            if (item.estUnAmi) display = troisDisplateUIAmi[item.positionRoue];
+            else display = troisDisplateUIEnnemie[item.positionRoue];
         }
         if(display != null) {
             display.transform.Find("bulle").gameObject.SetActive(true);
@@ -656,9 +668,9 @@ public class GestionnaireCombat : MonoBehaviour{
         if (item.gameObjectSurLaScène != null){
             JouerAnnimationBOOL(item, "garde", leFait);
             GameObject display = null;
-            if(item.possitionRoue<3) {
-                if (item.estUnAmi) display = troisDisplateUIAmi[item.possitionRoue];
-                else display = troisDisplateUIEnnemie[item.possitionRoue];
+            if(item.positionRoue<3) {
+                if (item.estUnAmi) display = troisDisplateUIAmi[item.positionRoue];
+                else display = troisDisplateUIEnnemie[item.positionRoue];
             }
             if(display != null) {
                 display.transform.Find("bulle").gameObject.SetActive(leFait);
@@ -699,14 +711,14 @@ public class GestionnaireCombat : MonoBehaviour{
             }
             ordreDePassage = listeYoKaiAmiSurLeTerrain
                 .Concat(listeYoKaiEnnemieSurLeTerrain)
-                .Where(yokai => yokai.vie > 0)
-                .OrderByDescending(yokai => yokai.vitesse)
+                .Where(yokai => yokai.hp_me > 0)
+                .OrderByDescending(yokai => yokai.spd_me)
                 .ToList();
             foreach (StructureYoKaiCombat item in ordreDePassage){
                 while (gameInStop){
                     yield return null;
                 }
-                if (item.vie <= 0){
+                if (item.hp_me <= 0){
                     continue;
                 }
                 //Ici on va parcourire tous les yo-kai du plus rapide au plus lang
@@ -721,7 +733,7 @@ public class GestionnaireCombat : MonoBehaviour{
                 }
                 if (!vaFaireUneGarde && item.estEnTrainDeFaireUneGarde){
                     item.estEnTrainDeFaireUneGarde = false;
-                    item.garde = 1;
+                    item.multiplicateurGarde = 1;
                     JouerAnnimationGarde(item, false);
                 }
                 // ----------
@@ -730,7 +742,7 @@ public class GestionnaireCombat : MonoBehaviour{
                     JouerAnnimationFlane(item, true);
                 } else if (vaFaireUneGarde){
                     item.estEnTrainDeFaireUneGarde = true;
-                    item.garde = 0.5f;
+                    item.multiplicateurGarde = 0.5f;
                     JouerAnnimationGarde(item, true);
                 }else if (vaFaireUneAttaqueSimple){
                     yield return StartCoroutine(VaFaireUneAttaqueSimple(item));
@@ -751,7 +763,7 @@ public class GestionnaireCombat : MonoBehaviour{
         bool unEnnemieOuPlusEstEnVie = false;
 
         foreach (StructureYoKaiCombat yoKai in listeYoKaiAmiSurLeTerrain){
-            if (yoKai.vie > 0){
+            if (yoKai.hp_me > 0){
                 unAmiOuPlusEstEnVie = true;
                 break;
             }
@@ -762,7 +774,7 @@ public class GestionnaireCombat : MonoBehaviour{
         }
 
         foreach (StructureYoKaiCombat yoKai in listeYoKaiEnnemieSurLeTerrain){
-            if (yoKai.vie > 0){
+            if (yoKai.hp_me > 0){
                 unEnnemieOuPlusEstEnVie = true;
                 break;
             }
@@ -795,29 +807,108 @@ public class GestionnaireCombat : MonoBehaviour{
 
 [System.Serializable]
 public class StructureYoKaiCombat{
-    public bool estUnAmi = false;
-    public GameObject gameObjectSurLaScène;
-    public Sprite imageMédaillon;
-    public Sprite imageFace;
-    public string nom;
-    public int possitionRoue;
-    public bool estDevant;
+    [Header("Identité & Visuels")]
     public int ID;
     public int IDListeYoKai;//permet de différancier deux Woko par exemple
-    public int vie;
-    public int vieMaximum;
-    public int vitesse;
-    public int esprit;
-    public int force;
-    public int défance;
-    public int numéroObjetTennu;
-    public bool tienUnObjet;
-    public int amultime;//ces un pourcentage
-    public int niveau;
-    public float garde = 1; // 1/0.5/0.25
+    public string nom;
     public Rang rang;
     public Tribue tribue;
     public Personalité personalité;
+    public Sprite imageMédaillon;
+    public Sprite imageFace;
+
+    [Header("État sur le Terrain")]
+    public bool estUnAmi = false;
+    public GameObject gameObjectSurLaScène;
+    public int positionRoue;
+    public bool estDevant;
     public bool estEnTrainDeFlâner = false;
     public bool estEnTrainDeFaireUneGarde = false;
+    public float multiplicateurGarde = 1; // 1/0.5/0.25
+    
+    [Header("Objets")]
+    public int numéroObjetTennu;
+    public bool tienUnObjet;
+
+    [Header("Jauges de Combat")]
+    public int hp_me; // PV
+    public int hp_max_me; // PV MAX
+    public int amultime;//ces un pourcentage
+    public int niveau;
+
+    [Header("Statistiques de Base de l'Espèce")]
+    public int hp_base; // PV
+    public int str_base; // force
+    public int spr_base; // esprit
+    public int def_base; // défense
+    public int spd_base; // vitesse
+
+    [Header("Statistiques Actuelles (Calculées)")]
+    public float str_me; // force
+    public float spr_me; // esprit
+    public float def_me; // défense
+    public float spd_me; // vitesse
+
+    [Header("Valeurs Individuelles (IV)")]
+    public float hp_iv; // PV
+    public float str_iv; // force
+    public float spr_iv; // esprit
+    public float def_iv; // défense
+    public float spd_iv; // vitesse
+
+    [Header("Valeurs d'Effort (EV)")]
+    public int hp_ev; // PV
+    public int str_ev; // force
+    public int spr_ev; // esprit
+    public int def_ev; // défense
+    public int spd_ev; // vitesse
+
+    [Header("États et Envoûtements")]
+    public bool estEnvoûtéNégatif = false;
+    public bool estEnvoûtéPositif = false;
+
+    public void Initialisation() {
+        AttribuerIV();
+
+        // Formule : ((2 * Base + IV + (EV / 2)) * Niveau) / 100 + 5
+        
+        str_me = ((2 * str_base + str_iv + (str_ev / 2)) * niveau) / 100 + 5;
+        spr_me = ((2 * spr_base + spr_iv + (spr_ev / 2)) * niveau) / 100 + 5;
+        def_me = ((2 * def_base + def_iv + (def_ev / 2)) * niveau) / 100 + 5;
+        spd_me = ((2 * spd_base + spd_iv + (spd_ev / 2)) * niveau) / 100 + 5;
+
+        hp_max_me = (int)((2 * hp_base + (hp_iv / 2) + hp_ev) * niveau) / 100 + niveau + 10;
+        hp_me = hp_max_me; 
+
+    }
+
+    public void AttribuerIV() {
+        float pointsHP = 0;
+        float pointsSTR = 0;
+        float pointsSPR = 0;
+        float pointsDEF = 0;
+        float pointsSPD = 0;
+
+        for (int i = 0; i < 40; i++) {
+            int choixStat = Random.Range(0, 5); 
+
+            switch (choixStat) {
+                case 0: pointsHP++; break;
+                case 1: pointsSTR++; break;
+                case 2: pointsSPR++; break;
+                case 3: pointsDEF++; break;
+                case 4: pointsSPD++; break;
+            }
+        }
+
+        str_iv = pointsSTR;
+        spr_iv = pointsSPR;
+        def_iv = pointsDEF;
+        spd_iv = pointsSPD;
+
+        hp_iv = pointsHP * 2;
+
+        float sommeVerification = (hp_iv / 2) + str_iv + spr_iv + def_iv + spd_iv;
+        // Debug.Log($"[Génération IV] {nom} généré ! Somme vérifiée : {sommeVerification}/40. (PV IV stocké : {hp_iv})");
+    }
 }
