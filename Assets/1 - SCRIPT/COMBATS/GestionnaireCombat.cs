@@ -184,6 +184,7 @@ public class GestionnaireCombat : MonoBehaviour{
                 }
                 if (utiliseLeSac){
                     utiliseLeSac = false;
+                    gameInStop = false;
                     GetComponent<ChoisieYoKaiAmi>().Arrêter();
                     GetComponent<SacCombats>().Arrêter();
                     blocDesBoutonGénéraux.SetActive(true);
@@ -203,6 +204,7 @@ public class GestionnaireCombat : MonoBehaviour{
         else {
             if (panelVictoryIsClose) {
                 OpenPanelVictory();
+                DonnePointsXP();
                 Transform panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
                 if (panel != null) panel.gameObject.SetActive(false);
                 stepPanelVictory = 1;
