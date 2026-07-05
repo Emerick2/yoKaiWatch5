@@ -803,6 +803,71 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
     }
+
+
+    public int CalculerXpTotaleCombat(List<StructureYoKaiCombat> ennemisBattus) {
+        float xpCumulee = 0f;
+
+        foreach (var ennemi in ennemisBattus) {
+            int r = 1;
+            switch (ennemi.rang) {
+                case Rang.E :
+                    r = 1;
+                    break;
+                case Rang.D :
+                    r = 2;
+                    break;
+                case Rang.C :
+                    r = 3;
+                    break;
+                case Rang.B :
+                    r = 4;
+                    break;
+                case Rang.A :
+                    r = 5;
+                    break;
+                case Rang.S :
+                    r = 6;
+                    break;
+            }
+            // Calcul : (Niveau * 5) * (1 + Rang / 4)
+            float xpBase = ennemi.niveau * 5f;
+            float multiplicateurRang = 1f + (r / 4f);
+            
+            xpCumulee += xpBase * multiplicateurRang;
+        }
+
+        return Mathf.RoundToInt(xpCumulee);
+    }
+
+    public float CalculerXpPourUnYoKai(StructureYoKaiCombat etatYoKai) {
+        float multiplicateurBonus = 1.0f;
+
+        if (etatYoKai.aAttaque) {
+            multiplicateurBonus += 0.15f;
+        }
+
+        if (etatYoKai.aEtePurifie) {
+            multiplicateurBonus += 0.20f;
+        }
+
+        return multiplicateurBonus;
+    }
+
+    void DonnePointsXP(){
+        int totalXP = CalculerXpTotaleCombat(listeYoKaiEnnemieSurLeTerrain);
+        Debug.Log("XP gagné : " + totalXP);
+        foreach (StructureYoKaiCombat yoKai in listeYoKaiEnnemieSurLeTerrain) {
+            yoKai.GagneXP(totalXP);
+
+            float v = CalculerXpPourUnYoKai(yoKai);
+            if (v != 0){
+                int bonus = Mathf.RoundToInt(totalXP*v)-totalXP;
+                yoKai.GagneXP(bonus);
+                Debug.Log("Bonus attribuer de "+bonus);
+            }
+        }
+    }
 }
 
 [System.Serializable]
@@ -825,6 +890,8 @@ public class StructureYoKaiCombat{
     public bool estEnTrainDeFlâner = false;
     public bool estEnTrainDeFaireUneGarde = false;
     public float multiplicateurGarde = 1; // 1/0.5/0.25
+    public bool aAttaque = false;
+    public bool aEtePurifie = false;
     
     [Header("Objets")]
     public int numéroObjetTennu;
@@ -910,5 +977,39 @@ public class StructureYoKaiCombat{
 
         float sommeVerification = (hp_iv / 2) + str_iv + spr_iv + def_iv + spd_iv;
         // Debug.Log($"[Génération IV] {nom} généré ! Somme vérifiée : {sommeVerification}/40. (PV IV stocké : {hp_iv})");
+    }
+
+    public int NombreDePointXPAGagner(int niveau) {
+        int r = 1;
+        switch (rang) {
+            case Rang.E :
+                r = 1;
+                break;
+            case Rang.D :
+                r = 2;
+                break;
+            case Rang.C :
+                r = 3;
+                break;
+            case Rang.B :
+                r = 4;
+                break;
+            case Rang.A :
+                r = 5;
+                break;
+            case Rang.S :
+                r = 6;
+                break;
+        }
+
+        int baseCalcule = 15;
+
+        int xpRequis = Mathf.RoundToInt((baseCalcule + (r * 12)) * Mathf.Pow(niveau, 1.4f));
+
+        return xpRequis;
+    }
+
+    public void GagneXP(int nombre){
+        
     }
 }
