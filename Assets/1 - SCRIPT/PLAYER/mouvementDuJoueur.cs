@@ -10,7 +10,10 @@ public class mouvementDuJoueur : MonoBehaviour {
 
     public Animator animator;
     public Animator oeuilSauvegarde;
-    public float vitesse = 5f;
+    private float vitesse = 5f;
+    public float vitesseNormal = 5f;
+    public float vitesseCourse = 10f;
+    private bool isRuning = false;
     public float vitesseRotation = 10f;
     public Transform caméra;
     public CameraFollow cameraFollow;
@@ -46,6 +49,21 @@ public class mouvementDuJoueur : MonoBehaviour {
         interfasse = GameObject.FindWithTag("interfasse");
     }
 
+    void Update(){
+        if (droitDeMarcher){
+            if (Input.GetButtonDown("B")){
+                isRuning = true;
+                vitesse = vitesseCourse;
+            } else if (Input.GetButtonUp("B")){
+                isRuning = false;
+                vitesse = vitesseNormal;
+            }
+        } else if (isRuning) {
+            isRuning = false;
+            vitesse = vitesseNormal;
+        }
+    }
+
     private bool DetectionObstacle(Vector3 maDirection){
         Vector3 origine = player.transform.position + Vector3.up * 0.5f;
         return Physics.Raycast(origine, maDirection, distanceObstacle, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);    
@@ -58,24 +76,21 @@ public class mouvementDuJoueur : MonoBehaviour {
             Vector3 maDirection = new Vector3(h, 0, v).normalized;
 
             if (maDirection.magnitude > 0.1f) {
-                bool obstacleDevant = DetectionObstacle(maDirection);
+                rb.velocity = new Vector3(maDirection.x * vitesse, rb.velocity.y, maDirection.z * vitesse);
+                
+                if (animator != null) animator.SetBool("avence", true);
 
-                if (!obstacleDevant) {
-                    rb.MovePosition(rb.position + maDirection * vitesse * Time.fixedDeltaTime);
-                    
-                    
-                    if (animator != null) animator.SetBool("avence", true);
-                } else  {
-                    if (animator != null) animator.SetBool("avence", false);
-                }
                 Quaternion rotationCible = Quaternion.LookRotation(maDirection);
                 rb.rotation = Quaternion.Slerp(rb.rotation, rotationCible, vitesseRotation * Time.fixedDeltaTime);
             } else {
                 if (animator != null) animator.SetBool("avence", false);
                 rb.velocity = new Vector3(0, rb.velocity.y, 0);
+                rb.angularVelocity = Vector3.zero;
             }
-        } else {
+        } else if (rb != null) {
             if (animator != null) animator.SetBool("avence", false);
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
+            rb.angularVelocity = Vector3.zero;
         }
 
         UpdateCameraPosition();

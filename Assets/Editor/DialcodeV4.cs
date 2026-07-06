@@ -302,9 +302,15 @@ public class DialcodeV4 : EditorWindow{
             GUI.color = Color.green;
             if (GUILayout.Button("V", GUILayout.Width(20))) {
                 fragment.Insert(i, new FragmentDeDialogue());
+                FragmentDeDialogue f1 = null;
+                if (i > 1){
+                    f1 = fragment[i-1];
+                }
+                SetingsTheNewFragment(f1, fragment[i]);
                 i--;
                 GUI.changed = true;
                 aDesModificationsNonSauvegardees = true;
+
             }
             GUI.color = Color.white;          
             GUILayout.EndHorizontal();
@@ -317,6 +323,11 @@ public class DialcodeV4 : EditorWindow{
 
         if (GUILayout.Button("Ajouter un nouveau bloc", GUILayout.Height(30))) {
             fragment.Add(new FragmentDeDialogue());
+            FragmentDeDialogue f1 = null;
+            if (fragment.Count > 1){
+                f1 = fragment[fragment.Count-2];
+            }
+            SetingsTheNewFragment(f1, fragment[fragment.Count-1]);
             GUI.changed = true;
             aDesModificationsNonSauvegardees = true;
             Event.current.Use();
@@ -416,7 +427,7 @@ public class DialcodeV4 : EditorWindow{
                     f.nom = AjoutTexte("NOM", f.nom);
                     f.image = AjouterSprite("Image",f.image);
                 }
-                f.phrase = AjoutTexte("Phrase", f.phrase);
+                f.phrase = AjoutTexteLong("Phrase", f.phrase);
                 f.imageDePrésentation = AjouterSprite("Image de présantation",f.imageDePrésentation);
                 break;
             case TypeDialogue.information :
@@ -546,6 +557,16 @@ public class DialcodeV4 : EditorWindow{
         EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
         return EditorGUILayout.TextField(valeurParDéfaut, monStyleChampDeSaisie, GUILayout.Height(28));
     }
+
+    string AjoutTexteLong(string valeurLabel, string valeurParDéfaut) {
+        Rect rectLabelTemporaire = CrééLeRect();
+        EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
+        if (monStyleChampDeSaisie != null) {
+            monStyleChampDeSaisie.wordWrap = true;
+        }
+        return EditorGUILayout.TextArea(valeurParDéfaut, monStyleChampDeSaisie, GUILayout.Height(65));
+    }
+
     int AjoutNombre(string valeurLabel, int valeurParDéfaut){
         Rect rectLabelTemporaire = CrééLeRect();
         EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
@@ -645,5 +666,14 @@ public class DialcodeV4 : EditorWindow{
         }
     
         selectedPNJ.conditionOfTheDialoguePage = new List<ConditionOfTheDialoguePage>(conditionOfTheDialoguePage);
+    }
+
+    void SetingsTheNewFragment(FragmentDeDialogue f1, FragmentDeDialogue f){
+        string nomDuGameObject = Selection.activeGameObject.name;
+        int ID = int.Parse(System.Text.RegularExpressions.Regex.Match(nomDuGameObject, @"\d+").Value);
+        if (ID > 0){
+            f.IdÉlément = ID;
+            f.quiJeSuis = QuiJeSuis.yokai;
+        }
     }
 }
