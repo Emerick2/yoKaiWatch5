@@ -55,6 +55,7 @@ public class GestionnaireCombat : MonoBehaviour{
 
     public int tauxPourRatéUneAttaque = 10;
     public bool gameInStop = false;
+    public List<Image> listeImage;
 
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
@@ -859,7 +860,9 @@ public class GestionnaireCombat : MonoBehaviour{
     void DonnePointsXP(){
         int totalXP = CalculerXpTotaleCombat(listeYoKaiEnnemieSurLeTerrain);
         Debug.Log("XP gagné : " + totalXP);
-        foreach (StructureYoKaiCombat yoKai in listeYoKaiEnnemieSurLeTerrain) {
+
+        int i = 0;
+        foreach (StructureYoKaiCombat yoKai in listeYoKaiAmiSurLeTerrain) {
             yoKai.GagneXP(totalXP);
 
             float v = CalculerXpPourUnYoKai(yoKai);
@@ -868,6 +871,13 @@ public class GestionnaireCombat : MonoBehaviour{
                 yoKai.GagneXP(bonus);
                 Debug.Log("Bonus attribuer de "+bonus);
             }
+
+            if (listeImage.Count > i && yoKai.niveau < 99){
+                float v1 = (float)yoKai.xp/100;
+                float pourcentage = v1*yoKai.NombreDePointXPAGagner(yoKai.niveau+1);
+                listeImage[i].fillAmount = pourcentage/100;
+            }
+            i++;
         }
     }
 }
@@ -904,6 +914,7 @@ public class StructureYoKaiCombat{
     public int hp_max_me; // PV MAX
     public int amultime;//ces un pourcentage
     public int niveau;
+    public int xp;
 
     [Header("Statistiques de Base de l'Espèce")]
     public int hp_base; // PV
@@ -1012,6 +1023,15 @@ public class StructureYoKaiCombat{
     }
 
     public void GagneXP(int nombre){
-        
+        if (niveau < 99){
+            xp += nombre;
+            int aGagner = NombreDePointXPAGagner(niveau+1);
+            while (xp > aGagner && niveau < 99){
+                Debug.Log("gagne un niveau !");
+                xp-=aGagner;
+                niveau += 1;
+                aGagner = NombreDePointXPAGagner(niveau+1);
+            }
+        }
     }
 }

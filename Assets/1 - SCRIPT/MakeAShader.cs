@@ -9,7 +9,7 @@ public class MakeAShader : MonoBehaviour{
     void Start(){
         int ID = int.Parse(System.Text.RegularExpressions.Regex.Match(gameObject.name, @"\d+").Value);
 
-        if (ID == 0){   
+        if (ID != 0){   
             ApplyYokaiShader();
         }
     }
