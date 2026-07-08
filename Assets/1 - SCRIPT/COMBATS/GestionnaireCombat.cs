@@ -60,7 +60,15 @@ public class GestionnaireCombat : MonoBehaviour{
     void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
         ChangerCibleOption();
-        AjouterUnEnnemie(6,1);
+        if (PlayerPositionLocally._instance.idYokai1 > 0){
+            AjouterUnEnnemie(PlayerPositionLocally._instance.idYokai1, PlayerPositionLocally._instance.niveauYokai1);
+        }
+        if (PlayerPositionLocally._instance.idYokai2 > 0){
+            AjouterUnEnnemie(PlayerPositionLocally._instance.idYokai2, PlayerPositionLocally._instance.niveauYokai2);
+        }
+        if (PlayerPositionLocally._instance.idYokai3 > 0){
+            AjouterUnEnnemie(PlayerPositionLocally._instance.idYokai3, PlayerPositionLocally._instance.niveauYokai3);
+        }
         // AjouterUnEnnemie(57,1);
         // AjouterUnEnnemie(57,1);
         if (MesYoKai.Instance != null){
@@ -78,6 +86,10 @@ public class GestionnaireCombat : MonoBehaviour{
         }
     }
     void AjouterUnEnnemie(int ID, int niveau){
+        if (niveau <= 0) niveau = 1;
+        if (niveau > 99) niveau = 99;
+        if (ID <= 0) ID = 1;
+
         StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
         MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
         nouv.estUnAmi = false;

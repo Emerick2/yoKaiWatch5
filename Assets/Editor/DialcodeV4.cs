@@ -671,7 +671,7 @@ public class DialcodeV4 : EditorWindow{
     void SetingsTheNewFragment(FragmentDeDialogue f1, FragmentDeDialogue f){
         string nomDuGameObject = Selection.activeGameObject.name;
         int ID = int.Parse(System.Text.RegularExpressions.Regex.Match(nomDuGameObject, @"\d+").Value);
-        if (ID > 0){
+        if (ID > 0 && nomDuGameObject.Contains("y")){
             f.IdÉlément = ID;
             f.quiJeSuis = QuiJeSuis.yokai;
         }

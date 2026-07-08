@@ -17,8 +17,23 @@ public class TeleporteurAutomatique : MonoBehaviour{
         }
     }
 
+    void OnCollisionEnter(Collision other) {
+        if (other.gameObject.CompareTag("Player")){
+            inTheZonne = true;
+            if (autoTeleportPlayer){
+                Teleport();
+            }
+        }
+    }
+
     void OnTriggerExit(Collider other){
         if (other.CompareTag("Player")){
+            inTheZonne = false;
+        }
+    }
+
+    void OnCollisionExit(Collision other){
+        if (other.gameObject.CompareTag("Player")){
             inTheZonne = false;
         }
     }

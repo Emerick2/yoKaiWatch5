@@ -10,6 +10,14 @@ public class PlayerPositionLocally : MonoBehaviour {
     private bool whitTheButonB;
     private bool mustChangeThePositionDirectly;
 
+    // pour les combas :
+    public int idYokai1 = 0;
+    public int niveauYokai1 = 10;
+    public int idYokai2 = 0;
+    public int niveauYokai2 = 10;
+    public int idYokai3 = 0;
+    public int niveauYokai3 = 10;
+
     public static PlayerPositionLocally Instance{
         get{
             if (_instance == null) {
