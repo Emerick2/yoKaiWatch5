@@ -6,8 +6,8 @@ public class TeleporteurAutomatique : MonoBehaviour{
     public string nameOfScene;
     public int IDTeleport;
     public bool autoTeleportPlayer = true;
-    public GameObject theInterface;
-    public bool inTheZonne = false;
+    [HideInInspector] public GameObject theInterface;
+    [HideInInspector] public bool inTheZonne = false;
     void OnTriggerEnter(Collider other){
         if (other.CompareTag("Player")){
             inTheZonne = true;

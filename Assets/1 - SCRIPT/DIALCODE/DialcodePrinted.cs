@@ -15,7 +15,7 @@ public class DialcodePrinted : MonoBehaviour{
     private List<GameObject> objetMasqueADémasquer = new List<GameObject>();
 
     public List<FragmentDeDialogue> fragmentDeDialogue = new List<FragmentDeDialogue>();
-    private TextMeshProUGUI espaceDialogue;
+    [HideInInspector] public TextMeshProUGUI espaceDialogue;
     private GameObject blocNomUtilisé;
     private TextMeshProUGUI espaceNom;
     private Image espaceImage;
@@ -27,16 +27,16 @@ public class DialcodePrinted : MonoBehaviour{
     private CanvasGroup canvasGroup;
     private bool peutCliquer = false;
     public Décoration décoration;
-    private GameObject bulle;
+    [HideInInspector] public GameObject bulle;
     private GameObject cadeau;
     private GameObject information;
-    private GameObject choix;
+    [HideInInspector] public GameObject choix;
     private GameObject choixBoutique;
     private GameObject boutiqueAcheter;
     private GameObject quete;
     private int auteurConditionnelle;
     private int auteurConditionnelleRéel;
-    private int positionChoix;
+    [HideInInspector] public int positionChoix;
     private bool choixEnCours;
     private bool choixEnCoursBoutique1;
     private bool choixEnCoursBoutique2;
@@ -218,7 +218,7 @@ public class DialcodePrinted : MonoBehaviour{
         } else if (fragment.type == TypeDialogue.choix){
             OuvertureFenêtre(choix);
             choixEnCours = true;
-            positionChoix = 1;
+            positionChoix = 0;
             ChangerPositionChoix();
             //le choix nécessite d'une clef de sauvegarde temporaire, cette clef est ce qui est écrit dans "nom";
         } else if (fragment.type == TypeDialogue.boutique){
@@ -382,7 +382,7 @@ public class DialcodePrinted : MonoBehaviour{
         choixBoutique.transform.Find("Bouton2/fond-inactif").gameObject.SetActive(cibleChoixBoutique1 != 1);
     }
 
-    void OuvertureFenêtre(GameObject fenêtre = null){
+    public void OuvertureFenêtre(GameObject fenêtre = null){
         if (fenêtre != null){
             bulle.SetActive(bulle == fenêtre);
             cadeau.SetActive(cadeau == fenêtre);
@@ -402,7 +402,7 @@ public class DialcodePrinted : MonoBehaviour{
         }
     }
 
-    void ChangerPositionChoix(){
+    public void ChangerPositionChoix(){
         choix.transform.Find("Bouton1/fond-actif").gameObject.SetActive(positionChoix == 0);
         choix.transform.Find("Bouton1/fond-inactif").gameObject.SetActive(positionChoix != 0);
         choix.transform.Find("Bouton2/fond-actif").gameObject.SetActive(positionChoix == 1);
@@ -436,7 +436,7 @@ public class DialcodePrinted : MonoBehaviour{
         }
     }
 
-    void Ouverture(){
+    public void Ouverture(){
         INIT(true);
         mouvementDuJoueur.droitDeMarcher = false;
         
@@ -487,7 +487,7 @@ public class DialcodePrinted : MonoBehaviour{
         peutCliquer = true;
     }
 
-    IEnumerator PrintSentence(string sentence){
+    public IEnumerator PrintSentence(string sentence){
         AjouterLeNomEtImagePersonnage();
         TextMeshProUGUI espace = espaceDialogue;
         espace.text = "";
