@@ -55,6 +55,7 @@ public class PlayerPositionLocally : MonoBehaviour {
             if (!thisIsAStock){
                 StartCoroutine(Teleport(nameOfTheScene));
             } else {
+                mustChangeThePositionDirectly = false;
                 ReturnFromASceneStore();
             }
         }

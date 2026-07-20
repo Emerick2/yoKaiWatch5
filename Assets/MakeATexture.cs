@@ -7,6 +7,10 @@ public class MakeATexture : MonoBehaviour{
     private YoKaiData currentData;
 
     void Start(){
+        ChargerStartTexture();
+    }
+
+    public void ChargerStartTexture(){
         ID = int.Parse(System.Text.RegularExpressions.Regex.Match(gameObject.name, @"\d+").Value);
 
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
