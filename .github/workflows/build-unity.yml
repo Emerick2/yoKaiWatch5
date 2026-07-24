@@ -1,0 +1,68 @@
+name: Build Unity Game & AppImage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Build Unity Project (StandaloneLinux64)
+        uses: game-ci/unity-builder@v4
+        with:
+          targetPlatform: StandaloneLinux64
+          projectPath: .
+
+      - name: Preparer l'AppDir
+        run: |
+          mkdir -p build/AppDir/usr/bin
+          mkdir -p build/AppDir/usr/share/icons/hicolor/256x256/apps
+          mkdir -p build/AppDir/usr/share/applications
+
+          # Unity nomme généralement le binaire selon le nom du projet ou de la scène. 
+          # On déplace le contenu du build Linux de Unity vers notre AppDir :
+          cp -r build/StandaloneLinux64/* build/AppDir/usr/bin/
+
+          # REMPLACEZ 'NomDeVotreExécutableUnity' par le nom du fichier binaire 
+          # que Unity génère (souvent le nom de votre projet sans extension ou avec .x86_64)
+          # et on le renomme en ykw-5-v0.0.4 :
+          mv build/AppDir/usr/bin/NomDeVotreExécutableUnity build/AppDir/usr/bin/ykw-5-v0.0.4
+          chmod +x build/AppDir/usr/bin/ykw-5-v0.0.4
+
+          # Fichier .desktop pour Linux
+          cat << 'EOF' > build/AppDir/usr/share/applications/ykw-5-v0.0.4.desktop
+          [Desktop Entry]
+          Type=Application
+          Name=ykw-5-v0.0.4
+          Exec=ykw-5-v0.0.4
+          Icon=ykw-5-v0.0.4
+          Categories=Game;
+          EOF
+
+          ln -s usr/share/applications/ykw-5-v0.0.4.desktop build/AppDir/ykw-5-v0.0.4.desktop
+          
+          # Si vous ajoutez une icône 'icon.png' plus tard, elle sera prise en compte
+          if [ -f "icon.png" ]; then
+            cp icon.png build/AppDir/usr/share/icons/hicolor/256x256/apps/ykw-5-v0.0.4.png
+            ln -s usr/share/icons/hicolor/256x256/apps/ykw-5-v0.0.4.png build/AppDir/.png
+          fi
+
+      - name: Télécharger et exécuter appimagetool
+        run: |
+          wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          
+          export ARCH=x86_64
+          ./appimagetool build/AppDir ykw-5-v0.0.4-x86_64.AppImage
+
+      - name: Sauvegarder l'AppImage (Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ykw-5-v0.0.4-appimage
+          path: ykw-5-v0.0.4-x86_64.AppImage
