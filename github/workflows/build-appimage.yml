@@ -1,0 +1,77 @@
+name: Convert Zip to AppImage
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_url:
+        description: 'Lien direct vers votre fichier .zip Linux'
+        required: true
+        type: string
+      appimage_name:
+        description: 'Nom souhaite pour l AppImage'
+        required: true
+        default: 'ykw-5-v'
+        type: string
+
+jobs:
+  make-appimage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo (pour les icones ou scripts locaux)
+        uses: actions/checkout@v4
+
+      - name: Telecharger et extraire le zip
+        run: |
+          mkdir -p workspace
+          wget -O game_build.zip "${{ inputs.zip_url }}"
+          unzip game_build.zip -d workspace
+
+      - name: Preparer l'AppDir
+        run: |
+          APP_NAME="${{ inputs.appimage_name }}"
+
+          mkdir -p build/AppDir/usr/bin
+          mkdir -p build/AppDir/usr/share/icons/hicolor/256x256/apps
+          mkdir -p build/AppDir/usr/share/applications
+
+          # Copie le contenu extrait dans l'AppDir
+          cp -r workspace/* build/AppDir/usr/bin/
+
+          # Trouve le binaire Unity et le renomme
+          cd build/AppDir/usr/bin/
+          MAIN_EXEC=$(find . -maxdepth 1 -type f ! -name "*.data" ! -name "*.so" ! -name "*.txt" | head -n 1)
+          mv "$MAIN_EXEC" "$APP_NAME"
+          chmod +x "$APP_NAME"
+          cd -
+
+          # Fichier desktop
+          cat << EOF > build/AppDir/usr/share/applications/$APP_NAME.desktop
+          [Desktop Entry]
+          Type=Application
+          Name=$APP_NAME
+          Exec=$APP_NAME
+          Icon=$APP_NAME
+          Categories=Game;
+          EOF
+
+          ln -s usr/share/applications/$APP_NAME.desktop build/AppDir/$APP_NAME.desktop
+          
+          if [ -f "icon.png" ]; then
+            cp icon.png build/AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png
+            ln -s usr/share/icons/hicolor/256x256/apps/$APP_NAME.png build/AppDir/.png
+          fi
+
+      - name: Telecharger et executer appimagetool
+        run: |
+          APP_NAME="${{ inputs.appimage_name }}"
+          wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool
+          
+          export ARCH=x86_64
+          ./appimagetool build/AppDir "$APP_NAME-x86_64.AppImage"
+
+      - name: Sauvegarder l'AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.appimage_name }}-appimage
+          path: ${{ inputs.appimage_name }}-x86_64.AppImage
