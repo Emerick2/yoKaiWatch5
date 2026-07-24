@@ -19,21 +19,22 @@ jobs:
           targetPlatform: StandaloneLinux64
           projectPath: .
 
-      - name: Preparer l'AppDir
+     - name: Preparer l'AppDir
         run: |
           mkdir -p build/AppDir/usr/bin
           mkdir -p build/AppDir/usr/share/icons/hicolor/256x256/apps
           mkdir -p build/AppDir/usr/share/applications
 
-          # Unity nomme généralement le binaire selon le nom du projet ou de la scène. 
-          # On déplace le contenu du build Linux de Unity vers notre AppDir :
+          # Déplace tout le contenu du build Linux de Unity
           cp -r build/StandaloneLinux64/* build/AppDir/usr/bin/
 
-          # REMPLACEZ 'NomDeVotreExécutableUnity' par le nom du fichier binaire 
-          # que Unity génère (souvent le nom de votre projet sans extension ou avec .x86_64)
-          # et on le renomme en ykw-5-v0.0.4 :
-          mv build/AppDir/usr/bin/NomDeVotreExécutableUnity build/AppDir/usr/bin/ykw-5-v0.0.4
-          chmod +x build/AppDir/usr/bin/ykw-5-v0.0.4
+          # VERSION AUTOMATIQUE : Trouve automatiquement le fichier exécutable principal de Unity et le renomme
+          # (Il cherche un fichier sans extension ou avec .x86_64 qui n'est pas un dossier ni un fichier .data)
+          cd build/AppDir/usr/bin/
+          MAIN_EXEC=$(find . -maxdepth 1 -type f ! -name "*.data" ! -name "*.so" ! -name "*.txt" | head -n 1)
+          mv "$MAIN_EXEC" ykw-5-v0.0.4
+          chmod +x ykw-5-v0.0.4
+          cd -
 
           # Fichier .desktop pour Linux
           cat << 'EOF' > build/AppDir/usr/share/applications/ykw-5-v0.0.4.desktop
@@ -47,7 +48,6 @@ jobs:
 
           ln -s usr/share/applications/ykw-5-v0.0.4.desktop build/AppDir/ykw-5-v0.0.4.desktop
           
-          # Si vous ajoutez une icône 'icon.png' plus tard, elle sera prise en compte
           if [ -f "icon.png" ]; then
             cp icon.png build/AppDir/usr/share/icons/hicolor/256x256/apps/ykw-5-v0.0.4.png
             ln -s usr/share/icons/hicolor/256x256/apps/ykw-5-v0.0.4.png build/AppDir/.png
