@@ -17,9 +17,6 @@ jobs:
   make-appimage:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo (pour les icones ou scripts locaux)
-        uses: actions/checkout@v4
-
       - name: Telecharger et extraire le zip
         run: |
           mkdir -p workspace
@@ -34,17 +31,14 @@ jobs:
           mkdir -p build/AppDir/usr/share/icons/hicolor/256x256/apps
           mkdir -p build/AppDir/usr/share/applications
 
-          # Copie le contenu extrait dans l'AppDir
           cp -r workspace/* build/AppDir/usr/bin/
 
-          # Trouve le binaire Unity et le renomme
           cd build/AppDir/usr/bin/
-          MAIN_EXEC=$(find . -maxdepth 1 -type f ! -name "*.data" ! -name "*.so" ! -name "*.txt" | head -n 1)
+          MAIN_EXEC=$(find . -maxdepth 1 ! -name "*.data" ! -name "*.so" ! -name "*.txt" ! -name "." ! -name ".." | head -n 1)
           mv "$MAIN_EXEC" "$APP_NAME"
           chmod +x "$APP_NAME"
           cd -
 
-          # Fichier desktop
           cat << EOF > build/AppDir/usr/share/applications/$APP_NAME.desktop
           [Desktop Entry]
           Type=Application
@@ -55,11 +49,6 @@ jobs:
           EOF
 
           ln -s usr/share/applications/$APP_NAME.desktop build/AppDir/$APP_NAME.desktop
-          
-          if [ -f "icon.png" ]; then
-            cp icon.png build/AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png
-            ln -s usr/share/icons/hicolor/256x256/apps/$APP_NAME.png build/AppDir/.png
-          fi
 
       - name: Telecharger et executer appimagetool
         run: |
