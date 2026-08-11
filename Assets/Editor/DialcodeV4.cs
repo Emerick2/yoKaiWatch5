@@ -425,10 +425,10 @@ public class DialcodeV4 : EditorWindow{
                 }
                 if (f.IdÉlément == 0 || (f.quiJeSuis != QuiJeSuis.héroYoKai && f.quiJeSuis != QuiJeSuis.yokai)){
                     f.nom = AjoutTexte("NOM", f.nom);
-                    f.image = AjouterSprite("Image",f.image);
+                    f.imagePath = AjouterSprite("Image",f.imagePath);
                 }
                 f.phrase = AjoutTexteLong("Phrase", f.phrase);
-                f.imageDePrésentation = AjouterSprite("Image de présantation",f.imageDePrésentation);
+                f.imageDePresentationPath = AjouterSprite("Image de présentation", f.imageDePresentationPath);
                 break;
             case TypeDialogue.information :
                 f.phrase = AjoutTexte("Information", f.phrase);
@@ -442,7 +442,7 @@ public class DialcodeV4 : EditorWindow{
                 f.IdÉlément = AjoutNombre("ID", f.IdÉlément);
                 if (f.IdÉlément == 0){
                     f.nom = AjoutTexte("NOM", f.nom);
-                    f.image = AjouterSprite("Image",f.image);
+                    f.imagePath = AjouterSprite("Image",f.imagePath);
                 }
                 f.quantitée = AjouterQuantitée("Quantitée",f.quantitée);
                 break;
@@ -539,10 +539,77 @@ public class DialcodeV4 : EditorWindow{
         return GUILayoutUtility.GetRect(0,hauteurDeToutLesElement);
     }
 
-    Sprite AjouterSprite(string valeurLabel, Sprite valeurParDéfaut){
-        Rect rectLabelTemporaire = CrééLeRect();
-        EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
-        return (Sprite)EditorGUILayout.ObjectField(valeurParDéfaut, typeof(Sprite), false);
+    // string AjouterSprite(string valeurLabel, string cheminActuel) {
+    //     Rect rectLabelTemporaire = CrééLeRect();
+    //     EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
+
+    //     Sprite spriteActuel = null;
+    //     if (!string.IsNullOrEmpty(cheminActuel)) {
+    //         spriteActuel = Resources.Load<Sprite>(cheminActuel);
+    //         if (spriteActuel == null) {
+    //             spriteActuel = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/" + cheminActuel + ".png");
+    //         }
+    //     }
+
+    //     Sprite nouveauSprite = (Sprite)EditorGUILayout.ObjectField(spriteActuel, typeof(Sprite), false);
+
+    //     if (nouveauSprite != spriteActuel) {
+    //         if (nouveauSprite != null) {
+    //             string assetPath = AssetDatabase.GetAssetPath(nouveauSprite);
+                
+    //             if (assetPath.Contains("/Resources/")) {
+    //                 int index = assetPath.IndexOf("/Resources/") + 11;
+    //                 string relativePath = assetPath.Substring(index);
+    //                 int dotIndex = relativePath.LastIndexOf('.');
+    //                 if (dotIndex > 0) relativePath = relativePath.Substring(0, dotIndex);
+
+    //                 cheminActuel = relativePath;
+    //             } else {
+    //                 Debug.LogWarning($"L'image {nouveauSprite.name} doit être placée dans un dossier 'Resources' pour pouvoir être chargée dynamiquement.");
+    //                 cheminActuel = nouveauSprite.name; // Fallback
+    //             }
+    //         } else {
+    //             cheminActuel = "";
+    //         }
+    //         aDesModificationsNonSauvegardees = true;
+    //     }
+
+    //     return cheminActuel;
+    // }
+    string AjouterSprite(string label, string cheminActuel) {
+        Sprite spriteAffiche = null;
+        if (!string.IsNullOrEmpty(cheminActuel)) {
+            spriteAffiche = Resources.Load<Sprite>(cheminActuel);
+            
+            if (spriteAffiche == null) {
+                spriteAffiche = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/" + cheminActuel + ".png");
+            }
+        }
+
+        Sprite nouveauSprite = (Sprite)EditorGUILayout.ObjectField(label, spriteAffiche, typeof(Sprite), false);
+
+        if (nouveauSprite != spriteAffiche) {
+            if (nouveauSprite != null) {
+                string assetPath = AssetDatabase.GetAssetPath(nouveauSprite);
+                
+                if (assetPath.Contains("/Resources/")) {
+                    int index = assetPath.IndexOf("/Resources/") + 11;
+                    string relativePath = assetPath.Substring(index);
+                    
+                    int dotIndex = relativePath.LastIndexOf('.');
+                    if (dotIndex > 0) relativePath = relativePath.Substring(0, dotIndex);
+
+                    return relativePath;
+                } else {
+                    Debug.LogWarning($"L'image '{nouveauSprite.name}' doit se trouver dans un dossier 'Resources' pour être chargée en jeu.");
+                    return nouveauSprite.name;
+                }
+            } else {
+                return "";
+            }
+        }
+
+        return cheminActuel;
     }
 
     int AjouterQuantitée(string valeurLabel, int valeurParDéfaut){

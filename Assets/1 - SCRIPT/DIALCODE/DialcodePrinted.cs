@@ -175,9 +175,14 @@ public class DialcodePrinted : MonoBehaviour{
 
         if (fragment.nom != null) fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         if (fragment.phrase != null) fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
-        if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément>0){
-            if (fragment.nom.Length == 0) fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
-            if (fragment.image == null) fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
+        
+        if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément > 0){
+            if (string.IsNullOrEmpty(fragment.nom)) {
+                fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
+            }
+            if (fragment.image == null && string.IsNullOrEmpty(fragment.imagePath)) {
+                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
+            }
         }
 
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
@@ -500,7 +505,7 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void AjouterLeNomEtImagePersonnage(){
-        if (yoKaiSonVoix && fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai){
+        if (yoKaiSonVoix && (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai)){
             int id = fragmentDeDialogue[position].IdÉlément;
             if (id > 0 && !listeIdParler.Contains(id)){
                 if (audioPrecedent != null){
@@ -509,7 +514,7 @@ public class DialcodePrinted : MonoBehaviour{
                 listeIdParler.Add(id);
                 AudioClip song = medaliumDictionnaire._instance.ServantYoKai(id).Bruit;
                 if (song != null){
-                    GestionnaireMusique._Komasan.JouerUnEffetSonore(song,false);
+                    GestionnaireMusique._Komasan.JouerUnEffetSonore(song, false);
                 }
             }
         }
@@ -531,6 +536,7 @@ public class DialcodePrinted : MonoBehaviour{
                 blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH1;
             }
         }
+
         if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
             bulle.transform.Find("boutDroit").GetComponent<Image>().sprite = décoration.boutDroiteGris;
             bulle.transform.Find("intérieur").GetComponent<Image>().sprite = décoration.centreGris;
@@ -541,23 +547,28 @@ public class DialcodePrinted : MonoBehaviour{
             bulle.transform.Find("boutGauche").GetComponent<Image>().sprite = décoration.boutGaucheRose;   
         }
 
-
-
         blocNomUtilisé.SetActive(true);
         espaceDialogue = bulle.transform.Find("texte dialogue").gameObject.GetComponent<TextMeshProUGUI>();
         espaceNom = blocNomUtilisé.transform.Find("texte nom").gameObject.GetComponent<TextMeshProUGUI>();
         espaceImage = blocNomUtilisé.transform.Find("image yo-kai si possible").gameObject.GetComponent<Image>();
+
         if (espaceDialogue == null || espaceNom == null || espaceImage == null){
-            Debug.LogWarning("Un des espace nécessaire est manquant");
+            Debug.LogWarning("Un des espaces nécessaires est manquant");
+        }
+
+        Sprite imageDialogue = fragmentDeDialogue[position].image;
+        if (imageDialogue == null && !string.IsNullOrEmpty(fragmentDeDialogue[position].imagePath)) {
+            imageDialogue = Resources.Load<Sprite>(fragmentDeDialogue[position].imagePath);
         }
 
         if (fragmentDeDialogue[position].nom.Length > 0){
             espaceNom.gameObject.SetActive(true);
             blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(true);
             espaceNom.text = fragmentDeDialogue[position].nom;
-            if (fragmentDeDialogue[position].image != null){
+
+            if (imageDialogue != null){
                 espaceImage.gameObject.SetActive(true);
-                espaceImage.sprite = fragmentDeDialogue[position].image;
+                espaceImage.sprite = imageDialogue;
                 NePasDéformerImage(espaceImage);
             } else {
                 espaceImage.gameObject.SetActive(false);
@@ -568,9 +579,14 @@ public class DialcodePrinted : MonoBehaviour{
             espaceImage.gameObject.SetActive(false);
         }
 
-        if (fragmentDeDialogue[position].imageDePrésentation != null){
+        Sprite imagePresentation = fragmentDeDialogue[position].imageDePrésentation;
+        if (imagePresentation == null && !string.IsNullOrEmpty(fragmentDeDialogue[position].imageDePresentationPath)) {
+            imagePresentation = Resources.Load<Sprite>(fragmentDeDialogue[position].imageDePresentationPath);
+        }
+
+        if (imagePresentation != null){
             imageDePrésentation.SetActive(true);
-            imageDePrésentation.GetComponent<Image>().sprite = fragmentDeDialogue[position].imageDePrésentation;
+            imageDePrésentation.GetComponent<Image>().sprite = imagePresentation;
             NePasDéformerImage(imageDePrésentation.GetComponent<Image>());
         } else {
             imageDePrésentation.SetActive(false);

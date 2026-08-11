@@ -230,6 +230,34 @@ public class Item : MonoBehaviour{
         }
         return valeurParDéfaut;
     }
+
+    public Nouriture GetNouritureByName(string name){
+        foreach (Nouriture item in listeDesNouritures){
+            if (item.nom == name){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Sprite GetSpriteByName(string name){
+        foreach (Nouriture item in listeDesNouritures){
+            if (item.nom == name){
+                return item.image;
+            }
+        }
+        foreach (Équipement item in listeDesÉquipements){
+            if (item.nom == name){
+                return item.sprite;
+            }
+        }
+        foreach (Annimal item in listeDesAnnimaux){
+            if (item.nom == name){
+                return item.image;
+            }
+        }
+        return null;
+    }
 }
 
 /*

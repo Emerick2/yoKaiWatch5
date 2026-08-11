@@ -129,6 +129,9 @@ public class PNJDialcode : MonoBehaviour{
 
     private void Exit(){
         if (dialcode != null){
+            if (dialcode.discussionInProgress){
+                dialcode.Fermeture(false);
+            }
             dialcode.dansUneZoneDeDialogue = false;
             inTheZonne = false;
             Debug.Log("sortie");

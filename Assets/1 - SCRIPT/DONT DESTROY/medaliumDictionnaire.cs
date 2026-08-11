@@ -241,6 +241,7 @@ public class MedaliumNonPersonel{
     public int Défense;// IL faut le rensaigner dans le CSV
     public int PV;
     public string nomDeMonSquellette;
+    public Dictionary<string, string> phrasesNourriture = new Dictionary<string, string>{};
 
     [Header("Affinités Élémentaires")]
     public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)

@@ -9,16 +9,41 @@ public class FragmentDeDialogue{
     public string phrase;
     public QuiJeSuis quiJeSuis;
     public string nom;
-    public Sprite image;
     [Min(1)]public int quantitée = 1;//si ces un cadeau, il y a une quantitée
     public CatégorieItem typeObjet;
     [Header("Opération")]
     public List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
     public bool cesUneExclamation;
-    public Sprite imageDePrésentation;
     public List<int> listeProduitBoutique = new List<int>();
     public CatégorieQuête categorieQuete;
     public bool endQuest;
     public QuestMenuInformation infoQuest = new QuestMenuInformation();
+
+    public string imagePath;
+    public string imageDePresentationPath;
+    [System.NonSerialized] private Sprite _imageRuntime;
+    [System.NonSerialized] private Sprite _imageDePresentationRuntime;
+
+    public Sprite image {
+        get {
+            if (_imageRuntime != null) return _imageRuntime;
+            if (string.IsNullOrEmpty(imagePath)) return null;
+            return Resources.Load<Sprite>(imagePath);
+        }
+        set {
+            _imageRuntime = value;
+        }
+    }
+
+    public Sprite imageDePrésentation {
+        get {
+            if (_imageDePresentationRuntime != null) return _imageDePresentationRuntime;
+            if (string.IsNullOrEmpty(imageDePresentationPath)) return null;
+            return Resources.Load<Sprite>(imageDePresentationPath);
+        }
+        set {
+            _imageDePresentationRuntime = value;
+        }
+    }
 }
 
