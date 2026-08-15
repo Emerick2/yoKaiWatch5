@@ -31,6 +31,7 @@ public class complétéLeJournal : MonoBehaviour{
         lieu.text = NewDataCenter.Instance.Lire("scenne");
         if (lieu.text == "0") lieu.text = "";
         Date.text = NewDataCenter.Instance.Lire("theTime");
+        Debug.Log(NewDataCenter.Instance.Lire("theTime"));
         if (Date.text == "0") Date.text = "";
 
         int tempsEnMinutes = int.Parse(NewDataCenter.Instance.Lire("tempsDeJeu"));
@@ -96,16 +97,20 @@ public class complétéLeJournal : MonoBehaviour{
     }
 
     string TheTime(){
-        DateTime maintenant = DateTime.Now;
-        int mois = maintenant.Month;
-        int jour = maintenant.Day;
-        int année = maintenant.Year;
-        int heure = maintenant.Hour;
-        int minute = maintenant.Minute;
-        string minuteSTR = minute.ToString();
-        if (minute<10){
-            minuteSTR="0"+minuteSTR;
-        }
-        return jour+"/"+mois+"/"+année+"  "+heure+":"+minuteSTR;
+        return DateTime.Now.ToString("dd/MM/yyyy HH:mm");
+        // DateTime maintenant = DateTime.Now;
+        // int mois = maintenant.Month;
+        // int jour = maintenant.Day;
+        // int année = maintenant.Year;
+        // int heure = maintenant.Hour;
+        // int minute = maintenant.Minute;
+        // string minuteSTR = minute.ToString();
+        // if (minute<10){
+        //     minuteSTR="0"+minuteSTR;
+        // }
+        // string texte = jour+"/"+mois+"/"+année+"  "+heure+":"+minuteSTR;
+        // Debug.Log(texte);
+
+        // return texte;
     }
 }
