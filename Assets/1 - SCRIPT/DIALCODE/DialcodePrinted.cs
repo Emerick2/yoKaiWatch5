@@ -282,6 +282,16 @@ public class DialcodePrinted : MonoBehaviour{
             position++;
             AvancerJusqueAuProchainDialogue();
             if (position < fragmentDeDialogue.Count) Action();
+        } else if (fragment.type == TypeDialogue.variable){
+            string valeur = "0";
+            if (fragment.variableAActivée) {
+                valeur = "1";
+            }
+            NewDataCenter.Instance.SauvegarderSTR(fragment.nom,valeur);
+
+            position++;
+            AvancerJusqueAuProchainDialogue();
+            if (position < fragmentDeDialogue.Count) Action();
         }
     }
 

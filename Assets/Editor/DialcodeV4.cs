@@ -531,6 +531,12 @@ public class DialcodeV4 : EditorWindow{
                 f.infoQuest.level = AjoutNombre("Niveau recommandé",f.infoQuest.level);
                 f.infoQuest.xp = AjoutNombre("Points d'expériences",f.infoQuest.xp);
                 break;
+            case TypeDialogue.variable:
+                f.nom = AjoutTexte("NOM", f.nom);
+                f.variableAActivée = AjouterUnBool("La variable est activées ?",f.variableAActivée);
+                GUILayout.Box("0 : Non activée.", monStyleHelpBox);
+                GUILayout.Box("1 : Activée.", monStyleHelpBox);
+                break;
         }
     }
 

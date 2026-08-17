@@ -19,6 +19,7 @@ public class FragmentDeDialogue{
     public bool endQuest;
     public QuestMenuInformation infoQuest = new QuestMenuInformation();
 
+    public bool variableAActivée;
     public string imagePath;
     public string imageDePresentationPath;
     [System.NonSerialized] private Sprite _imageRuntime;
