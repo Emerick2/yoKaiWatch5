@@ -207,23 +207,17 @@ public class GestionnaireMenuPrincipal : MonoBehaviour{
     void ChangeSelectGenrePage3(){
         int n = 2;
         cible = ((cible%n)+n)%n;
-        page3.transform.Find("G bouton/1").gameObject.SetActive(cible!=0);
-        page3.transform.Find("G bouton/2").gameObject.SetActive(cible==0);
+        bool boutonSexeMasquer = true;
+        if (!boutonSexeMasquer){
+            page3.transform.Find("G bouton/1").gameObject.SetActive(cible!=0);
+            page3.transform.Find("G bouton/2").gameObject.SetActive(cible==0);
 
-        page3.transform.Find("F bouton/1").gameObject.SetActive(cible!=1);
-        page3.transform.Find("F bouton/2").gameObject.SetActive(cible==1);
-
-        if (cible == 0){
-            Image image = page3.transform.Find("G").GetComponent<Image>();
-            image.color = new Color(image.color.r, image.color.g, image.color.b, 1f);
-            image = page3.transform.Find("F").GetComponent<Image>();
-            image.color = new Color(image.color.r, image.color.g, image.color.b, 0.8f);
-        } else {
-            Image image = page3.transform.Find("G").GetComponent<Image>();
-            image.color = new Color(image.color.r, image.color.g, image.color.b, 0.8f);
-            image = page3.transform.Find("F").GetComponent<Image>();
-            image.color = new Color(image.color.r, image.color.g, image.color.b, 1f);
+            page3.transform.Find("F bouton/1").gameObject.SetActive(cible!=1);
+            page3.transform.Find("F bouton/2").gameObject.SetActive(cible==1);
         }
+
+        page3.transform.Find("G").gameObject.SetActive(cible == 0);
+        page3.transform.Find("F").gameObject.SetActive(cible != 0);
     }
     void ChangeSelectPage5(){
         int n = 2;
