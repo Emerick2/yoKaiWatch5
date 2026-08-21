@@ -11,5 +11,6 @@ public enum TypeDialogue{
     boutique,
     nul,
     quete,
-    infoQuest
+    infoQuest,
+    variable
 }

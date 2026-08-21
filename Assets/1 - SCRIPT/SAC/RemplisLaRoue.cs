@@ -472,11 +472,30 @@ public class RemplisLaRoue : MonoBehaviour{
         // panneauDeInfo.transform.Find("page 2").gameObject.SetActive(false);
         // panneauDeInfo.transform.Find("page 3").gameObject.SetActive(false);
         // panneauDeInfo.transform.Find("page/Numéro").gameObject.GetComponent<TextMeshProUGUI>().text = "1 / 3";
-            
-        panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Force * informationSpécifique.niveau).ToString();
-        panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.PV * informationSpécifique.niveau).ToString();
-        panneauDeInfo.transform.Find("page 1/esprit/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Esprit * informationSpécifique.niveau).ToString();
-        panneauDeInfo.transform.Find("page 1/vitesse/text").gameObject.GetComponent<TextMeshProUGUI>().text = (informationGénéral.Vitesse * informationSpécifique.niveau).ToString();
+       
+        int IDspécifique = informationSpécifique.IDUnique;
+        int ID = informationGénéral.ID;
+        StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
+        MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
+        nouv.positionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
+        nouv.estUnAmi = true;
+        nouv.ID = ID;
+        nouv.IDListeYoKai = IDspécifique;//permet de différancier deux Woko par exemple
+        nouv.nom = MesYoKai.Instance.maListe[IDspécifique].surnom;
+        nouv.imageMédaillon = y.médaillon;
+        nouv.imageFace = y.faceRondImage;
+        nouv.hp_base = y.PV;
+        nouv.spd_base= y.Vitesse;
+        nouv.spr_base= y.Esprit;
+        nouv.str_base= y.Force;        nouv.def_base= y.Défense;
+        nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
+        nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
+        nouv.Initialisation();
+
+        panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = ((int)nouv.str_me).ToString();
+        panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = ((int)nouv.hp_me).ToString();
+        panneauDeInfo.transform.Find("page 1/esprit/text").gameObject.GetComponent<TextMeshProUGUI>().text = ((int)nouv.spr_me).ToString();
+        panneauDeInfo.transform.Find("page 1/vitesse/text").gameObject.GetComponent<TextMeshProUGUI>().text = ((int)nouv.spd_me).ToString();
 
         panneauDeInfo.transform.Find("page 1/Personalité/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationSpécifique.personnalité.ToString();
         panneauDeInfo.transform.Find("page 1/Talent/text").gameObject.GetComponent<TextMeshProUGUI>().text = informationGénéral.talent.ToString();
