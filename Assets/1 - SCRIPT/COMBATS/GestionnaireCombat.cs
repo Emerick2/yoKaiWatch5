@@ -420,6 +420,10 @@ public class GestionnaireCombat : MonoBehaviour{
                 }
                 yk.gameObjectSurLaScène = TV;
 
+                if (troisPositionAmi.Count > 0 && troisPositionAmi[0] != null) {
+                    HarmoniserTaille(TV, troisPositionAmi[0].lossyScale);
+                }
+
                 ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
                 foreach (Transform item in yk.gameObjectSurLaScène.transform){
                     servantBC.CreateBoxCollider(0, item.gameObject,true);
@@ -449,6 +453,10 @@ public class GestionnaireCombat : MonoBehaviour{
                     TV.transform.Rotate(0, 180, 0);
                 }
                 yk.gameObjectSurLaScène = TV;
+
+                if (troisPositionEnnemie.Count > 0 && troisPositionEnnemie[0] != null) {
+                    HarmoniserTaille(TV, troisPositionEnnemie[0].lossyScale);
+                }
 
                 ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
                 foreach (Transform item in yk.gameObjectSurLaScène.transform){
@@ -899,6 +907,27 @@ public class GestionnaireCombat : MonoBehaviour{
             }
             i++;
         }
+    }
+
+    
+    void HarmoniserTaille(GameObject targetObject, Vector3 positionCibleLossyScale) {
+        targetObject.transform.localScale = Vector3.one;
+
+        Physics.SyncTransforms();
+
+        Renderer[] renderers = targetObject.GetComponentsInChildren<Renderer>();
+        if (renderers.Length == 0) return;
+
+        Bounds bounds = renderers[0].bounds;
+        foreach (Renderer rend in renderers) {
+            bounds.Encapsulate(rend.bounds);
+        }
+
+        float hauteurNative = bounds.size.y;
+        if (hauteurNative <= 0.01f) return;
+        float hauteurCible = positionCibleLossyScale.y;
+        float ratio = (hauteurCible / hauteurNative) / 1.5f;
+        targetObject.transform.localScale = new Vector3(ratio, ratio, ratio);
     }
 }
 
