@@ -69,7 +69,7 @@ public class BingoKai : MonoBehaviour{
             TV = medaliumDictionnaire._instance.InstantiateYoKai(cadeauYoKai.ToString());
             TV.transform.position = positionDeUnModèle3D.position;
 
-            MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", leYoKai.Nom);
+            MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", leYoKai.Nom, 0);
         }
         autorisationDeContinuer2 = true;
     }

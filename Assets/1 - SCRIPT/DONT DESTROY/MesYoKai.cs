@@ -36,8 +36,8 @@ public class MesYoKai : MonoBehaviour{
     void Start(){
         ChargerLesYoKai();
         ChargerMonEquipe();
-        AjouterUnYoKai(6,2,"","ee");
-        AjouterUnYoKai(12,8,"","ee");
+        AjouterUnYoKai(6,2,"","Sunom aléaoire 1",0);
+        AjouterUnYoKai(12,8,"","Sunom aléaoire 2",0);
     }
     public void ChargerMonEquipe(){
         string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe", "équipe.json");
@@ -111,11 +111,12 @@ public class MesYoKai : MonoBehaviour{
         }
         return maListe2;
     }
-    public void AjouterUnYoKai(int ID2, int niveau2, string personalité2, string surnom2){
+    public void AjouterUnYoKai(int ID2, int niveau2, string personalité2, string surnom2, int xp2){
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         NewDataCenter.Instance.SauvegarderINT("IDdeMesYoKai", 1);
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_ID",ID2.ToString());
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_niveau",niveau2.ToString());
+        NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_xp",xp2.ToString());
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_personalité",personalité2);
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_surnom",surnom2);
 
@@ -125,6 +126,7 @@ public class MesYoKai : MonoBehaviour{
             maListe[monIDActuel].IDUnique=monIDActuel;
             maListe[monIDActuel].ID=ID2;
             maListe[monIDActuel].niveau=niveau2;
+            maListe[monIDActuel].xp=xp2;
             maListe[monIDActuel].personnalité=TrouverMaPersonalité(personalité2);
             maListe[monIDActuel].surnom=surnom2;
         }
@@ -138,6 +140,7 @@ public class MesYoKai : MonoBehaviour{
                 maListe[i].IDUnique = i;
                 maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
                 maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
+                maListe[i].xp=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_xp"));
                 maListe[i].personnalité  =  TrouverMaPersonalité(NewDataCenter.Instance.Lire(i.ToString()+"_personalité"));
                 maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
             }
@@ -179,6 +182,7 @@ public class ListeDeMesYoKai{//maListe
     public int ID;
     public string surnom;
     public int niveau;
+    public int xp;
     public Personalité personnalité;
     [Range(0,5)] public int positionRoue;
 }

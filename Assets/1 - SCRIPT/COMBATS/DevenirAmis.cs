@@ -23,6 +23,6 @@ public class DevenirAmis : MonoBehaviour {
         Enregistrer();
     }
     void Enregistrer(){
-        MesYoKai.Instance.AjouterUnYoKai(ID, niveau, personalité, surnom);
+        MesYoKai.Instance.AjouterUnYoKai(ID, niveau, personalité, surnom, 0);
     }
 }

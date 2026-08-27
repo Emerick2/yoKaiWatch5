@@ -373,6 +373,7 @@ public class GestionnaireCombat : MonoBehaviour{
             nouv.spr_base= y.Esprit;
             nouv.str_base= y.Force;
             nouv.def_base= y.Défense;
+            nouv.xp =  MesYoKai.Instance.maListe[IDspécifique].xp;
             nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
             nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
             nouv.Initialisation();
@@ -869,25 +870,32 @@ public class GestionnaireCombat : MonoBehaviour{
         return multiplicateurBonus;
     }
 
-    void DonnePointsXP(){
+    void DonnePointsXP() {
         int totalXP = CalculerXpTotaleCombat(listeYoKaiEnnemieSurLeTerrain);
-        Debug.Log("XP gagné : " + totalXP);
 
         int i = 0;
         foreach (StructureYoKaiCombat yoKai in listeYoKaiAmiSurLeTerrain) {
             yoKai.GagneXP(totalXP);
 
             float v = CalculerXpPourUnYoKai(yoKai);
-            if (v != 0){
-                int bonus = Mathf.RoundToInt(totalXP*v)-totalXP;
+            if (v != 0) {
+                int bonus = Mathf.RoundToInt(totalXP * v) - totalXP;
                 yoKai.GagneXP(bonus);
-                Debug.Log("Bonus attribuer de "+bonus);
             }
 
-            if (listeImage.Count > i && yoKai.niveau < 99){
-                float v1 = (float)yoKai.xp/100;
-                float pourcentage = v1*yoKai.NombreDePointXPAGagner(yoKai.niveau+1);
-                listeImage[i].fillAmount = pourcentage/100;
+            if (yoKai.IDListeYoKai < MesYoKai.Instance.maListe.Count) {
+                MesYoKai.Instance.maListe[yoKai.IDListeYoKai].xp = yoKai.xp;
+                MesYoKai.Instance.maListe[yoKai.IDListeYoKai].niveau = yoKai.niveau;
+
+                string idStr = yoKai.IDListeYoKai.ToString();
+                NewDataCenter.Instance.SauvegarderSTR(idStr + "_xp", yoKai.xp.ToString());
+                NewDataCenter.Instance.SauvegarderSTR(idStr + "_niveau", yoKai.niveau.ToString());
+            }
+
+            if (listeImage.Count > i && yoKai.niveau < 99) {
+                float v1 = (float)yoKai.xp / 100;
+                float pourcentage = v1 * yoKai.NombreDePointXPAGagner(yoKai.niveau + 1);
+                listeImage[i].fillAmount = pourcentage / 100;
             }
             i++;
         }
