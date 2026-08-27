@@ -215,13 +215,13 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
         else {
-            if (panelVictoryIsClose) {
-                OpenPanelVictory();
+            if (panelVictoryIsClose && stepPanelVictory == 0) {
+                panelVictory.SetActive(true);
                 DonnePointsXP();
-                Transform panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
+                Transform panel = panelVictory.transform.Find("partie-1");
                 if (panel != null) panel.gameObject.SetActive(false);
                 stepPanelVictory = 1;
-                panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
+                panel = panelVictory.transform.Find("partie-1");
                 if (panel != null) panel.gameObject.SetActive(true);
                 if (stepPanelVictory == 1){
                     GameObject win = panel.transform.Find("win").gameObject;
@@ -242,6 +242,7 @@ public class GestionnaireCombat : MonoBehaviour{
                     stepPanelVictory++;
                     panel = panelVictory.transform.Find("partie-"+stepPanelVictory.ToString());
                     if (panel != null) panel.gameObject.SetActive(true);
+                    OpenPanelVictory();
                 } else {
                     PlayerPositionLocally._instance.ReturnToTheSaveScene();
                 }
@@ -442,9 +443,22 @@ public class GestionnaireCombat : MonoBehaviour{
         for (int i = 0; i < listeYoKaiEnnemieSurLeTerrain.Count; i++){
             StructureYoKaiCombat yk = listeYoKaiEnnemieSurLeTerrain[i];
             if (yk != null){
+                if (medaliumDictionnaire._instance == null) {
+                    Debug.LogError("medaliumDictionnaire._instance est NULL !");
+                    return;
+                }
+
                 GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
+                if (TV == null) {
+                    Debug.LogError($"Impossible d'instancier le Yo-Kai ID {yk.ID}");
+                    continue;
+                }
+
                 TV.AddComponent<AddAnimator>();
-                TV.transform.position = troisPositionEnnemie[i].position;
+                if (troisPositionEnnemie != null && i < troisPositionEnnemie.Count && troisPositionEnnemie[i] != null) {
+                    TV.transform.position = troisPositionEnnemie[i].position;
+                }
+                
                 TV.transform.localScale = Vector3.one;
                 TV.transform.localScale = troisPositionAmi[i].localScale;
                 if (yk.estUnAmi){
@@ -456,6 +470,8 @@ public class GestionnaireCombat : MonoBehaviour{
 
                 if (troisPositionEnnemie.Count > 0 && troisPositionEnnemie[0] != null) {
                     HarmoniserTaille(TV, troisPositionEnnemie[0].lossyScale);
+                }else {
+                    Debug.LogError("La liste troisPositionEnnemie est vide ou l'élément 0 est manquant dans l'Inspecteur !");
                 }
 
                 ServantBoxCollider3D servantBC = new ServantBoxCollider3D();
@@ -916,7 +932,10 @@ public class GestionnaireCombat : MonoBehaviour{
         Physics.SyncTransforms();
 
         Renderer[] renderers = targetObject.GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0) return;
+        if (renderers == null || renderers.Length == 0) {
+            Debug.LogWarning($"Aucun Renderer trouvé sur {targetObject.name}");
+            return;
+        }
 
         Bounds bounds = renderers[0].bounds;
         foreach (Renderer rend in renderers) {
