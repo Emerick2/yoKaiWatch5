@@ -448,6 +448,8 @@ public class GestionnaireCombat : MonoBehaviour{
                     return;
                 }
 
+                Debug.Log(yk.ID);
+
                 GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(yk.ID.ToString());
                 if (TV == null) {
                     Debug.LogError($"Impossible d'instancier le Yo-Kai ID {yk.ID}");

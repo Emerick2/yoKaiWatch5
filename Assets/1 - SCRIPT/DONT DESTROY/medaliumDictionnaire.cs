@@ -88,6 +88,11 @@ public class medaliumDictionnaire : MonoBehaviour{
     public GameObject InstantiateYoKai(string ID){
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
 
+        if (targetFile == null) {
+            Debug.LogError("Le fichier JSON 'yokai_assets_mapping' est introuvable dans Resources/yo-kai-API/data/_3D/");
+            return null;
+        }
+
         if (targetFile != null) {
             var allData = JsonConvert.DeserializeObject<Dictionary<string, Yokai_assets_mapping>>(targetFile.text);
 
