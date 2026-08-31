@@ -19,7 +19,7 @@ public class SacCombats : MonoBehaviour{
 
     void Start() {
         blocAppSac.SetActive(false);
-        itemScript = Item._instance;
+        itemScript = Item.Instance;
     }
 
     public void Initialiser(){

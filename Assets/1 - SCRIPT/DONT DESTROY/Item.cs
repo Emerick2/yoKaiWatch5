@@ -1,279 +1,257 @@
+using System;
 using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
-using System.Text;
-using UnityEngine.UI;
 using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
+using UnityEngine;
+using YKW.Core.Item.Enum;
+using YKW.Core.YoKai.Struct;
 
-public class Item : MonoBehaviour{
-    public static Item _instance;
-    public List<EffetNouriture> listeDesEffetsNouritures;
-    public List<Nouriture> listeDesNouritures;
-    public List<Équipement> listeDesÉquipements;
-    public List<Annimal> listeDesAnnimaux;
-    public bool chargementTerminé = false;
+public class Item : MonoBehaviour
+{
+    private const string ApiRoot = "https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/";
+    private const string ResourcesRoot = "yo-kai-API/";
+    private const string FoodPath = "yo-kai-API/data/food_data/";
+    private const string EquipmentPath = "yo-kai-API/data/item-equipement_data/";
+    private const string AnimalPath = "yo-kai-API/data/bug_data/";
 
-    private void Awake(){
-        if (_instance == null){
-            _instance = this;
-        }
-        else{
-            Destroy(gameObject);
-        }
+    public static Item Instance;
+    public List<Nouriture> listeDesNouritures = new();
+    public List<Équipement> listeDesÉquipements = new();
+    public List<Annimal> listeDesAnnimaux = new();
+    public bool chargementTerminé { get; private set; }
+
+    private readonly Dictionary<Nouriture, EffetsNourriture> effetsNourritures = new();
+
+    private struct EffetsNourriture
+    {
+        public string descriptionAllie;
+        public string descriptionEnnemi;
+        public int valeurAllie;
     }
-    void Start(){
-        RemplireLesListe();
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            return;
+        }
+
+        Destroy(gameObject);
     }
-    void RemplireLesListe(){
+
+    private void Start() => ChargerTousLesObjets();
+
+    public void ChargerTousLesObjets()
+    {
         chargementTerminé = false;
-        RemplirePourAlliment();
-        RemplirePourÉquipement();
-        RemplirePourAnnimal();
-        // SéparerTexteEtNombre("épée de légende !");//attendu[épée de légende !]
-        // SéparerTexteEtNombre("def+1");//attendu [def,+1]
-        // SéparerTexteEtNombre("def+1ou-5");//attendu[def,+1,ou,-5]
-        // SéparerTexteEtNombre("def1ou5");//attendu[def,1,ou,5]
+        listeDesNouritures.Clear();
+        listeDesÉquipements.Clear();
+        listeDesAnnimaux.Clear();
+        effetsNourritures.Clear();
+
+        ChargerNourritures();
+        ChargerEquipements();
+        ChargerAnimaux();
         chargementTerminé = true;
-
     }
 
-    List<object> SéparerTexteEtNombre(string texte, bool debug = false){
-        List<char> nombre = new List<char>{'+','-','0','1','2','3','4','5','6','7','8','9'};
-        List<object> chaine = new List<object>();
-        string temps = "";
-        bool cherchePartieNombre = false;
-        foreach (char item in texte){
-            bool passeMonCheminCesPlusUneClef = !cherchePartieNombre && nombre.Contains(item);
-            bool passeMonCheminCesPlusUneValeur = cherchePartieNombre && !nombre.Contains(item);
-            if (!passeMonCheminCesPlusUneClef && !passeMonCheminCesPlusUneValeur){
-                temps += item;
-            } else if (temps.Length > 0) {
-                if (!cherchePartieNombre){
-                    chaine.Add(temps);
-                } else {
-                    if (debug) Debug.Log("|nombre");
-                    string temps2 = "";
-                    if ((temps[0] == '-' || temps[0] == '+') && temps.Length >= 1){
-                        for (int i = 1; i < temps.Length; i++){
-                            temps2+=i;
-                        }
-                    } else {
-                        for (int i = 0; i < temps.Length; i++){
-                            temps2+=i;
-                        }
-                    }
-                    int temps2Nombre = 0;
-                    if (int.TryParse(temps2, out temps2Nombre)){
-                        temps2Nombre = int.Parse(temps2);
-                        if (temps[0] == '-'){
-                            chaine.Add(temps2Nombre*(-1));
-                        } else {
-                            chaine.Add(temps2Nombre);
-                        }
-                    } else {
-                        chaine.Add(temps);
-                    }
-                }
-                temps = item.ToString();
-                cherchePartieNombre = !cherchePartieNombre;
-            }
-        }
-        if (temps != ""){
-            chaine.Add(temps);
-        }
-        if (debug){
-            Debug.Log("---");
-            foreach (var item in chaine){
-                Debug.Log(item);
-            }
-            Debug.Log("---");
-        }
-        return chaine;
+    private void ChargerNourritures()
+    {
+        ChargerTousLesFichiers(FoodPath, data =>
+        {
+            Nouriture nourriture = new Nouriture
+            {
+                nom = data.name,
+                description = data.description,
+                image = ChargerSprite(data.imageUrl),
+                prixAchat = LirePrix(data.purchasePrice, 1f),
+                prixVente = LirePrix(data.sellingPrice, 0f)
+            };
+
+            nourriture.effetAlié = LireEffetAllie(data.allyEffect, out int valeurAllie);
+            nourriture.effetEnemi = LireEffetEnnemi(data.enemyEffect);
+            effetsNourritures[nourriture] = new EffetsNourriture
+            {
+                descriptionAllie = data.allyEffect ?? string.Empty,
+                descriptionEnnemi = data.enemyEffect ?? string.Empty,
+                valeurAllie = valeurAllie
+            };
+            listeDesNouritures.Add(nourriture);
+        });
     }
 
-    void RemplirePourAlliment(){
-        int i = 1;
-        bool encoreDesFichiers = true;
+    private void ChargerEquipements()
+    {
+        ChargerTousLesFichiers(EquipmentPath, data =>
+        {
+            Équipement équipement = new Équipement
+            {
+                nom = data.name,
+                description = data.description,
+                image = ChargerSprite(data.imageUrl),
+                prixAchat = LirePrix(data.purchasePrice, 1f),
+                prixVente = LirePrix(data.sellingPrice, 0f),
+                effet = LireEffetEquipement(data.effect)
+            };
+            listeDesÉquipements.Add(équipement);
+        });
+    }
 
-        while (encoreDesFichiers) {
-            TextAsset fichierJson = Resources.Load<TextAsset>($"yo-kai-API/data/food_data/{i}");
+    private void ChargerAnimaux()
+    {
+        ChargerTousLesFichiers(AnimalPath, data =>
+        {
+            string nomSansRarete = (data.name ?? string.Empty).Replace("★", string.Empty);
+            Annimal animal = new Annimal
+            {
+                nom = data.name,
+                description = data.description,
+                image = ChargerSprite(data.imageUrl),
+                prixAchat = LirePrix(data.purchasePrice, 1f),
+                prixVente = LirePrix(data.sellingPrice, 0f),
+                rare = (data.name ?? string.Empty).Contains('★'),
+                modèle3D = Resources.Load<GameObject>("annimal/" + nomSansRarete)
+            };
+            listeDesAnnimaux.Add(animal);
+        });
+    }
 
-            if (fichierJson != null) {
-                Food_tampons data = JsonUtility.FromJson<Food_tampons>(fichierJson.text);
+    private static void ChargerTousLesFichiers(string dossierResources, Action<Food_tampons> traiter)
+    {
+        TextAsset[] fichiers = Resources.LoadAll<TextAsset>(dossierResources.TrimEnd('/'));
+        Array.Sort(fichiers, ComparerFichiersParId);
 
-                Nouriture nouv = new Nouriture();
-                nouv.nom = data.name;
-                nouv.description = data.description;
-                data.imageUrl = data.imageUrl.Replace("https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/","yo-kai-API/");
-                data.imageUrl = data.imageUrl.Replace(".png","");
-                nouv.image = Resources.Load<Sprite>(data.imageUrl);
-                
-                // Conversion des prix
-                nouv.prixAchat = TransformeTexteEnNombre(data.purchasePrice, 1);
-                nouv.prixVente = TransformeTexteEnNombre(data.sellingPrice, 0);
-                nouv.allyEffect = data.allyEffect;
-                nouv.enemyEffect = data.enemyEffect;
-
-                listeDesNouritures.Add(nouv);
-                i++; 
-            } else {
-                encoreDesFichiers = false;
+        foreach (TextAsset fichier in fichiers)
+        {
+            Food_tampons data = JsonUtility.FromJson<Food_tampons>(fichier.text);
+            if (data == null)
+            {
+                Debug.LogWarning($"Donnée invalide : {dossierResources}{fichier.name}");
+                continue;
             }
+
+            traiter(data);
         }
     }
 
-    void RemplirePourÉquipement(){
-        int e = 1;
-        bool encoreDesFichiers = true;
-
-        while (encoreDesFichiers) {
-            TextAsset fichierJson = Resources.Load<TextAsset>($"yo-kai-API/data/item-equipement_data/{e}");
-
-            if (fichierJson != null) {
-                Food_tampons data = JsonUtility.FromJson<Food_tampons>(fichierJson.text);
-
-                Équipement nouv = new Équipement();
-                nouv.nom = data.name;
-                nouv.description = data.description;
-                data.imageUrl = data.imageUrl.Replace("https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/","yo-kai-API/");
-                data.imageUrl = data.imageUrl.Replace(".png","");
-                nouv.sprite = Resources.Load<Sprite>(data.imageUrl);
-                
-                // Conversion des prix
-                nouv.prixAchat = TransformeTexteEnNombre(data.purchasePrice, 1);
-                nouv.prixVente = TransformeTexteEnNombre(data.sellingPrice, 0);
-
-                string texteEffet = data.effect.Replace(" ","");
-                texteEffet = texteEffet.Replace("\"","");
-                List<object> lesEffets = SéparerTexteEtNombre(texteEffet);
-                for (int i = 0; i <= 1; i++){
-                    string v1 = "";
-                    int nombre = 0;
-                    if (i==0 && lesEffets.Count>=2){
-                        v1 = lesEffets[0].ToString();
-                        if (int.TryParse(lesEffets[1].ToString(), out nombre)){
-                            nombre = int.Parse(lesEffets[1].ToString());
-                        }
-                    } else if (i == 1 && lesEffets.Count>=4) {
-                        v1 = lesEffets[2].ToString();
-                        if (int.TryParse(lesEffets[3].ToString(), out nombre)){
-                            nombre = int.Parse(lesEffets[3].ToString());
-                        }
-                    }
-                    if (v1 == "DÉF" || v1 == "VIT" || v1 == "ESP" || v1 == "FOR"){
-                        switch (v1){
-                            case "DÉF":
-                                nouv.effetSur_Défance = nombre;
-                                break;
-                            case "VIT":
-                                nouv.effetSur_Vitesse = nombre;
-                                break;
-                            case "ESP":
-                                nouv.effetSur_Esprit = nombre;
-                                break;
-                            case "FOR":
-                                nouv.effetSur_Force = nombre;
-                                break;
-                        }
-                    } else if (i==0) {
-                        if (nouv.effetSur_ELSE != ""){
-                            nouv.effetSur_ELSE = data.effect.Replace("\"","");
-                        }
-                    }
-                }
-
-                listeDesÉquipements.Add(nouv);
-                e++; 
-            } else {
-                encoreDesFichiers = false;
-            }
-        }        
+    private static int ComparerFichiersParId(TextAsset premier, TextAsset second)
+    {
+        bool premierEstNumerique = int.TryParse(premier.name, out int premierId);
+        bool secondEstNumerique = int.TryParse(second.name, out int secondId);
+        if (premierEstNumerique && secondEstNumerique) return premierId.CompareTo(secondId);
+        if (premierEstNumerique) return -1;
+        if (secondEstNumerique) return 1;
+        return string.CompareOrdinal(premier.name, second.name);
     }
 
-    void RemplirePourAnnimal(){
-        int i = 1;
-        bool encoreDesFichiers = true;
-
-        while (encoreDesFichiers) {
-            TextAsset fichierJson = Resources.Load<TextAsset>($"yo-kai-API/data/bug_data/{i}");
-
-            if (fichierJson != null) {
-                Food_tampons data = JsonUtility.FromJson<Food_tampons>(fichierJson.text);
-
-                Annimal nouv = new Annimal();
-                nouv.nom = data.name;
-                nouv.description = data.description;
-                data.imageUrl = data.imageUrl.Replace("https://raw.githubusercontent.com/Emerick2/yo-kai-API/refs/heads/main/","yo-kai-API/");
-                data.imageUrl = data.imageUrl.Replace(".png","");
-                nouv.image = Resources.Load<Sprite>(data.imageUrl);
-                
-                // Conversion des prix
-                nouv.prixAchat = TransformeTexteEnNombre(data.purchasePrice, 1);
-                nouv.prixVente = TransformeTexteEnNombre(data.sellingPrice, 0);
-
-                nouv.rare = nouv.nom.Contains('★');
-                string t = nouv.nom;
-                t = t.Replace("★","");
-                nouv.modèle3D = Resources.Load<GameObject>("annimal/"+t);
-
-                listeDesAnnimaux.Add(nouv);
-                i++; 
-            } else {
-                encoreDesFichiers = false;
-            }
-        }
+    private static Sprite ChargerSprite(string imageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl)) return null;
+        string chemin = imageUrl.Replace(ApiRoot, ResourcesRoot).Replace(".png", string.Empty);
+        return Resources.Load<Sprite>(chemin);
     }
 
-    public float TransformeTexteEnNombre(string texte, float valeurParDéfaut){
-        if (float.TryParse(texte, NumberStyles.Any, CultureInfo.InvariantCulture, out float nombre)) {
-            return nombre;
+    private static Stats LireEffetEquipement(string texte)
+    {
+        Stats stats = new Stats();
+        if (string.IsNullOrWhiteSpace(texte)) return stats;
+
+        foreach (Match match in Regex.Matches(texte, @"(FOR|VIT|ESP|DÉF)\s*([+-]\s*\d+)"))
+        {
+            int valeur = int.Parse(match.Groups[2].Value.Replace(" ", string.Empty), CultureInfo.InvariantCulture);
+            switch (match.Groups[1].Value)
+            {
+                case "FOR": stats.Force += valeur; break;
+                case "VIT": stats.Vitesse += valeur; break;
+                case "ESP": stats.Esprit += valeur; break;
+                case "DÉF": stats.Défence += valeur; break;
+            }
         }
-        return valeurParDéfaut;
+
+        string effetSpecial = Regex.Replace(texte, @"(FOR|VIT|ESP|DÉF)\s*[+-]\s*\d+", string.Empty).Trim();
+        stats.modificateurAutre = string.IsNullOrWhiteSpace(effetSpecial) ? null : effetSpecial;
+        return stats;
     }
 
-    public Nouriture GetNouritureByName(string name){
-        foreach (Nouriture item in listeDesNouritures){
-            if (item.nom == name){
-                return item;
-            }
+    private static EffetNourritureAllie LireEffetAllie(string texte, out int valeur)
+    {
+        valeur = 0;
+        string effet = Normaliser(texte);
+        Match soinFixe = Regex.Match(effet, @"restaure\s+(\d+)\s+pv");
+        if (soinFixe.Success)
+        {
+            valeur = int.Parse(soinFixe.Groups[1].Value, CultureInfo.InvariantCulture);
+            return EffetNourritureAllie.RestaurePVFixe;
         }
-        return null;
+
+        if (effet.Contains("rend tres peu de pv")) return EffetNourritureAllie.RendTresPeuPV;
+        if (effet.Contains("rend un peu de pv")) return EffetNourritureAllie.RendUnPeuPV;
+        if (effet.Contains("rend pas mal de pv")) return EffetNourritureAllie.RendPasMalPV;
+        if (effet.Contains("rend beaucoup de pv")) return EffetNourritureAllie.RendBeaucoupPV;
+        if (effet.Contains("rend enormement de pv")) return EffetNourritureAllie.RendEnormementPV;
+        if (effet.Contains("rend tous les pv")) return EffetNourritureAllie.RendTousLesPV;
+        if (effet.Contains("rend un peu d'ame")) return EffetNourritureAllie.RendUnPeuAme;
+        if (effet.Contains("rend pas mal d'ame")) return EffetNourritureAllie.RendPasMalAme;
+        if (effet.Contains("rend enormement d'ame")) return EffetNourritureAllie.RendEnormementAme;
+        if (effet.Contains("rend toute l'ame")) return EffetNourritureAllie.RendTouteAme;
+
+        Match amePourcentage = Regex.Match(effet, @"recupere\s+(\d+)\s*%\s+de l'ame");
+        if (!amePourcentage.Success) return EffetNourritureAllie.Inconnu;
+
+        valeur = int.Parse(amePourcentage.Groups[1].Value, CultureInfo.InvariantCulture);
+        return EffetNourritureAllie.RecuperePourcentageAme;
     }
 
-    public Sprite GetSpriteByName(string name){
-        foreach (Nouriture item in listeDesNouritures){
-            if (item.nom == name){
-                return item.image;
-            }
+    private static EffetNourritureEnnemi LireEffetEnnemi(string texte)
+    {
+        string effet = Normaliser(texte);
+        if (effet.Contains("deviendra ton ami")) return EffetNourritureEnnemi.DevientAmi;
+        if (effet.Contains("adorer")) return EffetNourritureEnnemi.Adore;
+        if (effet.Contains("apprecieront beaucoup") || effet.Contains("t'aimeront beaucoup")) return EffetNourritureEnnemi.ApprecieBeaucoup;
+        if (effet.Contains("vont t'aimer")) return EffetNourritureEnnemi.Aime;
+        if (effet.Contains("apprecieront un peu")) return EffetNourritureEnnemi.ApprecieUnPeu;
+        return effet.Contains("appreci") ? EffetNourritureEnnemi.Apprecie : EffetNourritureEnnemi.Inconnu;
+    }
+
+    private static string Normaliser(string texte)
+    {
+        string decomposé = (texte ?? string.Empty).Trim().ToLowerInvariant().Normalize(NormalizationForm.FormD);
+        StringBuilder resultat = new StringBuilder(decomposé.Length);
+        foreach (char caractere in decomposé)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(caractere) != UnicodeCategory.NonSpacingMark)
+                resultat.Append(caractere);
         }
-        foreach (Équipement item in listeDesÉquipements){
-            if (item.nom == name){
-                return item.sprite;
-            }
-        }
-        foreach (Annimal item in listeDesAnnimaux){
-            if (item.nom == name){
-                return item.image;
-            }
-        }
-        return null;
+        return resultat.ToString().TrimEnd('.');
+    }
+
+    public float TransformeTexteEnNombre(string texte, float valeurParDéfaut) => LirePrix(texte, valeurParDéfaut);
+
+    private static float LirePrix(string texte, float valeurParDéfaut) =>
+        float.TryParse(texte, NumberStyles.Any, CultureInfo.InvariantCulture, out float valeur) ? valeur : valeurParDéfaut;
+
+    public int ObtenirValeurEffetAllie(Nouriture nourriture) =>
+        effetsNourritures.TryGetValue(nourriture, out EffetsNourriture effet) ? effet.valeurAllie : 0;
+
+    public string ObtenirDescriptionEffetAllie(Nouriture nourriture) =>
+        effetsNourritures.TryGetValue(nourriture, out EffetsNourriture effet) ? effet.descriptionAllie : string.Empty;
+
+    public string ObtenirDescriptionEffetEnnemi(Nouriture nourriture) =>
+        effetsNourritures.TryGetValue(nourriture, out EffetsNourriture effet) ? effet.descriptionEnnemi : string.Empty;
+
+    public Nouriture GetNouritureByName(string nom) => listeDesNouritures.Find(nourriture => nourriture.nom == nom);
+
+    public Sprite GetSpriteByName(string nom)
+    {
+        Nouriture nourriture = GetNouritureByName(nom);
+        if (nourriture != null) return nourriture.image;
+
+        Équipement équipement = listeDesÉquipements.Find(item => item.nom == nom);
+        if (équipement != null) return équipement.image;
+
+        Annimal animal = listeDesAnnimaux.Find(item => item.nom == nom);
+        return animal?.image;
     }
 }
-
-/*
-Nouriture
-Objet
-Annimal
-Équipement
-ObjetClef
-Âme
-*/
-
-
-
-
-
-
-
-
-

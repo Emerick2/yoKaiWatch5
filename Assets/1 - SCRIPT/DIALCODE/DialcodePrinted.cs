@@ -114,8 +114,8 @@ public class DialcodePrinted : MonoBehaviour{
                     } else if(cibleChoixBoutique1 == 1){
                         choixEnCoursBoutique2 = true;
                         List<int> listeDesIDNouriturePossédé = new List<int>();
-                        for (int i = 0; i < Item._instance.listeDesNouritures.Count; i++){
-                            if (int.TryParse(NewDataCenter.Instance.Lire(Item._instance.listeDesNouritures[i].nom), out int quantite) && quantite > 0){
+                        for (int i = 0; i < Item.Instance.listeDesNouritures.Count; i++){
+                            if (int.TryParse(NewDataCenter.Instance.Lire(Item.Instance.listeDesNouritures[i].nom), out int quantite) && quantite > 0){
                                 listeDesIDNouriturePossédé.Add(i);
                             }
                         }
@@ -168,7 +168,7 @@ public class DialcodePrinted : MonoBehaviour{
         }
         FragmentDeDialogue fragment = fragmentDeDialogue[position];
         if (fragment == null) return;
-        if (fragment.type == TypeDialogue.cadeau && fragment.IdÉlément >= Item._instance.listeDesNouritures.Count) {
+        if (fragment.type == TypeDialogue.cadeau && fragment.IdÉlément >= Item.Instance.listeDesNouritures.Count) {
             Debug.LogError("ID d'item invalide !");
             return;
         }
@@ -188,14 +188,14 @@ public class DialcodePrinted : MonoBehaviour{
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
             if (fragment.quantitée <= 0) fragment.quantitée = 1;
             if (fragment.typeObjet == CatégorieItem.Nouriture){
-                fragment.nom = Item._instance.listeDesNouritures[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesNouritures[fragment.IdÉlément].image;
+                fragment.nom = Item.Instance.listeDesNouritures[fragment.IdÉlément].nom;
+                fragment.image = Item.Instance.listeDesNouritures[fragment.IdÉlément].image;
             } else if (fragment.typeObjet == CatégorieItem.Equipement){
-                fragment.nom = Item._instance.listeDesÉquipements[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesÉquipements[fragment.IdÉlément].sprite;
+                fragment.nom = Item.Instance.listeDesÉquipements[fragment.IdÉlément].nom;
+                fragment.image = Item.Instance.listeDesÉquipements[fragment.IdÉlément].sprite;
             } else if (fragment.typeObjet == CatégorieItem.Animal){
-                fragment.nom = Item._instance.listeDesAnnimaux[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesAnnimaux[fragment.IdÉlément].image;
+                fragment.nom = Item.Instance.listeDesAnnimaux[fragment.IdÉlément].nom;
+                fragment.image = Item.Instance.listeDesAnnimaux[fragment.IdÉlément].image;
             }
         }
         //la je m'ocupe des id pour écrire le nom et l'image
@@ -313,14 +313,14 @@ public class DialcodePrinted : MonoBehaviour{
             quantitée*=100;
         }
         if (typeObjet == CatégorieItem.Nouriture){
-            nom = Item._instance.listeDesNouritures[IdÉlément].nom;
-            image = Item._instance.listeDesNouritures[IdÉlément].image;
+            nom = Item.Instance.listeDesNouritures[IdÉlément].nom;
+            image = Item.Instance.listeDesNouritures[IdÉlément].image;
         } else if (typeObjet == CatégorieItem.Equipement){
-            nom = Item._instance.listeDesÉquipements[IdÉlément].nom;
-            image = Item._instance.listeDesÉquipements[IdÉlément].sprite;
+            nom = Item.Instance.listeDesÉquipements[IdÉlément].nom;
+            image = Item.Instance.listeDesÉquipements[IdÉlément].sprite;
         } else if (typeObjet == CatégorieItem.Animal){
-            nom = Item._instance.listeDesAnnimaux[IdÉlément].nom;
-            image = Item._instance.listeDesAnnimaux[IdÉlément].image;
+            nom = Item.Instance.listeDesAnnimaux[IdÉlément].nom;
+            image = Item.Instance.listeDesAnnimaux[IdÉlément].image;
         }
 
         if (type == TypeDialogue.cadeau){

@@ -1,4 +1,5 @@
-public enum Envoutement{
-    ennemie,
-    allié
+public enum StatutAmitié
+{
+    Ennemie,
+    Allié
 }

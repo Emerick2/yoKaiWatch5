@@ -245,7 +245,7 @@ public class BingoKai2 : MonoBehaviour {
         if (gameObjectYoKaiBingoKaiSupr != null) {
             Destroy(gameObjectYoKaiBingoKaiSupr);
         }
-        Sprite objet = Item._instance.GetSpriteByName(nomObjetQuiVasSortir);
+        Sprite objet = Item.Instance.GetSpriteByName(nomObjetQuiVasSortir);
         if (objet == null){
             Debug.Log("L'objet est null !");
         } else {

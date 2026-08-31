@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using TMPro;
+using YKW.Core.Item.Enum;
 
 public class InvantaireSac : MonoBehaviour{
     public List<GameObject> laListeDesCatégorie;
@@ -99,7 +100,7 @@ public class InvantaireSac : MonoBehaviour{
 
     void PlacerLaNouriture(){
         List<ObjetDansLeSacInformation> list = new List<ObjetDansLeSacInformation>();
-        foreach (Nouriture item in Item._instance.listeDesNouritures){
+        foreach (Nouriture item in Item.Instance.listeDesNouritures){
             ObjetDansLeSacInformation element = new ObjetDansLeSacInformation{ nom = item.nom, sprite = item.image, infoNouriture = item};
             if (étatDeDebug){
                 element.quantitée = Random.Range(0,1000);
@@ -117,7 +118,7 @@ public class InvantaireSac : MonoBehaviour{
 
     void PlacerLesAnnimaux(){
         List<ObjetDansLeSacInformation> list = new List<ObjetDansLeSacInformation>();
-        foreach (Annimal item in Item._instance.listeDesAnnimaux){
+        foreach (Annimal item in Item.Instance.listeDesAnnimaux){
             ObjetDansLeSacInformation element = new ObjetDansLeSacInformation{ nom = item.nom, sprite = item.image, infoAnimal = item};
             if (étatDeDebug){
                 element.quantitée = Random.Range(0,1000);
@@ -135,8 +136,8 @@ public class InvantaireSac : MonoBehaviour{
 
     void PlacerLesÉquipement(){
         List<ObjetDansLeSacInformation> list = new List<ObjetDansLeSacInformation>();
-        foreach (Équipement item in Item._instance.listeDesÉquipements){
-            ObjetDansLeSacInformation element = new ObjetDansLeSacInformation{ nom = item.nom, sprite = item.sprite, infoÉquipement = item};
+        foreach (Équipement item in Item.Instance.listeDesÉquipements){
+            ObjetDansLeSacInformation element = new ObjetDansLeSacInformation{ nom = item.nom, sprite = item.image, infoÉquipement = item};
             if (étatDeDebug){
                 element.quantitée = Random.Range(0,1000);
                 list.Add(element);
@@ -167,8 +168,8 @@ public class InvantaireSac : MonoBehaviour{
         if (list.infoNouriture != null){
             blocInformation.transform.Find("Spécial alliment").gameObject.SetActive(true);
             blocInformation.transform.Find("Spécial équipement").gameObject.SetActive(false);
-            string texteAmis = Item._instance.listeDesEffetsNouritures[list.infoNouriture.IdEffetSiSurAmi].description;
-            string texteEnnemies = Item._instance.listeDesEffetsNouritures[list.infoNouriture.IdEffetSurSiSurEnnemie].description;
+            string texteAmis = Item.Instance.ObtenirDescriptionEffetAllie(list.infoNouriture);
+            string texteEnnemies = Item.Instance.ObtenirDescriptionEffetEnnemi(list.infoNouriture);
             blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = list.infoNouriture.description;
             if (texteAmis != ""){
                 blocInformation.transform.Find("Spécial alliment/Image ami").gameObject.SetActive(true);
@@ -192,12 +193,12 @@ public class InvantaireSac : MonoBehaviour{
             blocInformation.transform.Find("Description").gameObject.GetComponent<TextMeshProUGUI>().text = list.infoÉquipement.description;
             string texteEffet = "";
             Équipement équip = list.infoÉquipement;
-            texteEffet += équip.effetSur_ELSE;
+            texteEffet += équip.effet.modificateurAutre;
             if (texteEffet == "") {
-                if (équip.effetSur_Défance != 0) texteEffet+="Défence "+équip.effetSur_Défance.ToString() + " ";
-                if (équip.effetSur_Esprit != 0) texteEffet+="Esprit "+équip.effetSur_Esprit.ToString() + " ";
-                if (équip.effetSur_Force != 0) texteEffet+="Force "+équip.effetSur_Force.ToString() + " ";
-                if (équip.effetSur_Vitesse != 0) texteEffet+="Vitesse "+équip.effetSur_Vitesse.ToString() + " ";
+                if (équip.effet.Défence != 0) texteEffet+="Défence "+équip.effet.Défence.ToString() + " ";
+                if (équip.effet.Esprit != 0) texteEffet+="Esprit "+équip.effet.Esprit.ToString() + " ";
+                if (équip.effet.Force != 0) texteEffet+="Force "+équip.effet.Force.ToString() + " ";
+                if (équip.effet.Vitesse != 0) texteEffet+="Vitesse "+équip.effet.Vitesse.ToString() + " ";
             }
             if (texteEffet != ""){
                 blocInformation.transform.Find("Spécial équipement/information effet").gameObject.GetComponent<TextMeshProUGUI>().text = texteEffet;
@@ -238,4 +239,3 @@ public class InvantaireSac : MonoBehaviour{
         }
     }
 }
-

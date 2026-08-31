@@ -6,14 +6,14 @@ using System.Linq;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using YKW.Core.Item.Enum;
 
 public class GestionnaireCombat : MonoBehaviour{
     public List<Image> lesEspacesMédaillonDansLaRoue;
-    [HideInInspector] public List<StructureYoKaiCombat> listeYoKaiAmiSurLeTerrain = new List<StructureYoKaiCombat>();
-    [HideInInspector] public List<StructureYoKaiCombat> listeYoKaiEnnemieSurLeTerrain = new List<StructureYoKaiCombat>();
+    [HideInInspector] public List<StructureYoKaiCombat> listeYoKaiSurLeTerrain;
     private bool autorisationDeTournerLaRoue = true;
-    [Range(0,5)]private int positionRotationRoue = 0;
-    private int rotationDemander;//on demande la rotation. Elle sera réaliser à la fin du tours complets (quand chaque yo-kai aurras jouer)
+    [Range(0,5)]private int positionRotationRoue;
+    private int rotationDemander; //on demande la rotation. Elle sera réaliser à la fin du tours complets (quand chaque yo-kai aurras jouer)
 
     public List<Transform> troisPositionAmi;
     public List<GameObject> troisDisplateUIAmi;
@@ -26,18 +26,18 @@ public class GestionnaireCombat : MonoBehaviour{
     private int cibleOption = 0;
     public Image imageVitesseAccéléré;
     public List<Sprite> spritePourLaVitesse;
-    private int numéroSpritePourLaVitesse = 0;
-    private bool vitesseAccéléré = false;
+    private int numéroSpritePourLaVitesse;
+    private bool vitesseAccéléré;
 
 
     public DiminuerLaVieScript diminuerLaVieScript;
 
     public GameObject cible;
     // options :
-    private bool utiliseLaCible = false;
-    private bool utiliseLeSac = false;
-    private bool utiliseAmultime = false;
-    private bool utilisePurification = false;
+    private bool utiliseLaCible;
+    private bool utiliseLeSac;
+    private bool utiliseAmultime;
+    private bool utilisePurification;
 
     public GameObject blocDesBoutonGénéraux;
     // sprite
@@ -57,7 +57,7 @@ public class GestionnaireCombat : MonoBehaviour{
     public bool gameInStop = false;
     public List<Image> listeImage;
 
-    void Start(){
+    private void Start(){
         imageVitesseAccéléré.gameObject.SetActive(false);
         ChangerCibleOption();
         if (PlayerPositionLocally._instance.idYokai1 > 0){
@@ -69,7 +69,6 @@ public class GestionnaireCombat : MonoBehaviour{
         if (PlayerPositionLocally._instance.idYokai3 > 0){
             AjouterUnEnnemie(PlayerPositionLocally._instance.idYokai3, PlayerPositionLocally._instance.niveauYokai3);
         }
-        // AjouterUnEnnemie(57,1);
         // AjouterUnEnnemie(57,1);
         if (MesYoKai.Instance != null){
             StartCoroutine(CoroutineDeDémarrage());
@@ -85,30 +84,29 @@ public class GestionnaireCombat : MonoBehaviour{
             gameObject.SetActive(false);
         }
     }
-    void AjouterUnEnnemie(int ID, int niveau){
+    private void AjouterUnYokai(int ID, int niveau){
         if (niveau <= 0) niveau = 1;
         if (niveau > 99) niveau = 99;
         if (ID <= 0) ID = 1;
 
-        StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
+        StructureYoKaiCombat yokai = new StructureYoKaiCombat{};
         MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
-        nouv.estUnAmi = false;
-        nouv.ID = ID;
-        nouv.nom = y.Nom;
-        nouv.imageMédaillon = y.médaillon;
-        nouv.imageFace = y.faceRondImage;
-        nouv.hp_base = y.PV;
-        nouv.spd_base= y.Vitesse;
-        nouv.spr_base= y.Esprit;
-        nouv.str_base= y.Force;
-        nouv.def_base= y.Défense;
-        nouv.niveau = niveau;
-        nouv.estDevant = true;
-        nouv.Initialisation();
-        listeYoKaiEnnemieSurLeTerrain.Add(nouv);
+        yokai.estUnAmi = false;
+        yokai.ID = ID;
+        yokai.nom = y.Nom;
+        yokai.imageMédaillon = y.médaillon;
+        yokai.imageFace = y.faceRondImage;
+        yokai.hp_base = y.PV;
+        yokai.spd_base= y.Vitesse;
+        yokai.spr_base= y.Esprit;
+        yokai.str_base= y.Force;
+        yokai.def_base= y.Défense;
+        yokai.niveau = niveau;
+        yokai.estDevant = true;
+        yokai.Initialisation();
+        listeYoKaiSurLeTerrain.Add(yokai);
     }
-
-    IEnumerator CoroutineDeDémarrage(){
+    private IEnumerator CoroutineDeDémarrage(){
         while (!MesYoKai.Instance.finDuChargement || !MesYoKai.Instance.yoKaiDeMonEquipeChargé){
             yield return new WaitForSeconds(0.2f);
         }
@@ -129,8 +127,7 @@ public class GestionnaireCombat : MonoBehaviour{
         cible.GetComponent<Cible>().gestionnaireCombat = this;
         StartCoroutine(BoucleDuJeu());
     }
-
-    void Update(){
+    private void Update(){
         if (combatEnCours) {
             if (Input.GetButtonDown("L")){
                 // TourneLaRoue(-1);
@@ -250,13 +247,11 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         combatEnCours = !UnGroupeDeYoKaiEstMort();
     }
-
     public void ChoisieAllimant(int ID){
         nouritureChoisie = ID;
         GetComponent<SacCombats>().Arrêter();
         GetComponent<ChoisieYoKaiAmi>().Initialiser();
     }
-
     public void ChoieDeAmiEffectuer(int cible){
         Debug.Log(cible+" à été sélectionner");
         utiliseAmultime = false;
@@ -264,7 +259,8 @@ public class GestionnaireCombat : MonoBehaviour{
         if (utiliseLeSac){
             utiliseLeSac = false;
             Debug.Log("Consome la nouriture "+nouritureChoisie);
-            string effetSurAmi = Item._instance.listeDesNouritures[nouritureChoisie].allyEffect;
+            Nouriture nourriture = Item.Instance.listeDesNouritures[nouritureChoisie];
+            EffetNourritureAllie effetSurAmi = nourriture.effetAlié;
             int donPV = 0;
             int donAme = 0;
             StructureYoKaiCombat yoKai = listeYoKaiAmiSurLeTerrain[cible];
@@ -276,42 +272,44 @@ public class GestionnaireCombat : MonoBehaviour{
             }
 
             switch (effetSurAmi) {
-                case "Rend très peu de PV" :
+                case EffetNourritureAllie.RendTresPeuPV:
                     donPV = 30;
                     break;
-                case "Rend un peu de PV" :
+                case EffetNourritureAllie.RendUnPeuPV:
                     donPV = 60;
                     break;
-                case "Rend pas mal de PV" :
+                case EffetNourritureAllie.RendPasMalPV:
                     donPV = 80;
                     break;
-                case "Rend beaucoup de PV" :
+                case EffetNourritureAllie.RendBeaucoupPV:
                     donPV = 130;
                     break;
-                case "Rend énormément de PV" :
+                case EffetNourritureAllie.RendEnormementPV:
                     donPV = 180;
                     break;
-                case "Rend tous les PV" :
+                case EffetNourritureAllie.RestaurePVFixe:
+                    donPV = Item.Instance.ObtenirValeurEffetAllie(nourriture);
+                    break;
+                case EffetNourritureAllie.RendTousLesPV:
                     donPV = yoKai.hp_max_me;
                     break;
-
-                case "Rend un peu d'âme" :
+                case EffetNourritureAllie.RendUnPeuAme:
                     donAme = 20;
                     break;
-                case "Rend pas mal d'âme" :
+                case EffetNourritureAllie.RendPasMalAme:
                     donAme = 40;
                     break;
-                case "Rend énormément d'âme" :
+                case EffetNourritureAllie.RendEnormementAme:
                     donAme = 70;
                     break;
-                case "Rend toute l'âme" :
+                case EffetNourritureAllie.RendTouteAme:
                     donAme = 100;
                     break;
-                case "Récupère 50% de l'âme total" :
-                    donAme = 50;
+                case EffetNourritureAllie.RecuperePourcentageAme:
+                    donAme = Item.Instance.ObtenirValeurEffetAllie(nourriture);
                     break;
                 default :
-                    Debug.LogError("Cas du " + effetSurAmi + " non traité !");
+                    Debug.LogError("Effet allié de nourriture non traité : " + Item.Instance.ObtenirDescriptionEffetAllie(nourriture));
                     break;
             }
 
@@ -336,16 +334,14 @@ public class GestionnaireCombat : MonoBehaviour{
         gameInStop = false;
         EcrireInformationUI();
     }
-
-    void ChangerCibleOption(){
+    private void ChangerCibleOption(){
         cibleOption = ((cibleOption%lesOption.Count)+lesOption.Count)%lesOption.Count;
         for (int i = 0; i < lesOption.Count; i++){
             lesOption[i].transform.Find("cible").gameObject.SetActive(cibleOption==i);
             lesOption[i].transform.Find("main").gameObject.SetActive(cibleOption==i);
         }
     }
-
-    IEnumerator CoroutineVitesseAccéléré(){
+    public IEnumerator CoroutineVitesseAccéléré(){
         while (vitesseAccéléré && combatEnCours){
             imageVitesseAccéléré.gameObject.SetActive(true);
             imageVitesseAccéléré.sprite = spritePourLaVitesse[numéroSpritePourLaVitesse];
@@ -354,7 +350,6 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         imageVitesseAccéléré.gameObject.SetActive(false);
     }
-
     void RemplireLaStructureDesYoKaiCombats(){
         listeYoKaiAmiSurLeTerrain.Clear();
         for (int i = 0; i < MesYoKai.Instance.yoKaiDeMonEquipe.Count; i++){
@@ -381,7 +376,6 @@ public class GestionnaireCombat : MonoBehaviour{
             listeYoKaiAmiSurLeTerrain.Add(nouv);
         }
     }
-
     StructureYoKaiCombat RécupéréUnYoKaiParPositionSurLaRoue(int position){
         for (int j = 0; j < listeYoKaiAmiSurLeTerrain.Count; j++){
             if (listeYoKaiAmiSurLeTerrain[j].positionRoue == position){
@@ -390,7 +384,6 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         return null;
     } 
-
     void PlacerLesMédaillonSurLaRoue(){
         foreach (Image item in lesEspacesMédaillonDansLaRoue){
             item.GetComponent<Image>().enabled = false;
@@ -400,7 +393,6 @@ public class GestionnaireCombat : MonoBehaviour{
             lesEspacesMédaillonDansLaRoue[item.positionRoue].GetComponent<Image>().sprite = item.imageMédaillon;
         }
     }
-
     void PlacerLesModèles3DAmiSurLeTerrain(){
         for (int j = 0; j < listeYoKaiAmiSurLeTerrain.Count; j++){
             if (listeYoKaiAmiSurLeTerrain[j].gameObjectSurLaScène != null){
@@ -484,7 +476,6 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
     }
-
     void EcrireInformationUI(){
         //amis devant :
         for (int i = 0; i < troisDisplateUIAmi.Count; i++){
@@ -530,7 +521,6 @@ public class GestionnaireCombat : MonoBehaviour{
             item.estDevant = item.positionRoue == (positionRotationRoue)%6 || item.positionRoue == (positionRotationRoue+1)%6 || item.positionRoue == (positionRotationRoue+2)%6;
         }
     }
-
     void TourneLaRoue(int sense){
         if (autorisationDeTournerLaRoue){
             foreach (StructureYoKaiCombat item in listeYoKaiAmiSurLeTerrain){
@@ -550,13 +540,11 @@ public class GestionnaireCombat : MonoBehaviour{
             EcrireInformationUI();
         }
     }
-
     StructureYoKaiCombat YoKaiPrisAuHasard(List<StructureYoKaiCombat> liste){
         List<StructureYoKaiCombat> lesChoix = liste.Where(e => e.hp_me > 0 && e.estDevant).ToList();
         if (lesChoix.Count > 0) return lesChoix[Random.Range(0,lesChoix.Count)];
         else return null;
     }
-
     void JouerAnnimation(StructureYoKaiCombat yoKai, string nom){
         if (yoKai.gameObjectSurLaScène != null){
             if (yoKai.gameObjectSurLaScène.GetComponent<Animator>() != null){
@@ -575,16 +563,15 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
     }
-
     void PriseEnCompteObjet(StructureYoKaiCombat yoKai){
-        if (yoKai.tienUnObjet && yoKai.numéroObjetTennu >= 0 && yoKai.numéroObjetTennu < Item._instance.listeDesÉquipements.Count){
-            yoKai.spd_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Vitesse;
-            yoKai.str_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Force;
-            yoKai.spr_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Esprit;
-            yoKai.def_me += Item._instance.listeDesÉquipements[yoKai.numéroObjetTennu].effetSur_Défance;
+        if (yoKai.tienUnObjet && yoKai.numéroObjetTennu >= 0 && yoKai.numéroObjetTennu < Item.Instance.listeDesÉquipements.Count){
+            var effet = Item.Instance.listeDesÉquipements[yoKai.numéroObjetTennu].effet;
+            yoKai.spd_me += effet.Vitesse;
+            yoKai.str_me += effet.Force;
+            yoKai.spr_me += effet.Esprit;
+            yoKai.def_me += effet.Défence;
         }      
     }
-
     IEnumerator VaFaireUneAttaqueSimple(StructureYoKaiCombat item){
         StructureYoKaiCombat cibleDuCoup = null;
         if (item.estUnAmi) cibleDuCoup = YoKaiPrisAuHasard(listeYoKaiEnnemieSurLeTerrain);
@@ -620,12 +607,9 @@ public class GestionnaireCombat : MonoBehaviour{
             Debug.LogWarning("Attention, la cible du coup est null");
         }
     }
-
     float DonnezUnPourcentage(int total, int valeur){
         return (float)valeur / total;
     }
-
-
     bool VaFlâner(Personalité personalité){
         float nombre = 0;
         // return Random.Range(0,100)<=70;
@@ -655,12 +639,9 @@ public class GestionnaireCombat : MonoBehaviour{
         }
         return Random.Range(0,100)<=nombre;
     }
-
     bool VaFaireUneGarde(Personalité personalité){
         return Random.Range(0,100)<=30;
     }
-
-
     void JouerAnnimationFlane(StructureYoKaiCombat item, bool leFait){
         if (item.gameObjectSurLaScène != null){
             JouerAnnimationBOOL(item, "Flâne", leFait);
@@ -688,7 +669,6 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
     }
-
     void EchecAttaqueCible(StructureYoKaiCombat item){
         if (item == null) return;
         GameObject display = null;
@@ -705,7 +685,6 @@ public class GestionnaireCombat : MonoBehaviour{
             display.transform.Find("bulle/Image").gameObject.GetComponent<Image>().sprite = spriteRaté;   
         }
     }
-    
     void JouerAnnimationGarde(StructureYoKaiCombat item, bool leFait){
         if (item.gameObjectSurLaScène != null){
             JouerAnnimationBOOL(item, "garde", leFait);
@@ -796,7 +775,6 @@ public class GestionnaireCombat : MonoBehaviour{
             yield return null;
         }
     }
-
     bool UnGroupeDeYoKaiEstMort(bool savoirSiLeJoueurAGagner = false){
         if (listeYoKaiAmiSurLeTerrain.Count == 0 || listeYoKaiEnnemieSurLeTerrain.Count == 0){
             return true;
@@ -828,7 +806,6 @@ public class GestionnaireCombat : MonoBehaviour{
 
         return false;
     }
-
     void OpenPanelVictory(){
         panelVictoryIsClose = false;
         if (panelVictory){
@@ -845,8 +822,6 @@ public class GestionnaireCombat : MonoBehaviour{
             }
         }
     }
-
-
     public int CalculerXpTotaleCombat(List<StructureYoKaiCombat> ennemisBattus) {
         float xpCumulee = 0f;
 
@@ -881,7 +856,6 @@ public class GestionnaireCombat : MonoBehaviour{
 
         return Mathf.RoundToInt(xpCumulee);
     }
-
     public float CalculerXpPourUnYoKai(StructureYoKaiCombat etatYoKai) {
         float multiplicateurBonus = 1.0f;
 
@@ -895,7 +869,6 @@ public class GestionnaireCombat : MonoBehaviour{
 
         return multiplicateurBonus;
     }
-
     void DonnePointsXP() {
         int totalXP = CalculerXpTotaleCombat(listeYoKaiEnnemieSurLeTerrain);
 
@@ -926,8 +899,6 @@ public class GestionnaireCombat : MonoBehaviour{
             i++;
         }
     }
-
-    
     void HarmoniserTaille(GameObject targetObject, Vector3 positionCibleLossyScale) {
         targetObject.transform.localScale = Vector3.one;
 
@@ -949,159 +920,5 @@ public class GestionnaireCombat : MonoBehaviour{
         float hauteurCible = positionCibleLossyScale.y;
         float ratio = (hauteurCible / hauteurNative) / 1.5f;
         targetObject.transform.localScale = new Vector3(ratio, ratio, ratio);
-    }
-}
-
-[System.Serializable]
-public class StructureYoKaiCombat{
-    [Header("Identité & Visuels")]
-    public int ID;
-    public int IDListeYoKai;//permet de différancier deux Woko par exemple
-    public string nom;
-    public Rang rang;
-    public Tribue tribue;
-    public Personalité personalité;
-    public Sprite imageMédaillon;
-    public Sprite imageFace;
-
-    [Header("État sur le Terrain")]
-    public bool estUnAmi = false;
-    public GameObject gameObjectSurLaScène;
-    public int positionRoue;
-    public bool estDevant;
-    public bool estEnTrainDeFlâner = false;
-    public bool estEnTrainDeFaireUneGarde = false;
-    public float multiplicateurGarde = 1; // 1/0.5/0.25
-    public bool aAttaque = false;
-    public bool aEtePurifie = false;
-    
-    [Header("Objets")]
-    public int numéroObjetTennu;
-    public bool tienUnObjet;
-
-    [Header("Jauges de Combat")]
-    public int hp_me; // PV
-    public int hp_max_me; // PV MAX
-    public int amultime;//ces un pourcentage
-    public int niveau;
-    public int xp;
-
-    [Header("Statistiques de Base de l'Espèce")]
-    public int hp_base; // PV
-    public int str_base; // force
-    public int spr_base; // esprit
-    public int def_base; // défense
-    public int spd_base; // vitesse
-
-    [Header("Statistiques Actuelles (Calculées)")]
-    public float str_me; // force
-    public float spr_me; // esprit
-    public float def_me; // défense
-    public float spd_me; // vitesse
-
-    [Header("Valeurs Individuelles (IV)")]
-    public float hp_iv; // PV
-    public float str_iv; // force
-    public float spr_iv; // esprit
-    public float def_iv; // défense
-    public float spd_iv; // vitesse
-
-    [Header("Valeurs d'Effort (EV)")]
-    public int hp_ev; // PV
-    public int str_ev; // force
-    public int spr_ev; // esprit
-    public int def_ev; // défense
-    public int spd_ev; // vitesse
-
-    [Header("États et Envoûtements")]
-    public bool estEnvoûtéNégatif = false;
-    public bool estEnvoûtéPositif = false;
-
-    public void Initialisation() {
-        AttribuerIV();
-
-        // Formule : ((2 * Base + IV + (EV / 2)) * Niveau) / 100 + 5
-        
-        str_me = ((2 * str_base + str_iv + (str_ev / 2)) * niveau) / 100 + 5;
-        spr_me = ((2 * spr_base + spr_iv + (spr_ev / 2)) * niveau) / 100 + 5;
-        def_me = ((2 * def_base + def_iv + (def_ev / 2)) * niveau) / 100 + 5;
-        spd_me = ((2 * spd_base + spd_iv + (spd_ev / 2)) * niveau) / 100 + 5;
-
-        hp_max_me = (int)((2 * hp_base + (hp_iv / 2) + hp_ev) * niveau) / 100 + niveau + 10;
-        hp_me = hp_max_me; 
-
-    }
-
-    public void AttribuerIV() {
-        float pointsHP = 0;
-        float pointsSTR = 0;
-        float pointsSPR = 0;
-        float pointsDEF = 0;
-        float pointsSPD = 0;
-
-        for (int i = 0; i < 40; i++) {
-            int choixStat = Random.Range(0, 5); 
-
-            switch (choixStat) {
-                case 0: pointsHP++; break;
-                case 1: pointsSTR++; break;
-                case 2: pointsSPR++; break;
-                case 3: pointsDEF++; break;
-                case 4: pointsSPD++; break;
-            }
-        }
-
-        str_iv = pointsSTR;
-        spr_iv = pointsSPR;
-        def_iv = pointsDEF;
-        spd_iv = pointsSPD;
-
-        hp_iv = pointsHP * 2;
-
-        float sommeVerification = (hp_iv / 2) + str_iv + spr_iv + def_iv + spd_iv;
-        // Debug.Log($"[Génération IV] {nom} généré ! Somme vérifiée : {sommeVerification}/40. (PV IV stocké : {hp_iv})");
-    }
-
-    public int NombreDePointXPAGagner(int niveau) {
-        int r = 1;
-        switch (rang) {
-            case Rang.E :
-                r = 1;
-                break;
-            case Rang.D :
-                r = 2;
-                break;
-            case Rang.C :
-                r = 3;
-                break;
-            case Rang.B :
-                r = 4;
-                break;
-            case Rang.A :
-                r = 5;
-                break;
-            case Rang.S :
-                r = 6;
-                break;
-        }
-
-        int baseCalcule = 15;
-
-        int xpRequis = Mathf.RoundToInt((baseCalcule + (r * 12)) * Mathf.Pow(niveau, 1.4f));
-
-        return xpRequis;
-    }
-
-    public void GagneXP(int nombre){
-        if (niveau < 99){
-            xp += nombre;
-            int aGagner = NombreDePointXPAGagner(niveau+1);
-            while (xp > aGagner && niveau < 99){
-                Debug.Log("gagne un niveau !");
-                xp-=aGagner;
-                niveau += 1;
-                aGagner = NombreDePointXPAGagner(niveau+1);
-            }
-        }
     }
 }

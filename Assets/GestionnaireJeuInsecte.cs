@@ -211,15 +211,15 @@ public class GestionnaireJeuInsecte : MonoBehaviour {
         dialogueBubbleInProgress = true;
         TextMeshProUGUI text = dialogueBubble.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>();
         GameObject espaceImage  = dialogueBubble.transform.Find("cintille").gameObject;
-        Image imageBug  = dialogueBubble.transform.Find("cintille/cadeau").gameObject.GetComponent<Image>();;
+        Image imageBug  = dialogueBubble.transform.Find("cintille/cadeau").gameObject.GetComponent<Image>();
 
         if (forInformation){
             espaceImage.SetActive(false);
             text.text = textInformation;
         } else if (victory){
             Annimal animal = null;
-            if (Item._instance != null && idBugDictionary >= 0 && idBugDictionary < Item._instance.listeDesAnnimaux.Count){
-                animal = Item._instance.listeDesAnnimaux[idBugDictionary];
+            if (Item.Instance != null && idBugDictionary >= 0 && idBugDictionary < Item.Instance.listeDesAnnimaux.Count){
+                animal = Item.Instance.listeDesAnnimaux[idBugDictionary];
             }
             if (animal == null){
                 text.text = "Vous l'avez eu !";

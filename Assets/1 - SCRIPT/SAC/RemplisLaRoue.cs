@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using YKW.Core.YoKai.Class;
 
 public class RemplisLaRoue : MonoBehaviour{
     [Range(1,3)]public int numéroPageActuelle;
@@ -473,9 +474,11 @@ public class RemplisLaRoue : MonoBehaviour{
         // panneauDeInfo.transform.Find("page 3").gameObject.SetActive(false);
         // panneauDeInfo.transform.Find("page/Numéro").gameObject.GetComponent<TextMeshProUGUI>().text = "1 / 3";
        
+        //TODO: Adapter MettreLesElementInfo sur la nouvelle class YoKai
+        
         int IDspécifique = informationSpécifique.IDUnique;
         int ID = informationGénéral.ID;
-        StructureYoKaiCombat nouv = new StructureYoKaiCombat{};
+        YoKaiCombat nouv = new YoKaiCombat{};
         MedaliumNonPersonel y = medaliumDictionnaire._instance.ServantYoKai(ID);
         nouv.positionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
         nouv.estUnAmi = true;
