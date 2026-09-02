@@ -2,7 +2,7 @@
 
 Cette documentation décrit l'état actuel du projet Unity afin de faciliter son
 onboarding, sa maintenance et sa remise à niveau. Elle porte sur le contenu du
-dépôt au 31 août 2026.
+dépôt au 1 septembre 2026.
 
 ## Démarrage rapide
 
@@ -16,17 +16,19 @@ dépôt au 31 août 2026.
 
 ## Contenu de la documentation
 
-- [Architecture.md](Architecture.md) : organisation, flux d'exécution,
+- [Moteur.md](Moteur.md) : référence complète des systèmes du moteur et de
+  leurs contrats d’intégration, hors combat.
+
+- [Architecture.md](Architecture.md) : vue synthétique de l’organisation,
   persistance, scènes et conventions.
 - [Code-review.md](Code-review.md) : constats de revue, priorisés et reliés
   aux emplacements source.
 
 ## Périmètre
 
-Le projet contient 225 scripts C#. 53 proviennent des exemples TextMesh Pro et
-AI Navigation ; ils ne sont pas du code métier à maintenir. La revue se
-concentre donc sur les 172 scripts restants, en particulier les 161 scripts de
-jeu hors `Editor/`.
+Le dépôt contient les scripts du jeu, des prototypes et des exemples TextMesh
+Pro/AI Navigation. La documentation du moteur distingue ces catégories et se
+concentre sur les systèmes transversaux et hors combat.
 
 Les dossiers `Z-Cours/`, `probablemant plus utile/` et les exemples importés
 doivent être considérés comme du code de démonstration ou historique tant
@@ -46,4 +48,3 @@ qu'ils ne sont pas explicitement intégrés à une fonctionnalité livrée.
 5. Conserver les fichiers de données dans `Resources` uniquement lorsqu'un
    chargement par chemin est réellement nécessaire ; privilégier ensuite des
    références explicites ou Addressables.
-

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.YoKai.Class;
 
 public class BingoKai : MonoBehaviour{
     public PossibilitéDesPièce maPièce;
@@ -65,7 +66,7 @@ public class BingoKai : MonoBehaviour{
                 NewDataCenter.Instance.SauvegarderINT(cadeauObjet,1);
             }
         }else{
-            MedaliumNonPersonel leYoKai = medaliumDictionnaire._instance.ServantYoKai(cadeauYoKai);
+            MedaliumYoKai leYoKai = medaliumDictionnaire._instance.ServantYoKai(cadeauYoKai);
             TV = medaliumDictionnaire._instance.InstantiateYoKai(cadeauYoKai.ToString());
             TV.transform.position = positionDeUnModèle3D.position;
 

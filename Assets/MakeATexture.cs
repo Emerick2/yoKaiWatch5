@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using YKW.Core.YoKai.Class;
 
 public class MakeATexture : MonoBehaviour{
     private int ID;
-    private YoKaiData currentData;
+    private YoKaiModele3D currentData;
 
     void Start(){
         ChargerStartTexture();
@@ -16,7 +17,7 @@ public class MakeATexture : MonoBehaviour{
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
 
         if (targetFile != null){
-            var allData = JsonConvert.DeserializeObject<Dictionary<string, YoKaiData>>(targetFile.text);
+            var allData = JsonConvert.DeserializeObject<Dictionary<string, YoKaiModele3D>>(targetFile.text);
             string searchKey = ID.ToString();
             if (allData.ContainsKey(searchKey)){
                 currentData = allData[searchKey];
@@ -45,11 +46,4 @@ public class MakeATexture : MonoBehaviour{
             }
         }
     }
-}
-
-[System.Serializable]
-public class YoKaiData
-{
-    public string modelFile;
-    public string[] textureFiles;
 }

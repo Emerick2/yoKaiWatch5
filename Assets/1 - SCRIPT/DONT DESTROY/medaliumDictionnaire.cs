@@ -10,13 +10,14 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using YKW.Core.YoKai.Class;
 
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
     public Sprite imageDeUneMédailleInconnue;
 
     /*[HideInInspector]*/
-    [SerializeField] private List<MedaliumNonPersonel> dictionnaire;
+    [SerializeField] private List<MedaliumYoKai> dictionnaire;
 
     public bool chargementFini = true;
     public int MAX = 905;
@@ -35,8 +36,8 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
 
-   public MedaliumNonPersonel ServantYoKai(int ID) {
-        foreach (MedaliumNonPersonel item in dictionnaire){
+   public MedaliumYoKai ServantYoKai(int ID) {
+        foreach (MedaliumYoKai item in dictionnaire){
             if (item.ID == ID){
                 return item;
             }
@@ -44,7 +45,7 @@ public class medaliumDictionnaire : MonoBehaviour{
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/yokai_data/" + ID.ToString());
 
         if (targetFile != null) {
-            MedaliumNonPersonel yoKai = JsonUtility.FromJson<MedaliumNonPersonel>(targetFile.text);
+            MedaliumYoKai yoKai = JsonUtility.FromJson<MedaliumYoKai>(targetFile.text);
             yoKai.ID = ID;
             yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.Nom));
             yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.Nom));
@@ -94,10 +95,10 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
 
         if (targetFile != null) {
-            var allData = JsonConvert.DeserializeObject<Dictionary<string, Yokai_assets_mapping>>(targetFile.text);
+            var allData = JsonConvert.DeserializeObject<Dictionary<string, YoKaiModele3D>>(targetFile.text);
 
             if (allData.ContainsKey(ID)) {
-                Yokai_assets_mapping map = allData[ID];
+                YoKaiModele3D map = allData[ID];
                 GameObject modelFile = Resources.Load<GameObject>("yo-kai-API/data/_3D/models/"+map.modelFile.Replace(".fbx",""));
                 List<Sprite> textureFiles = new List<Sprite>();
                 foreach (string item in map.textureFiles){
@@ -215,47 +216,6 @@ public class medaliumDictionnaire : MonoBehaviour{
     }
 }
 
-[System.Serializable]
-public class Yokai_assets_mapping{
-    public string modelFile;
-    public string[] textureFiles;
-}
-
-[System.Serializable]
-public class MedaliumNonPersonel{
-    public int ID;
-    public Sprite médaillon;
-    public Sprite faceImage;
-    public Sprite faceRondImage;
-    public bool rare;
-    public string Nom;
-    public string Description;
-    public GameObject yoKai;
-    public Tribue tribue;
-    public Rang rang;
-    public Personalité personalité;
-    public Talent talent;
-    public Technique technique;
-    public PlatPréféré platPréféré;
-    public Type type;
-    public Ammultime amultime;
-    public Envoutement envoutement;
-    public int Force;
-    public int Vitesse;
-    public int Esprit;
-    public int Défense;// IL faut le rensaigner dans le CSV
-    public int PV;
-    public string nomDeMonSquellette;
-    public Dictionary<string, string> phrasesNourriture = new Dictionary<string, string>{};
-
-    [Header("Affinités Élémentaires")]
-    public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)
-    public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
-    public Element monElement;
-    public AudioClip Bruit;
-    public string Tribue;
-    public string Rang;
-}
 public static class EnumExtensions{
     public static string GetDescription(this Enum value){
         FieldInfo field = value.GetType().GetField(value.ToString());
@@ -263,30 +223,6 @@ public static class EnumExtensions{
         return attribute == null ? value.ToString() : attribute.Description;
     }
 }
-[System.Serializable]
-public class Ammultime{
-    public string nomDeAmultime;
-    [Range(0,5)] public int multiplicationDeLaPuissance;
-    public CatégorieÂmultime catégorieÂmultime;
-
-    /*
-    public bool amultimeDeSoin;
-    public bool amultimeDeAttaque;
-    public bool amultimeEnvoutement;//pas encor fini
-    [Header("Paramètres à rensegner si c'est une ammultime de soin :")]
-    public bool soigneUniquementLeLanceur;
-    public bool soigneUniquementLeYoKaiÀSaDroite;
-    public bool soigneUniquementLesDeuxYoKaiAutoursDeLui;
-    public bool soingneTousLesYoKaiDeLaRanger;
-    [Range(0,100)] public int pourcentageDeSoitRendu; 
-    [Header("Paramètres à rensegner si c'est une ammultime d'attaque :")]
-    [Range(0,5)] public int multiplicationDeLaForceParRapportAUneAttaqueNormal;
-    [Range(0,3)] public int nombreDeAnnemieToucher;
-    //[Header("Paramètres à rensegner si c'est une ammultime d'envoutement (ce n'est pas fini désolé) :")]
-    */
-}
-
-
 /*
 talant*
 attaque 

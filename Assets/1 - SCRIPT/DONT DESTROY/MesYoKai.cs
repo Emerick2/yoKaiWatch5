@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.YoKai.Class;
 
 public class MesYoKai : MonoBehaviour{
     private static MesYoKai _instance;
 
-    public List<ListeDeMesYoKai> maListe = new List<ListeDeMesYoKai>();
+    public List<YoKaiActif> maListe = new List<YoKaiActif>();
     public List<int> yoKaiDeMonEquipe = new List<int>();
 
     /*[HideInInspector]*/ public bool yoKaiDeMonEquipeChargé = false;
@@ -120,7 +121,7 @@ public class MesYoKai : MonoBehaviour{
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_personalité",personalité2);
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_surnom",surnom2);
 
-        maListe.Add(new ListeDeMesYoKai());
+        maListe.Add(new YoKaiActif());
         Debug.Log("ajoute un yo-kai");
         if(monIDActuel < maListe.Count){
             maListe[monIDActuel].IDUnique=monIDActuel;
@@ -136,7 +137,7 @@ public class MesYoKai : MonoBehaviour{
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         for (int i = 0; i < monIDActuel; i++){
             if (int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID")) > 0){
-                maListe.Add(new ListeDeMesYoKai());
+                maListe.Add(new YoKaiActif());
                 maListe[i].IDUnique = i;
                 maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
                 maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
@@ -174,16 +175,5 @@ public class MesYoKai : MonoBehaviour{
         Debug.LogWarning("Personalité non trouvé dans l'enum : "+nom);
         return Personalité.Détendu;
     }
-}
-
-[System.Serializable]
-public class ListeDeMesYoKai{//maListe
-    public int IDUnique;
-    public int ID;
-    public string surnom;
-    public int niveau;
-    public int xp;
-    public Personalité personnalité;
-    [Range(0,5)] public int positionRoue;
 }
 

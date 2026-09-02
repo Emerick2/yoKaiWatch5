@@ -1,9 +1,12 @@
 using UnityEngine;
 using YKW.Core.Item.Enum;
 
-[System.Serializable]
-public class Nouriture : YKW.Core.Item.Class.Item
+namespace YKW.Core.Item.Class
 {
-    public EffetNourritureAllie effetAlié;
-    public EffetNourritureEnnemi effetEnemi;
+    [System.Serializable]
+    public class Nouriture : Item
+    {
+        public EffetNourritureAllie effetAlié;
+        public EffetNourritureEnnemi effetEnemi;
+    }
 }

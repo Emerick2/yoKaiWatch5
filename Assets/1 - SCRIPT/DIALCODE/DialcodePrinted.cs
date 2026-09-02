@@ -7,6 +7,8 @@ quand on dit non à un choix, ça enregistre 0 sinon si ces oui, se sera 1
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.Item.Enum;
+using YKW.Core.Item.Class;
 using UnityEngine.UI;
 using TMPro;
 
@@ -192,7 +194,7 @@ public class DialcodePrinted : MonoBehaviour{
                 fragment.image = Item.Instance.listeDesNouritures[fragment.IdÉlément].image;
             } else if (fragment.typeObjet == CatégorieItem.Equipement){
                 fragment.nom = Item.Instance.listeDesÉquipements[fragment.IdÉlément].nom;
-                fragment.image = Item.Instance.listeDesÉquipements[fragment.IdÉlément].sprite;
+                fragment.image = Item.Instance.listeDesÉquipements[fragment.IdÉlément].image;
             } else if (fragment.typeObjet == CatégorieItem.Animal){
                 fragment.nom = Item.Instance.listeDesAnnimaux[fragment.IdÉlément].nom;
                 fragment.image = Item.Instance.listeDesAnnimaux[fragment.IdÉlément].image;
@@ -317,7 +319,7 @@ public class DialcodePrinted : MonoBehaviour{
             image = Item.Instance.listeDesNouritures[IdÉlément].image;
         } else if (typeObjet == CatégorieItem.Equipement){
             nom = Item.Instance.listeDesÉquipements[IdÉlément].nom;
-            image = Item.Instance.listeDesÉquipements[IdÉlément].sprite;
+            image = Item.Instance.listeDesÉquipements[IdÉlément].image;
         } else if (typeObjet == CatégorieItem.Animal){
             nom = Item.Instance.listeDesAnnimaux[IdÉlément].nom;
             image = Item.Instance.listeDesAnnimaux[IdÉlément].image;
@@ -757,4 +759,3 @@ public class Décoration{
     public Sprite spritePointExclamatif;
     public Sprite spritePointIntérogatif;
 }
-

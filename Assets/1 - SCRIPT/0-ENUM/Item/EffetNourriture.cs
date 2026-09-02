@@ -4,17 +4,17 @@ namespace YKW.Core.Item.Enum
     public enum EffetNourritureAllie
     {
         Inconnu = 0,
-        RendTresPeuPV,
-        RendUnPeuPV,
-        RendPasMalPV,
-        RendBeaucoupPV,
-        RendEnormementPV,
+        RendTresPeuPV = 30,
+        RendUnPeuPV = 60,
+        RendPasMalPV = 80,
+        RendBeaucoupPV = 130,
+        RendEnormementPV = 180,
         RestaurePVFixe,
         RendTousLesPV,
-        RendUnPeuAme,
-        RendPasMalAme,
-        RendEnormementAme,
-        RendTouteAme,
+        RendUnPeuAme = 20,
+        RendPasMalAme = 40,
+        RendEnormementAme = 70,
+        RendTouteAme = 100,
         RecuperePourcentageAme
     }
 

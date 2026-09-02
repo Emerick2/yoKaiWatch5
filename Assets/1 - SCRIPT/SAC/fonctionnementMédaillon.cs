@@ -87,7 +87,7 @@ public class fonctionnementMédaillon : MonoBehaviour{
         if (mesYoKai.maListe.Count > ID){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.ServantYoKai(mesYoKai.maListe[ID].ID); 
+            YKW.Core.YoKai.Class.MedaliumYoKai google = médailum.ServantYoKai(mesYoKai.maListe[ID].ID);
             if (numéroDeLaPage > 1  && médailum.dictionnaire.Count > (12*numéroDeLaPage)+ID-1){
                 google = médailum.ServantYoKai(mesYoKai.maListe[(12*numéroDeLaPage)+ID-1].ID); 
             }
@@ -252,7 +252,7 @@ public class fonctionnementMédaillon : MonoBehaviour{
         if (mesYoKai.maListe.Count > ID){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.ServantYoKai(mesYoKai.maListe[ID].ID); 
+            YKW.Core.YoKai.Class.MedaliumYoKai google = médailum.ServantYoKai(mesYoKai.maListe[ID].ID);
             if (numéroDeLaPage > 1  && médailum.MAX > (12*numéroDeLaPage)+ID-1){
                 google = médailum.ServantYoKai(mesYoKai.maListe[(12*numéroDeLaPage)+ID-1].ID); 
             }

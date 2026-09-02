@@ -7,10 +7,17 @@ using TMPro;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
 using YKW.Core.Item.Enum;
+using YKW.Core.Item.Class;
+using YKW.Core.YoKai.Class;
+using YKW.Core.YoKai.Struct;
+using StructureYoKaiCombat = YKW.Core.YoKai.Class.YoKaiCombat;
+using MedaliumNonPersonel = YKW.Core.YoKai.Class.MedaliumYoKai;
 
 public class GestionnaireCombat : MonoBehaviour{
     public List<Image> lesEspacesMédaillonDansLaRoue;
-    [HideInInspector] public List<StructureYoKaiCombat> listeYoKaiSurLeTerrain;
+    [HideInInspector] public List<YoKaiCombat> listeYoKaiSurLeTerrain = new List<YoKaiCombat>();
+    [HideInInspector] public List<YoKaiCombat> listeYoKaiAmiSurLeTerrain = new List<YoKaiCombat>();
+    [HideInInspector] public List<YoKaiCombat> listeYoKaiEnnemieSurLeTerrain = new List<YoKaiCombat>();
     private bool autorisationDeTournerLaRoue = true;
     [Range(0,5)]private int positionRotationRoue;
     private int rotationDemander; //on demande la rotation. Elle sera réaliser à la fin du tours complets (quand chaque yo-kai aurras jouer)
@@ -20,7 +27,7 @@ public class GestionnaireCombat : MonoBehaviour{
     public List<GameObject> troisDisplateUIAmiDerrière;
     public List<Transform> troisPositionEnnemie;
     public List<GameObject> troisDisplateUIEnnemie;
-    public List<StructureYoKaiCombat> ordreDePassage = new List<StructureYoKaiCombat>();
+    public List<YoKaiCombat> ordreDePassage = new List<YoKaiCombat>();
 
     public List<GameObject> lesOption;
     private int cibleOption = 0;
@@ -84,7 +91,7 @@ public class GestionnaireCombat : MonoBehaviour{
             gameObject.SetActive(false);
         }
     }
-    private void AjouterUnYokai(int ID, int niveau){
+    private void AjouterUnEnnemie(int ID, int niveau){
         if (niveau <= 0) niveau = 1;
         if (niveau > 99) niveau = 99;
         if (ID <= 0) ID = 1;
@@ -97,14 +104,13 @@ public class GestionnaireCombat : MonoBehaviour{
         yokai.imageMédaillon = y.médaillon;
         yokai.imageFace = y.faceRondImage;
         yokai.hp_base = y.PV;
-        yokai.spd_base= y.Vitesse;
-        yokai.spr_base= y.Esprit;
-        yokai.str_base= y.Force;
-        yokai.def_base= y.Défense;
+        yokai.BaseStats.Vitesse = y.Vitesse;
+        yokai.BaseStats.Esprit = y.Esprit;
+        yokai.BaseStats.Force = y.Force;
+        yokai.BaseStats.Défence = y.Défense;
         yokai.niveau = niveau;
         yokai.estDevant = true;
-        yokai.Initialisation();
-        listeYoKaiSurLeTerrain.Add(yokai);
+        listeYoKaiEnnemieSurLeTerrain.Add(yokai);
     }
     private IEnumerator CoroutineDeDémarrage(){
         while (!MesYoKai.Instance.finDuChargement || !MesYoKai.Instance.yoKaiDeMonEquipeChargé){
@@ -260,65 +266,12 @@ public class GestionnaireCombat : MonoBehaviour{
             utiliseLeSac = false;
             Debug.Log("Consome la nouriture "+nouritureChoisie);
             Nouriture nourriture = Item.Instance.listeDesNouritures[nouritureChoisie];
-            EffetNourritureAllie effetSurAmi = nourriture.effetAlié;
-            int donPV = 0;
-            int donAme = 0;
             StructureYoKaiCombat yoKai = listeYoKaiAmiSurLeTerrain[cible];
-            if (yoKai.amultime < 0){
-                yoKai.amultime = 0;
-            }
-            if (yoKai.hp_me < 0){
-                yoKai.hp_me=0;
-            }
-
-            switch (effetSurAmi) {
-                case EffetNourritureAllie.RendTresPeuPV:
-                    donPV = 30;
-                    break;
-                case EffetNourritureAllie.RendUnPeuPV:
-                    donPV = 60;
-                    break;
-                case EffetNourritureAllie.RendPasMalPV:
-                    donPV = 80;
-                    break;
-                case EffetNourritureAllie.RendBeaucoupPV:
-                    donPV = 130;
-                    break;
-                case EffetNourritureAllie.RendEnormementPV:
-                    donPV = 180;
-                    break;
-                case EffetNourritureAllie.RestaurePVFixe:
-                    donPV = Item.Instance.ObtenirValeurEffetAllie(nourriture);
-                    break;
-                case EffetNourritureAllie.RendTousLesPV:
-                    donPV = yoKai.hp_max_me;
-                    break;
-                case EffetNourritureAllie.RendUnPeuAme:
-                    donAme = 20;
-                    break;
-                case EffetNourritureAllie.RendPasMalAme:
-                    donAme = 40;
-                    break;
-                case EffetNourritureAllie.RendEnormementAme:
-                    donAme = 70;
-                    break;
-                case EffetNourritureAllie.RendTouteAme:
-                    donAme = 100;
-                    break;
-                case EffetNourritureAllie.RecuperePourcentageAme:
-                    donAme = Item.Instance.ObtenirValeurEffetAllie(nourriture);
-                    break;
-                default :
-                    Debug.LogError("Effet allié de nourriture non traité : " + Item.Instance.ObtenirDescriptionEffetAllie(nourriture));
-                    break;
-            }
-
+            
+            (var donPV, var donAme) = 
+                YoKaiCombat.EffetNourritureAllié(nourriture, yoKai.hp_max_me);
+            
             yoKai.amultime += donAme;
-            if (yoKai.amultime > 100) {
-                yoKai.amultime = 100;
-            } else if (yoKai.amultime < 0) {
-                yoKai.amultime = 0;
-            }
 
             yoKai.hp_me += donPV;
             if (yoKai.hp_me > yoKai.hp_max_me) {
@@ -365,14 +318,13 @@ public class GestionnaireCombat : MonoBehaviour{
             nouv.imageMédaillon = y.médaillon;
             nouv.imageFace = y.faceRondImage;
             nouv.hp_base = y.PV;
-            nouv.spd_base= y.Vitesse;
-            nouv.spr_base= y.Esprit;
-            nouv.str_base= y.Force;
-            nouv.def_base= y.Défense;
+            nouv.BaseStats.Vitesse = y.Vitesse;
+            nouv.BaseStats.Esprit = y.Esprit;
+            nouv.BaseStats.Force = y.Force;
+            nouv.BaseStats.Défence = y.Défense;
             nouv.xp =  MesYoKai.Instance.maListe[IDspécifique].xp;
             nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
             nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
-            nouv.Initialisation();
             listeYoKaiAmiSurLeTerrain.Add(nouv);
         }
     }
@@ -566,10 +518,10 @@ public class GestionnaireCombat : MonoBehaviour{
     void PriseEnCompteObjet(StructureYoKaiCombat yoKai){
         if (yoKai.tienUnObjet && yoKai.numéroObjetTennu >= 0 && yoKai.numéroObjetTennu < Item.Instance.listeDesÉquipements.Count){
             var effet = Item.Instance.listeDesÉquipements[yoKai.numéroObjetTennu].effet;
-            yoKai.spd_me += effet.Vitesse;
-            yoKai.str_me += effet.Force;
-            yoKai.spr_me += effet.Esprit;
-            yoKai.def_me += effet.Défence;
+            yoKai.Stats.Vitesse += effet.Vitesse;
+            yoKai.Stats.Force += effet.Force;
+            yoKai.Stats.Esprit += effet.Esprit;
+            yoKai.Stats.Défence += effet.Défence;
         }      
     }
     IEnumerator VaFaireUneAttaqueSimple(StructureYoKaiCombat item){
@@ -733,7 +685,7 @@ public class GestionnaireCombat : MonoBehaviour{
             ordreDePassage = listeYoKaiAmiSurLeTerrain
                 .Concat(listeYoKaiEnnemieSurLeTerrain)
                 .Where(yokai => yokai.hp_me > 0)
-                .OrderByDescending(yokai => yokai.spd_me)
+                .OrderByDescending(yokai => yokai.Stats.Vitesse)
                 .ToList();
             foreach (StructureYoKaiCombat item in ordreDePassage){
                 while (gameInStop){
@@ -825,35 +777,15 @@ public class GestionnaireCombat : MonoBehaviour{
     public int CalculerXpTotaleCombat(List<StructureYoKaiCombat> ennemisBattus) {
         float xpCumulee = 0f;
 
-        foreach (var ennemi in ennemisBattus) {
-            int r = 1;
-            switch (ennemi.rang) {
-                case Rang.E :
-                    r = 1;
-                    break;
-                case Rang.D :
-                    r = 2;
-                    break;
-                case Rang.C :
-                    r = 3;
-                    break;
-                case Rang.B :
-                    r = 4;
-                    break;
-                case Rang.A :
-                    r = 5;
-                    break;
-                case Rang.S :
-                    r = 6;
-                    break;
-            }
+        foreach (var ennemi in ennemisBattus)
+        {
+            int r = (int)ennemi.rang;
             // Calcul : (Niveau * 5) * (1 + Rang / 4)
             float xpBase = ennemi.niveau * 5f;
             float multiplicateurRang = 1f + (r / 4f);
             
             xpCumulee += xpBase * multiplicateurRang;
         }
-
         return Mathf.RoundToInt(xpCumulee);
     }
     public float CalculerXpPourUnYoKai(StructureYoKaiCombat etatYoKai) {

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using YKW.Core.YoKai.Class;
 
 public class FonctionnementMédalium : MonoBehaviour{
     public Text texteDuNuméro;
@@ -36,7 +37,7 @@ public class FonctionnementMédalium : MonoBehaviour{
                 lesIdAInséré.Add(i);
             }
         }else{
-            foreach (ListeDeMesYoKai item in mesYoKai.maListe){
+            foreach (YoKaiActif item in mesYoKai.maListe){
                 lesIdAInséré.Add(item.ID);
             }
         }
@@ -67,7 +68,7 @@ public class FonctionnementMédalium : MonoBehaviour{
             }
         }
     }
-    public MedaliumNonPersonel CeluiSurQuiJeSuis(){
+    public MedaliumYoKai CeluiSurQuiJeSuis(){
         return médailum.ServantYoKai(lesIdAInséré[IDTotal]);
     }
     public int IDDeCeluiSurQuiJeSuis(){
@@ -158,7 +159,7 @@ public class FonctionnementMédalium : MonoBehaviour{
         if (lesIdAInséré.Count > IDTotal){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.ServantYoKai(lesIdAInséré[IDTotal]);
+            MedaliumYoKai google = médailum.ServantYoKai(lesIdAInséré[IDTotal]);
             blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
             blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.Nom;
             if (cesLeMédalium) blocInformatif.transform.Find("description").GetComponent<Text>().text = google.Description;

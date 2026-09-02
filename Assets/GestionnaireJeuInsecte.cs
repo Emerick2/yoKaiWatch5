@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.Item.Class;
 using UnityEngine.UI;
 using TMPro;
 

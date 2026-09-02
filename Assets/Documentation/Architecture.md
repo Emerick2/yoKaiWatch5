@@ -1,5 +1,9 @@
 # Architecture du projet
 
+La documentation de référence est [Moteur.md](Moteur.md). Cette page conserve
+une vue synthétique de l’architecture; le combat n’y est pas décrit car il est
+en cours de modification.
+
 ## Vue d'ensemble
 
 Yo-kai Watch 5 est un projet Unity 3D construit avec Unity 2022.3.54f1. Il
@@ -12,8 +16,7 @@ par défaut et de nombreuses dépendances sont implicites.
 Menu principal
   -> création/chargement d'un journal
   -> scènes de carte
-       -> dialogue / quête / inventaire / médalium
-       -> combat ou mini-jeux
+       -> dialogue / quête / inventaire / médalium / mini-jeux
   -> sauvegarde dans Application.persistentDataPath
 ```
 
@@ -24,7 +27,7 @@ Menu principal
 | `1 - SCRIPT/0-CLASSES`, `0-ENUM` | Modèles de données et énumérations métier. |
 | `1 - SCRIPT/DONT DESTROY` | Services et état persistants : sauvegarde, équipe, items, médalium, audio. |
 | `1 - SCRIPT/DIALCODE` | Chargement et rendu des dialogues JSON, boutiques et conditions. |
-| `1 - SCRIPT/COMBATS` | État, UI et résolution des combats. |
+| `1 - SCRIPT/COMBATS` | Système séparé, volontairement non documenté ici. |
 | `1 - SCRIPT/SAC` | Menu sac, équipe, médalium et journal. |
 | `1 - SCRIPT/PLAYER`, `portes`, `livraison` | Joueur, téléportation et chargement de scènes. |
 | `1 - SCRIPT/Interface UI en jeux` | HUD, minimap et indicateurs. |
@@ -42,7 +45,7 @@ Les objets suivants appliquent un singleton et/ou `DontDestroyOnLoad` :
 | `MesYoKai` | Liste des Yo-kai possédés et composition de l'équipe. |
 | `medaliumDictionnaire` | Chargement à la demande des métadonnées et visuels Yo-kai. |
 | `Item` | Chargement des nourritures, équipements et animaux depuis `Resources`. |
-| `PlayerPositionLocally` | Position temporaire du joueur, retour depuis les scènes annexes et préparation du combat. |
+| `PlayerPositionLocally` | Position temporaire du joueur et retour depuis les scènes annexes. |
 | `DialcodePrinted` | UI de dialogue courante. |
 
 Attention : l'ordre de création de ces services est important aujourd'hui.
@@ -87,18 +90,6 @@ Les chemins Resource et la hiérarchie UI sont contractuels : les noms tels que
 `-- BULLE --`, `Texte`, `icone` ou `fondu` ne doivent pas être renommés sans
 mettre à jour les appels correspondants.
 
-## Combat
-
-`GestionnaireCombat` prépare les alliés depuis `MesYoKai`, les ennemis depuis
-`PlayerPositionLocally`, instancie les modèles via `medaliumDictionnaire`, puis
-exécute sa boucle de tours. `DiminuerLaVieScript` calcule les dégâts et les
-scripts voisins pilotent la cible, le sac et l'UI. Le modèle transient est
-`StructureYoKaiCombat`.
-
-La logique de combat est fortement concentrée dans `GestionnaireCombat.cs`
-(1 107 lignes). Toute évolution devrait extraire successivement : préparation
-des équipes, sélection de cible, boucle de tour, calcul de dégâts et rendu UI.
-
 ## Chargement des scènes
 
 Trois mécanismes coexistent : chargement direct via `SceneManager`,
@@ -115,6 +106,5 @@ Il n'existe pas de tests Unity dans le dépôt. Avant une livraison :
 1. Ouvrir le projet dans l'éditeur de la version indiquée et vérifier la Console.
 2. Tester menu -> nouvelle partie -> sauvegarde -> rechargement.
 3. Tester un dialogue avec choix, un achat et une quête.
-4. Tester un combat physique, un combat avec plusieurs Yo-kai et le retour à la carte.
+4. Tester une activité hors combat et le retour à la carte.
 5. Lancer Qodana dans la CI et corriger les nouvelles alertes.
-

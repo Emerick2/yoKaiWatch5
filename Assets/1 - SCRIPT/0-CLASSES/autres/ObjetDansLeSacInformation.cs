@@ -1,4 +1,5 @@
 using UnityEngine;
+using YKW.Core.Item.Class;
 using YKW.Core.Item.Enum;
 
 [System.Serializable]

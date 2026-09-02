@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using YKW.Core.Item.Enum;
+using YKW.Core.Item.Class;
 using YKW.Core.YoKai.Struct;
 
 public class Item : MonoBehaviour
