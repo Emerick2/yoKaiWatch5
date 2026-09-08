@@ -15,11 +15,20 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
     public TextMeshProUGUI texteIndice2;
     public TextMeshProUGUI texteIndice3;
 
+    public TextMeshProUGUI nomYokai;
+
+
     void Start()
     {
         texteIndice1.text = indice1;
         texteIndice2.text = indice2;
         texteIndice3.text = indice3;
+        MedaliumNonPersonel medalium = medaliumDictionnaire._instance.ServantYoKai(ID_Yokai);
+        if (nomYokai != null && medalium != null) {
+            nomYokai.text = medalium.Nom;
+        }
+        
+
     }
 
     
