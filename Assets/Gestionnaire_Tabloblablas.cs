@@ -11,6 +11,9 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
     public string indice1;
     public string indice2;
     public string indice3;
+    public string réponse;
+    public string nomYokaiTexte;
+    public TextMeshProUGUI texte_entrée;
     public TextMeshProUGUI texteIndice1;
     public TextMeshProUGUI texteIndice2;
     public TextMeshProUGUI texteIndice3;
@@ -26,8 +29,8 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
         MedaliumNonPersonel medalium = medaliumDictionnaire._instance.ServantYoKai(ID_Yokai);
         if (nomYokai != null && medalium != null) {
             nomYokai.text = medalium.Nom;
+            nomYokaiTexte = medalium.Nom;
         }
-        
 
     }
 
@@ -35,5 +38,14 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
     void Update()
     {
         
+        réponse = texte_entrée.text;
+        if(réponse == nomYokaiTexte)
+        {
+            Debug.Log("bravo");
+        }
+
+        Debug.Log(réponse);
     }
+    
+
 }
