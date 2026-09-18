@@ -1,6 +1,7 @@
 using UnityEngine;
 using YKW.Core.YoKai.Struct;
 using UnityEngine.Scripting.APIUpdating;
+using YKW.Core.Commun;
 
 namespace YKW.Core.YoKai.Class
 {
@@ -22,6 +23,7 @@ namespace YKW.Core.YoKai.Class
 
         [Header("Statistiques Actuelles (Calculées)")]
         public Stats Stats;
+        [Clamp(0,99)]
         public int niveau;
         public int xp;
 

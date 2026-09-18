@@ -60,12 +60,29 @@ public class MakeAShader : MonoBehaviour{
             Material[] materials = renderer.materials;
 
             for (int i = 0; i < materials.Length; i++) {
-                Shader unlitShader = Shader.Find("Unlit/Texture");
+                Shader unlitShader = Shader.Find("Universal Render Pipeline/Unlit");
                 
                 if (unlitShader != null) {
+                    Texture mainTexture = null;
+                    if (materials[i].HasProperty("_MainTex")) {
+                        mainTexture = materials[i].GetTexture("_MainTex");
+                    } else if (materials[i].HasProperty("_BaseMap")) {
+                        mainTexture = materials[i].GetTexture("_BaseMap");
+                    }
+
+                    Color baseColor = Color.white;
+                    if (materials[i].HasProperty("_Color")) {
+                        baseColor = materials[i].GetColor("_Color");
+                    } else if (materials[i].HasProperty("_BaseColor")) {
+                        baseColor = materials[i].GetColor("_BaseColor");
+                    }
                     materials[i].shader = unlitShader;
+                    if (mainTexture != null) {
+                        materials[i].SetTexture("_BaseMap", mainTexture);
+                    }
+                    materials[i].SetColor("_BaseColor", baseColor);
                 } else {
-                    Debug.LogWarning("Shader 'Unlit/Texture' non trouvé !");
+                    Debug.LogWarning("Shader 'Universal Render Pipeline/Unlit' non trouvé !");
                 }
             }
             renderer.materials = materials;
