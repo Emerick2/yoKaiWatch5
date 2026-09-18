@@ -131,34 +131,7 @@ public class BingoKai2 : MonoBehaviour {
 
         if (canevaBingoKaiOuvert == true){
             if (Input.GetButtonDown("right")){
-    
-    void ComplétéListePièce(){
-        GameObject exemple = null;
-        foreach (GameObject item in listeObjets){
-            if (item != null){
-                if (exemple != null){
-                    exemple = item;
-                } else {
-                    Destroy(item);
-                }
-            }
-        }
-        listePièceBingoKai.Clear();
-
-        foreach (PièceBingoKai item in listePièceBingoKai) {
-            GameObject nouvellePièce = Instantiate(exemple);
-            if (nouvellePièce.GetComponent<Image>() != null){
-                nouvellePièce.GetComponent<Image>().sprite = item.sprite;
-            }
-            nouvellePièce.transform.parent = exemple.transform.parent;
-
-            listeObjets.Add(nouvellePièce);
-        }
-
-        Destroy(exemple);
-    }
-
-    ChangerLaCible(cible, ((cible+1)%listeObjets.Count+listeObjets.Count)%listeObjets.Count);
+                ChangerLaCible(cible, ((cible+1)%listeObjets.Count+listeObjets.Count)%listeObjets.Count);
             } else if (Input.GetButtonDown("left")){
                 ChangerLaCible(cible, ((cible-1)%listeObjets.Count+listeObjets.Count)%listeObjets.Count);
             }
@@ -167,6 +140,7 @@ public class BingoKai2 : MonoBehaviour {
                 canevaBingoKaiOuvert = false;
                 imageObjet.gameObject.SetActive(false);
                 mouvementDuJoueur.droitDeMarcher = true;
+                étape = 0;
             }
             if (Input.GetButtonDown("A")){
                 if (afficherTexteYokaiSortie){
@@ -180,6 +154,7 @@ public class BingoKai2 : MonoBehaviour {
                             Destroy(gameObjectYoKaiBingoKaiSupr);
                         }
                         mouvementDuJoueur.droitDeMarcher = true;
+                        étape = 0;
                     }
                 }
                 if (attenteDuChoixDeLaPièce){
@@ -239,6 +214,32 @@ public class BingoKai2 : MonoBehaviour {
         }   
     }
 
+    void ComplétéListePièce(){
+        GameObject exemple = null;
+        foreach (GameObject item in listeObjets){
+            if (item != null){
+                if (exemple != null){
+                    exemple = item;
+                } else {
+                    Destroy(item);
+                }
+            }
+        }
+        listePièceBingoKai.Clear();
+
+        foreach (PièceBingoKai item in listePièceBingoKai) {
+            GameObject nouvellePièce = Instantiate(exemple);
+            if (nouvellePièce.GetComponent<Image>() != null){
+                nouvellePièce.GetComponent<Image>().sprite = item.sprite;
+            }
+            nouvellePièce.transform.parent = exemple.transform.parent;
+
+            listeObjets.Add(nouvellePièce);
+        }
+
+        Destroy(exemple);
+    }
+
     void OnCollisionEnter(Collision other) {
         if (other.transform.CompareTag("Player")){
             inTheZone = true;
@@ -252,6 +253,8 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void PlacerIcone(){
+        listeObjets.Clear();
+        exemple = null;
         foreach (Transform child in contentViewport.transform) {
             if (exemple == null){
                 exemple = child.gameObject;
@@ -260,17 +263,20 @@ public class BingoKai2 : MonoBehaviour {
                 Destroy(child.gameObject);
             }
         }
-        for (int i = 0; i < 4; i++) {
-            GameObject TV = Instantiate(exemple);
-            TV.SetActive(true);
-            TV.transform.parent = contentViewport.transform;
-            Vector3 objectScale = TV.transform.localScale;
-            objectScale.x = 1f;
-            objectScale.y = 1f;
-            objectScale.z = 1f;
-            TV.transform.localScale = objectScale;
+        foreach (PièceBingoKai piece in listePièceBingoKai) {
+            GameObject nouvellePièce = Instantiate(exemple);
+            nouvellePièce.SetActive(true);
+            nouvellePièce.transform.parent = contentViewport.transform;
+            
+            Vector3 objectScale = Vector3.one;
+            nouvellePièce.transform.localScale = objectScale;
 
-            listeObjets.Add(TV);
+            Image imgComp = nouvellePièce.GetComponent<Image>();
+            if (imgComp != null && piece.sprite != null){
+                imgComp.sprite = piece.sprite;
+            }
+
+            listeObjets.Add(nouvellePièce);
         }
     }
 
