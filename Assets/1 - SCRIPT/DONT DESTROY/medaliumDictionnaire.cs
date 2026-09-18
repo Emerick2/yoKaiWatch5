@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Unity.VisualScripting;
 
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
@@ -17,6 +18,7 @@ public class medaliumDictionnaire : MonoBehaviour{
 
     /*[HideInInspector]*/
     [SerializeField] private List<MedaliumNonPersonel> dictionnaire;
+    private readonly Dictionary<int, MedaliumNonPersonel> dictionnaireParId = new Dictionary<int, MedaliumNonPersonel>();
 
     public bool chargementFini = true;
     public int MAX = 905;
@@ -28,6 +30,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     private void Awake(){
         if (_instance == null){
             _instance = this;
+            InitialiserCache();
             DontDestroyOnLoad(gameObject);
         }
         else{
@@ -35,12 +38,23 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
 
-   public MedaliumNonPersonel ServantYoKai(int ID) {
-        foreach (MedaliumNonPersonel item in dictionnaire){
-            if (item.ID == ID){
-                return item;
+    private void InitialiserCache(){
+        if (dictionnaire == null){
+            dictionnaire = new List<MedaliumNonPersonel>();
+        }
+
+        foreach (MedaliumNonPersonel yoKai in dictionnaire){
+            if (yoKai != null){
+                dictionnaireParId[yoKai.ID] = yoKai;
             }
         }
+    }
+
+   public MedaliumNonPersonel ServantYoKai(int ID) {
+        if (dictionnaireParId.TryGetValue(ID, out MedaliumNonPersonel yoKaiEnCache)){
+            return yoKaiEnCache;
+        }
+
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/yokai_data/" + ID.ToString());
 
         if (targetFile != null) {
@@ -59,6 +73,7 @@ public class medaliumDictionnaire : MonoBehaviour{
             yoKai.tribue = AjouterUneTribue(yoKai.Tribue);
             yoKai.rang = AjouterUnRang(yoKai.Rang);
             dictionnaire.Add(yoKai);
+            dictionnaireParId[ID] = yoKai;
         
             return yoKai;
         } else {
@@ -213,6 +228,18 @@ public class medaliumDictionnaire : MonoBehaviour{
                 return Element.Neutre;
         }
     }
+
+
+    public MedaliumNonPersonel TrouverUnYoKaiParSonNomAnglais(string nom_anglais){
+        for (int i = 1; i <= MAX; i++){
+            MedaliumNonPersonel yoKaiTrouver = ServantYoKai(i);
+            if (yoKaiTrouver != null && yoKaiTrouver.nom_anglais == nom_anglais){
+                return yoKaiTrouver;
+            }
+        }
+
+        return null;
+    }
 }
 
 [System.Serializable]
@@ -229,6 +256,7 @@ public class MedaliumNonPersonel{
     public Sprite faceRondImage;
     public bool rare;
     public string Nom;
+    public string nom_anglais;
     public string Description;
     public GameObject yoKai;
     public Tribue tribue;
