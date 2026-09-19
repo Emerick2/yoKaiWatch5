@@ -117,6 +117,14 @@ public class BingoKai2 : MonoBehaviour {
         cible = 0;
         AfficherLesPrixDuBingoKai();
         ChangerLaCible(cible, cible);
+        if (panelGain != null) panelGain.SetActive(false);
+        if (imageObjet != null) imageObjet.gameObject.SetActive(false);
+
+        if (gameObjectYoKaiBingoKaiSupr != null) {
+            Destroy(gameObjectYoKaiBingoKaiSupr);
+        }
+        attenteDuChoixDeLaPièce = true;
+        canevaBingoKaiOuvert = false;
     }
 
     void Update() {
@@ -148,18 +156,25 @@ public class BingoKai2 : MonoBehaviour {
                     if (étapeAfficherTexteYokaiSortie == 1){
                         afficherTexteYokaiSortie = false;
                         étapeAfficherTexteYokaiSortie = 0;
+
                         dialcode.Fermeture(false);
-                        canevaBingoKaiOuvert = false;
-                        canevasBingoKai.SetActive(false);
+                        if (panelGain != null) panelGain.SetActive(false);
+                        if (imageObjet != null) imageObjet.gameObject.SetActive(false);
+                        if (videoPlayer != null) {
+                            videoPlayer.Stop();
+                            videoPlayer.gameObject.SetActive(false);
+                        }
+
                         if (gameObjectYoKaiBingoKaiSupr != null) {
                             Destroy(gameObjectYoKaiBingoKaiSupr);
                         }
-                        mouvementDuJoueur.droitDeMarcher = true;
-                        étape = 0;
+
+                        attenteDuChoixDeLaPièce = true;
+                        Input.ResetInputAxes();
                         Exit();
                     }
                 }
-                if (attenteDuChoixDeLaPièce){
+                else if (attenteDuChoixDeLaPièce){
                     attenteDuChoixDeLaPièce = false;
                     UtilisationDeLaPièce(cible);
                 }
@@ -299,6 +314,8 @@ public class BingoKai2 : MonoBehaviour {
         if (listeObjets.Count > nouvelleCible){
             listeObjets[nouvelleCible].transform.Find("cible").gameObject.SetActive(true);
         }
+
+        AfficherLesPrixDuBingoKai();
     }
 
     void UtilisationDeLaPièce(int numéroPièce) {
@@ -309,6 +326,9 @@ public class BingoKai2 : MonoBehaviour {
         //     yokaiQuiVasSortir = 0;
         //     nomObjetQuiVasSortir = "Lait merveilleux";
         // }
+        yokaiQuiVasSortir = 0;
+        nomObjetQuiVasSortir = "";
+        
         if (lesDonnéesBingoKai != null) {
             int posibilitéeTotal_1 = lesDonnéesBingoKai.First_prize.yokais.Count + lesDonnéesBingoKai.First_prize.articles.Count;
             int posibilitéeTotal_2 = lesDonnéesBingoKai.Second_prize.yokais.Count + lesDonnéesBingoKai.Second_prize.articles.Count;
@@ -325,7 +345,23 @@ public class BingoKai2 : MonoBehaviour {
                 if (randomNumber > listePrix.yokais.Count){
                     randomNumber -= listePrix.yokais.Count;
                     yokaiQuiVasSortir = 0;
-                    nomObjetQuiVasSortir = listePrix.articles[randomNumber];
+                    string nomObjetQuiVasSortirEn = listePrix.articles[randomNumber];
+                    Nouriture nouritureObjet = Item._instance.FindFoodWithEnglishName(nomObjetQuiVasSortirEn);
+                    if (nouritureObjet != null){
+                        nomObjetQuiVasSortir = nouritureObjet.nom;
+                    } else {
+                        Équipement équipementObjet = Item._instance.FindEquipmentWithEnglishName(nomObjetQuiVasSortirEn);
+                        if (équipementObjet != null){
+                            nomObjetQuiVasSortir = équipementObjet.nom;
+                        } else {
+                            Annimal annimalObjet = Item._instance.FindAnimalWithEnglishName(nomObjetQuiVasSortirEn);
+                            if (annimalObjet != null) {
+                                nomObjetQuiVasSortir = annimalObjet.nom;
+                            } else {
+                                nomObjetQuiVasSortir = nomObjetQuiVasSortirEn;
+                            }
+                        }
+                    }
                 } else {
                     int identifiantYoKai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]).ID;
                     yokaiQuiVasSortir = identifiantYoKai;
@@ -357,8 +393,18 @@ public class BingoKai2 : MonoBehaviour {
                     yokaiQuiVasSortir = 0;
                     nomObjetQuiVasSortir = listePrix.articles[randomNumber];
                 } else {
-                    int identifiantYoKai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]).ID;
-                    yokaiQuiVasSortir = identifiantYoKai;
+                    if (listePrix.yokais.Count > randomNumber){
+                        MedaliumNonPersonel yokai =  medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]);
+                        if (yokai != null){
+                            yokaiQuiVasSortir = yokai.ID;
+                        } else {
+                            Debug.LogError("Le yo-kai sortie est null ! : "+listePrix.yokais[randomNumber]);
+                            yokaiQuiVasSortir = 3;
+                        }
+                    } else {
+                        Debug.LogError("Le numéro "+randomNumber+" dépasse la listes des yo-kai possible ("+listePrix.yokais.Count+")");
+                        yokaiQuiVasSortir = 3;
+                    }
                     nomObjetQuiVasSortir = "";  
                 } 
             }
@@ -409,6 +455,7 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void ApparitionYoKai(UnityEngine.Video.VideoPlayer source){
+        videoPlayer.loopPointReached -= ApparitionYoKai;
         if (gameObjectYoKaiBingoKaiSupr != null) {
             Destroy(gameObjectYoKaiBingoKaiSupr);
         }
@@ -432,6 +479,7 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void ApparitionObjet(UnityEngine.Video.VideoPlayer source){
+        videoPlayer.loopPointReached -= ApparitionObjet;
         if (gameObjectYoKaiBingoKaiSupr != null) {
             Destroy(gameObjectYoKaiBingoKaiSupr);
         }

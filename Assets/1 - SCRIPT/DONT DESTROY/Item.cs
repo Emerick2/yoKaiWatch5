@@ -261,7 +261,7 @@ public class Item : MonoBehaviour{
 
     public Nouriture FindFoodWithEnglishName(string englishName){
         foreach (Nouriture item in listeDesNouritures){
-            if (item.englishName == englishName){
+            if (item.englishName.ToUpper() == englishName.ToUpper()){
                 return item;
             }
         }
@@ -270,7 +270,7 @@ public class Item : MonoBehaviour{
 
     public Équipement FindEquipmentWithEnglishName(string englishName){
         foreach (Équipement item in listeDesÉquipements){
-            if (item.englishName == englishName){
+            if (item.englishName.ToUpper() == englishName.ToUpper()){
                 return item;
             }
         }
@@ -279,7 +279,7 @@ public class Item : MonoBehaviour{
 
     public Annimal FindAnimalWithEnglishName(string englishName){
         foreach (Annimal item in listeDesAnnimaux){
-            if (item.englishName == englishName){
+            if (item.englishName.ToUpper() == englishName.ToUpper()){
                 return item;
             }
         }
