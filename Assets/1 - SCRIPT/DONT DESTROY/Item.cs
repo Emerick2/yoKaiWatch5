@@ -258,6 +258,33 @@ public class Item : MonoBehaviour{
         }
         return null;
     }
+
+    public Nouriture FindFoodWithEnglishName(string englishName){
+        foreach (Nouriture item in listeDesNouritures){
+            if (item.englishName == englishName){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Équipement FindEquipmentWithEnglishName(string englishName){
+        foreach (Équipement item in listeDesÉquipements){
+            if (item.englishName == englishName){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Annimal FindAnimalWithEnglishName(string englishName){
+        foreach (Annimal item in listeDesAnnimaux){
+            if (item.englishName == englishName){
+                return item;
+            }
+        }
+        return null;
+    }
 }
 
 /*

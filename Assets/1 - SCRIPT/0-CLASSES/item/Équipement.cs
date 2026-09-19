@@ -13,4 +13,5 @@ public class Équipement{
     public int effetSur_Défance;
     public int effetSur_Esprit;
     public string effetSur_ELSE;
+    public string englishName;
 }

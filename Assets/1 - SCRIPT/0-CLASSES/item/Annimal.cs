@@ -9,4 +9,5 @@ public class Annimal{
     public float prixVente;
     public bool rare;
     public GameObject modèle3D;
+    public string englishName;
 }

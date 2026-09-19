@@ -11,4 +11,5 @@ public class Nouriture{
     [Min(0)] public int IdEffetSiSurAmi;
     public string allyEffect;
     public string enemyEffect;
+    public string englishName;
 }

@@ -111,7 +111,12 @@ public class BingoKai2 : MonoBehaviour {
     void Start(){
         dialcode = DialcodePrinted.Instance;
         if (canevasBingoKai != null) canevasBingoKai.SetActive(false);
+    }
+
+    void InitialisationBingoKai(){
+        cible = 0;
         AfficherLesPrixDuBingoKai();
+        ChangerLaCible(cible, cible);
     }
 
     void Update() {
@@ -135,12 +140,8 @@ public class BingoKai2 : MonoBehaviour {
             } else if (Input.GetButtonDown("left")){
                 ChangerLaCible(cible, ((cible-1)%listeObjets.Count+listeObjets.Count)%listeObjets.Count);
             }
-            if (Input.GetButtonDown("B")){
-                if (canevasBingoKai != null) canevasBingoKai.SetActive(false);
-                canevaBingoKaiOuvert = false;
-                imageObjet.gameObject.SetActive(false);
-                mouvementDuJoueur.droitDeMarcher = true;
-                étape = 0;
+            if (Input.GetButtonDown("B") && étape == 3){
+                Exit();
             }
             if (Input.GetButtonDown("A")){
                 if (afficherTexteYokaiSortie){
@@ -155,6 +156,7 @@ public class BingoKai2 : MonoBehaviour {
                         }
                         mouvementDuJoueur.droitDeMarcher = true;
                         étape = 0;
+                        Exit();
                     }
                 }
                 if (attenteDuChoixDeLaPièce){
@@ -187,12 +189,12 @@ public class BingoKai2 : MonoBehaviour {
                         dialcode.Fermeture(false);
                         étape = 0;
                         if (dialcode.positionChoix == 0){
+                            InitialisationBingoKai();
                             attenteDuChoixDeLaPièce = true;
                             Input.ResetInputAxes();
                             PlacerIcone();
                             if (canevasBingoKai != null) canevasBingoKai.SetActive(true);
                             canevaBingoKaiOuvert = true;
-                            InitialisationBingoKai();
                             mouvementDuJoueur.droitDeMarcher = false;
                         }
                         break;
@@ -212,6 +214,14 @@ public class BingoKai2 : MonoBehaviour {
                 dialcode.espaceDialogue.text = texte;
             }
         }   
+    }
+
+    public void Exit(){
+        if (canevasBingoKai != null) canevasBingoKai.SetActive(false);
+        canevaBingoKaiOuvert = false;
+        imageObjet.gameObject.SetActive(false);
+        mouvementDuJoueur.droitDeMarcher = true;
+        étape = 0;
     }
 
     void ComplétéListePièce(){
@@ -280,10 +290,6 @@ public class BingoKai2 : MonoBehaviour {
         }
     }
 
-    void InitialisationBingoKai(){
-        cible = 0;
-        ChangerLaCible(cible, cible);
-    }
 
     void ChangerLaCible(int ancienneCible, int nouvelleCible){
         cible = nouvelleCible;
