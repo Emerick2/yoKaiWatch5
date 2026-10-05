@@ -1,9 +1,17 @@
-Ce projet est un projet collaboratif de création de jeu dans l'univers de yo-kai watch commencer le **8 février 2025**
+# Yo-kai Watch 5
+Ce projet est un projet collaboratif de création de jeu dans l'univers de yo-kai watch commencer le **8 février 2025**.
 
-# Les numéro de version :
-Si la version est 0.26.2.1 ces pour :
-- 0 : On est en fasse de bêta.
-- 26 : On est en 2026.
-- 2 : On est en janvier.
-- 1 : C'est la première mise à jour de janvier.
+## Normes de nommage C#
+Afin de maintenir un code propre et cohérent, l'ensemble du code doit respecter les règles suivantes :
 
+* **Langue :** Tout le code doit être rédigés en **anglais**.
+* **Classes et fonctions :** Utiliser le **PascalCase** (ex. : `PlayerController`, `CalculateScore`).
+* **Variables locales, publiques et paramètres :** Utiliser le **camelCase** (ex. : `playerHealth`, `itemCount`).
+* **Variables privées :** Préfixer par un underscore suivi du **camelCase** (ex. : `_currentHealth`, `_isInitialized`).
+
+# Nous contactez :
+- [Discord](https://discord.com/invite/A4fxxn9Wdv)
+- [Instagram](https://www.instagram.com/wikinyan/)
+- [YouTube](https://www.youtube.com/@Wikinyan)
+- [TikTok](https://www.tiktok.com/@yokaiwatch5.0)
+- E-Mail : wikinyan1@gmail.com
