@@ -107,7 +107,7 @@ public class DialcodePrinted : MonoBehaviour{
                     choixEnCoursBoutique1 = false;
                     if(cibleChoixBoutique1 == 0){
                         choixEnCoursBoutique2 = true;
-                        boutiqueAcheter.GetComponent<BoutiqueDialcode>().produitAllimentaire = fragmentDeDialogue[position].listeProduitBoutique;
+                        boutiqueAcheter.GetComponent<BoutiqueDialcode>().produitAllimentaire = fragmentDeDialogue[position].storeProductList;
                         boutiqueAcheter.GetComponent<BoutiqueDialcode>().acheterUser = true;
                         StartCoroutine(boutiqueAcheter.GetComponent<BoutiqueDialcode>().Initialisation());
                         OuvertureFenêtre(boutiqueAcheter);
@@ -168,56 +168,56 @@ public class DialcodePrinted : MonoBehaviour{
         }
         FragmentDeDialogue fragment = fragmentDeDialogue[position];
         if (fragment == null) return;
-        if (fragment.type == TypeDialogue.cadeau && fragment.IdÉlément >= Item._instance.listeDesNouritures.Count) {
+        if (fragment.type == TypeDialogue.cadeau && fragment.idElement >= Item._instance.listeDesNouritures.Count) {
             Debug.LogError("ID d'item invalide !");
             return;
         }
 
-        if (fragment.nom != null) fragment.nom = fragment.nom.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
-        if (fragment.phrase != null) fragment.phrase = fragment.phrase.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
+        if (fragment.name != null) fragment.name = fragment.name.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
+        if (fragment.sentence != null) fragment.sentence = fragment.sentence.Replace("<PNAME>",NewDataCenter.Instance.Lire("nomDuJoueur"));
         
-        if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément > 0){
-            if (string.IsNullOrEmpty(fragment.nom)) {
-                fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
+        if ((fragment.whoIAm == QuiJeSuis.yokai || fragment.whoIAm == QuiJeSuis.héroYoKai) && fragment.idElement > 0){
+            if (string.IsNullOrEmpty(fragment.name)) {
+                fragment.name = medaliumDictionnaire._instance.ServantYoKai(fragment.idElement).Nom;
             }
             if (fragment.image == null && string.IsNullOrEmpty(fragment.imagePath)) {
-                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
+                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.idElement).faceImage;
             }
         }
 
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
-            if (fragment.quantitée <= 0) fragment.quantitée = 1;
-            if (fragment.typeObjet == CatégorieItem.Nouriture){
-                fragment.nom = Item._instance.listeDesNouritures[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesNouritures[fragment.IdÉlément].image;
-            } else if (fragment.typeObjet == CatégorieItem.Equipement){
-                fragment.nom = Item._instance.listeDesÉquipements[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesÉquipements[fragment.IdÉlément].sprite;
-            } else if (fragment.typeObjet == CatégorieItem.Animal){
-                fragment.nom = Item._instance.listeDesAnnimaux[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesAnnimaux[fragment.IdÉlément].image;
+            if (fragment.quantity <= 0) fragment.quantity = 1;
+            if (fragment.objectType == CatégorieItem.Nouriture){
+                fragment.name = Item._instance.listeDesNouritures[fragment.idElement].nom;
+                fragment.image = Item._instance.listeDesNouritures[fragment.idElement].image;
+            } else if (fragment.objectType == CatégorieItem.Equipement){
+                fragment.name = Item._instance.listeDesÉquipements[fragment.idElement].nom;
+                fragment.image = Item._instance.listeDesÉquipements[fragment.idElement].sprite;
+            } else if (fragment.objectType == CatégorieItem.Animal){
+                fragment.name = Item._instance.listeDesAnnimaux[fragment.idElement].nom;
+                fragment.image = Item._instance.listeDesAnnimaux[fragment.idElement].image;
             }
         }
         //la je m'ocupe des id pour écrire le nom et l'image
         if (fragment.type == TypeDialogue.texte){
             OuvertureFenêtre(bulle);
             if (coroutineApparitionLettre == null){
-                if (!boiteFermer) coroutineApparitionLettre = StartCoroutine(PrintSentence(fragment.phrase));
+                if (!boiteFermer) coroutineApparitionLettre = StartCoroutine(PrintSentence(fragment.sentence));
             } else {
                 if (!boiteFermer){
                     StopCoroutine(coroutineApparitionLettre);
                     coroutineApparitionLettre = null;
-                    espaceDialogue.text = fragment.phrase;
+                    espaceDialogue.text = fragment.sentence;
                     position++;
                 }
             }
         } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret){
-            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true);
+            RecevoirUnCadeau(fragment.type, fragment.quantity, fragment.objectType, fragment.idElement, fragment.image, fragment.name, true);
         } else if (fragment.type == TypeDialogue.information){
             OuvertureFenêtre(information);
-            information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
+            information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.sentence;
             Sprite image = décoration.spritePointExclamatif;
-            if(!fragment.cesUneExclamation) image = décoration.spritePointIntérogatif;
+            if(!fragment.theseAreAnExclamations) image = décoration.spritePointIntérogatif;
             information.transform.Find("icone").gameObject.GetComponent<Image>().sprite = image;
             position++;
         } else if (fragment.type == TypeDialogue.choix){
@@ -238,20 +238,20 @@ public class DialcodePrinted : MonoBehaviour{
             // 0 : La requête n'as pas commancer.
             // 1 : La requête est en cours.
             // 2 : La requête est terminée.
-            quete.transform.Find("icone requête").gameObject.SetActive(fragment.categorieQuete == CatégorieQuête.Quête);
-            quete.transform.Find("icone service").gameObject.SetActive(fragment.categorieQuete == CatégorieQuête.Service);
+            quete.transform.Find("icone requête").gameObject.SetActive(fragment.questCategory == CatégorieQuête.Quête);
+            quete.transform.Find("icone service").gameObject.SetActive(fragment.questCategory == CatégorieQuête.Service);
 
             if (!fragment.endQuest){                    
-                NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"1");
-                if (fragment.categorieQuete == CatégorieQuête.Quête || fragment.categorieQuete == CatégorieQuête.Histoire || fragment.categorieQuete == CatégorieQuête.Clef){
-                    quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLa quête à été ajouter au menu des requêtes.";
-                } else if (fragment.categorieQuete == CatégorieQuête.Service) {
-                    quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" commance !\nLe service à été ajouter au menu des requêtes.";
+                NewDataCenter.Instance.SauvegarderSTR(fragment.questCategory.ToString()+"-"+fragment.name,"1");
+                if (fragment.questCategory == CatégorieQuête.Quête || fragment.questCategory == CatégorieQuête.Histoire || fragment.questCategory == CatégorieQuête.Clef){
+                    quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.name+"\" commance !\nLa quête à été ajouter au menu des requêtes.";
+                } else if (fragment.questCategory == CatégorieQuête.Service) {
+                    quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.name+"\" commance !\nLe service à été ajouter au menu des requêtes.";
                 } 
             } else {
                 StartCoroutine(AnimationEndQuest());
-                NewDataCenter.Instance.SauvegarderSTR(fragment.categorieQuete.ToString()+"-"+fragment.nom,"2");
-                quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.nom+"\" est terminé !";
+                NewDataCenter.Instance.SauvegarderSTR(fragment.questCategory.ToString()+"-"+fragment.name,"2");
+                quete.transform.Find("Texte").GetComponent<TextMeshProUGUI>().text = "\""+fragment.name+"\" est terminé !";
                 /*
                 ajouter le script movie.
                 il vas :
@@ -284,10 +284,10 @@ public class DialcodePrinted : MonoBehaviour{
             if (position < fragmentDeDialogue.Count) Action();
         } else if (fragment.type == TypeDialogue.variable){
             string valeur = "0";
-            if (fragment.variableAActivée) {
+            if (fragment.variableAEnabled) {
                 valeur = "1";
             }
-            NewDataCenter.Instance.SauvegarderSTR(fragment.nom,valeur);
+            NewDataCenter.Instance.SauvegarderSTR(fragment.name,valeur);
 
             position++;
             AvancerJusqueAuProchainDialogue();
@@ -515,8 +515,8 @@ public class DialcodePrinted : MonoBehaviour{
     }
 
     void AjouterLeNomEtImagePersonnage(){
-        if (yoKaiSonVoix && (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai)){
-            int id = fragmentDeDialogue[position].IdÉlément;
+        if (yoKaiSonVoix && (fragmentDeDialogue[position].whoIAm == QuiJeSuis.héroYoKai || fragmentDeDialogue[position].whoIAm == QuiJeSuis.yokai)){
+            int id = fragmentDeDialogue[position].idElement;
             if (id > 0 && !listeIdParler.Contains(id)){
                 if (audioPrecedent != null){
                     Destroy(audioPrecedent);
@@ -529,10 +529,10 @@ public class DialcodePrinted : MonoBehaviour{
             }
         }
 
-        if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héro || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
+        if (fragmentDeDialogue[position].whoIAm == QuiJeSuis.héro || fragmentDeDialogue[position].whoIAm == QuiJeSuis.héroYoKai){
             blocNomUtilisé = bulle.transform.Find("-- D --").gameObject;
             bulle.transform.Find("-- G --").gameObject.SetActive(false);
-            if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
+            if (fragmentDeDialogue[position].whoIAm == QuiJeSuis.héroYoKai){
                 blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomY2;
             } else {
                 blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH2;
@@ -540,14 +540,14 @@ public class DialcodePrinted : MonoBehaviour{
         } else {
             blocNomUtilisé = bulle.transform.Find("-- G --").gameObject;
             bulle.transform.Find("-- D --").gameObject.SetActive(false);
-            if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai){
+            if (fragmentDeDialogue[position].whoIAm == QuiJeSuis.yokai){
                 blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomY1;
             } else {
                 blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH1;
             }
         }
 
-        if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
+        if (fragmentDeDialogue[position].whoIAm == QuiJeSuis.yokai || fragmentDeDialogue[position].whoIAm == QuiJeSuis.héroYoKai){
             bulle.transform.Find("boutDroit").GetComponent<Image>().sprite = décoration.boutDroiteGris;
             bulle.transform.Find("intérieur").GetComponent<Image>().sprite = décoration.centreGris;
             bulle.transform.Find("boutGauche").GetComponent<Image>().sprite = décoration.boutGaucheGris;
@@ -571,10 +571,10 @@ public class DialcodePrinted : MonoBehaviour{
             imageDialogue = Resources.Load<Sprite>(fragmentDeDialogue[position].imagePath);
         }
 
-        if (fragmentDeDialogue[position].nom.Length > 0){
+        if (fragmentDeDialogue[position].name.Length > 0){
             espaceNom.gameObject.SetActive(true);
             blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(true);
-            espaceNom.text = fragmentDeDialogue[position].nom;
+            espaceNom.text = fragmentDeDialogue[position].name;
 
             if (imageDialogue != null){
                 espaceImage.gameObject.SetActive(true);
@@ -590,8 +590,8 @@ public class DialcodePrinted : MonoBehaviour{
         }
 
         Sprite imagePresentation = fragmentDeDialogue[position].imageDePrésentation;
-        if (imagePresentation == null && !string.IsNullOrEmpty(fragmentDeDialogue[position].imageDePresentationPath)) {
-            imagePresentation = Resources.Load<Sprite>(fragmentDeDialogue[position].imageDePresentationPath);
+        if (imagePresentation == null && !string.IsNullOrEmpty(fragmentDeDialogue[position].presentationImagePath)) {
+            imagePresentation = Resources.Load<Sprite>(fragmentDeDialogue[position].presentationImagePath);
         }
 
         if (imagePresentation != null){
@@ -621,7 +621,7 @@ public class DialcodePrinted : MonoBehaviour{
                     dialogueActuel = fragmentDeDialogue[position];
                 }
                 
-                if (dialogueActuel.auteurConditionnelle <= auteurConditionnelle) {
+                if (dialogueActuel.conditionalAuthor <= auteurConditionnelle) {
                     return; 
                 }
             }
@@ -635,7 +635,7 @@ public class DialcodePrinted : MonoBehaviour{
                     int niveauASauter = auteurConditionnelleRéel;
                     while (position + 1 < fragmentDeDialogue.Count && 
                         !(fragmentDeDialogue[position + 1].type == TypeDialogue.finDeCondition && 
-                            fragmentDeDialogue[position + 1].auteurConditionnelle == niveauASauter)) {
+                            fragmentDeDialogue[position + 1].conditionalAuthor == niveauASauter)) {
                         position++;
                     }
                 }
@@ -658,14 +658,14 @@ public class DialcodePrinted : MonoBehaviour{
     
     bool RéponceALaCondition() {
         FragmentDeDialogue f = fragmentDeDialogue[position];
-        if (f.conditionnelle == null || f.conditionnelle.Count == 0) return true;
+        if (f.conditional == null || f.conditional.Count == 0) return true;
 
         List<bool> valeurs = new List<bool>();
-        foreach (Conditionnelle c in f.conditionnelle) {
+        foreach (Conditionnelle c in f.conditional) {
             valeurs.Add(EvaluerConditionSimple(c));
         }
 
-        return CalculerLogiqueComplexe(valeurs, f.conditionnelle);
+        return CalculerLogiqueComplexe(valeurs, f.conditional);
     }
 
     public bool EvaluerConditionSimple(Conditionnelle c) {

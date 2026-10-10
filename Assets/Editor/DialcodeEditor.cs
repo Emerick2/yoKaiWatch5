@@ -94,7 +94,7 @@ public class DialcodeEditor : EditorWindow{
             GUI.backgroundColor = Color.white;
 
             if (fragment.type == TypeDialogue.conditionDePassage) currentIndent++;
-            fragment.auteurConditionnelle = currentIndent;
+            fragment.conditionalAuthor = currentIndent;
         }
 
         EditorGUILayout.Space(10);
@@ -122,11 +122,11 @@ public class DialcodeEditor : EditorWindow{
 
         switch (f.type){
             case TypeDialogue.texte:
-                f.quiJeSuis = (QuiJeSuis)EditorGUILayout.EnumPopup("Qui parle ?", f.quiJeSuis);
-                f.IdÉlément = EditorGUILayout.IntField("ID (si Yokai)", f.IdÉlément);
-                f.nom = EditorGUILayout.TextField("Nom manuel", f.nom);
+                f.whoIAm = (QuiJeSuis)EditorGUILayout.EnumPopup("Qui parle ?", f.whoIAm);
+                f.idElement = EditorGUILayout.IntField("ID (si Yokai)", f.idElement);
+                f.name = EditorGUILayout.TextField("Nom manuel", f.name);
                 f.image = (Sprite)EditorGUILayout.ObjectField("Image", f.image, typeof(Sprite), false);
-                f.phrase = EditorGUILayout.TextArea(f.phrase, GUILayout.Height(40));
+                f.sentence = EditorGUILayout.TextArea(f.sentence, GUILayout.Height(40));
                 f.imageDePrésentation = (Sprite)EditorGUILayout.ObjectField("Image Présentation", f.imageDePrésentation, typeof(Sprite), false);
                 break;
 
@@ -134,16 +134,16 @@ public class DialcodeEditor : EditorWindow{
             case TypeDialogue.vol:
             case TypeDialogue.volDiscret:
             case TypeDialogue.donDiscret:
-                f.typeObjet = (CatégorieItem)EditorGUILayout.EnumPopup("Type Objet", f.typeObjet);
-                f.IdÉlément = EditorGUILayout.IntField("ID Objet", f.IdÉlément);
-                f.nom = EditorGUILayout.TextField("Nom Objet", f.nom);
+                f.objectType = (CatégorieItem)EditorGUILayout.EnumPopup("Type Objet", f.objectType);
+                f.idElement = EditorGUILayout.IntField("ID Objet", f.idElement);
+                f.name = EditorGUILayout.TextField("Nom Objet", f.name);
                 f.image = (Sprite)EditorGUILayout.ObjectField("Image", f.image, typeof(Sprite), false);
-                f.quantitée = EditorGUILayout.IntSlider("Quantité", f.quantitée, 1, 99);
+                f.quantity = EditorGUILayout.IntSlider("Quantité", f.quantity, 1, 99);
                 break;
 
             case TypeDialogue.information:
-                f.phrase = EditorGUILayout.TextField("Information", f.phrase);
-                f.cesUneExclamation = EditorGUILayout.Toggle("Exclamation ?", f.cesUneExclamation);
+                f.sentence = EditorGUILayout.TextField("Information", f.sentence);
+                f.theseAreAnExclamations = EditorGUILayout.Toggle("Exclamation ?", f.theseAreAnExclamations);
                 break;
 
             case TypeDialogue.choix:
@@ -160,19 +160,19 @@ public class DialcodeEditor : EditorWindow{
                 break;
 
             case TypeDialogue.conditionDePassage:
-                if (f.conditionnelle == null) f.conditionnelle = new List<Conditionnelle>();
-                if (GUILayout.Button("+ Ajouter Condition")) f.conditionnelle.Add(new Conditionnelle());
+                if (f.conditional == null) f.conditional = new List<Conditionnelle>();
+                if (GUILayout.Button("+ Ajouter Condition")) f.conditional.Add(new Conditionnelle());
                 
-                for (int j = 0; j < f.conditionnelle.Count; j++)
+                for (int j = 0; j < f.conditional.Count; j++)
                 {
                     EditorGUILayout.BeginVertical(GUI.skin.textField);
-                    Conditionnelle c = f.conditionnelle[j];
+                    Conditionnelle c = f.conditional[j];
                     c.nomV1 = EditorGUILayout.TextField("Var 1", c.nomV1);
                     c.opérateur = (Opérateur)EditorGUILayout.EnumPopup(c.opérateur);
                     c.nomV2 = EditorGUILayout.TextField("Var 2", c.nomV2);
                     c.opérateurEtape2 = (OpérateurEtape2)EditorGUILayout.EnumPopup("Lien suite", c.opérateurEtape2);
                     
-                    if (GUILayout.Button("Supprimer Condition")) { f.conditionnelle.RemoveAt(j); break; }
+                    if (GUILayout.Button("Supprimer Condition")) { f.conditional.RemoveAt(j); break; }
                     EditorGUILayout.EndVertical();
                 }
                 break;
@@ -183,21 +183,21 @@ public class DialcodeEditor : EditorWindow{
             
             case TypeDialogue.boutique:
                 EditorGUILayout.LabelField("Liste des produits (IDs)", EditorStyles.boldLabel);
-                if (f.listeProduitBoutique == null) {
-                    f.listeProduitBoutique = new List<int>();
+                if (f.storeProductList == null) {
+                    f.storeProductList = new List<int>();
                 }
 
                 if (GUILayout.Button("+ Ajouter un produit au magasin")) {
-                    f.listeProduitBoutique.Add(0);
+                    f.storeProductList.Add(0);
                 }
 
-                for (int i = 0; i < f.listeProduitBoutique.Count; i++) {
+                for (int i = 0; i < f.storeProductList.Count; i++) {
                     EditorGUILayout.BeginHorizontal();
-                    f.listeProduitBoutique[i] = EditorGUILayout.IntField("ID Produit " + i, f.listeProduitBoutique[i]);
+                    f.storeProductList[i] = EditorGUILayout.IntField("ID Produit " + i, f.storeProductList[i]);
 
                     GUI.color = Color.red;
                     if (GUILayout.Button("X", GUILayout.Width(20))) {
-                        f.listeProduitBoutique.RemoveAt(i);
+                        f.storeProductList.RemoveAt(i);
                         EditorGUILayout.EndHorizontal();
                         break; 
                     }

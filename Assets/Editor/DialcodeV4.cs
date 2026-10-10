@@ -419,32 +419,32 @@ public class DialcodeV4 : EditorWindow{
         f.type = AjouterUnEnumGénérique("Type", f.type);
         switch (f.type){
             case TypeDialogue.texte :
-                f.quiJeSuis = AjouterUnEnumGénérique("Qui je suis", f.quiJeSuis);
-                if (f.quiJeSuis == QuiJeSuis.héroYoKai || f.quiJeSuis == QuiJeSuis.yokai){
-                    f.IdÉlément = AjoutNombre("ID", f.IdÉlément);
+                f.whoIAm = AjouterUnEnumGénérique("Qui je suis", f.whoIAm);
+                if (f.whoIAm == QuiJeSuis.héroYoKai || f.whoIAm == QuiJeSuis.yokai){
+                    f.idElement = AjoutNombre("ID", f.idElement);
                 }
-                if (f.IdÉlément == 0 || (f.quiJeSuis != QuiJeSuis.héroYoKai && f.quiJeSuis != QuiJeSuis.yokai)){
-                    f.nom = AjoutTexte("NOM", f.nom);
+                if (f.idElement == 0 || (f.whoIAm != QuiJeSuis.héroYoKai && f.whoIAm != QuiJeSuis.yokai)){
+                    f.name = AjoutTexte("NOM", f.name);
                     f.imagePath = AjouterSprite("Image",f.imagePath);
                 }
-                f.phrase = AjoutTexteLong("Phrase", f.phrase);
-                f.imageDePresentationPath = AjouterSprite("Image de présentation", f.imageDePresentationPath);
+                f.sentence = AjoutTexteLong("Phrase", f.sentence);
+                f.presentationImagePath = AjouterSprite("Image de présentation", f.presentationImagePath);
                 break;
             case TypeDialogue.information :
-                f.phrase = AjoutTexte("Information", f.phrase);
-                f.cesUneExclamation = AjouterUnBool("C'est une exclamation ?", f.cesUneExclamation);
+                f.sentence = AjoutTexte("Information", f.sentence);
+                f.theseAreAnExclamations = AjouterUnBool("C'est une exclamation ?", f.theseAreAnExclamations);
                 break;
             case TypeDialogue.cadeau:
             case TypeDialogue.vol:
             case TypeDialogue.volDiscret:
             case TypeDialogue.donDiscret:
-                f.typeObjet = AjouterUnEnumGénérique( "Type objet", f.typeObjet);
-                f.IdÉlément = AjoutNombre("ID", f.IdÉlément);
-                if (f.IdÉlément == 0){
-                    f.nom = AjoutTexte("NOM", f.nom);
+                f.objectType = AjouterUnEnumGénérique( "Type objet", f.objectType);
+                f.idElement = AjoutNombre("ID", f.idElement);
+                if (f.idElement == 0){
+                    f.name = AjoutTexte("NOM", f.name);
                     f.imagePath = AjouterSprite("Image",f.imagePath);
                 }
-                f.quantitée = AjouterQuantitée("Quantitée",f.quantitée);
+                f.quantity = AjouterQuantitée("Quantitée",f.quantity);
                 break;
             case TypeDialogue.choix:
                 string nomCondition = "\"choix-numéro-" + nombreDeChoix.ToString()+"\"";
@@ -454,22 +454,22 @@ public class DialcodeV4 : EditorWindow{
                 break;
             case TypeDialogue.boutique:
                 EditorGUILayout.LabelField("Liste des produits (IDs)", monStyleTitreElement);
-                if (f.listeProduitBoutique == null) {
-                    f.listeProduitBoutique = new List<int>();
+                if (f.storeProductList == null) {
+                    f.storeProductList = new List<int>();
                 }
                 if (GUILayout.Button("+ Ajouter un produit au magasin")) {
-                    f.listeProduitBoutique.Add(0);
+                    f.storeProductList.Add(0);
                     aDesModificationsNonSauvegardees = true;
                 }
 
-                for (int i = 0; i < f.listeProduitBoutique.Count; i++) {
+                for (int i = 0; i < f.storeProductList.Count; i++) {
                     EditorGUILayout.BeginHorizontal();
                     // f.listeProduitBoutique[i] = EditorGUILayout.IntField("ID Produit " + i, f.listeProduitBoutique[i]);
-                    f.listeProduitBoutique[i] = AjoutNombre("ID Produit " + i.ToString(), f.listeProduitBoutique[i]);
+                    f.storeProductList[i] = AjoutNombre("ID Produit " + i.ToString(), f.storeProductList[i]);
 
                     GUI.color = Color.red;
                     if (GUILayout.Button("X", GUILayout.Width(20))) {
-                        f.listeProduitBoutique.RemoveAt(i);
+                        f.storeProductList.RemoveAt(i);
                         aDesModificationsNonSauvegardees = true;
                         EditorGUILayout.EndHorizontal();
                         break; 
@@ -480,15 +480,15 @@ public class DialcodeV4 : EditorWindow{
                 break;
             case TypeDialogue.conditionDePassage:
                 hauteurConditionnele++;
-                if (f.conditionnelle == null) f.conditionnelle = new List<Conditionnelle>();
+                if (f.conditional == null) f.conditional = new List<Conditionnelle>();
                 if (GUILayout.Button("+ Ajouter Condition")) {
-                    f.conditionnelle.Add(new Conditionnelle());
+                    f.conditional.Add(new Conditionnelle());
                     aDesModificationsNonSauvegardees = true;
                 }
                 
-                for (int j = 0; j < f.conditionnelle.Count; j++){
+                for (int j = 0; j < f.conditional.Count; j++){
                     // EditorGUILayout.BeginVertical(GUI.skin.textField);
-                    Conditionnelle c = f.conditionnelle[j];
+                    Conditionnelle c = f.conditional[j];
                     Rect rectLabelTemporaire = CrééLeRect();
                     // EditorGUI.LabelField(rectLabelTemporaire, valeurLabel, monStyleTitreElement);
                     GUILayout.BeginHorizontal();
@@ -497,13 +497,13 @@ public class DialcodeV4 : EditorWindow{
                     c.nomV2 =  AjoutTexte("Valeur", c.nomV2);
                     GUI.color = Color.red;
                     if (GUILayout.Button("X", GUILayout.Width(20))) {
-                        f.conditionnelle.RemoveAt(j);
+                        f.conditional.RemoveAt(j);
                         j--;
                         aDesModificationsNonSauvegardees = true;
                     }
                     GUI.color = Color.white;
                     GUILayout.EndHorizontal();
-                    if (j+1 < f.conditionnelle.Count){
+                    if (j+1 < f.conditional.Count){
                         c.opérateurEtape2 = AjouterUnEnumGénérique("Lien suite", c.opérateurEtape2);
                     }                
                 }
@@ -513,10 +513,10 @@ public class DialcodeV4 : EditorWindow{
                 if (hauteurConditionnele < 0) f.type = TypeDialogue.nul;
                 break;
             case TypeDialogue.quete:
-                f.categorieQuete = AjouterUnEnumGénérique("Quel est la catégorie de cette requête ?", f.categorieQuete);
-                f.nom = AjoutTexte("Nom",f.nom);
+                f.questCategory = AjouterUnEnumGénérique("Quel est la catégorie de cette requête ?", f.questCategory);
+                f.name = AjoutTexte("Nom",f.name);
                 f.endQuest = AjouterUnBool("La requête est terminé ?", f.endQuest);
-                string clef = f.categorieQuete.ToString()+"-"+f.nom;
+                string clef = f.questCategory.ToString()+"-"+f.name;
                 // Debug.Log(clef);
                 GUILayout.Box("La clef de sauvegarde est : "+clef, monStyleHelpBox);
                 GUILayout.Box("Les valeurs possibles sont :"+clef, monStyleHelpBox);
@@ -532,10 +532,15 @@ public class DialcodeV4 : EditorWindow{
                 f.infoQuest.xp = AjoutNombre("Points d'expériences",f.infoQuest.xp);
                 break;
             case TypeDialogue.variable:
-                f.nom = AjoutTexte("NOM", f.nom);
-                f.variableAActivée = AjouterUnBool("La variable est activées ?",f.variableAActivée);
+                f.name = AjoutTexte("NOM", f.name);
+                f.variableAEnabled = AjouterUnBool("La variable est activées ?",f.variableAEnabled);
                 GUILayout.Box("0 : Non activée.", monStyleHelpBox);
                 GUILayout.Box("1 : Activée.", monStyleHelpBox);
+                break;
+            case TypeDialogue.amiYoKai:
+                f.idElement = AjoutNombre("L'identifiant du yo-kai", f.idElement);
+                f.quantity = AjoutNombre("Son niveau ?", f.quantity);
+                f.heBecomesOurFriend = AjouterUnBool("Il devient notre amis ?", f.heBecomesOurFriend);
                 break;
         }
     }
@@ -745,8 +750,8 @@ public class DialcodeV4 : EditorWindow{
         string nomDuGameObject = Selection.activeGameObject.name;
         int ID = int.Parse(System.Text.RegularExpressions.Regex.Match(nomDuGameObject, @"\d+").Value);
         if (ID > 0 && nomDuGameObject.Contains("y")){
-            f.IdÉlément = ID;
-            f.quiJeSuis = QuiJeSuis.yokai;
+            f.idElement = ID;
+            f.whoIAm = QuiJeSuis.yokai;
         }
     }
 }
