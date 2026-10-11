@@ -784,11 +784,6 @@ public class Décoration{
     public Sprite boutGaucheRose;
     public Sprite centreRose;
     public Sprite boutDroiteRose;
-
-    public Sprite nomY1;
-    public Sprite nomY2;
-    public Sprite nomH1;
-    public Sprite nomH2;
     public Sprite spritePointExclamatif;
     public Sprite spritePointIntérogatif;
 }
