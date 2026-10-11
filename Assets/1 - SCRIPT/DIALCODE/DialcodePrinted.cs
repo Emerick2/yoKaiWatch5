@@ -211,8 +211,8 @@ public class DialcodePrinted : MonoBehaviour{
                     position++;
                 }
             }
-        } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret){
-            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true);
+        } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.amiYoKai){
+            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true, fragment.surnomYoKai);
         } else if (fragment.type == TypeDialogue.information){
             OuvertureFenêtre(information);
             information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
@@ -309,24 +309,29 @@ public class DialcodePrinted : MonoBehaviour{
     /// <param name="image">l'image de l'élément (facultatif)</param>
     /// <param name="nom">le nom de l'élément (facultatif)</param>
     /// <param name="dansUnDialogue">c'est sur true si sa fait partie d'un dialogue</param>
-    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false){
+    /// <param name="surnomYoKai">le surnom du yo-kai d'il s'agit d'un yo-kai.</param>
+    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false, string surnomYoKai = ""){
         canvasGroup.alpha = 1f;
         if (quantitée <= 0) quantitée = 1;
+        if (IdÉlément < 0) IdÉlément = 0;
         int quantitéeTexte = quantitée;
         if(nom == "€"){
             quantitée*=100;
         }
-        if (typeObjet == CatégorieItem.Nouriture){
-            nom = Item._instance.listeDesNouritures[IdÉlément].nom;
-            image = Item._instance.listeDesNouritures[IdÉlément].image;
-        } else if (typeObjet == CatégorieItem.Equipement){
-            nom = Item._instance.listeDesÉquipements[IdÉlément].nom;
-            image = Item._instance.listeDesÉquipements[IdÉlément].sprite;
-        } else if (typeObjet == CatégorieItem.Animal){
-            nom = Item._instance.listeDesAnnimaux[IdÉlément].nom;
-            image = Item._instance.listeDesAnnimaux[IdÉlément].image;
+        if (type != TypeDialogue.amiYoKai) {
+            if (typeObjet == CatégorieItem.Nouriture && Item._instance.listeDesNouritures.Count > IdÉlément){
+                nom = Item._instance.listeDesNouritures[IdÉlément]?.nom;
+                image = Item._instance.listeDesNouritures[IdÉlément]?.image;
+            } else if (typeObjet == CatégorieItem.Equipement && Item._instance.listeDesÉquipements.Count > IdÉlément){
+                nom = Item._instance.listeDesÉquipements[IdÉlément]?.nom;
+                image = Item._instance.listeDesÉquipements[IdÉlément]?.sprite;
+            } else if (typeObjet == CatégorieItem.Animal && Item._instance.listeDesAnnimaux.Count > IdÉlément){
+                nom = Item._instance.listeDesAnnimaux[IdÉlément]?.nom;
+                image = Item._instance.listeDesAnnimaux[IdÉlément]?.image;
+            }
         }
 
+        cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(false);
         if (type == TypeDialogue.cadeau){
             OuvertureFenêtre(cadeau);
             if (image != null){
@@ -375,6 +380,27 @@ public class DialcodePrinted : MonoBehaviour{
                 AvancerJusqueAuProchainDialogue();
                 Action();
             }
+        } else if (type == TypeDialogue.amiYoKai){
+            MedaliumNonPersonel yokai = medaliumDictionnaire._instance.ServantYoKai(IdÉlément);
+            if (yokai != null) {
+                nom = yokai.Nom;
+                image = yokai.médaillon;
+            }
+
+            MesYoKai.Instance.AjouterUnYoKai(IdÉlément,quantitée,"",surnomYoKai,0);
+
+            OuvertureFenêtre(cadeau);
+            cadeau.transform.Find("cintille").gameObject.SetActive(false);
+            if (image != null){
+                cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(true);
+                cadeau.transform.Find("médaille-yo-kai").GetComponent<Image>().sprite = image;
+            } else {
+                cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(false);
+            }
+            string phrase = "<color=#3462C2>"+nom+"</color> fait maintenant\npartie de tes amis !";
+
+            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
+            if (dansUnDialogue) position++;
         }
     }
 

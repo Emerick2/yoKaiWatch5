@@ -539,6 +539,7 @@ public class DialcodeV4 : EditorWindow{
                 break;
             case TypeDialogue.amiYoKai:
                 f.IdÉlément = AjoutNombre("L'identifiant du yo-kai", f.IdÉlément);
+                f.surnomYoKai = AjoutTexte("Le surnom du yo-kai ?", f.surnomYoKai);
                 f.quantitée = AjoutNombre("Son niveau ?", f.quantitée);
                 f.ilDevientNotreAmi = AjouterUnBool("Il devient notre amis ?", f.ilDevientNotreAmi);
                 break;
