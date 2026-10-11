@@ -3,28 +3,28 @@ using System.Collections.Generic;
 
 [System.Serializable]
 public class FragmentDeDialogue{
-    public int conditionalAuthor;
-    public int idElement;
+    public int auteurConditionnelle;
+    public int IdÉlément;
     public TypeDialogue type;
-    public string sentence;
-    public QuiJeSuis whoIAm;
-    public string name;
-    [Min(1)]public int quantity = 1;//si ces un cadeau, il y a une quantitée
-    public CatégorieItem objectType;
+    public string phrase;
+    public QuiJeSuis quiJeSuis;
+    public string nom;
+    [Min(1)]public int quantitée = 1;//si ces un cadeau, il y a une quantitée
+    public CatégorieItem typeObjet;
     [Header("Opération")]
-    public List<Conditionnelle> conditional = new List<Conditionnelle>();
-    public bool theseAreAnExclamations;
-    public List<int> storeProductList = new List<int>();
-    public CatégorieQuête questCategory;
+    public List<Conditionnelle> conditionnelle = new List<Conditionnelle>();
+    public bool cesUneExclamation;
+    public List<int> listeProduitBoutique = new List<int>();
+    public CatégorieQuête categorieQuete;
     public bool endQuest;
     public QuestMenuInformation infoQuest = new QuestMenuInformation();
 
-    public bool variableAEnabled;
+    public bool variableAActivée;
     public string imagePath;
-    public string presentationImagePath;
+    public string imageDePresentationPath;
     [System.NonSerialized] private Sprite _imageRuntime;
     [System.NonSerialized] private Sprite _imageDePresentationRuntime;
-    public bool heBecomesOurFriend = true;
+    public bool ilDevientNotreAmi = true;
 
     public Sprite image {
         get {
@@ -40,8 +40,8 @@ public class FragmentDeDialogue{
     public Sprite imageDePrésentation {
         get {
             if (_imageDePresentationRuntime != null) return _imageDePresentationRuntime;
-            if (string.IsNullOrEmpty(presentationImagePath)) return null;
-            return Resources.Load<Sprite>(presentationImagePath);
+            if (string.IsNullOrEmpty(imageDePresentationPath)) return null;
+            return Resources.Load<Sprite>(imageDePresentationPath);
         }
         set {
             _imageDePresentationRuntime = value;
