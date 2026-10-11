@@ -579,19 +579,9 @@ public class DialcodePrinted : MonoBehaviour{
         if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héro || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
             blocNomUtilisé = bulle.transform.Find("-- D --").gameObject;
             bulle.transform.Find("-- G --").gameObject.SetActive(false);
-            if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomY2;
-            } else {
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH2;
-            }
         } else {
             blocNomUtilisé = bulle.transform.Find("-- G --").gameObject;
             bulle.transform.Find("-- D --").gameObject.SetActive(false);
-            if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai){
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomY1;
-            } else {
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH1;
-            }
         }
 
         if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
@@ -620,7 +610,6 @@ public class DialcodePrinted : MonoBehaviour{
 
         if (fragmentDeDialogue[position].nom.Length > 0){
             espaceNom.gameObject.SetActive(true);
-            blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(true);
             espaceNom.text = fragmentDeDialogue[position].nom;
 
             if (imageDialogue != null){
@@ -632,7 +621,6 @@ public class DialcodePrinted : MonoBehaviour{
             }
         } else {
             espaceNom.gameObject.SetActive(false);
-            blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(false);
             espaceImage.gameObject.SetActive(false);
         }
 
