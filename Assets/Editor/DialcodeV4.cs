@@ -541,7 +541,7 @@ public class DialcodeV4 : EditorWindow{
                 f.IdÉlément = AjoutNombre("L'identifiant du yo-kai", f.IdÉlément);
                 f.surnomYoKai = AjoutTexte("Le surnom du yo-kai ?", f.surnomYoKai);
                 f.quantitée = AjoutNombre("Son niveau ?", f.quantitée);
-                f.ilDevientNotreAmi = AjouterUnBool("Il devient notre amis ?", f.ilDevientNotreAmi);
+                // f.ilDevientNotreAmi = AjouterUnBool("Il devient notre amis ?", f.ilDevientNotreAmi); // Pour le moment, cette fonctionnalité est masquée pour simplifier Dialcode.
                 break;
         }
     }

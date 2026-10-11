@@ -212,7 +212,7 @@ public class DialcodePrinted : MonoBehaviour{
                 }
             }
         } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.amiYoKai){
-            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true, fragment.surnomYoKai);
+            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true, fragment.surnomYoKai, fragment.ilDevientNotreAmi);
         } else if (fragment.type == TypeDialogue.information){
             OuvertureFenêtre(information);
             information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
@@ -310,7 +310,8 @@ public class DialcodePrinted : MonoBehaviour{
     /// <param name="nom">le nom de l'élément (facultatif)</param>
     /// <param name="dansUnDialogue">c'est sur true si sa fait partie d'un dialogue</param>
     /// <param name="surnomYoKai">le surnom du yo-kai d'il s'agit d'un yo-kai.</param>
-    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false, string surnomYoKai = ""){
+    /// <param name="ilDevientNotreAmi">Si c'est un yo-kai, il deviendras notre ami.</param>
+    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false, string surnomYoKai = "", bool ilDevientNotreAmi = true){
         canvasGroup.alpha = 1f;
         if (quantitée <= 0) quantitée = 1;
         if (IdÉlément < 0) IdÉlément = 0;
@@ -382,25 +383,41 @@ public class DialcodePrinted : MonoBehaviour{
             }
         } else if (type == TypeDialogue.amiYoKai){
             MedaliumNonPersonel yokai = medaliumDictionnaire._instance.ServantYoKai(IdÉlément);
+            AudioClip audioClip = null;
             if (yokai != null) {
                 nom = yokai.Nom;
                 image = yokai.médaillon;
+                audioClip = yokai.Bruit;
             }
 
-            MesYoKai.Instance.AjouterUnYoKai(IdÉlément,quantitée,"",surnomYoKai,0);
+            if (ilDevientNotreAmi) {
+                MesYoKai.Instance.AjouterUnYoKai(IdÉlément,quantitée,"",surnomYoKai,0);
 
-            OuvertureFenêtre(cadeau);
-            cadeau.transform.Find("cintille").gameObject.SetActive(false);
-            if (image != null){
-                cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(true);
-                cadeau.transform.Find("médaille-yo-kai").GetComponent<Image>().sprite = image;
+                OuvertureFenêtre(cadeau);
+                cadeau.transform.Find("cintille").gameObject.SetActive(false);
+                if (image != null){
+                    cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(true);
+                    cadeau.transform.Find("médaille-yo-kai").GetComponent<Image>().sprite = image;
+                } else {
+                    cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(false);
+                }
+                string phrase = "<color=#3462C2>"+nom+"</color> fait maintenant\npartie de tes amis !";
+
+                cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
+                if (dansUnDialogue) position++;
+
+                // Musique :
+                if (audioClip != null){
+                    GestionnaireMusique._Komasan.JouerUnEffetSonore(audioClip,false);
+                }
             } else {
-                cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(false);
+                MesYoKai.Instance.AbendonYoKai(IdÉlément);
+                if (dansUnDialogue) {
+                    position++;
+                    AvancerJusqueAuProchainDialogue();
+                    Action();
+                }
             }
-            string phrase = "<color=#3462C2>"+nom+"</color> fait maintenant\npartie de tes amis !";
-
-            cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
-            if (dansUnDialogue) position++;
         }
     }
 
