@@ -37,6 +37,7 @@ namespace YKW.Input
             }
 
             _instance = this;
+            if (transform.parent != null) transform.SetParent(null, true);
             DontDestroyOnLoad(gameObject);
 
             _input = new Input();

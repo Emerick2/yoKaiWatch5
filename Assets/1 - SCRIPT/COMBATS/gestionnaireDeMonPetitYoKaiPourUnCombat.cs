@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using YKW.Core.YoKai.Class;
 // faire la vie
 
-[Obsolete("Utilisé plutot GestionnaireCombat.cs")]
+[Obsolete("Utilisé plutot CombatManager.cs")]
 public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
 {
     bool onUtiliseLesMultiplication = false;
@@ -68,17 +68,17 @@ public class gestionnaireDeMonPetitYoKaiPourUnCombat : MonoBehaviour
         if (IDduYoKaiMedalium < 0 || IDduYoKaiMedalium >= MedaliumDictionnaire.MAX){
             Debug.LogError("Index hors limites ! IDduYoKaiMedalium = " + IDduYoKaiMedalium);
         }
-        MedaliumYoKai mimi = MedaliumDictionnaire.ServantYoKai(IDduYoKaiMedalium);
+        YoKai mimi = MedaliumDictionnaire.ServantYoKai(IDduYoKaiMedalium);
         if (IDduYoKaiSpécifique!=-1){
-            nom = mimi.Nom.ToString();
+            nom = mimi.nom.ToString();
         }else {
-            nom=mimi.Nom.ToString();
+            nom=mimi.nom.ToString();
         }
         yoKai = mimi.yoKai;
         tribue = mimi.tribue.ToString();
         rang = mimi.rang.ToString();
         description = mimi.Description.ToString();
-        personalité = mimi.personalité.ToString();
+        personalité = mimi.personnalité.ToString();
         talent = mimi.talent.ToString();
         technique = mimi.technique.ToString();
         platPréféré = mimi.platPréféré.ToString();

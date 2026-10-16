@@ -15,7 +15,7 @@ public class DevenirAmis : MonoBehaviour {
         niveau = int.Parse(neDisparaitPas.aTransporter2);
         personalité = neDisparaitPas.aTransporter3;
         surnom = neDisparaitPas.aTransporter4;
-        if (surnom == "") surnom = medaliumDictionnaire._instance.ServantYoKai(ID).Nom;
+        if (surnom == "") surnom = medaliumDictionnaire._instance.ServantYoKai(ID).nom;
 
         GameObject TV = medaliumDictionnaire._instance.InstantiateYoKai(ID.ToString());
         TV.transform.position = position;

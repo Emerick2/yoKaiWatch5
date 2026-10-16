@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using YKW.Core.YoKai.Enums;
 using YKW.Core.YoKai.Class;
 
 public class medaliumDictionnaire : MonoBehaviour{
@@ -17,7 +18,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     public Sprite imageDeUneMédailleInconnue;
 
     /*[HideInInspector]*/
-    [SerializeField] private List<MedaliumYoKai> dictionnaire;
+    [SerializeField] private List<YoKai> dictionnaire;
 
     public bool chargementFini = true;
     public int MAX = 905;
@@ -29,6 +30,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     private void Awake(){
         if (_instance == null){
             _instance = this;
+            if (transform.parent != null) transform.SetParent(null, true);
             DontDestroyOnLoad(gameObject);
         }
         else{
@@ -36,8 +38,8 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
 
-   public MedaliumYoKai ServantYoKai(int ID) {
-        foreach (MedaliumYoKai item in dictionnaire){
+   public YoKai ServantYoKai(int ID) {
+        foreach (YoKai item in dictionnaire){
             if (item.ID == ID){
                 return item;
             }
@@ -45,20 +47,19 @@ public class medaliumDictionnaire : MonoBehaviour{
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/yokai_data/" + ID.ToString());
 
         if (targetFile != null) {
-            MedaliumYoKai yoKai = JsonUtility.FromJson<MedaliumYoKai>(targetFile.text);
+            YoKaiJsonData data = JsonUtility.FromJson<YoKaiJsonData>(targetFile.text);
+            YoKai yoKai = ConstruireYoKai(data);
             yoKai.ID = ID;
-            yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.Nom));
-            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.Nom));
-            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.Nom));
-            if (yoKai.médaillon == null) {
-                yoKai.médaillon = yoKai.faceRondImage;
+            yoKai.imageFace = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.nom));
+            yoKai.imageMédaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.nom));
+            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.nom));
+            if (yoKai.imageMédaillon == null) {
+                yoKai.imageMédaillon = yoKai.faceRondImage;
             }
-            if (yoKai.médaillon == null) {
-                yoKai.médaillon = yoKai.faceImage;
+            if (yoKai.imageMédaillon == null) {
+                yoKai.imageMédaillon = yoKai.imageFace;
             }
-            yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.Nom));
-            yoKai.tribue = AjouterUneTribue(yoKai.Tribue);
-            yoKai.rang = AjouterUnRang(yoKai.Rang);
+            yoKai.voiceClip = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.nom));
             dictionnaire.Add(yoKai);
         
             return yoKai;
@@ -66,6 +67,62 @@ public class medaliumDictionnaire : MonoBehaviour{
             Debug.LogError("Fichier JSON introuvable pour l'ID : " + ID);
             return null;
         }
+    }
+
+    private static YoKai ConstruireYoKai(YoKaiJsonData data)
+    {
+        YoKai yoKai = new YoKai();
+        if (data == null) return yoKai;
+
+        yoKai.nom = data.Nom;
+        yoKai.Description = data.Description;
+        yoKai.Force = LireEntier(data.Force);
+        yoKai.Vitesse = LireEntier(data.Vitesse);
+        yoKai.Esprit = LireEntier(data.Esprit);
+        yoKai.Défense = LireEntier(data.Défense);
+        yoKai.PV = LireEntier(data.PV);
+        yoKai.rare = string.Equals(data.rarite, "Rare", StringComparison.OrdinalIgnoreCase);
+        yoKai.tribue = LireEnum(data.Tribue, Tribue.Bienveillant);
+        yoKai.rang = LireEnum(data.Rang, Rang.E);
+        yoKai.technique = LireEnum(data.Technique, Technique.Feu);
+        yoKai.talent = LireEnum(data.talent, Talent.Absorption);
+        yoKai.type = LireEnum(data.Type, YKW.Core.YoKai.Enums.Type.Attaque);
+        yoKai.platPréféré = LireEnum(data.nourriture, PlatPréféré.Riz);
+        yoKai.monElement = LireEnum(data.élément, Element.Neutre);
+        yoKai.phrasesNourriture = new Dictionary<string, string>();
+        return yoKai;
+    }
+
+    private static int LireEntier(string valeur)
+    {
+        return int.TryParse(valeur, NumberStyles.Integer, CultureInfo.InvariantCulture, out int résultat)
+            ? résultat
+            : 0;
+    }
+
+    private static T LireEnum<T>(string valeur, T valeurParDéfaut) where T : struct
+    {
+        return Enum.TryParse(valeur, true, out T résultat) ? résultat : valeurParDéfaut;
+    }
+
+    [Serializable]
+    private sealed class YoKaiJsonData
+    {
+        public string Nom;
+        public string Tribue;
+        public string Rang;
+        public string PV;
+        public string Force;
+        public string Vitesse;
+        public string Esprit;
+        public string Défense;
+        public string Description;
+        public string nourriture;
+        public string élément;
+        public string Technique;
+        public string Type;
+        public string talent;
+        public string rarite;
     }
 
     public static string MakeAnUrl(object valeur){
@@ -87,79 +144,35 @@ public class medaliumDictionnaire : MonoBehaviour{
     }
 
     public GameObject InstantiateYoKai(string ID){
-        TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
-
-        if (targetFile == null) {
-            Debug.LogError("Le fichier JSON 'yokai_assets_mapping' est introuvable dans Resources/yo-kai-API/data/_3D/");
+        TextAsset mappingFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
+        if (mappingFile == null) {
+            Debug.LogError("Yo-kai model mapping was not found.", this);
             return null;
         }
-
-        if (targetFile != null) {
-            var allData = JsonConvert.DeserializeObject<Dictionary<string, YoKaiModele3D>>(targetFile.text);
-
-            if (allData.ContainsKey(ID)) {
-                YoKaiModele3D map = allData[ID];
-                GameObject modelFile = Resources.Load<GameObject>("yo-kai-API/data/_3D/models/"+map.modelFile.Replace(".fbx",""));
-                List<Sprite> textureFiles = new List<Sprite>();
-                foreach (string item in map.textureFiles){
-                    textureFiles.Add(Resources.Load<Sprite>("yo-kai-API/data/_3D/textures/"+item.Replace(".png","")));
-                }
-                GameObject TV = Instantiate(modelFile);
-
-
-                Renderer renderer = TV.GetComponentInChildren<Renderer>();
-                if (renderer != null && map.textureFiles.Length > 0) {
-                    Material[] mats = renderer.materials;
-
-                    for (int i = 0; i < map.textureFiles.Length; i++) {
-                        if (i >= mats.Length) break;
-
-                        string texPath = "yo-kai-API/data/_3D/textures/" + map.textureFiles[i].Replace(".png", "");
-                        Texture2D tex = Resources.Load<Texture2D>(texPath);
-
-                        if (tex != null) {
-                            mats[i].mainTexture = tex;
-                        }
-                    }
-                    
-                    renderer.materials = mats;
-                }
-
-                TV.AddComponent<MakeATexture>();
-                TV.AddComponent<MakeAShader>();
-                return TV;
-            } else {
-                Debug.Log("Modèle non trouvé");
-            }
+        var mappings = JsonConvert.DeserializeObject<Dictionary<string, YoKaiModele3D>>(mappingFile.text);
+        if (mappings == null || !mappings.TryGetValue(ID, out YoKaiModele3D mapping) || mapping == null) {
+            Debug.LogError("No model mapping exists for Yo-kai " + ID, this);
+            return null;
         }
-        return null;
+        string modelPath = "yo-kai-API/data/_3D/models/" + System.IO.Path.GetFileNameWithoutExtension(mapping.modelFile);
+        GameObject prefab = Resources.Load<GameObject>(modelPath);
+        if (prefab == null) {
+            Debug.LogError("Yo-kai model was not found: " + modelPath, this);
+            return null;
+        }
+        GameObject actor = Instantiate(prefab);
+        MakeAShader shader = actor.GetComponent<MakeAShader>();
+        if (shader == null) shader = actor.AddComponent<MakeAShader>();
+        shader.choixForcer = true;
+        shader.forcerToonShader = true;
+        shader.forcerUnlitShader = false;
+        shader.ApplyYokaiShader();
+        MakeATexture textures = actor.GetComponent<MakeATexture>();
+        if (textures == null) textures = actor.AddComponent<MakeATexture>();
+        textures.Initialize(mapping);
+        return actor;
     }
 
-    public Tribue AjouterUneTribue(string nomDeLaTribue){
-        if (nomDeLaTribue != null && nomDeLaTribue.Length > 0){
-            nomDeLaTribue = nomDeLaTribue.ToLower();
-            nomDeLaTribue = nomDeLaTribue.Replace("mystérieux","mystérieu");
-            nomDeLaTribue = nomDeLaTribue.Replace("insaisisables","insaisissable");
-            
-            nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
-            if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
-                return (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
-            }
-            Debug.Log("La tribue "+nomDeLaTribue+" n'as pas été trouver...");
-        }
-        return Tribue.Bienveillant;
-    }
-    public Rang AjouterUnRang(string nomDuRang){
-        if (nomDuRang != null && nomDuRang.Length > 0){
-            nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
-            nomDuRang = nomDuRang.ToUpper();
-            if (Enum.IsDefined(typeof(Rang), nomDuRang)){
-                return (Rang)Enum.Parse(typeof(Rang), nomDuRang);
-            }
-            Debug.Log("Le rang "+nomDuRang+" n'as pas été trouver...");
-        }
-        return Rang.E;
-    }
     public Element ObtenirElementDeLaTechnique(Technique technique){
         switch (technique){
             // FEU

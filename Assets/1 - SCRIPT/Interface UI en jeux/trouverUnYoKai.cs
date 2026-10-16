@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using YKW.Core.YoKai.Enums;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 

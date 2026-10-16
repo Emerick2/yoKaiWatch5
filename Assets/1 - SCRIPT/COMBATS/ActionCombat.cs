@@ -1,19 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using YKW.Core.Events;
 using YKW.Input;
 using Input = YKW.Input.Input;
 
 public sealed class ActionCombat : MonoBehaviour, Input.ICombatActions, Input.ICommonActions
 {
-    private GestionnaireCombat gestionnaireCombat;
     private InputManager inputManager;
 
-    private void Awake()
-    {
-        gestionnaireCombat = GetComponent<GestionnaireCombat>();
-    }
-
-    private void Start()
+    private void OnEnable()
     {
         inputManager = InputManager.Instance;
         inputManager.Input.Common.AddCallbacks(this);
@@ -21,12 +16,9 @@ public sealed class ActionCombat : MonoBehaviour, Input.ICombatActions, Input.IC
         inputManager.Enable(inputManager.Input.Combat);
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
-        if (!InputManager.HasInstance)
-            return;
-
-        inputManager ??= InputManager.Instance;
+        if (inputManager == null || !InputManager.HasInstance) return;
         inputManager.Input.Common.RemoveCallbacks(this);
         inputManager.Input.Combat.RemoveCallbacks(this);
     }
@@ -34,42 +26,42 @@ public sealed class ActionCombat : MonoBehaviour, Input.ICombatActions, Input.IC
     public void OnTournerLaRoueGauche(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.DemanderRotationRoue(-1);
+            EventBus.Publish(new CombatRotateRequestedEvent(-1));
     }
 
     public void OnTournerLaRoueDroite(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.DemanderRotationRoue(1);
+            EventBus.Publish(new CombatRotateRequestedEvent(1));
     }
 
     public void OnChangédecibleGauche(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.ChangerOption(-1);
+            EventBus.Publish(new CombatOptionChangeRequestedEvent(-1));
     }
 
     public void OnChnagédecibleDroite(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.ChangerOption(1);
+            EventBus.Publish(new CombatOptionChangeRequestedEvent(1));
     }
 
     public void OnAccélérer(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.BasculerVitesseAccélérée();
+            EventBus.Publish(new CombatSpeedToggleRequestedEvent());
     }
 
     public void OnConfirmer(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.ConfirmerAction();
+            EventBus.Publish(new CombatConfirmRequestedEvent());
     }
 
     public void OnAnnuler(InputAction.CallbackContext context)
     {
         if (context.performed)
-            gestionnaireCombat.AnnulerAction();
+            EventBus.Publish(new CombatCancelRequestedEvent());
     }
 }

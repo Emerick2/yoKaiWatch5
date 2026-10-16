@@ -47,7 +47,7 @@ public class complétéLeJournal : MonoBehaviour{
             int ID = int.Parse(NewDataCenter.Instance.Lire(yoKaiDansEquipe[i]+"_ID"));
             médaille[i].SetActive(true);
             if (icôneMédaille.Count > i && ID > 0) {
-                icôneMédaille[i].sprite = médailum.ServantYoKai(ID).médaillon;
+                icôneMédaille[i].sprite = médailum.ServantYoKai(ID).imageMédaillon;
             }
         }
 

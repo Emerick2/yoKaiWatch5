@@ -139,7 +139,7 @@ namespace YKW.Input
                     ""id"": ""390c7a2d-227f-4c3e-bf94-7adfba8eb09c"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""PressAndRepeat(holdTime=0.1,repeatTime=0.001,press=true,accelerate=true,acceleration=0.05,minimumRepeatTime=0.001)"",
+                    ""interactions"": ""Press"",
                     ""initialStateCheck"": false
                 },
                 {
@@ -148,7 +148,7 @@ namespace YKW.Input
                     ""id"": ""d020f743-8db9-4fb8-bf51-66a0ad7e31ac"",
                     ""expectedControlType"": """",
                     ""processors"": """",
-                    ""interactions"": ""PressAndRepeat(holdTime=0.1,repeatTime=0.001,press=true,accelerate=true,acceleration=0.05,minimumRepeatTime=0.001)"",
+                    ""interactions"": ""Press"",
                     ""initialStateCheck"": false
                 },
                 {

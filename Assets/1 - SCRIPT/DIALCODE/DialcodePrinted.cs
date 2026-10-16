@@ -180,10 +180,10 @@ public class DialcodePrinted : MonoBehaviour{
         
         if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément > 0){
             if (string.IsNullOrEmpty(fragment.nom)) {
-                fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
+                fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).nom;
             }
             if (fragment.image == null && string.IsNullOrEmpty(fragment.imagePath)) {
-                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
+                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).imageFace;
             }
         }
 
@@ -524,7 +524,7 @@ public class DialcodePrinted : MonoBehaviour{
                     Destroy(audioPrecedent);
                 }
                 listeIdParler.Add(id);
-                AudioClip song = medaliumDictionnaire._instance.ServantYoKai(id).Bruit;
+                AudioClip song = medaliumDictionnaire._instance.ServantYoKai(id).voiceClip;
                 if (song != null){
                     GestionnaireMusique._Komasan.JouerUnEffetSonore(song, false);
                 }

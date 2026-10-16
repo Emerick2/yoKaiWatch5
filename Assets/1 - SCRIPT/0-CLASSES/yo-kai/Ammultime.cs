@@ -1,3 +1,5 @@
+using YKW.Core.YoKai.Enums;
+
 namespace YKW.Core.YoKai.Class
 {
     [System.Serializable]

@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
     public float vitesse = 500f;
+    [SerializeField] private string combatSceneName = "Combat2";
     
     private float minXPosition = -5.5f;
     private float maxXPosition = 5.5f;
@@ -66,7 +67,13 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
     IEnumerator DéclancherUnCombat(){
         écranDeChargement.SetActive(true);
         yield return new WaitForSeconds(1.5f);
-        SceneManager.LoadScene("combat");
+        if (string.IsNullOrWhiteSpace(combatSceneName))
+        {
+            Debug.LogError("Combat scene name is not configured.", this);
+            yield break;
+        }
+
+        SceneManager.LoadScene(combatSceneName);
     }
     void OnTriggerStay(){
         estViséCorrectement = true;

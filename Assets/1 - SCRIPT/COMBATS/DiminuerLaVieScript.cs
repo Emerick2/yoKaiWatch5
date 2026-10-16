@@ -1,94 +1,103 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
+using YKW.Core.YoKai.Enums;
 using YKW.Core.YoKai.Class;
-using YKW.Core.YoKai.Struct;
-using MedaliumNonPersonel = YKW.Core.YoKai.Class.MedaliumYoKai;
+using YokaiSpecies = YKW.Core.YoKai.Class.YoKai;
 
-public class DiminuerLaVieScript : MonoBehaviour{
-    public enum TypeAttaque { Physique, Technique }
+/// <summary>Damage rules for the currently implemented basic attack.</summary>
+public class DiminuerLaVieScript : MonoBehaviour
+{
+    public enum AttackType { Physical, Technique }
 
-    List<YoKaiCombat> TousLesYoKaiSurRoue(bool ami, List<YoKaiCombat> ordreDePassage){
-        List<YoKaiCombat> tousLesYoKaiSurRoue = new List<YoKaiCombat>();
-        tousLesYoKaiSurRoue = ordreDePassage.Where(e => e.hp_me > 0 && e.estDevant && e.estUnAmi == ami).ToList();
-        return tousLesYoKaiSurRoue;
+    private static List<YoKaiCombat> GetActiveAlliesOnWheel(
+        bool isFriendly, IEnumerable<YoKaiCombat> turnOrder)
+    {
+        if (turnOrder == null) return new List<YoKaiCombat>();
+        return turnOrder
+            .Where(yokai => yokai != null && yokai.hp_me > 0 && yokai.estDevant && yokai.estUnAmi == isFriendly)
+            .ToList();
     }
 
-    float CalculerBonusTribu(YoKaiCombat yoKai, List<YoKaiCombat> tousLesYoKaiSurRoue){
-        float valeur = 1;
-        foreach (YoKaiCombat item in tousLesYoKaiSurRoue){
-            if(item != yoKai && item.tribue == yoKai.tribue){
-                valeur+=0.1f;
-            }
-        }
-        // Dans Yo-kai Watch, l'unité augmente souvent la stat de 10% à 20%
-        // Imaginons ici que bonusTribu renvoie un multiplicateur (ex: 1.20 pour +20%)
-        return valeur;
+    /// <summary>
+    /// A unity is formed by living allies of the same tribe in neighboring
+    /// wheel slots. Each neighbor contributes 10%, up to the two neighbors
+    /// that can surround a slot on the six-position wheel.
+    /// </summary>
+    private static float CalculateUnityBonus(YoKaiCombat attacker, List<YoKaiCombat> allies)
+    {
+        if (attacker == null || allies == null) return 1f;
+
+        int slot = ((attacker.positionRoue % 6) + 6) % 6;
+        int sameTribeNeighbors = allies.Count(ally =>
+        {
+            if (ally == null || ally == attacker || ally.tribue != attacker.tribue) return false;
+            int allySlot = ((ally.positionRoue % 6) + 6) % 6;
+            int distance = Mathf.Abs(slot - allySlot);
+            return distance == 1 || distance == 5;
+        });
+
+        return 1f + Mathf.Min(sameTribeNeighbors, 2) * 0.10f;
     }
 
-    float ObtenirMultiplicateurEnvoutement(YoKaiCombat yoKai, TypeAttaque typeAttaque){
-        return 1f;//je ne prend pas encore en compte les envoutement. Je reviendrais ici plus tard
-        //attention, on vas multiplier cette valeur ça doit donc être un pourcentage au format 1.2 par exemple.
+    private static float GetAttackPower(YoKaiCombat attacker, AttackType attackType)
+    {
+        if (attacker == null) return 0f;
+        return Mathf.Max(0f, attackType == AttackType.Physical
+            ? attacker.Stats.Force
+            : attacker.Stats.Esprit);
     }
 
-    float CalculerCorrection(YoKaiCombat yoKai, TypeAttaque typeAttaque, List<YoKaiCombat> tousLesYoKaiSurRoue) {
-        float valeurBase = 0;
+    /// <summary>
+    /// Basic attacks are neutral. The elemental multiplier is used by future
+    /// elemental techniques and Soultimates, not by the physical attack action.
+    /// </summary>
+    public float GetElementalDamageMultiplier(
+        Technique usedTechnique, bool isPhysicalAttack, YokaiSpecies defenderData)
+    {
+        if (isPhysicalAttack || defenderData == null || medaliumDictionnaire._instance == null)
+            return 1f;
 
-        if (typeAttaque == TypeAttaque.Physique) {
-            valeurBase = yoKai.Stats.Force;
-        } else {
-            valeurBase = yoKai.Stats.Esprit;
-        }
-
-        // StatFinale = ((2*base+iv+(ev/2)*niveau)/100)+5
-        float iv = 0;
-        float ev = 1;
-
-        float statFinale = ((2*valeurBase+iv+(ev/2)*yoKai.niveau)/100)+5;
-
-        float bonusTribu = CalculerBonusTribu(yoKai, tousLesYoKaiSurRoue);
-        if (bonusTribu > 1) {
-            statFinale *= bonusTribu;
-        }
-
-        float multiplicateurEnvoutement = ObtenirMultiplicateurEnvoutement(yoKai, typeAttaque);
-        statFinale *= multiplicateurEnvoutement;
-
-        return (int)statFinale;
-    }
-
-    public float CalculerMultiplicateurElementaire(Technique techniqueUtilisee, bool estAttaquePhysique, MedaliumYoKai dataDefenseur) {
-        if (estAttaquePhysique){
-            return 1f; 
-        }
-
-        Element elementAttaque = medaliumDictionnaire._instance.ObtenirElementDeLaTechnique(techniqueUtilisee);
-
-        if (elementAttaque == dataDefenseur.elementFaiblesse){
+        Element attackElement = medaliumDictionnaire._instance.ObtenirElementDeLaTechnique(usedTechnique);
+        if (attackElement == Element.Neutre || attackElement == Element.Soin)
+            return 1f;
+        if (attackElement == defenderData.elementFaiblesse)
             return 1.5f;
-        } else if (elementAttaque == dataDefenseur.elementResistance) {
+        if (attackElement == defenderData.elementResistance)
             return 0.5f;
-        }
         return 1f;
     }
 
-    public int DiminueLaVie(YoKaiCombat attaquant, YoKaiCombat cible, List<YoKaiCombat> ordreDePassage){
-        TypeAttaque typeAttaque = TypeAttaque.Physique;//cette variable changeras en fonction du yo-kai plus tard
-        float correction = CalculerCorrection(attaquant, typeAttaque, TousLesYoKaiSurRoue(attaquant.estUnAmi,ordreDePassage));
+    public int ApplyDamage(YoKaiCombat attacker, YoKaiCombat defender, List<YoKaiCombat> turnOrder)
+    {
+        if (attacker == null || defender == null || defender.hp_me <= 0) return 0;
+
+        // This action is currently the basic physical attack. Keeping the
+        // attack type explicit makes its stat and elemental rules unambiguous.
+        const AttackType attackType = AttackType.Physical;
+        float attackPower = GetAttackPower(attacker, attackType);
+        float unityBonus = CalculateUnityBonus(
+            attacker, GetActiveAlliesOnWheel(attacker.estUnAmi, turnOrder));
+
+        // Strength drives physical damage; defense reduces every damage source.
+        // The coefficients preserve the existing damage scale while removing
+        // the unrelated, Pokémon-style second stat formula from this calculation.
+        float baseDamage = attackPower * 0.5f * unityBonus - Mathf.Max(0f, defender.Stats.Défence) * 0.25f;
         int rollStep = Random.Range(0, 21);
-        float rouleau = 0.90f + rollStep / 100f;
-        MedaliumNonPersonel dataAttaquant = medaliumDictionnaire._instance.ServantYoKai(attaquant.ID);
-        MedaliumNonPersonel dataCible = medaliumDictionnaire._instance.ServantYoKai(attaquant.ID);
-        float faiblesseOuRésistance = CalculerMultiplicateurElementaire(dataAttaquant.technique, typeAttaque == TypeAttaque.Physique, dataCible);
-        float multiplicateurDeCompétance = 1;
-        float gardeEnnemie = cible.multiplicateurGarde;
+        float variance = 0.90f + rollStep / 100f;
 
-        float dégâtBase = correction / 2f + attaquant.Stats.Force / 2f - cible.Stats.Défence / 4f;
-        float dégâtFinal = dégâtBase * rouleau * faiblesseOuRésistance * multiplicateurDeCompétance * gardeEnnemie;
+        YokaiSpecies defenderData = medaliumDictionnaire._instance != null
+            ? medaliumDictionnaire._instance.ServantYoKai(defender.ID)
+            : null;
+        float elementalMultiplier = defenderData == null
+            ? 1f
+            : GetElementalDamageMultiplier(
+                attacker.technique, attackType == AttackType.Physical, defenderData);
 
-        int taux = (int)Mathf.Max(1f, dégâtFinal);
-        cible.hp_me -= taux;
-        return taux;
+        float guardMultiplier = Mathf.Clamp(defender.multiplicateurGarde, 0f, 1f);
+        float finalDamage = baseDamage * variance * elementalMultiplier * guardMultiplier;
+        int damage = Mathf.Max(1, Mathf.FloorToInt(finalDamage));
+        defender.ModifierPV(-damage);
+        return damage;
     }
 }

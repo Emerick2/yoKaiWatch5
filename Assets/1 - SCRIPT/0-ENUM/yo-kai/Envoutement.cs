@@ -1,5 +1,8 @@
-public enum StatutAmitié
+namespace YKW.Core.YoKai.Enums
 {
-    Ennemie,
-    Allié
+    public enum StatutAmitié
+    {
+        Ennemie,
+        Allié
+    }
 }

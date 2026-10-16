@@ -42,11 +42,11 @@ public class ComplétéLeMédaliumAvecCSV : MonoBehaviour{
         //         //IDD--;
         //         string ID = IDD.ToString();
         //         // while (médailum.MAX <= int.Parse(ID)){
-        //         //     var v = new MedaliumNonPersonel();
+        //         //     var v = new YoKaiEspece();
         //         //     médailum.dictionnaire.Add(v);
         //         // }
-        //         MedaliumNonPersonel l = médailum.ServantYoKai(int.Parse(ID));
-        //         l.Nom = ligne[1];
+        //         YoKaiEspece l = médailum.ServantYoKai(int.Parse(ID));
+        //         l.nom = ligne[1];
         //         if (ligne[2] != "")médailum.AjouterUneTribue(int.Parse(ID), ligne[2]);
         //         if (ligne[3] != "")médailum.AjouterUnRang(int.Parse(ID), ligne[3]);
         //         if (ligne[4] != "") l.PV = int.Parse(ligne[4]);
@@ -58,7 +58,7 @@ public class ComplétéLeMédaliumAvecCSV : MonoBehaviour{
         //         string chemin = "Medaillons/" + ID;
         //         Sprite image = Resources.Load<Sprite>(chemin);
         //         if (image != null){
-        //             l.médaillon = image;
+        //             l.imageMédaillon = image;
         //         } else {
         //             Debug.LogWarning("Image non trouvée pour le chemin : " + chemin);
         //         }

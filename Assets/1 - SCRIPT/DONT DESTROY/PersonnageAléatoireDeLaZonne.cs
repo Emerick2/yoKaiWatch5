@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using YKW.Core.YoKai.Enums;
 using UnityEngine;
 using YKW.Core.YoKai.Class;
 //using System.ComponentModel;

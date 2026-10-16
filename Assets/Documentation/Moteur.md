@@ -1,9 +1,9 @@
 # Documentation interne du moteur — Yo-kai Watch 5
 
-> Document de maintenance basé sur l’état du dépôt au 1 septembre 2026.
-> Il décrit les systèmes de jeu, leur branchement dans Unity et leurs contrats
-> implicites. Le système de combat est volontairement hors périmètre : cette
-> page ne documente ni ses règles, ni sa boucle, ni ses scripts.
+> Document de maintenance mis à jour le 15 octobre 2026. Il décrit les systèmes
+> de jeu, leur branchement dans Unity et leurs contrats implicites. La section 17
+> documente l’intégration événementielle récente de l’interface de combat; les
+> règles métier et le déroulement du combat restent détaillés dans les scripts.
 
 ## 1. Fiche technique
 
@@ -63,12 +63,11 @@ composants de scène.
 
 ### Yo-kai
 
-- `YoKai` décrit l’espèce : ID, nom, rang, tribu, personnalité et visuels.
+- `YoKai` décrit l’espèce et sa fiche encyclopédique : ID, nom, description,
+  rang, tribu, personnalité, statistiques, nourriture, médias et modèle 3D.
 - `YoKaiActif` décrit une instance possédée : `IDUnique`, surnom, niveau, XP,
   position dans la roue, objet tenu, statistiques de base, IV/EV et statistiques
   calculées.
-- `MedaliumYoKai` est la fiche encyclopédique chargée depuis l’API locale :
-  statistiques, attributs, texte de nourriture, images, son et modèle 3D.
 - Les énumérations de référence sont dans `0-ENUM/yo-kai` : `Rang`, `Tribue`,
   `Personalité`, `Talent`, `Technique`, `Type`, `Element`, `PlatPréféré` et
   `StatutAmitié`.
@@ -404,10 +403,9 @@ Avant de valider une nouvelle scène :
   fautes historiques : conserver les chemins exacts lors d’un déplacement.
 - `Resources.LoadAll` charge tout un dossier et plusieurs catalogues restent
   en mémoire; surveiller le coût lors de l’ajout de contenu.
-- Le dépôt ne contient pas de tests Unity automatisés. La vérification minimale
-  est donc une exécution dans l’éditeur avec Console sans erreur, suivie d’un
-  parcours menu → nouvelle partie → déplacement → dialogue → sac → activité →
-  sauvegarde → reprise.
+- Exécuter les tests EditMode de l’assembly `GlobalEventSystem.EditorTests`,
+  puis faire un parcours en éditeur menu → nouvelle partie → déplacement →
+  dialogue → sac → activité → sauvegarde → reprise.
 
 ## 16. Règles de maintenance
 
@@ -420,5 +418,86 @@ Avant de valider une nouvelle scène :
   conservant les noms contractuels nécessaires aux scènes existantes.
 - Documenter dans cette page tout nouveau singleton, chemin `Resources`, tag,
   nom d’enfant ou clé de journal.
-- Garder le combat dans sa documentation dédiée pendant sa refonte; cette page
-  doit rester centrée sur les systèmes transversaux et hors combat.
+- Documenter les contrats transversaux du combat dans la section 17; conserver
+  les règles détaillées et la boucle métier dans la documentation de combat.
+## 17. Événements globaux et interface de combat
+
+`YKW.Core.Events` fournit le bus global indépendant des scènes. La publication
+est synchrone sur le thread Unity; un producteur secondaire doit appeler
+`EventBus.PublishOnMainThread(evt)`. `Subscribe<T>` retourne un `IDisposable`;
+les doublons sont ignorés et les abonnements changés pendant un dispatch prennent
+effet à la fin du dispatch extérieur. Les exceptions sont agrégées après que les
+autres handlers ont été appelés.
+
+```csharp
+IDisposable subscription = EventBus.Subscribe<ValueChangedEvent<int>>(OnHealthChanged);
+EventBus.Publish(new CombatMessageEvent("Action réussie", 2f));
+subscription.Dispose();
+```
+
+`[PublishEvent("NomCompletDeLEvenement")]` est un aspect développé avec
+`[AfterTemplate]`; le test d'intégration confirme qu'il publie après le retour
+normal. `[NotifyChanged]` reste désactivé. UnityMeta refuse `[TargetInstance]`
+typé `object` sur les écritures réelles (`No compatible [ChangeTemplate]`); le
+type de propriétaire doit correspondre exactement au type du champ. Un template
+avec propriétaire concret est sélectionné, mais un tissage de changement réel
+fait référencer `System.Private.CoreLib` par `Assembly-CSharp`, que Unity Mono ne
+peut pas résoudre. Ce défaut persiste avec un relais non générique; la comparaison
+ajoutée par `FieldChange` est aussi tissée. UnityMeta 0.2.0-alpha.5 ne permet donc
+pas d'activer cet aspect dans ce projet sans modifier le weaver installé.
+Les mutations observées en production publient explicitement
+`ValueChangedEvent<T>`; `YoKaiCombat.hp_me` suit ce modèle. `ObservableValue<T>`
+fournit le même contrat pour tout type, avec propriétaire et égalité générique.
+Les écritures de l'Inspector, la désérialisation Unity, les accès `ref` et les
+assemblies non tissées ne sont pas observés automatiquement.
+
+`[PublishEvent("NomCompletDeLEvenement")]` est un aspect `[AfterTemplate]` utilisable
+pour les événements sans payload déclenchés après le retour normal d'une méthode.
+Il ne garantit pas la réussite métier en cas d'exception ou de résultat négatif;
+dans ce cas, publier explicitement le contrat métier. `[SubscribeEvent]` s'utilise
+sur un `EventSubscriberBehaviour`; ses signatures sont analysées et mises en
+cache une fois, puis les abonnements suivent `OnEnable`/`OnDisable`.
+`ObservableList<T>` publie des événements typés lors des ajouts, retraits,
+remplacements et réinitialisations.
+
+Dans `Combat2`, `CombatUiManager` initialise les modules message, résultats,
+sac et slots à partir de références sérialisées vers les composants et panneaux
+existants; il ne recherche pas les objets par nom à l'exécution. La roue a été
+rattachée au Canvas actif en gardant ses RectTransforms; elle était auparavant
+sous le Canvas inactif et ne pouvait donc pas s'afficher. Les événements métier de fin de combat portent la
+victoire et l'XP calculée par le gameplay. L'argent et le butin restent absents
+quand aucun système de récompense ne les fournit : l'interface ne fabrique pas
+de récompenses. Les messages peuvent être publiés via `CombatMessageEvent` et
+les changements de roue via `CombatSlotsChangedEvent`. La première confirmation
+après un résultat publie `CombatResultDismissedEvent`, ce qui ferme l'écran avant
+la confirmation qui quitte le combat; l'ancienne page victoire/défaite reste
+masquée et sa page de progression d'équipe s'affiche à cette première confirmation.
+L'ouverture et la fermeture du sac passent
+par `CombatBagVisibilityEvent`; son composant UI s'abonne au bus et interrompt
+proprement une transition en cours. Les bulles des Yo-kai reçoivent également
+`CombatActorMessageEvent`; `CombatActorMessageUI` met en cache leurs références
+et conserve les animations déjà présentes dans la scène. Les positions de cible des écrans de résultat
+sont mémorisées à l'initialisation, les valeurs XP/argent sont alignées à droite
+et les lignes de butin sont réutilisées entre plusieurs résultats. Les
+`ScrollRect` déjà présents pour le butin sont initialisés avec un viewport masqué
+et un contenu vertical dimensionné selon ses lignes, pour les listes longues.
+Les durées et courbes de déplacement et d'opacité sont réglables dans l'Inspector;
+les courbes par défaut conservent les easing actuels quand aucune courbe n'est assignée.
+Les overlays des permutations restent indépendants des layouts et recalculent leur
+destination pendant le mouvement afin de suivre un changement de résolution ou de mise en page.
+
+Les tests du bus et des intégrations sont dans `Tests/Editor`; ils vérifient le
+YAML puis ouvrent aussi `Combat2` dans l'éditeur et contrôlent ses références UI.
+L'asset TMP d'exemple Bangers contenait des marqueurs de fusion et a été remis
+sur sa version valide existante en conservant son GUID. `AdjustModelScale`
+n'applique plus de matériaux pendant `OnValidate`; ses textures sont initialisées
+au démarrage du jeu.
+La suite EditMode lance des parcours PlayMode qui exercent les callbacks Unity,
+l'entrée en Play Mode avec Domain Reload désactivé, le déchargement de scène, le dispatch depuis un worker,
+la file de messages, le sac, les permutations de slots et les écrans de résultat
+réutilisés avec plusieurs quantités de butin. Ils couvrent également l'aspect de
+méthode UnityMeta en composition avec un second aspect et le setter HP de
+`YoKaiCombat`. L'aspect de champ n'est pas
+exécuté : UnityMeta 0.2.0-alpha.5 fait émettre une référence
+`System.Private.CoreLib` non résolue par Unity Mono; l'assembly de test devient
+alors non chargeable.

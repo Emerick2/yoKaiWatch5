@@ -11,7 +11,7 @@ public class Mohand_2012 : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         while (medaliumDictionnaire._instance.MAX>incrémentation)
         {
-            image.sprite = medaliumDictionnaire._instance.ServantYoKai(incrémentation).médaillon;
+            image.sprite = medaliumDictionnaire._instance.ServantYoKai(incrémentation).imageMédaillon;
             incrémentation++;
             yield return new WaitForSeconds(1f);
         }

@@ -340,7 +340,7 @@ public class RemplisLaRoue : MonoBehaviour{
 
             if (estUnYoKai){ 
                 lesMédaillon[i].GetComponent<Image>().enabled = true;
-                lesMédaillon[i].GetComponent<Image>().sprite = medaliumDictionnaire._instance.ServantYoKai(MesYoKai.Instance.maListe[positionCible].ID).médaillon;
+                lesMédaillon[i].GetComponent<Image>().sprite = medaliumDictionnaire._instance.ServantYoKai(MesYoKai.Instance.maListe[positionCible].ID).imageMédaillon;
             } else {
                 lesMédaillon[i].GetComponent<Image>().enabled = false;
             }
@@ -443,7 +443,7 @@ public class RemplisLaRoue : MonoBehaviour{
         }
         if (estUnYoKai){
             YoKaiActif informationSpécifique = MesYoKai.Instance.maListe[positionCible];
-            MedaliumYoKai informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
+            YoKai informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
             MettreLesElementInfo(informationSpécifique,informationGénéral);
         } else {
             infoYokaiBandeau.SetActive(false);
@@ -457,7 +457,7 @@ public class RemplisLaRoue : MonoBehaviour{
         }
     }
 
-    void MettreLesElementInfo(YoKaiActif informationSpécifique, MedaliumYoKai informationGénéral){
+    void MettreLesElementInfo(YoKaiActif informationSpécifique, YoKai informationGénéral){
         if (informationSpécifique.ID <= 0){
             return;
         }
@@ -479,21 +479,14 @@ public class RemplisLaRoue : MonoBehaviour{
         int IDspécifique = informationSpécifique.IDUnique;
         int ID = informationGénéral.ID;
         YoKaiCombat nouv = new YoKaiCombat{};
-        MedaliumYoKai y = medaliumDictionnaire._instance.ServantYoKai(ID);
+        YoKai y = medaliumDictionnaire._instance.ServantYoKai(ID);
+        nouv.InitialiserCombatDepuis(MesYoKai.Instance.maListe[IDspécifique]);
         nouv.positionRoue = MesYoKai.Instance.maListe[IDspécifique].positionRoue;
         nouv.estUnAmi = true;
-        nouv.ID = ID;
         nouv.IDListeYoKai = IDspécifique;//permet de différancier deux Woko par exemple
         nouv.nom = MesYoKai.Instance.maListe[IDspécifique].surnom;
-        nouv.imageMédaillon = y.médaillon;
         nouv.imageFace = y.faceRondImage;
-        nouv.hp_base = y.PV;
-        nouv.BaseStats.Vitesse = y.Vitesse;
-        nouv.BaseStats.Esprit = y.Esprit;
-        nouv.BaseStats.Force = y.Force;
-        nouv.BaseStats.Défence = y.Défense;
-        nouv.niveau = MesYoKai.Instance.maListe[IDspécifique].niveau;
-        nouv.personalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
+        nouv.personnalité = MesYoKai.Instance.maListe[IDspécifique].personnalité;
 
         panneauDeInfo.transform.Find("page 1/Force/text").gameObject.GetComponent<TextMeshProUGUI>().text = ((int)nouv.Stats.Force).ToString();
         panneauDeInfo.transform.Find("page 1/Défance/text").gameObject.GetComponent<TextMeshProUGUI>().text = ((int)nouv.hp_me).ToString();
@@ -530,7 +523,7 @@ public class RemplisLaRoue : MonoBehaviour{
         if (cible < lesBlocDansLaListeEspaceBlocListeYokai.Count){
             lesBlocDansLaListeEspaceBlocListeYokai[cible].GetComponent<Image>().color = new Color(1f, 0.5f, 0.5f, 1f);
             YoKaiActif informationSpécifique = MesYoKai.Instance.maListe[int.Parse(lesBlocDansLaListeEspaceBlocListeYokai[cible].transform.name)];
-            MedaliumYoKai informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
+            YoKai informationGénéral = medaliumDictionnaire._instance.ServantYoKai(informationSpécifique.ID);
             MettreLesElementInfo(informationSpécifique,informationGénéral);
         } else {
             Debug.Log("La cible dépasse la varibale lesBlocDansLaListeEspaceBlocListeYokai");
@@ -608,7 +601,7 @@ public class RemplisLaRoue : MonoBehaviour{
                 TV.transform.parent = espaceBlocListeYokai.transform;
                 TV.transform.localScale = new Vector3(1, 1, 1);
                 TV.transform.Find("dans l'équipe").gameObject.SetActive(EstDansEquipe(listeTriée[i].IDUnique));
-                TV.transform.Find("médaille").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.ServantYoKai(listeTriée[i].ID).médaillon;
+                TV.transform.Find("médaille").gameObject.GetComponent<Image>().sprite = medaliumDictionnaire._instance.ServantYoKai(listeTriée[i].ID).imageMédaillon;
                 TV.transform.Find("Nom").gameObject.GetComponent<TextMeshProUGUI>().text = listeTriée[i].surnom;
                 TV.transform.Find("rang/Image rang").gameObject.GetComponent<Image>().sprite = new ServantImage().ReadImage_Rang(medaliumDictionnaire._instance.ServantYoKai(listeTriée[i].ID).rang);
                 TV.transform.Find("Niveau/nombre text").gameObject.GetComponent<TextMeshProUGUI>().text = listeTriée[i].niveau.ToString();
