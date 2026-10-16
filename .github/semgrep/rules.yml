@@ -1,0 +1,25 @@
+rules:
+  - id: csharp-preserve-exception-stack
+    languages: [csharp]
+    severity: ERROR
+    message: Use 'throw;' to preserve the original exception stack trace.
+    patterns:
+      - pattern-inside: |
+          try { ... } catch ($TYPE $ERROR) { ... }
+      - pattern: throw $ERROR;
+  - id: unity-random-in-constructor
+    languages: [csharp]
+    severity: ERROR
+    message: Move Unity random initialization to an explicit runtime method called from Awake or Start; Unity can invoke constructors during serialization.
+    patterns:
+      - pattern-inside: |
+          class $CLASS {
+            ...
+            $CLASS(...) { ... }
+            ...
+          }
+      - pattern-not-inside: |
+          $RETURN $METHOD(...) { ... }
+      - pattern-either:
+          - pattern: UnityEngine.Random.Range(...)
+          - pattern: UnityEngine.Random.value

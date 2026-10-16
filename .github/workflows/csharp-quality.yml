@@ -1,0 +1,52 @@
+name: C# quality
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SEMGREP_SEND_METRICS: 'off'
+      SEMGREP_ENABLE_VERSION_CHECK: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install open source scanner
+        run: python -m pip install semgrep==1.181.0
+      - name: Test local rules
+        run: semgrep --test .github/semgrep --metrics=off
+      - name: Scan maintained C# sources
+        env:
+          BASELINE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          baseline=()
+          if [ -n "$BASELINE_SHA" ]; then
+            baseline=(--baseline-commit "$BASELINE_SHA")
+          fi
+          semgrep scan --config .github/semgrep/rules.yml \
+            --metrics=off --disable-version-check --error --strict \
+            --include '*.cs' --exclude 'Assets/Assets/**' \
+            --exclude 'Assets/Plugins/**' --exclude 'Assets/TextMesh Pro/**' \
+            --json-output semgrep.json --sarif-output semgrep.sarif \
+            "${baseline[@]}" Assets
+      - name: Save analysis reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: csharp-quality
+          path: |
+            semgrep.json
+            semgrep.sarif
+          if-no-files-found: ignore
