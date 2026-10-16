@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using YKW.Core.Item.Class;
 using YKW.Core.YoKai.Class;
@@ -22,6 +23,7 @@ public sealed class CombatActionController : MonoBehaviour
         Purification
     }
     private int selectedFoodIndex;
+
 
     public void Initialize(CombatManager owner)
     {
@@ -65,8 +67,12 @@ public sealed class CombatActionController : MonoBehaviour
 
     public void ChangeSelectedOption(int direction)
     {
-        if (!manager.CombatEnCours || actionState != ActionState.None)
-            return;
+        if (!manager.CombatEnCours) return;
+        if (actionState == ActionState.Target) return;
+        ChoisieYoKaiAmi selector = manager.GetComponent<ChoisieYoKaiAmi>();
+        if (selector != null && selector.IsSelecting) { selector.Move(direction); return; }
+        if (actionState == ActionState.Bag) { manager.GetComponent<SacCombats>()?.MoveSelection(direction, 0); return; }
+        if (actionState != ActionState.None) return;
 
         selectedOptionIndex += direction;
         RefreshOptionSelection();
@@ -79,8 +85,24 @@ public sealed class CombatActionController : MonoBehaviour
             return;
         }
 
-        if (actionState != ActionState.None)
+        if (actionState == ActionState.Target)
+        {
+            CombatTargetPointer pointer = manager.GetComponent<CombatTargetPointer>();
+            GameObject target = pointer != null ? pointer.CurrentTarget : null;
+            if (target == null) return;
+            manager.FocusedEnemy = manager.listeYoKaiEnnemieSurLeTerrain.FirstOrDefault(enemy =>
+                enemy != null && enemy.hp_me > 0 && enemy.gameObjectSurLaScène == target);
+            pointer.Close();
+            actionState = ActionState.None;
+            manager.gameInStop = false;
+            RefreshEnemyPoints();
+            YKW.Core.Events.EventBus.Publish(new YKW.Core.Events.CombatObjectTargetSelectedEvent(target));
             return;
+        }
+        ChoisieYoKaiAmi selector = manager.GetComponent<ChoisieYoKaiAmi>();
+        if (selector != null && selector.IsSelecting) { selector.Confirm(); return; }
+        if (actionState == ActionState.Bag) { manager.GetComponent<SacCombats>()?.ConfirmSelection(); return; }
+        if (actionState != ActionState.None) return;
 
         switch (selectedOptionIndex)
         {
@@ -89,18 +111,9 @@ public sealed class CombatActionController : MonoBehaviour
                 OpenAllySelector();
                 break;
             case 1:
-                if (manager.cible == null || manager.cible.GetComponent<Cible>() == null)
-                {
-                    Debug.LogError("Target action is unavailable because its Cible reference is missing.");
-                    return;
-                }
-                actionState = ActionState.Target;
-                if (manager.aAfficherSeulementAvecLaCible != null)
-                    foreach (GameObject objectToShow in manager.aAfficherSeulementAvecLaCible)
-                        if (objectToShow != null) objectToShow.SetActive(true);
-                manager.cible.GetComponent<Cible>().Initialisation();
-                manager.cible.SetActive(true);
-                if (manager.blocDesBoutonGénéraux != null) manager.blocDesBoutonGénéraux.SetActive(false);
+                CombatTargetPointer pointer = manager.GetComponent<CombatTargetPointer>();
+                if (pointer != null && pointer.Open()) actionState = ActionState.Target;
+                else Debug.LogWarning("Target pointer is unavailable: check the canvas and cursor sprites.", manager);
                 break;
             case 2:
                 actionState = ActionState.Purification;
@@ -117,7 +130,6 @@ public sealed class CombatActionController : MonoBehaviour
                     return;
                 }
                 bag.Initialiser();
-                if (manager.blocDesBoutonGénéraux != null) manager.blocDesBoutonGénéraux.SetActive(false);
                 break;
         }
     }
@@ -128,6 +140,7 @@ public sealed class CombatActionController : MonoBehaviour
 
         if (actionState == ActionState.Target)
         {
+            manager.GetComponent<CombatTargetPointer>()?.Close();
             if (manager.aAfficherSeulementAvecLaCible != null)
                 foreach (GameObject objectToHide in manager.aAfficherSeulementAvecLaCible)
                     if (objectToHide != null) objectToHide.SetActive(false);
@@ -158,6 +171,8 @@ public sealed class CombatActionController : MonoBehaviour
         }
 
         actionState = ActionState.None;
+        manager.gameInStop = false;
+        RefreshEnemyPoints();
     }
     public void SelectFood(int foodIndex){
         if (Item.Instance == null || foodIndex < 0 || foodIndex >= Item.Instance.listeDesNouritures.Count)
@@ -172,7 +187,8 @@ public sealed class CombatActionController : MonoBehaviour
     }
 
     public void CompleteAllySelection(int target){
-        if (actionState == ActionState.None) return;
+        if (actionState != ActionState.Bag && actionState != ActionState.Soultimate &&
+            actionState != ActionState.Purification) return;
         StructureYoKaiCombat ally = manager.GetAllyAtWheelSlot(target);
         if (ally == null)
         {
@@ -181,6 +197,11 @@ public sealed class CombatActionController : MonoBehaviour
             return;
         }
 
+        if (ally.hp_me <= 0 || (actionState == ActionState.Purification && ally.positionRoue < 3))
+        {
+            CancelAction();
+            return;
+        }
         ActionState selectedAction = actionState;
         manager.gameInStop = false;
         if (selectedAction == ActionState.Bag){
@@ -237,7 +258,7 @@ public sealed class CombatActionController : MonoBehaviour
     {
         manager.gameInStop = true;
         ChoisieYoKaiAmi selector = manager.GetComponent<ChoisieYoKaiAmi>();
-        if (selector == null || !selector.TryInitialiser())
+        if (selector == null || !selector.TryInitialiser(actionState == ActionState.Purification))
         {
             actionState = ActionState.None;
             manager.gameInStop = false;
@@ -250,7 +271,7 @@ public sealed class CombatActionController : MonoBehaviour
 
     private void CancelAllySelection()
     {
-        if (actionState == ActionState.Bag) manager.gameInStop = false;
+        manager.gameInStop = false;
         actionState = ActionState.None;
         ChoisieYoKaiAmi selector = manager.GetComponent<ChoisieYoKaiAmi>();
         if (selector != null) selector.Arrêter();
@@ -258,6 +279,28 @@ public sealed class CombatActionController : MonoBehaviour
         if (bag != null) bag.Arrêter();
         if (manager.blocDesBoutonGénéraux != null) manager.blocDesBoutonGénéraux.SetActive(true);
     }
+    public void SelectOption(int index)
+    {
+        if (actionState != ActionState.None || !manager.CombatEnCours) return;
+        selectedOptionIndex = index;
+        RefreshOptionSelection();
+        ConfirmAction();
+    }
+
+    public void RefreshEnemyPoints()
+    {
+        StructureYoKaiCombat target = manager.FocusedEnemy;
+        foreach (var enemy in manager.listeYoKaiEnnemieSurLeTerrain)
+        {
+            if (enemy == null || enemy.positionRoue < 0 || enemy.positionRoue >= manager.troisDisplateUIEnnemie.Count) continue;
+            GameObject card = manager.troisDisplateUIEnnemie[enemy.positionRoue];
+            Transform point = card != null ? card.transform.Find("point") : null;
+            if (point == null && enemy == target)
+                point = manager.GetComponent<CombatTargetPointer>()?.EnsureSelectionMarker(card);
+            if (point != null) point.gameObject.SetActive(enemy == target && enemy.hp_me > 0);
+        }
+    }
+
     private void RefreshOptionSelection(){
         if (manager == null || manager.lesOption == null || manager.lesOption.Count == 0) return;
         selectedOptionIndex = ((selectedOptionIndex%manager.lesOption.Count)+manager.lesOption.Count)%manager.lesOption.Count;

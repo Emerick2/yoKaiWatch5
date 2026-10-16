@@ -9,6 +9,54 @@ public class PlayerPositionLocally : MonoBehaviour {
     private string nameOfTheScene;
     private bool whitTheButonB;
     private bool mustChangeThePositionDirectly;
+    public bool? LastCombatVictory { get; private set; }
+    private bool combatReturnPending;
+    private bool isReturning;
+    private Scene storedScene;
+
+    public void StoreCombatOrigin(string sceneName, Vector3 playerPosition)
+    {
+        nameOfTheScene = sceneName;
+        vector = playerPosition;
+        whitTheButonB = false;
+        thisIsAStock = false;
+        storedScene = default;
+        combatReturnPending = false;
+        isReturning = false;
+        LastCombatVictory = null;
+    }
+
+    public bool ReturnFromCombat(bool victory)
+    {
+        if (isReturning) return false;
+        if (string.IsNullOrEmpty(nameOfTheScene))
+        {
+            BaladeDeCombat encounter = FindObjectOfType<BaladeDeCombat>();
+            if (encounter != null && !string.IsNullOrEmpty(encounter.scèneOriginale))
+            {
+                nameOfTheScene = encounter.scèneOriginale;
+                vector = encounter.positionJoueur;
+            }
+        }
+        if (string.IsNullOrEmpty(nameOfTheScene))
+        {
+            Debug.LogWarning("Cannot return from combat: no previous scene was recorded. Start combat from an exploration scene.", this);
+            return false;
+        }
+        LastCombatVictory = victory;
+        combatReturnPending = true;
+        isReturning = true;
+        ReturnToTheSaveScene();
+        return true;
+    }
+
+    private void PublishCombatReturn()
+    {
+        isReturning = false;
+        if (!combatReturnPending || !LastCombatVictory.HasValue) return;
+        combatReturnPending = false;
+        YKW.Core.Events.EventBus.Publish(new YKW.Core.Events.CombatReturnedEvent(LastCombatVictory.Value, nameOfTheScene));
+    }
 
     // pour les combas :
     public int idYokai1 = 0;
@@ -62,6 +110,10 @@ public class PlayerPositionLocally : MonoBehaviour {
     }
 
     public void StoreThePlayerPositionLocally(bool newWhitTheButonB){
+        combatReturnPending = false;
+        isReturning = false;
+        LastCombatVictory = null;
+        if (mouvementDuJoueur.player == null) return;
         vector = mouvementDuJoueur.player.transform.position;
         nameOfTheScene = SceneManager.GetActiveScene().name;
         whitTheButonB = newWhitTheButonB;
@@ -74,6 +126,7 @@ public class PlayerPositionLocally : MonoBehaviour {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
     void OnSceneLoaded(Scene scene, LoadSceneMode mode){
+        if (thisIsAStock && scene.name != nameOfTheScene) storedScene = scene;
         if (mustChangeThePositionDirectly){
             mustChangeThePositionDirectly = false;
             StartCoroutine(Patiante());
@@ -85,6 +138,9 @@ public class PlayerPositionLocally : MonoBehaviour {
             yield return new WaitForSeconds(0.02f);
         }
         mouvementDuJoueur.player.transform.position = vector;
+        mouvementDuJoueur.droitDeMarcher = true;
+        yield return null; // Let destination Start subscribers register before notifying them.
+        PublishCombatReturn();
     }
 
     public IEnumerator Teleport(string sceneName, bool stock = false, GameObject objectForDestroy = null){
@@ -94,7 +150,8 @@ public class PlayerPositionLocally : MonoBehaviour {
         bool lancer = false;
         GameObject theInterface = GameObject.FindWithTag("interfasse");
         if (theInterface != null){
-            theInterface = theInterface.transform.Find("fondu").gameObject;
+            Transform fade = theInterface.transform.Find("fondu");
+            theInterface = fade != null ? fade.gameObject : null;
             if (theInterface != null && theInterface.GetComponent<Animator>() != null){
                 theInterface.GetComponent<Animator>().SetBool("fonduActif",true);
                 lancer = true;
@@ -116,25 +173,31 @@ public class PlayerPositionLocally : MonoBehaviour {
         }
     }
 
-    private void ReturnFromASceneStore(){
-        int countLoaded = SceneManager.sceneCount;    
-        Scene lastScene = SceneManager.GetSceneAt(countLoaded - 1);
+    private void ReturnFromASceneStore() => StartCoroutine(RestoreStoredScene());
 
-        if (lastScene.name != SceneManager.GetActiveScene().name) {
-            SceneManager.UnloadSceneAsync(lastScene.name);
+    private IEnumerator RestoreStoredScene()
+    {
+        Scene destination = SceneManager.GetSceneByName(nameOfTheScene);
+        Scene combatScene = storedScene;
+        if (!combatScene.IsValid() && SceneManager.sceneCount > 1)
+            combatScene = SceneManager.GetSceneAt(SceneManager.sceneCount - 1);
+        if (combatScene.IsValid() && combatScene.isLoaded && combatScene.name != nameOfTheScene)
+        {
+            AsyncOperation unload = SceneManager.UnloadSceneAsync(combatScene);
+            if (unload != null) yield return unload;
         }
-
+        if (destination.IsValid() && destination.isLoaded) SceneManager.SetActiveScene(destination);
         ShowAllObjectsFromTheScene();
-        Time.timeScale = 1f; 
+        storedScene = default;
+        thisIsAStock = false;
+        Time.timeScale = 1f;
         mouvementDuJoueur.droitDeMarcher = true;
-
-        GameObject theInterface = GameObject.FindWithTag("interfasse");
-        if (theInterface != null){
-            theInterface = theInterface.transform.Find("fondu").gameObject;
-            if (theInterface != null && theInterface.GetComponent<Animator>() != null){
-                theInterface.GetComponent<Animator>().SetBool("fonduActif",false);
-            }
-        }
+        GameObject ui = GameObject.FindWithTag("interfasse");
+        Transform fade = ui != null ? ui.transform.Find("fondu") : null;
+        Animator animator = fade != null ? fade.GetComponent<Animator>() : null;
+        if (animator != null && animator.runtimeAnimatorController != null) animator.SetBool("fonduActif", false);
+        yield return null;
+        PublishCombatReturn();
     }
 
     private void HideAllObjectsFromTheScene(){

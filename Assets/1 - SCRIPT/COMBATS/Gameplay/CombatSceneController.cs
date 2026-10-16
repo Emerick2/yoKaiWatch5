@@ -14,6 +14,7 @@ using YoKaiEspece = YKW.Core.YoKai.Class.YoKai;
 public sealed class CombatSceneController : MonoBehaviour
 {
     private CombatManager manager;
+    private readonly HashSet<GameObject> clickableCards = new HashSet<GameObject>();
     private Transform battleTerrain, activeCardRow, reserveCardRow, enemyCardRow;
     private bool isRotating;
     private Coroutine actorTransition;
@@ -439,11 +440,19 @@ public sealed class CombatSceneController : MonoBehaviour
         List<CombatYokai> enemies = BuildSlotRoster(manager.listeYoKaiEnnemieSurLeTerrain, 0);
         RenderTemplateCards(activeRoot, activeAllies);
         RenderTemplateCards(reserveRoot, reserveAllies);
+        // Logical enemy 0 occupies the middle lane; subsequent enemies fill left, then right.
+        CombatYokai firstEnemy = enemies[0];
+        enemies[0] = enemies[1];
+        enemies[1] = firstEnemy;
         RenderTemplateCards(enemyRoot, enemies);
         LayoutBattleRows();
         manager.troisDisplateUIAmi = GetCardSlots(activeRoot);
         manager.troisDisplateUIAmiDerrière = GetCardSlots(reserveRoot);
         manager.troisDisplateUIEnnemie = GetCardSlots(enemyRoot);
+        GameObject firstEnemyCard = manager.troisDisplateUIEnnemie[0];
+        manager.troisDisplateUIEnnemie[0] = manager.troisDisplateUIEnnemie[1];
+        manager.troisDisplateUIEnnemie[1] = firstEnemyCard;
+        manager.GetComponent<CombatActionController>()?.RefreshEnemyPoints();
         CombatSlotAnimator animator = manager.GetComponent<CombatSlotAnimator>();
         if (animator != null)
         {
@@ -563,6 +572,16 @@ public sealed class CombatSceneController : MonoBehaviour
         for (int i = 0; i < parent.childCount; i++)
         {
             GameObject card = parent.GetChild(i).gameObject;
+            if (manager != null && clickableCards.Add(card))
+            {
+                Button button = card.GetComponent<Button>();
+                if (button == null) button = card.AddComponent<Button>();
+                Navigation navigation = button.navigation;
+                navigation.mode = Navigation.Mode.None;
+                button.navigation = navigation;
+                GameObject selectableCard = card;
+                button.onClick.AddListener(() => manager.GetComponent<ChoisieYoKaiAmi>()?.SelectCard(selectableCard));
+            }
             bool hasYokai = yokaiList != null && i < requiredCount && yokaiList[i] != null;
             LayoutElement dimensions = card.GetComponent<LayoutElement>();
             if (dimensions == null) dimensions = card.AddComponent<LayoutElement>();
@@ -575,6 +594,7 @@ public sealed class CombatSceneController : MonoBehaviour
             if (visibility == null) visibility = card.AddComponent<CanvasGroup>();
             visibility.alpha = hasYokai ? 1f : 0f;
             visibility.interactable = visibility.blocksRaycasts = hasYokai;
+            card.transform.Find("point")?.gameObject.SetActive(false);
             if (hasYokai) PopulateTemplateCard(card, yokaiList[i]);
         }
 
@@ -600,7 +620,9 @@ public sealed class CombatSceneController : MonoBehaviour
 
     private static void PopulateTemplateCard(GameObject card, CombatYokai yokai)
     {
-        Image portrait = card.transform.Find("médaillon")?.GetComponent<Image>();
+        Image portrait = card.GetComponentsInChildren<Image>(true)
+            .FirstOrDefault(image => string.Equals(image.name, "yokai", System.StringComparison.OrdinalIgnoreCase));
+        if (portrait == null) portrait = card.transform.Find("médaillon")?.GetComponent<Image>();
         // The compact reserve template stores its portrait on the root Image.
         if (portrait == null) portrait = card.GetComponent<Image>();
         if (portrait == null) portrait = FindImageByName(card.transform, "medaillon", "Image", "Image (1)");
@@ -609,8 +631,7 @@ public sealed class CombatSceneController : MonoBehaviour
             portrait.sprite = yokai.imageFace;
             portrait.enabled = yokai.imageFace != null;
             portrait.preserveAspect = true;
-            if (portrait.transform == card.transform &&
-                (portrait.rectTransform.rect.width < 1f || portrait.rectTransform.rect.height < 1f))
+            if (portrait.rectTransform.rect.width < 1f || portrait.rectTransform.rect.height < 1f)
                 portrait.rectTransform.sizeDelta = new Vector2(70f, 70f);
         }
         SetText(card, "nom", yokai.nom ?? string.Empty);

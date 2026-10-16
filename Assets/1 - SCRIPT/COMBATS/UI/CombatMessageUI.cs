@@ -34,6 +34,7 @@ public sealed class CombatMessageUI : EventSubscriberBehaviour
         StopAllCoroutines();
         queueRoutine = null;
         messages.Clear();
+        SetOutcomeVisuals(false, false);
         if (panel != null)
         {
             panel.anchoredPosition = targetPosition;
@@ -69,6 +70,44 @@ public sealed class CombatMessageUI : EventSubscriberBehaviour
     private void OnCombatStarted(CombatStartedEvent started)
     {
         OnCombatMessage(new CombatMessageEvent("Le combat commence !", 1.4f));
+    }
+
+    [SubscribeEvent]
+    private void OnOutcomeAnnouncement(CombatOutcomeAnnouncementEvent outcome)
+    {
+        if (panel == null) return;
+        StopAllCoroutines();
+        queueRoutine = null;
+        messages.Clear();
+        SetOutcomeVisuals(true, outcome.Victory);
+        SetText(outcome.Victory ? "Victoire !" : "Défaite…");
+        panel.gameObject.SetActive(true);
+        panel.SetAsLastSibling();
+        panel.anchoredPosition = StartAbovePosition();
+        panelGroup.alpha = 1f;
+        if (textGroup != null) textGroup.alpha = 1f;
+        StartCoroutine(CombatUIAnimator.Move(panel, targetPosition, transitionDuration, true, panelEasing));
+    }
+
+    [SubscribeEvent]
+    private void OnOutcomeDismissed(CombatOutcomeAnnouncementDismissedEvent dismissed)
+    {
+        StopAllCoroutines();
+        messages.Clear();
+        queueRoutine = null;
+        SetOutcomeVisuals(false, false);
+        if (panel != null)
+        {
+            panel.gameObject.SetActive(false);
+            panel.anchoredPosition = targetPosition;
+        }
+    }
+
+    private void SetOutcomeVisuals(bool visible, bool victory)
+    {
+        if (panel == null) return;
+        panel.Find("win")?.gameObject.SetActive(visible && victory);
+        panel.Find("lose")?.gameObject.SetActive(visible && !victory);
     }
 
     private IEnumerator PlayQueue()

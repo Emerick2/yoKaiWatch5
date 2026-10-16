@@ -3,6 +3,13 @@ using UnityEngine;
 
 namespace YKW.Core.Events
 {
+    /// <summary>Selection made with the free combat pointer, including non-enemy objects.</summary>
+    public sealed class CombatObjectTargetSelectedEvent
+    {
+        public GameObject Target { get; }
+        public CombatObjectTargetSelectedEvent(GameObject target) { Target = target; }
+    }
+
     public sealed class CombatRotateRequestedEvent
     {
         public int Direction { get; private set; }
@@ -68,6 +75,16 @@ namespace YKW.Core.Events
 
     public sealed class CombatStartedEvent : MethodEvent { }
 
+    public sealed class CombatOutcomeAnnouncementEvent
+    {
+        public bool Victory { get; }
+        public float Duration { get; }
+        public CombatOutcomeAnnouncementEvent(bool victory, float duration)
+        { Victory = victory; Duration = duration; }
+    }
+
+    public sealed class CombatOutcomeAnnouncementDismissedEvent { }
+
     public sealed class CombatEndedEvent : MethodEvent
     {
         public bool Victory { get; private set; }
@@ -83,6 +100,15 @@ namespace YKW.Core.Events
             Money = money;
             Loot = loot;
         }
+    }
+
+    /// <summary>Published in the restored exploration scene after returning from combat.</summary>
+    public sealed class CombatReturnedEvent
+    {
+        public bool Victory { get; }
+        public string SceneName { get; }
+        public CombatReturnedEvent(bool victory, string sceneName)
+        { Victory = victory; SceneName = sceneName; }
     }
 
     public sealed class CombatResultDismissedEvent { }

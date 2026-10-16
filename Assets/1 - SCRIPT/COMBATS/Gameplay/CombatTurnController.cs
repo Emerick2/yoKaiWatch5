@@ -127,7 +127,9 @@ public sealed class CombatTurnController : MonoBehaviour
     }
     IEnumerator PerformBasicAttack(CombatYokai actor){
         CombatYokai target = null;
-        if (actor.estUnAmi) target = GetRandomTarget(manager.listeYoKaiEnnemieSurLeTerrain);
+        if (actor.estUnAmi) target = manager.FocusedEnemy != null && manager.FocusedEnemy.hp_me > 0 &&
+            manager.listeYoKaiEnnemieSurLeTerrain.Contains(manager.FocusedEnemy)
+            ? manager.FocusedEnemy : GetRandomTarget(manager.listeYoKaiEnnemieSurLeTerrain);
         else target = GetRandomTarget(manager.listeYoKaiAmiSurLeTerrain);
         if (target == null)
         {

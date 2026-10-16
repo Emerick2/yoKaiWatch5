@@ -58,30 +58,35 @@ public sealed class CombatResultUI : EventSubscriberBehaviour
         lostScreen = resultRoot.Find("LostScreen") as RectTransform;
         if (winScreen != null)
         {
+            BindResultConfirmation(winScreen);
             winScreenPosition = winScreen.anchoredPosition;
             winScreen.gameObject.SetActive(false);
         }
         if (lostScreen != null)
         {
+            BindResultConfirmation(lostScreen);
             lostScreenPosition = lostScreen.anchoredPosition;
             lostScreen.gameObject.SetActive(false);
-        }
-        Transform winSlots = winScreen != null ? winScreen.Find("Content/YokaiRoue/YokaiSlotsContainer") : null;
-        Transform lostSlots = lostScreen != null ? lostScreen.Find("Content/YokaiRoue/YokaiSlotsContainer") : null;
-        if (winSlots != null && lostSlots != null && GetRewardSlots(lostScreen).Count < GetRewardSlots(winScreen).Count)
-        {
-            Transform parent = lostSlots.parent;
-            lostSlots.gameObject.SetActive(false);
-            lostSlots.SetParent(null, false);
-            Destroy(lostSlots.gameObject);
-            GameObject copy = Instantiate(winSlots.gameObject, parent, false);
-            copy.name = winSlots.name;
         }
         NormalizeRewardSlots(winScreen);
         NormalizeRewardSlots(lostScreen);
         PrepareLootScrollContainer(winScreen);
         PrepareLootScrollContainer(lostScreen);
         resultRoot.gameObject.SetActive(false);
+    }
+
+    private void BindResultConfirmation(RectTransform screen)
+    {
+        Button button = screen.GetComponent<Button>();
+        if (button == null) button = screen.gameObject.AddComponent<Button>();
+        Navigation navigation = button.navigation;
+        navigation.mode = Navigation.Mode.None;
+        button.navigation = navigation;
+        button.onClick.AddListener(() =>
+        {
+            UnityEngine.EventSystems.EventSystem.current?.SetSelectedGameObject(null);
+            if (shownScreen == screen && manager != null) manager.ConfirmerAction();
+        });
     }
 
     [SubscribeEvent]
@@ -115,65 +120,40 @@ public sealed class CombatResultUI : EventSubscriberBehaviour
         transition = StartCoroutine(ShowPanel());
     }
 
-    private static List<Image> GetRewardSlots(Transform screen)
+    private static List<Transform> GetRewardSlots(Transform screen)
     {
-        if (screen == null) return new List<Image>();
-        return screen.GetComponentsInChildren<Image>(true)
-            .Where(image => image.name == "YoKaiSlot").ToList();
+        var slots = new List<Transform>();
+        Transform container = screen != null ? screen.Find("Content/YokaiRoue/YokaiSlotsContainer") : null;
+        if (container == null) return slots;
+        for (int row = 1; row <= 2; row++)
+            for (int slot = 1; slot <= 3; slot++)
+            {
+                Transform content = container.Find($"Container{row}/Slot{slot}/YoKaiSlot");
+                if (content != null) slots.Add(content);
+            }
+        return slots;
     }
 
     private static void NormalizeRewardSlots(Transform screen)
     {
-        List<Image> slots = GetRewardSlots(screen);
-        if (slots.Count == 0) return;
-        Transform template = slots[0].transform;
-        // Snapshot the first complete content before replacing any slot children.
-        GameObject snapshot = new GameObject("Reward content template", typeof(RectTransform));
-        snapshot.SetActive(false);
-        RectTransform sourceRect = slots[0].rectTransform;
-        RectTransform snapshotRect = (RectTransform)snapshot.transform;
-        snapshotRect.sizeDelta = sourceRect.rect.size;
-        snapshotRect.pivot = sourceRect.pivot;
-        foreach (Transform source in template)
-        {
-            GameObject copy = Instantiate(source.gameObject, snapshot.transform, false);
-            copy.name = source.name;
-        }
-        foreach (Image slot in slots)
-        {
-            for (int child = slot.transform.childCount - 1; child >= 0; child--)
-            {
-                Transform previous = slot.transform.GetChild(child);
-                previous.gameObject.SetActive(false);
-                previous.SetParent(null, false);
-                Destroy(previous.gameObject);
-            }
-            GameObject content = Instantiate(snapshot, slot.transform, false);
-            content.name = "Content";
-            RectTransform rect = (RectTransform)content.transform;
-            rect.anchorMin = rect.anchorMax = Vector2.one * 0.5f;
-            // The wrapper reproduces slot 1's coordinates independently of each background pivot.
-            rect.anchoredPosition = (rect.pivot - Vector2.one * 0.5f) * rect.sizeDelta;
-            rect.localScale = Vector3.one;
-            slot.enabled = true;
-        }
-        Destroy(snapshot);
+        // Slot1/2/3 own the authored wheel positions and persistent backgrounds.
+        // Their YoKaiSlot children are complete views, shown only for occupied places.
+        foreach (Transform slot in GetRewardSlots(screen)) slot.gameObject.SetActive(false);
     }
 
     private void PopulateRewardSlots(Transform screen)
     {
-        List<Image> slots = GetRewardSlots(screen);
+        List<Transform> slots = GetRewardSlots(screen);
         List<CombatYokai> allies = manager != null ? manager.listeYoKaiAmiSurLeTerrain
             .Where(ally => ally != null).OrderBy(ally => ally.positionRoue).ToList() : new List<CombatYokai>();
         for (int i = 0; i < slots.Count; i++)
         {
-            Image slot = slots[i];
+            Transform slot = slots[i];
             CombatYokai ally = allies.FirstOrDefault(yokai =>
                 (initialSlots.TryGetValue(yokai, out int originalSlot) ? originalSlot : yokai.positionRoue) == i);
-            slot.enabled = true;
-            foreach (Transform content in slot.transform) content.gameObject.SetActive(ally != null);
+            slot.gameObject.SetActive(ally != null);
             if (ally == null) continue;
-            Transform contentRoot = slot.transform.Find("Content") ?? slot.transform;
+            Transform contentRoot = slot;
             Image portrait = contentRoot.Find("YoKaiImages")?.GetComponent<Image>();
             if (portrait != null)
             {

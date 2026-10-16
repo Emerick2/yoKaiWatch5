@@ -45,6 +45,7 @@ public class CombatManager : EventSubscriberBehaviour{
     public Sprite spriteDéfance;
     public Sprite spriteRaté;
 
+    internal YoKaiCombat FocusedEnemy { get; set; }
     private bool combatEnCours;
     private bool combatInitialise;
     private float combatStartedAt;

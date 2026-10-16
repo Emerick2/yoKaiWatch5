@@ -52,6 +52,9 @@ public sealed class CombatBagUI : EventSubscriberBehaviour
             if (!initialized) Initialize(panel);
             bool shouldEnterFromBelow = !panel.gameObject.activeSelf || !isOpen;
             panel.gameObject.SetActive(true);
+            panel.SetAsLastSibling();
+            CanvasGroup group = panel.GetComponent<CanvasGroup>();
+            if (group != null) { group.alpha = 1f; group.interactable = group.blocksRaycasts = true; }
             if (shouldEnterFromBelow) panel.anchoredPosition = OffscreenPosition();
             isOpen = true;
             StartTransition(targetPosition, false);

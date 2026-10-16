@@ -27,15 +27,18 @@ public class SacCombats : MonoBehaviour{
 
     public void Initialiser(){
         itemScript = Item.Instance;
-        if (blocAppSac == null || itemScript == null)
+        if (blocAppSac == null)
         {
             Debug.LogWarning("Combat bag unavailable: a UI reference or the inventory is missing.");
             GetComponent<CombatActionController>()?.AbortBagSelection();
             return;
         }
+        StopAllCoroutines();
         position = Vector2.zero;
         utiliser = false;
         blocAppSac.SetActive(true);
+        blocAppSac.transform.SetAsLastSibling();
+        if (texte != null) texte.text = "Chargement de l'inventaire…";
         EventBus.Publish(new CombatBagVisibilityEvent(true));
         StartCoroutine(InitialisationCoroutine());
     }
@@ -47,7 +50,7 @@ public class SacCombats : MonoBehaviour{
             {
                 Debug.LogError("Combat bag: inventory loading did not finish within 30 seconds.");
                 EventBus.Publish(new CombatMessageEvent("L'inventaire n'a pas pu être chargé."));
-                GetComponent<CombatActionController>()?.AbortBagSelection();
+                if (texte != null) texte.text = "L'inventaire n'a pas pu être chargé.";
                 yield break;
             }
             yield return new WaitForSecondsRealtime(0.2f);
@@ -55,8 +58,9 @@ public class SacCombats : MonoBehaviour{
         }
         if (itemScript == null || conteneur == null || !PlacerLesObjets() || listeDeLaNouriturePlacé.Count == 0)
         {
-            EventBus.Publish(new CombatMessageEvent("Aucun aliment disponible."));
-            GetComponent<CombatActionController>()?.AbortBagSelection();
+            if (texte != null) texte.text = "Aucun aliment disponible.";
+            if (conteneur != null)
+                foreach (Transform row in conteneur.transform) row.gameObject.SetActive(false);
             yield break;
         }
         PlacerLaBonneLargeur();
@@ -67,6 +71,7 @@ public class SacCombats : MonoBehaviour{
 
     public void Arrêter(){
         utiliser = false;
+        StopAllCoroutines();
         CombatBagUI bagUi = blocAppSac != null ? blocAppSac.GetComponent<CombatBagUI>() : null;
         if (bagUi != null) EventBus.Publish(new CombatBagVisibilityEvent(false));
         else
@@ -173,28 +178,39 @@ public class SacCombats : MonoBehaviour{
             listeDeLaNouriturePlacé.Add(TV);
             TV.SetActive(true);
             indicesNourriture.Add(index);
+            Button button = TV.GetComponent<Button>();
+            if (button == null) button = TV.AddComponent<Button>();
+            int foodIndex = index;
+            button.onClick.AddListener(() =>
+            {
+                if (utiliser) EventBus.Publish(new CombatFoodSelectedEvent(foodIndex));
+            });
         }
         return true;
     }
 
-    void Update() {
-        if (utiliser) {
-            if (listeDeLaNouriturePlacé.Count == 0) return;
-            if (Input.GetButtonDown("left")){
-                ChangerDePosition(-1,0);
-            } else if (Input.GetButtonDown("right")){
-                ChangerDePosition(1,0);
-            } else if (Input.GetButtonDown("up")){
-                ChangerDePosition(0,-1);
-            } else if (Input.GetButtonDown("down")){
-                ChangerDePosition(0,1);
-            } else if (Input.GetButtonDown("A")){
-                Input.ResetInputAxes();
-                int selected = ConnaitreNombrePosition(position,false,false);
-                if (selected >= 0 && selected < indicesNourriture.Count)
-                    EventBus.Publish(new CombatFoodSelectedEvent(indicesNourriture[selected]));
-            }
-        }
+    public void MoveSelection(int horizontal, int vertical)
+    {
+        if (utiliser) ChangerDePosition(horizontal, vertical);
+    }
+
+    public void ConfirmSelection()
+    {
+        if (!utiliser) return;
+        int selected = ConnaitreNombrePosition(position, false, false);
+        if (selected >= 0 && selected < indicesNourriture.Count)
+            EventBus.Publish(new CombatFoodSelectedEvent(indicesNourriture[selected]));
+    }
+
+    void Update()
+    {
+        if (!utiliser) return;
+        var keyboard = UnityEngine.InputSystem.Keyboard.current;
+        var gamepad = UnityEngine.InputSystem.Gamepad.current;
+        if ((keyboard != null && keyboard.upArrowKey.wasPressedThisFrame) ||
+            (gamepad != null && gamepad.dpad.up.wasPressedThisFrame)) MoveSelection(0, -1);
+        else if ((keyboard != null && keyboard.downArrowKey.wasPressedThisFrame) ||
+            (gamepad != null && gamepad.dpad.down.wasPressedThisFrame)) MoveSelection(0, 1);
     }
 
     int ConnaitreNombrePosition(Vector2 laPosition, bool sansY, bool sansX){

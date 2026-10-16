@@ -252,51 +252,223 @@ public sealed class GlobalEventBusTests
         }
     }
 
-    [UnityTest]
-    public IEnumerator RewardSlotsCopyWholeTemplateWithoutMovingAuthoredSlots()
+    private sealed class CombatReturnProbe
     {
-        yield return new EnterPlayMode();
-        GameObject screen = new GameObject("Reward screen", typeof(RectTransform));
-        Type imageType = FindRuntimeType("UnityEngine.UI.Image");
-        GameObject first = new GameObject("YoKaiSlot", typeof(RectTransform), imageType);
-        GameObject second = new GameObject("YoKaiSlot", typeof(RectTransform), imageType);
-        first.transform.SetParent(screen.transform, false);
-        second.transform.SetParent(screen.transform, false);
-        RectTransform secondRect = (RectTransform)second.transform;
-        secondRect.anchoredPosition = new Vector2(180f, -90f);
-        secondRect.pivot = Vector2.one;
-        secondRect.anchorMin = secondRect.anchorMax = Vector2.one;
-        Vector3 authoredCenter = secondRect.TransformPoint(secondRect.rect.center);
-        RectTransform portrait = EnsurePath(first.transform, "YoKaiImages") as RectTransform;
-        portrait.anchoredPosition = new Vector2(8f, 12f);
-        EnsurePath(first.transform, "Bubble/YoKaiName");
-        EnsurePath(first.transform, "XP");
-        EnsurePath(second.transform, "Wrong old content");
+        public int Count;
+        public bool Victory;
+        public string SceneName;
+        public void Receive(object outcome)
+        {
+            Count++;
+            Victory = (bool)outcome.GetType().GetProperty("Victory").GetValue(outcome);
+            SceneName = (string)outcome.GetType().GetProperty("SceneName").GetValue(outcome);
+        }
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void RestoredSceneReceivesCombatOutcomeOnceAndCanReadItLater(bool victory)
+    {
+        GameObject host = new GameObject("Inactive combat return test");
+        host.SetActive(false);
+        Type returnType = FindRuntimeType("PlayerPositionLocally");
+        Type eventType = FindRuntimeType("YKW.Core.Events.CombatReturnedEvent");
+        Component owner = host.AddComponent(returnType);
+        CombatReturnProbe probe = new CombatReturnProbe();
+        Delegate handler = Delegate.CreateDelegate(typeof(Action<>).MakeGenericType(eventType), probe,
+            typeof(CombatReturnProbe).GetMethod("Receive"));
+        IDisposable subscription = (IDisposable)typeof(EventBus).GetMethod("Subscribe").MakeGenericMethod(eventType)
+            .Invoke(null, new object[] { handler });
         try
         {
-            Type resultType = FindRuntimeType("CombatResultUI");
-            resultType.GetMethod("NormalizeRewardSlots", BindingFlags.NonPublic | BindingFlags.Static)
-                .Invoke(null, new object[] { screen.transform });
-            yield return null;
-            Assert.AreEqual(1, second.transform.childCount);
-            Assert.AreEqual(3, second.transform.Find("Content").childCount);
-            Assert.IsNotNull(second.transform.Find("Content/Bubble/YoKaiName"));
-            Assert.IsNull(second.transform.Find("Wrong old content"));
-            Assert.AreEqual(portrait.anchoredPosition,
-                ((RectTransform)second.transform.Find("Content/YoKaiImages")).anchoredPosition);
-            Assert.Less(Vector3.Distance(authoredCenter, secondRect.TransformPoint(secondRect.rect.center)), 0.001f);
-            Assert.AreEqual(Vector2.one, secondRect.pivot);
-            Assert.AreEqual(Vector2.one, secondRect.anchorMin);
-            Assert.AreEqual(Vector2.one, secondRect.anchorMax);
-            Assert.IsTrue(((Behaviour)first.GetComponent(imageType)).enabled);
-            Assert.IsTrue(((Behaviour)second.GetComponent(imageType)).enabled);
-            foreach (Transform child in second.transform) Assert.IsFalse(child.gameObject.activeSelf);
+            returnType.GetMethod("StoreCombatOrigin").Invoke(owner, new object[] { "Exploration", Vector3.zero });
+            returnType.GetProperty("LastCombatVictory").SetValue(owner, (bool?)victory);
+            returnType.GetField("combatReturnPending", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(owner, true);
+            MethodInfo publish = returnType.GetMethod("PublishCombatReturn", BindingFlags.NonPublic | BindingFlags.Instance);
+            publish.Invoke(owner, null);
+            publish.Invoke(owner, null);
+            Assert.AreEqual(1, probe.Count);
+            Assert.AreEqual(victory, probe.Victory);
+            Assert.AreEqual("Exploration", probe.SceneName);
+            Assert.AreEqual(victory, returnType.GetProperty("LastCombatVictory").GetValue(owner));
         }
         finally
         {
-            UnityEngine.Object.DestroyImmediate(screen);
+            subscription.Dispose();
+            UnityEngine.Object.DestroyImmediate(host);
         }
-        yield return new ExitPlayMode();
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OutcomeMessageActivatesOnlyTheMatchingChild(bool victory)
+    {
+        GameObject host = new GameObject("Inactive outcome UI test");
+        host.SetActive(false);
+        GameObject panel = new GameObject("Message", typeof(RectTransform));
+        Transform win = EnsurePath(panel.transform, "win");
+        Transform lose = EnsurePath(panel.transform, "lose");
+        Type messageType = FindRuntimeType("CombatMessageUI");
+        Component controller = host.AddComponent(messageType);
+        try
+        {
+            messageType.GetMethod("Initialize").Invoke(controller, new object[] { panel.transform });
+            MethodInfo select = messageType.GetMethod("SetOutcomeVisuals", BindingFlags.NonPublic | BindingFlags.Instance);
+            select.Invoke(controller, new object[] { true, victory });
+            Assert.AreEqual(victory, win.gameObject.activeSelf);
+            Assert.AreEqual(!victory, lose.gameObject.activeSelf);
+            select.Invoke(controller, new object[] { false, victory });
+            Assert.IsFalse(win.gameObject.activeSelf);
+            Assert.IsFalse(lose.gameObject.activeSelf);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(host);
+            UnityEngine.Object.DestroyImmediate(panel);
+        }
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void OutcomeMessageDelaysResultsAndConfirmationOnlySkipsTheMessage(bool skip)
+    {
+        GameObject host = new GameObject("Inactive result sequence");
+        host.SetActive(false);
+        Type managerType = FindRuntimeType("CombatManager");
+        Type progressionType = FindRuntimeType("CombatProgressionController");
+        Type resultType = FindRuntimeType("CombatResultController");
+        Type actorType = FindRuntimeType("YKW.Core.YoKai.Class.YoKaiCombat");
+        Component manager = host.AddComponent(managerType);
+        Component progression = host.AddComponent(progressionType);
+        Component result = host.AddComponent(resultType);
+        progressionType.GetMethod("Initialize").Invoke(progression, new object[] { manager });
+        managerType.GetField("progressionController", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(manager, progression);
+        resultType.GetMethod("Initialize").Invoke(result, new object[] { manager, progression });
+        resultType.GetMethod("UseModularResultScreen").Invoke(result, null);
+        object ally = Activator.CreateInstance(actorType);
+        object enemy = Activator.CreateInstance(actorType);
+        actorType.GetField("hp_me").SetValue(ally, 10);
+        actorType.GetField("hp_me").SetValue(enemy, 0);
+        ((IList)managerType.GetField("listeYoKaiAmiSurLeTerrain").GetValue(manager)).Add(ally);
+        ((IList)managerType.GetField("listeYoKaiEnnemieSurLeTerrain").GetValue(manager)).Add(enemy);
+        int results = 0;
+        using (EventBus.Subscribe<CombatEndedEvent>(message => results++))
+        {
+            try
+            {
+                resultType.GetMethod("ProcessEndedCombat").Invoke(result, null);
+                Assert.AreEqual(0, results);
+                Assert.AreEqual(true, resultType.GetField("isAnnouncing", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(result));
+                if (skip) resultType.GetMethod("ConfirmResult").Invoke(result, null);
+                else
+                {
+                    resultType.GetField("announcementDeadline", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(result, Time.unscaledTime - 1f);
+                    resultType.GetMethod("ProcessEndedCombat").Invoke(result, null);
+                }
+                Assert.AreEqual(1, results);
+                Assert.AreEqual(false, resultType.GetField("isAnnouncing", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(result));
+                resultType.GetMethod("ProcessEndedCombat").Invoke(result, null);
+                Assert.AreEqual(1, results);
+            }
+            finally { UnityEngine.Object.DestroyImmediate(host); }
+        }
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void RewardViewsUseAuthoredSlotsAndInitialTeamOrder(bool contentHasImage)
+    {
+        Type imageType = FindRuntimeType("UnityEngine.UI.Image");
+        Type resultType = FindRuntimeType("CombatResultUI");
+        Type managerType = FindRuntimeType("CombatManager");
+        Type actorType = FindRuntimeType("YKW.Core.YoKai.Class.YoKaiCombat");
+        GameObject screen = new GameObject("Authored result screen", typeof(RectTransform));
+        GameObject host = new GameObject("Inactive reward controller");
+        host.SetActive(false);
+        Component manager = host.AddComponent(managerType);
+        Component result = host.AddComponent(resultType);
+        var views = new List<Transform>();
+        var backgrounds = new List<Behaviour>();
+        Texture2D texture = new Texture2D(2, 2);
+        Sprite sprite = Sprite.Create(texture, new Rect(0, 0, 2, 2), Vector2.one * 0.5f);
+        try
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                Transform background = EnsurePath(screen.transform,
+                    $"Content/YokaiRoue/YokaiSlotsContainer/Container{i / 3 + 1}/Slot{i % 3 + 1}");
+                backgrounds.Add((Behaviour)background.gameObject.AddComponent(imageType));
+                ((RectTransform)background).anchoredPosition = new Vector2(i * 50, -i * 20);
+                Transform view = EnsurePath(background, "YoKaiSlot");
+                if (contentHasImage) view.gameObject.AddComponent(imageType);
+                EnsurePath(view, "SlotBackground").gameObject.AddComponent(imageType);
+                EnsurePath(view, "YoKaiImages").gameObject.AddComponent(imageType);
+                EnsurePath(view, "Bubble/YoKaiName");
+                EnsurePath(view, "XP");
+                views.Add(view);
+            }
+            resultType.GetMethod("NormalizeRewardSlots", BindingFlags.Static | BindingFlags.NonPublic)
+                .Invoke(null, new object[] { screen.transform });
+            foreach (Transform view in views)
+            {
+                Assert.IsFalse(view.gameObject.activeSelf);
+                Assert.AreEqual(4, view.childCount);
+            }
+            object ally = Activator.CreateInstance(actorType);
+            actorType.GetField("positionRoue").SetValue(ally, 1);
+            actorType.GetField("imageFace").SetValue(ally, sprite);
+            ((IList)managerType.GetField("listeYoKaiAmiSurLeTerrain").GetValue(manager)).Add(ally);
+            resultType.GetMethod("BindRoster").Invoke(result, new object[] { manager });
+            resultType.GetMethod("CaptureInitialRoster").Invoke(result, null);
+            actorType.GetField("positionRoue").SetValue(ally, 4);
+            resultType.GetMethod("PopulateRewardSlots", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(result, new object[] { screen.transform });
+            for (int i = 0; i < 6; i++)
+            {
+                Assert.AreEqual(i == 1, views[i].gameObject.activeSelf);
+                Assert.IsTrue(backgrounds[i].enabled);
+                Assert.AreEqual(new Vector2(i * 50, -i * 20), ((RectTransform)views[i].parent).anchoredPosition);
+            }
+            Assert.AreSame(sprite, imageType.GetProperty("sprite").GetValue(views[1].Find("YoKaiImages").GetComponent(imageType)));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(host);
+            UnityEngine.Object.DestroyImmediate(screen);
+            UnityEngine.Object.DestroyImmediate(sprite);
+            UnityEngine.Object.DestroyImmediate(texture);
+        }
+    }
+
+    [Test]
+    public void CursorStatesCrossfadeAndReverseWithoutSnapping()
+    {
+        Type imageType = FindRuntimeType("UnityEngine.UI.Image");
+        Type pointerType = FindRuntimeType("CombatTargetPointer");
+        GameObject host = new GameObject("Inactive pointer animation test");
+        host.SetActive(false);
+        Component controller = host.AddComponent(pointerType);
+        GameObject idle = new GameObject("Idle", typeof(RectTransform), imageType);
+        GameObject hover = new GameObject("Hover", typeof(RectTransform), imageType);
+        idle.transform.SetParent(host.transform, false);
+        hover.transform.SetParent(idle.transform, false);
+        pointerType.GetField("pointer", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(controller, idle.GetComponent(imageType));
+        pointerType.GetField("hoverPointer", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(controller, hover.GetComponent(imageType));
+        MethodInfo animate = pointerType.GetMethod("UpdateCursorAppearance", BindingFlags.Instance | BindingFlags.NonPublic);
+        try
+        {
+            animate.Invoke(controller, new object[] { true, 0.06f });
+            float halfway = ((Color)imageType.GetProperty("color").GetValue(hover.GetComponent(imageType))).a;
+            Assert.AreEqual(0.5f, halfway, 0.001f);
+            animate.Invoke(controller, new object[] { false, 0.03f });
+            float reversed = ((Color)imageType.GetProperty("color").GetValue(hover.GetComponent(imageType))).a;
+            Assert.Greater(reversed, 0f);
+            Assert.Less(reversed, halfway);
+            animate.Invoke(controller, new object[] { true, 0.2f });
+            Assert.AreEqual(1f, ((Color)imageType.GetProperty("color").GetValue(hover.GetComponent(imageType))).a);
+            Assert.AreEqual(1.12f, idle.transform.localScale.x, 0.001f);
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
     }
 
     [UnityTest]
@@ -497,6 +669,87 @@ public sealed class GlobalEventBusTests
     }
 
     [Test]
+    public void CombatPointerCanSelectMarkedObjectsBeyondEnemyActors()
+    {
+        GameObject host = new GameObject("Pointer test manager");
+        host.SetActive(false);
+        Type managerType = FindRuntimeType("CombatManager");
+        Component manager = host.AddComponent(managerType);
+        Type pointerType = FindRuntimeType("CombatTargetPointer");
+        Component pointer = host.AddComponent(pointerType);
+        GameObject cameraObject = new GameObject("Pointer test camera", typeof(Camera));
+        cameraObject.tag = "MainCamera";
+        Camera camera = cameraObject.GetComponent<Camera>();
+        camera.transform.position = new Vector3(0, 0, -10);
+        GameObject selectable = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Type targetType = FindRuntimeType("CombatPointerTarget");
+        Behaviour marker = (Behaviour)selectable.AddComponent(targetType);
+        try
+        {
+            managerType.GetField("troisDisplateUIAmi").SetValue(manager, new List<GameObject>());
+            managerType.GetField("troisDisplateUIAmiDerrière").SetValue(manager, new List<GameObject>());
+            managerType.GetField("troisDisplateUIEnnemie").SetValue(manager, new List<GameObject>());
+            pointerType.GetMethod("Initialize").Invoke(pointer, new object[] { manager, null, null, null });
+            Physics.SyncTransforms();
+            Vector2 screen = camera.WorldToScreenPoint(selectable.transform.position);
+            MethodInfo find = pointerType.GetMethod("FindTarget", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreSame(selectable, find.Invoke(pointer, new object[] { screen }));
+            marker.enabled = false;
+            Assert.IsNull(find.Invoke(pointer, new object[] { screen }));
+            GameObject card = new GameObject("Reserve without marker", typeof(RectTransform));
+            card.transform.SetParent(host.transform, false);
+            Assert.IsNotNull(pointerType.GetMethod("EnsureSelectionMarker").Invoke(pointer, new object[] { card }));
+            Assert.IsFalse(card.transform.Find("point").gameObject.activeSelf);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(selectable);
+            UnityEngine.Object.DestroyImmediate(cameraObject);
+            UnityEngine.Object.DestroyImmediate(host);
+        }
+    }
+
+    [Test]
+    public void PurificationSelectorOnlyVisitsLivingReserveSlots()
+    {
+        GameObject host = new GameObject("Reserve selection");
+        host.SetActive(false);
+        Type managerType = FindRuntimeType("CombatManager");
+        Type selectorType = FindRuntimeType("ChoisieYoKaiAmi");
+        Type actorType = FindRuntimeType("YKW.Core.YoKai.Class.YoKaiCombat");
+        Component manager = host.AddComponent(managerType);
+        Component selector = host.AddComponent(selectorType);
+        var frontCards = new List<GameObject>();
+        var reserveCards = new List<GameObject>();
+        try
+        {
+            IList roster = (IList)managerType.GetField("listeYoKaiAmiSurLeTerrain").GetValue(manager);
+            for (int i = 0; i < 6; i++)
+            {
+                GameObject card = new GameObject("Card " + i);
+                card.transform.SetParent(host.transform);
+                EnsurePath(card.transform, "point").gameObject.SetActive(false);
+                (i < 3 ? frontCards : reserveCards).Add(card);
+                object actor = Activator.CreateInstance(actorType);
+                actorType.GetField("positionRoue").SetValue(actor, i);
+                actorType.GetField("hp_me").SetValue(actor, i == 4 ? 0 : 10);
+                roster.Add(actor);
+            }
+            managerType.GetField("troisDisplateUIAmi").SetValue(manager, frontCards);
+            managerType.GetField("troisDisplateUIAmiDerrière").SetValue(manager, reserveCards);
+            Assert.AreEqual(true, selectorType.GetMethod("TryInitialiser").Invoke(selector, new object[] { true }));
+            FieldInfo selected = selectorType.GetField("cible", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.AreEqual(3, selected.GetValue(selector));
+            selectorType.GetMethod("Move").Invoke(selector, new object[] { 1 });
+            Assert.AreEqual(5, selected.GetValue(selector));
+            selectorType.GetMethod("Move").Invoke(selector, new object[] { 1 });
+            Assert.AreEqual(3, selected.GetValue(selector));
+            foreach (GameObject card in frontCards) Assert.IsFalse(card.transform.Find("point").gameObject.activeSelf);
+        }
+        finally { UnityEngine.Object.DestroyImmediate(host); }
+    }
+
+    [Test]
     public void CompactAndFullCardsUseTheSameYokaiPortrait()
     {
         Type imageType = FindRuntimeType("UnityEngine.UI.Image");
@@ -521,6 +774,10 @@ public sealed class GlobalEventBusTests
             Assert.IsTrue(((Behaviour)compact.GetComponent(imageType)).enabled);
             Assert.Greater(((RectTransform)compact.transform).rect.width, 0f);
             Assert.AreSame(sprite, imageType.GetProperty("sprite").GetValue(portrait.GetComponent(imageType)));
+            GameObject reservePortrait = new GameObject("yokai", typeof(RectTransform), imageType);
+            reservePortrait.transform.SetParent(compact.transform, false);
+            populate.Invoke(null, new object[] { compact, actor });
+            Assert.AreSame(sprite, imageType.GetProperty("sprite").GetValue(reservePortrait.GetComponent(imageType)));
         }
         finally
         {

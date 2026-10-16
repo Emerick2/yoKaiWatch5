@@ -22,7 +22,8 @@ public class ChoisieYoKaiAmi : MonoBehaviour{
     }
     public void Initialiser() => TryInitialiser();
 
-    public bool TryInitialiser(){
+    public bool TryInitialiser(bool reserveOnly = false){
+        this.reserveOnly = reserveOnly;
         if (CombatManager == null) CombatManager = GetComponent<CombatManager>();
         if (CombatManager == null || CombatManager.troisDisplateUIAmi == null) return false;
         Arrêter();
@@ -40,28 +41,45 @@ public class ChoisieYoKaiAmi : MonoBehaviour{
         if (dernierCible != null) dernierCible.SetActive(false);
         dernierCible = null;
     }
-    void Update(){
-        if (activé){
-            if (Input.GetButtonDown("left")){
-                ChangerCible(-1);
-            } else if (Input.GetButtonDown("right")){
-                ChangerCible(1);
-            } else if (Input.GetButtonDown("A")){
-                Input.ResetInputAxes();
-                EventBus.Publish(new CombatAllyTargetSelectedEvent(cible));
-            }
+    public bool IsSelecting => activé;
+    private bool reserveOnly;
+    public void Move(int direction) { if (activé) ChangerCible(direction); }
+    public void Confirm()
+    {
+        if (activé) EventBus.Publish(new CombatAllyTargetSelectedEvent(cible));
+    }
+
+    public void SelectCard(GameObject card)
+    {
+        if (!activé) return;
+        for (int slot = reserveOnly ? 3 : 0; slot < (reserveOnly ? 6 : 3); slot++)
+        {
+            var ally = CombatManager.GetAllyAtWheelSlot(slot);
+            if (GetCard(slot) != card || ally == null || ally.hp_me <= 0) continue;
+            cible = slot;
+            Confirm();
+            return;
         }
+    }
+
+    private GameObject GetCard(int slot)
+    {
+        var cards = slot < 3 ? CombatManager.troisDisplateUIAmi : CombatManager.troisDisplateUIAmiDerrière;
+        int index = slot < 3 ? slot : 5 - slot;
+        return cards != null && index < cards.Count ? cards[index] : null;
     }
 
     bool ChangerCible(int direction){
         if (CombatManager == null || CombatManager.troisDisplateUIAmi == null) return false;
         List<int> slots = new List<int>();
-        int slotCount = Mathf.Min(3, CombatManager.troisDisplateUIAmi.Count);
-        for (int i = 0; i < slotCount; i++)
+        for (int i = reserveOnly ? 3 : 0; i < (reserveOnly ? 6 : 3); i++)
         {
-            GameObject card = CombatManager.troisDisplateUIAmi[i];
-            if (card != null && CombatManager.GetAllyAtWheelSlot(i) != null && card.transform.Find("point") != null)
-                slots.Add(i);
+            var ally = CombatManager.GetAllyAtWheelSlot(i);
+            GameObject card = GetCard(i);
+            if (ally == null || ally.hp_me <= 0 || card == null) continue;
+            Transform marker = card.transform.Find("point");
+            if (marker == null) marker = CombatManager.GetComponent<CombatTargetPointer>()?.EnsureSelectionMarker(card);
+            if (marker != null) slots.Add(i);
         }
         if (slots.Count == 0)
         {
@@ -73,9 +91,9 @@ public class ChoisieYoKaiAmi : MonoBehaviour{
         if (index < 0) index = direction < 0 ? slots.Count - 1 : 0;
         else index = ((index + direction) % slots.Count + slots.Count) % slots.Count;
         cible = slots[index];
-        Transform point = CombatManager.troisDisplateUIAmi[cible].transform.Find("point");
-        point.gameObject.SetActive(true);
+        Transform point = GetCard(cible).transform.Find("point");
         if (dernierCible != null) dernierCible.SetActive(false);
+        point.gameObject.SetActive(true);
         dernierCible = point.gameObject;
         return true;
     }

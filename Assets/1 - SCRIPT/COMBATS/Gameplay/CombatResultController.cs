@@ -13,6 +13,12 @@ public sealed class CombatResultController : MonoBehaviour
     private bool usesModularResultScreen;
     private bool resultScreenIsClosed = true;
     private bool resultEventPublished;
+    [SerializeField, Min(0f)] private float outcomeMessageDuration = 5f;
+    private bool announcementStarted;
+    private bool isAnnouncing;
+    private float announcementDeadline;
+    private CombatEndedEvent pendingResult;
+    private bool returnRequested;
 
     public void Initialize(CombatManager owner, CombatProgressionController progressionController)
     {
@@ -24,62 +30,52 @@ public sealed class CombatResultController : MonoBehaviour
 
     public void ProcessEndedCombat()
     {
-        if (!resultScreenIsClosed || manager.stepPanelVictory != 0) return;
-
-        if (usesModularResultScreen)
-        {
-            if (manager.panelVictory != null)
-            {
-                Transform legacyFirstPage = manager.panelVictory.transform.Find("partie-1");
-                if (legacyFirstPage != null) legacyFirstPage.gameObject.SetActive(false);
-                manager.panelVictory.SetActive(false);
-            }
-            manager.stepPanelVictory = 1;
-        }
-        else
-        {
-            if (manager.panelVictory == null)
-            {
-                Debug.LogError("Result screen is missing: assign panelVictory or enable the modular result screen.");
-                manager.stepPanelVictory = 1;
-                resultScreenIsClosed = false;
-            }
-            else
-            {
-                manager.panelVictory.SetActive(true);
-                Transform panel = manager.panelVictory.transform.Find("partie-1");
-                if (panel != null) panel.gameObject.SetActive(false);
-                manager.stepPanelVictory = 1;
-                if (panel != null)
-                {
-                    panel.gameObject.SetActive(true);
-                    GameObject win = panel.Find("win")?.gameObject;
-                    GameObject lose = panel.Find("lose")?.gameObject;
-                    bool victory = manager.EstVictoire();
-                    if (win != null) win.SetActive(victory);
-                    if (lose != null) lose.SetActive(!victory);
-                }
-            }
-        }
-
-        System.Collections.Generic.List<YKW.Core.YoKai.Class.YoKaiCombat> defeatedEnemies =
-            manager.listeYoKaiEnnemieSurLeTerrain
-                .Where(enemy => enemy != null && enemy.hp_me <= 0)
-                .ToList();
-        progression.GrantExperience(defeatedEnemies);
         if (resultEventPublished) return;
+        if (announcementStarted)
+        {
+            if (isAnnouncing && Time.unscaledTime >= announcementDeadline) ShowResults();
+            return;
+        }
+        if (!resultScreenIsClosed || manager.stepPanelVictory != 0) return;
+        announcementStarted = true;
+        isAnnouncing = true;
+        manager.GetComponent<CombatTargetPointer>()?.Close();
+        manager.GetComponent<ChoisieYoKaiAmi>()?.Arrêter();
+        manager.GetComponent<SacCombats>()?.Arrêter();
+        if (manager.blocDesBoutonGénéraux != null) manager.blocDesBoutonGénéraux.SetActive(false);
+        if (manager.panelVictory != null) manager.panelVictory.SetActive(false);
+        var defeatedEnemies = manager.listeYoKaiEnnemieSurLeTerrain
+            .Where(enemy => enemy != null && enemy.hp_me <= 0).ToList();
+        progression.GrantExperience(defeatedEnemies);
+        pendingResult = new CombatEndedEvent(manager.EstVictoire(), manager.CalculerXpTotaleCombat(defeatedEnemies));
+        announcementDeadline = Time.unscaledTime + outcomeMessageDuration;
+        EventBus.Publish(new CombatOutcomeAnnouncementEvent(pendingResult.Victory, outcomeMessageDuration));
+    }
 
+    private void ShowResults()
+    {
+        if (!isAnnouncing || resultEventPublished) return;
+        isAnnouncing = false;
         resultEventPublished = true;
-        EventBus.Publish(new CombatEndedEvent(
-            manager.EstVictoire(), manager.CalculerXpTotaleCombat(defeatedEnemies)));
+        manager.stepPanelVictory = 1;
+        EventBus.Publish(new CombatOutcomeAnnouncementDismissedEvent());
+        if (!usesModularResultScreen && manager.panelVictory != null)
+        {
+            manager.panelVictory.SetActive(true);
+            Transform page = manager.panelVictory.transform.Find("partie-1");
+            if (page != null) page.gameObject.SetActive(true);
+        }
+        EventBus.Publish(pendingResult);
     }
 
     public void ConfirmResult()
     {
+        if (!announcementStarted) ProcessEndedCombat();
+        if (isAnnouncing) { ShowResults(); return; }
+        if (!resultEventPublished) return;
         if (usesModularResultScreen)
         {
-            EventBus.Publish(new CombatResultDismissedEvent());
-            PlayerPositionLocally.Instance?.ReturnToTheSaveScene();
+            ReturnToPreviousScene();
             return;
         }
         if (manager.stepPanelVictory < 2)
@@ -87,7 +83,7 @@ public sealed class CombatResultController : MonoBehaviour
             EventBus.Publish(new CombatResultDismissedEvent());
             if (manager.panelVictory == null)
             {
-                PlayerPositionLocally.Instance?.ReturnToTheSaveScene();
+                ReturnToPreviousScene();
                 return;
             }
             Transform panel = manager.panelVictory.transform.Find("partie-" + manager.stepPanelVictory);
@@ -99,7 +95,15 @@ public sealed class CombatResultController : MonoBehaviour
             return;
         }
 
-        PlayerPositionLocally.Instance?.ReturnToTheSaveScene();
+        ReturnToPreviousScene();
+    }
+
+    private void ReturnToPreviousScene()
+    {
+        if (returnRequested || pendingResult == null) return;
+        if (!PlayerPositionLocally.Instance.ReturnFromCombat(pendingResult.Victory)) return;
+        returnRequested = true;
+        EventBus.Publish(new CombatResultDismissedEvent());
     }
 
     private void OpenProgressionPanel()

@@ -73,6 +73,9 @@ public class mouvementCibleYoKaiMiniJeuPourCommencerLeCombat : MonoBehaviour{
             yield break;
         }
 
+        BaladeDeCombat encounter = FindObjectOfType<BaladeDeCombat>();
+        if (encounter != null)
+            PlayerPositionLocally.Instance.StoreCombatOrigin(encounter.scèneOriginale, encounter.positionJoueur);
         SceneManager.LoadScene(combatSceneName);
     }
     void OnTriggerStay(){
