@@ -28,3 +28,11 @@ Les 13 fichiers en conflit ont été résolus. Les objets des scènes ont été 
 5. Vérifier t101, yo-kai-world-1, espace-emerick et les nouvelles cartes de main, dont le restaurant.
 
 Les exports, caches et modifications locales hors périmètre restent exclus. La PR sera préparée après ce test.
+
+## Vérification des classes après fusion
+
+Les deux contrôleurs Bingo-kai partagent maintenant `BingoKaiCoinData` et `BingoKaiPrizeData`. Les cinq classes d’import de bingo-kai-data.cs et le squelette vide StatsBingoKai ont été supprimés. Le chargement JSON convertit les noms anglais en IDs d’espèce, sans deuxième modèle de récompenses. Les anciens champs d’inspecteur sont migrés avec FormerlySerializedAs et les types avec MovedFrom.
+
+Le chargement réel a été exécuté sur 76 tables ville/pièce, 304 catégories de prix et 1 840 récompenses résolues. Les pièces absentes et les catégories nulles sont couvertes. La compilation runtime, Editor et des sources de tests passe après cette unification. Vérifier aussi un tirage Bingo-kai dans Unity après ce changement.
+
+Limite des données existantes : 18 noms anglais du fichier de prix (43 occurrences) ne correspondent pas exactement au catalogue Yo-kai local. Ils ne produisent pas d’ID fictif et sont exclus des tirages résolus. Leur rapprochement au catalogue reste à traiter séparément.

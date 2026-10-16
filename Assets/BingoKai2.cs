@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using YKW.Core.Item.Class;
 using YKW.Core.YoKai.Class;
+using YKW.Core.BingoKai.Data;
 
 public class BingoKai2 : MonoBehaviour {
     private DialcodePrinted dialcode;
@@ -37,7 +38,7 @@ public class BingoKai2 : MonoBehaviour {
     public List<Image> listeImageTroisièmePrix;
     public List<Image> listeImageDernierPrix;
 
-    BingoKaiCityData lesDonnéesBingoKai;
+    BingoKaiCoinData lesDonnéesBingoKai;
     public int tauxPremierPrix = 10;
     public int tauxSecondPrix = 45;
     public int tauxTroisièmePrix = 80;
@@ -321,115 +322,19 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void UtilisationDeLaPièce(int numéroPièce) {
-        // if (numéroPièce == 0){
-        //     yokaiQuiVasSortir = 95;
-        //     nomObjetQuiVasSortir = "";
-        // } else {
-        //     yokaiQuiVasSortir = 0;
-        //     nomObjetQuiVasSortir = "Lait merveilleux";
-        // }
         yokaiQuiVasSortir = 0;
         nomObjetQuiVasSortir = "";
         
-        if (lesDonnéesBingoKai != null) {
-            int posibilitéeTotal_1 = lesDonnéesBingoKai.First_prize.yokais.Count + lesDonnéesBingoKai.First_prize.articles.Count;
-            int posibilitéeTotal_2 = lesDonnéesBingoKai.Second_prize.yokais.Count + lesDonnéesBingoKai.Second_prize.articles.Count;
-            int posibilitéeTotal_3 = lesDonnéesBingoKai.Third_prize.yokais.Count + lesDonnéesBingoKai.Third_prize.articles.Count;
-            int posibilitéeTotal_4 = lesDonnéesBingoKai.Default_prize.yokais.Count + lesDonnéesBingoKai.Default_prize.articles.Count;
-
-            int randomNumber = Random.Range(1, 101);
-
-            // -------- PREMIER PRIX --------
-            if (randomNumber <= tauxPremierPrix && posibilitéeTotal_1 > 0) {
-                BingoKaiPriceData listePrix = lesDonnéesBingoKai.First_prize;
-
-                randomNumber = Random.Range(0, posibilitéeTotal_1);
-                if (randomNumber > listePrix.yokais.Count){
-                    randomNumber -= listePrix.yokais.Count;
-                    yokaiQuiVasSortir = 0;
-                    string nomObjetQuiVasSortirEn = listePrix.articles[randomNumber];
-                    Nouriture nouritureObjet = Item.Instance.FindFoodWithEnglishName(nomObjetQuiVasSortirEn);
-                    if (nouritureObjet != null){
-                        nomObjetQuiVasSortir = nouritureObjet.nom;
-                    } else {
-                        Équipement équipementObjet = Item.Instance.FindEquipmentWithEnglishName(nomObjetQuiVasSortirEn);
-                        if (équipementObjet != null){
-                            nomObjetQuiVasSortir = équipementObjet.nom;
-                        } else {
-                            Annimal annimalObjet = Item.Instance.FindAnimalWithEnglishName(nomObjetQuiVasSortirEn);
-                            if (annimalObjet != null) {
-                                nomObjetQuiVasSortir = annimalObjet.nom;
-                            } else {
-                                nomObjetQuiVasSortir = nomObjetQuiVasSortirEn;
-                            }
-                        }
-                    }
-                } else {
-                    int identifiantYoKai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]).ID;
-                    yokaiQuiVasSortir = identifiantYoKai;
-                    nomObjetQuiVasSortir = "";  
-                } 
-            }
-            // -------- DEUXIÈME PRIX --------
-            if (randomNumber <= tauxSecondPrix && posibilitéeTotal_2 > 0) {
-                BingoKaiPriceData listePrix = lesDonnéesBingoKai.Second_prize;
-
-                randomNumber = Random.Range(0, posibilitéeTotal_2);
-                if (randomNumber > listePrix.yokais.Count){
-                    randomNumber -= listePrix.yokais.Count;
-                    yokaiQuiVasSortir = 0;
-                    nomObjetQuiVasSortir = listePrix.articles[randomNumber];
-                } else {
-                    int identifiantYoKai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]).ID;
-                    yokaiQuiVasSortir = identifiantYoKai;
-                    nomObjetQuiVasSortir = "";  
-                } 
-            }
-            // -------- TROISIÈME PRIX --------
-            if (randomNumber <= tauxTroisièmePrix && posibilitéeTotal_3 > 0) {
-                BingoKaiPriceData listePrix = lesDonnéesBingoKai.Third_prize;
-
-                randomNumber = Random.Range(0, posibilitéeTotal_3);
-                if (randomNumber > listePrix.yokais.Count){
-                    randomNumber -= listePrix.yokais.Count;
-                    yokaiQuiVasSortir = 0;
-                    nomObjetQuiVasSortir = listePrix.articles[randomNumber];
-                } else {
-                    if (listePrix.yokais.Count > randomNumber){
-                        YoKai yokai =  medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]);
-                        if (yokai != null){
-                            yokaiQuiVasSortir = yokai.ID;
-                        } else {
-                            Debug.LogError("Le yo-kai sortie est null ! : "+listePrix.yokais[randomNumber]);
-                            yokaiQuiVasSortir = 3;
-                        }
-                    } else {
-                        Debug.LogError("Le numéro "+randomNumber+" dépasse la listes des yo-kai possible ("+listePrix.yokais.Count+")");
-                        yokaiQuiVasSortir = 3;
-                    }
-                    nomObjetQuiVasSortir = "";  
-                } 
-            }
-            // -------- DERNIER PRIX --------
-            else if (posibilitéeTotal_4 > 0) {
-                BingoKaiPriceData listePrix = lesDonnéesBingoKai.Default_prize;
-
-                randomNumber = Random.Range(0, posibilitéeTotal_4);
-                if (randomNumber > listePrix.yokais.Count){
-                    randomNumber -= listePrix.yokais.Count;
-                    yokaiQuiVasSortir = 0;
-                    nomObjetQuiVasSortir = listePrix.articles[randomNumber];
-                } else {
-                    int identifiantYoKai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(listePrix.yokais[randomNumber]).ID;
-                    yokaiQuiVasSortir = identifiantYoKai;
-                    nomObjetQuiVasSortir = "";  
-                } 
-            }
-        } else {
-            yokaiQuiVasSortir = 0;
-            nomObjetQuiVasSortir = "Lait merveilleux";
-        }
-
+        if (lesDonnéesBingoKai == null) return;
+        int roll = Random.Range(1, 101);
+        BingoKaiPrizeData prize = roll <= tauxPremierPrix ? lesDonnéesBingoKai.firstPrize
+            : roll <= tauxSecondPrix ? lesDonnéesBingoKai.secondPrize
+            : roll <= tauxTroisièmePrix ? lesDonnéesBingoKai.thirdPrize : lesDonnéesBingoKai.defaultPrize;
+        if (prize == null || prize.Count == 0) prize = lesDonnéesBingoKai.defaultPrize;
+        if (prize == null || prize.Count == 0) return;
+        int rewardIndex = Random.Range(0, prize.Count);
+        if (rewardIndex < prize.yokaiIds.Count) yokaiQuiVasSortir = prize.yokaiIds[rewardIndex];
+        else nomObjetQuiVasSortir = ResolveItemName(prize.itemNames[rewardIndex - prize.yokaiIds.Count]);
 
         videoPlayer.gameObject.SetActive(true);
 
@@ -516,11 +421,11 @@ public class BingoKai2 : MonoBehaviour {
         if (lesDonnéesBingoKai != null) {
             // -------- PREMIER PRIX --------
             for (int i = 0; i < listeImagePremierPrix.Count; i++) {
-                if (lesDonnéesBingoKai.First_prize.yokais.Count > i){
+                if (lesDonnéesBingoKai.firstPrize.yokaiIds.Count > i){
                     listeImagePremierPrix[i].gameObject.SetActive(true);
-                    string nomEn = lesDonnéesBingoKai.First_prize.yokais[i];
-                    YoKai yokai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(nomEn);
-                    Sprite image = yokai.imageMédaillon;
+                    int speciesId = lesDonnéesBingoKai.firstPrize.yokaiIds[i];
+                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
+                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
                     if (image != null) {
                         listeImagePremierPrix[i].sprite = image;
                     } else {
@@ -532,11 +437,11 @@ public class BingoKai2 : MonoBehaviour {
             }
             // -------- DEUXIÈME PRIX --------
             for (int i = 0; i < listeImageDeuxièmePrix.Count; i++) {
-                if (lesDonnéesBingoKai.Second_prize.yokais.Count > i){
+                if (lesDonnéesBingoKai.secondPrize.yokaiIds.Count > i){
                     listeImageDeuxièmePrix[i].gameObject.SetActive(true);
-                    string nomEn = lesDonnéesBingoKai.Second_prize.yokais[i];
-                    YoKai yokai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(nomEn);
-                    Sprite image = yokai.imageMédaillon;
+                    int speciesId = lesDonnéesBingoKai.secondPrize.yokaiIds[i];
+                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
+                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
                     if (image != null) {
                         listeImageDeuxièmePrix[i].sprite = image;
                     } else {
@@ -548,11 +453,11 @@ public class BingoKai2 : MonoBehaviour {
             }
             // -------- TROISIÈME PRIX --------
             for (int i = 0; i < listeImageTroisièmePrix.Count; i++) {
-                if (lesDonnéesBingoKai.Third_prize.yokais.Count > i){
+                if (lesDonnéesBingoKai.thirdPrize.yokaiIds.Count > i){
                     listeImageTroisièmePrix[i].gameObject.SetActive(true);
-                    string nomEn = lesDonnéesBingoKai.Third_prize.yokais[i];
-                    YoKai yokai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(nomEn);
-                    Sprite image = yokai.imageMédaillon;
+                    int speciesId = lesDonnéesBingoKai.thirdPrize.yokaiIds[i];
+                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
+                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
                     if (image != null) {
                         listeImageTroisièmePrix[i].sprite = image;
                     } else {
@@ -564,11 +469,11 @@ public class BingoKai2 : MonoBehaviour {
             }
             // -------- DERNIER PRIX --------
             for (int i = 0; i < listeImageDernierPrix.Count; i++) {
-                if (lesDonnéesBingoKai.Default_prize.yokais.Count > i){
+                if (lesDonnéesBingoKai.defaultPrize.yokaiIds.Count > i){
                     listeImageDernierPrix[i].gameObject.SetActive(true);
-                    string nomEn = lesDonnéesBingoKai.Default_prize.yokais[i];
-                    YoKai yokai = medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(nomEn);
-                    Sprite image = yokai.imageMédaillon;
+                    int speciesId = lesDonnéesBingoKai.defaultPrize.yokaiIds[i];
+                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
+                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
                     if (image != null) {
                         listeImageDernierPrix[i].sprite = image;
                     } else {
@@ -583,96 +488,24 @@ public class BingoKai2 : MonoBehaviour {
         }
     }
 
-    BingoKaiCityData ChargerLesDonnéesBingoKai(int position){
-        TextAsset jsonFile = Resources.Load<TextAsset>("bingo-kai/yokaiWatch3_bingoKai");
-
-        if (jsonFile == null) {
-            Debug.LogError("Impossible de trouver le fichier JSON dans le dossier Resources !");
-            return null;
-        }
-
-        string jsonString = jsonFile.text;
-
-        if (jsonString.TrimStart().StartsWith("[")) {
-            jsonString = "{\"items\":" + jsonString + "}";
-        }
-
-        BingoKaiBigData data = JsonUtility.FromJson<BingoKaiBigData>(jsonString);
-
-
-        string variable = listePièceBingoKai[position].nom_anglais;
-        BingoKaiData piece = variable switch {
-            "Red_Coin" => data.Red_Coin,
-            "Yellow_Coin" => data.Yellow_Coin,
-            "Orange_Coin" => data.Orange_Coin,
-            "Pink_Coin" => data.Pink_Coin,
-            "Green_Coin" => data.Green_Coin,
-            "Blue_Coin" => data.Blue_Coin,
-            "Purple_Coin" => data.Purple_Coin,
-            "One_Star_Coin" => data.One_Star_Coin,
-            "Five_Star_Coin" => data.Five_Star_Coin,
-            "Special_Coin" => data.Special_Coin,
-            "Yo_Mystery_Coin" => data.Yo_Mystery_Coin,
-            "Kai_Mystery_Coin" => data.Kai_Mystery_Coin,
-            "Soul_Mystery_Coin" => data.Soul_Mystery_Coin,
-            "Sushi_Coin" => data.Sushi_Coin,
-            "Tempura_Coin" => data.Tempura_Coin,
-            "Whirlwind_Coin" => data.Whirlwind_Coin,
-            "Wanderer_Coin" => data.Wanderer_Coin,
-            "Rusted_Coin" => data.Rusted_Coin,
-            "Flower_Excite_Coin" => data.Flower_Excite_Coin,
-            "Bird_Excite_Coin" => data.Bird_Excite_Coin,
-            "Wind_Excite_Coin" => data.Wind_Excite_Coin,
-            "Moon_Excite_Coin" => data.Moon_Excite_Coin,
-            "Mellow_Coin" => data.Mellow_Coin,
-            "Brave_Dream_Coin" => data.Brave_Dream_Coin,
-            "Light_Dream_Coin" => data.Light_Dream_Coin,
-            "Platin_Dream_Coin" => data.Platin_Dream_Coin,
-            "Fortun_Dream_Coin" => data.Fortun_Dream_Coin,
-            "Princess_Dream_Coin" => data.Princess_Dream_Coin,
-            "Wisdom_Dream_Coin" => data.Wisdom_Dream_Coin,
-            "Chivalry_Dream_Coin" => data.Chivalry_Dream_Coin,
-            "_2nd_Helping_Coin" => data._2nd_Helping_Coin,
-            "Belly_Buster_Coin" => data.Belly_Buster_Coin,
-            "L_Souvenir_Coin" => data.L_Souvenir_Coin,
-            "F_Souvenir_Coin" => data.F_Souvenir_Coin,
-            "S_Souvenir_Coin" => data.S_Souvenir_Coin,
-            "K_Souvenir_Coin" => data.K_Souvenir_Coin,
-            "Joyful_Coin" => data.Joyful_Coin,
-            "Excellent_Coin" => data.Excellent_Coin,
-            "Beaming_Coin" => data.Beaming_Coin,
-            "Iron_Pot_Coin" => data.Iron_Pot_Coin,
-            "Fancy_That_Coin" => data.Fancy_That_Coin,
-            "Black_Coin" => data.Black_Coin,
-            "Demonic_Coin" => data.Demonic_Coin,
-            "Underworld_Coin" => data.Underworld_Coin,
-            "Sealed_Coin" => data.Sealed_Coin,
-            "Emblem_Coin" => data.Emblem_Coin,
-            "Treasure_Coin" => data.Treasure_Coin,
-            "Legend_Coin" => data.Legend_Coin,
-            "Super_Red_Coin" => data.Super_Red_Coin,
-            "Super_Yellow_Coin" => data.Super_Yellow_Coin,
-            "Super_Orange_Coin" => data.Super_Orange_Coin,
-            "Super_Pink_Coin" => data.Super_Pink_Coin,
-            "Super_Green_Coin" => data.Super_Green_Coin,
-            "Super_Blue_Coin" => data.Super_Blue_Coin,
-            "Super_Purple_Coin" => data.Super_Purple_Coin,
-            "Super_Light_Blue_Coin" => data.Super_Light_Blue_Coin,
-            "Ultra_Red_Coin" => data.Ultra_Red_Coin,
-            "Ultra_Yellow_Coin" => data.Ultra_Yellow_Coin,
-            "Ultra_Orange_Coin" => data.Ultra_Orange_Coin,
-            "Ultra_Pink_Coin" => data.Ultra_Pink_Coin,
-            "Ultra_Green_Coin" => data.Ultra_Green_Coin,
-            "Ultra_Blue_Coin" => data.Ultra_Blue_Coin,
-            "Ultra_Purple_Coin" => data.Ultra_Purple_Coin,
-            "Ultra_Light_Blue_Coin" => data.Ultra_Light_Blue_Coin,
-            "_3DS_Coin" => data._3DS_Coin,
-            _ => null
-        };
-
-        return piece?.Granval;
-
+    private static string ResolveItemName(string englishName)
+    {
+        if (Item.Instance == null) return englishName;
+        return Item.Instance.FindFoodWithEnglishName(englishName)?.nom
+            ?? Item.Instance.FindEquipmentWithEnglishName(englishName)?.nom
+            ?? Item.Instance.FindAnimalWithEnglishName(englishName)?.nom
+            ?? englishName;
     }
+
+    BingoKaiCoinData ChargerLesDonnéesBingoKai(int position)
+    {
+        if (position < 0 || position >= listePièceBingoKai.Count || medaliumDictionnaire._instance == null) return null;
+        TextAsset jsonFile = Resources.Load<TextAsset>("bingo-kai/yokaiWatch3_bingoKai");
+        if (jsonFile == null) return null;
+        return BingoKaiCoinData.FromJson(jsonFile.text, listePièceBingoKai[position].nom_anglais, "Granval",
+            englishName => medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(englishName)?.ID);
+    }
+
 }
 
 

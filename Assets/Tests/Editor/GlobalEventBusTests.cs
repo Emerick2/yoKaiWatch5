@@ -44,6 +44,46 @@ public sealed class GlobalEventBusTests
     }
 
     [Test]
+    public void BingoControllersShareCoinAndPrizeModels()
+    {
+        Type coinType = FindRuntimeType("YKW.Core.BingoKai.Data.BingoKaiCoinData");
+        Type prizeType = FindRuntimeType("YKW.Core.BingoKai.Data.BingoKaiPrizeData");
+        Assert.AreEqual(coinType, FindRuntimeType("BingoKai").GetField("maPièce").FieldType);
+        Assert.AreEqual(coinType, FindRuntimeType("BingoKai2").GetField("lesDonnéesBingoKai",
+            BindingFlags.Instance | BindingFlags.NonPublic).FieldType);
+        Assert.AreEqual(prizeType, coinType.GetField("firstPrize").FieldType);
+        string json = "{\"Red_Coin\":{\"Granval\":{\"First_prize\":{\"yokais\":[\"Pandle\",\"Unknown\"],\"articles\":[\"Bread\"]},\"Second_prize\":null}}}";
+        Func<string, int?> resolver = name => name == "Pandle" ? (int?)3 : null;
+        MethodInfo load = coinType.GetMethod("FromJson");
+        object coin = load.Invoke(null, new object[] { json, "Red_Coin", "Granval", resolver });
+        object prize = coinType.GetField("firstPrize").GetValue(coin);
+        CollectionAssert.AreEqual(new[] { 3 }, (IList)prizeType.GetField("yokaiIds").GetValue(prize));
+        CollectionAssert.AreEqual(new[] { "Bread" }, (IList)prizeType.GetField("itemNames").GetValue(prize));
+        Assert.AreEqual(0, prizeType.GetProperty("Count").GetValue(coinType.GetField("secondPrize").GetValue(coin)));
+        Assert.IsNull(load.Invoke(null, new object[] { json, "Missing", "Granval", resolver }));
+    }
+
+    [Test]
+    public void UnifiedBingoModelsPreserveInspectorFieldNames()
+    {
+        Type coinType = FindRuntimeType("YKW.Core.BingoKai.Data.BingoKaiCoinData");
+        Type prizeType = FindRuntimeType("YKW.Core.BingoKai.Data.BingoKaiPrizeData");
+        foreach (var mapping in new[] { new[] { "firstPrize", "prix1" }, new[] { "secondPrize", "prix2" },
+            new[] { "thirdPrize", "prix3" }, new[] { "defaultPrize", "prix4" } })
+        {
+            var attribute = (UnityEngine.Serialization.FormerlySerializedAsAttribute)coinType.GetField(mapping[0])
+                .GetCustomAttributes(typeof(UnityEngine.Serialization.FormerlySerializedAsAttribute), true)[0];
+            Assert.AreEqual(mapping[1], attribute.oldName);
+        }
+        foreach (var mapping in new[] { new[] { "itemNames", "objetPrix" }, new[] { "yokaiIds", "yoKaiPrix" } })
+        {
+            var attribute = (UnityEngine.Serialization.FormerlySerializedAsAttribute)prizeType.GetField(mapping[0])
+                .GetCustomAttributes(typeof(UnityEngine.Serialization.FormerlySerializedAsAttribute), true)[0];
+            Assert.AreEqual(mapping[1], attribute.oldName);
+        }
+    }
+
+    [Test]
     public void OwnedYokaiCanBeConstructedOffTheMainThread()
     {
         Type ownedYokaiType = FindRuntimeType("YKW.Core.YoKai.Class.YoKaiActif");
