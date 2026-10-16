@@ -213,8 +213,8 @@ public class DialcodePrinted : MonoBehaviour{
                     position++;
                 }
             }
-        } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret){
-            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true);
+        } else if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.amiYoKai){
+            RecevoirUnCadeau(fragment.type, fragment.quantitée, fragment.typeObjet, fragment.IdÉlément, fragment.image, fragment.nom, true, fragment.surnomYoKai, fragment.ilDevientNotreAmi);
         } else if (fragment.type == TypeDialogue.information){
             OuvertureFenêtre(information);
             information.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = fragment.phrase;
@@ -294,6 +294,10 @@ public class DialcodePrinted : MonoBehaviour{
             position++;
             AvancerJusqueAuProchainDialogue();
             if (position < fragmentDeDialogue.Count) Action();
+        } else {
+            position++;
+            AvancerJusqueAuProchainDialogue();
+            if (position < fragmentDeDialogue.Count) Action();
         }
     }
 
@@ -307,24 +311,30 @@ public class DialcodePrinted : MonoBehaviour{
     /// <param name="image">l'image de l'élément (facultatif)</param>
     /// <param name="nom">le nom de l'élément (facultatif)</param>
     /// <param name="dansUnDialogue">c'est sur true si sa fait partie d'un dialogue</param>
-    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false){
+    /// <param name="surnomYoKai">le surnom du yo-kai d'il s'agit d'un yo-kai.</param>
+    /// <param name="ilDevientNotreAmi">Si c'est un yo-kai, il deviendras notre ami.</param>
+    public void RecevoirUnCadeau(TypeDialogue type, int quantitée, CatégorieItem typeObjet, int IdÉlément, Sprite image = null, string nom = "", bool dansUnDialogue = false, string surnomYoKai = "", bool ilDevientNotreAmi = true){
         canvasGroup.alpha = 1f;
         if (quantitée <= 0) quantitée = 1;
+        if (IdÉlément < 0) IdÉlément = 0;
         int quantitéeTexte = quantitée;
         if(nom == "€"){
             quantitée*=100;
         }
-        if (typeObjet == CatégorieItem.Nouriture){
-            nom = Item.Instance.listeDesNouritures[IdÉlément].nom;
-            image = Item.Instance.listeDesNouritures[IdÉlément].image;
-        } else if (typeObjet == CatégorieItem.Equipement){
-            nom = Item.Instance.listeDesÉquipements[IdÉlément].nom;
-            image = Item.Instance.listeDesÉquipements[IdÉlément].image;
-        } else if (typeObjet == CatégorieItem.Animal){
-            nom = Item.Instance.listeDesAnnimaux[IdÉlément].nom;
-            image = Item.Instance.listeDesAnnimaux[IdÉlément].image;
+        if (type != TypeDialogue.amiYoKai) {
+            if (typeObjet == CatégorieItem.Nouriture && Item.Instance.listeDesNouritures.Count > IdÉlément){
+                nom = Item.Instance.listeDesNouritures[IdÉlément]?.nom;
+                image = Item.Instance.listeDesNouritures[IdÉlément]?.image;
+            } else if (typeObjet == CatégorieItem.Equipement && Item.Instance.listeDesÉquipements.Count > IdÉlément){
+                nom = Item.Instance.listeDesÉquipements[IdÉlément]?.nom;
+                image = Item.Instance.listeDesÉquipements[IdÉlément]?.image;
+            } else if (typeObjet == CatégorieItem.Animal && Item.Instance.listeDesAnnimaux.Count > IdÉlément){
+                nom = Item.Instance.listeDesAnnimaux[IdÉlément]?.nom;
+                image = Item.Instance.listeDesAnnimaux[IdÉlément]?.image;
+            }
         }
 
+        cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(false);
         if (type == TypeDialogue.cadeau){
             OuvertureFenêtre(cadeau);
             if (image != null){
@@ -372,6 +382,43 @@ public class DialcodePrinted : MonoBehaviour{
                 position++;
                 AvancerJusqueAuProchainDialogue();
                 Action();
+            }
+        } else if (type == TypeDialogue.amiYoKai){
+            YKW.Core.YoKai.Class.YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(IdÉlément);
+            AudioClip audioClip = null;
+            if (yokai != null) {
+                nom = yokai.nom;
+                image = yokai.imageMédaillon;
+                audioClip = yokai.voiceClip;
+            }
+
+            if (ilDevientNotreAmi) {
+                MesYoKai.Instance.AjouterUnYoKai(IdÉlément,quantitée,"",surnomYoKai,0);
+
+                OuvertureFenêtre(cadeau);
+                cadeau.transform.Find("cintille").gameObject.SetActive(false);
+                if (image != null){
+                    cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(true);
+                    cadeau.transform.Find("médaille-yo-kai").GetComponent<Image>().sprite = image;
+                } else {
+                    cadeau.transform.Find("médaille-yo-kai").gameObject.SetActive(false);
+                }
+                string phrase = "<color=#3462C2>"+nom+"</color> fait maintenant\npartie de tes amis !";
+
+                cadeau.transform.Find("Texte").gameObject.GetComponent<TextMeshProUGUI>().text = phrase;
+                if (dansUnDialogue) position++;
+
+                // Musique :
+                if (audioClip != null){
+                    GestionnaireMusique._Komasan.JouerUnEffetSonore(audioClip,false);
+                }
+            } else {
+                MesYoKai.Instance.AbendonYoKai(IdÉlément);
+                if (dansUnDialogue) {
+                    position++;
+                    AvancerJusqueAuProchainDialogue();
+                    Action();
+                }
             }
         }
     }
@@ -534,19 +581,9 @@ public class DialcodePrinted : MonoBehaviour{
         if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héro || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
             blocNomUtilisé = bulle.transform.Find("-- D --").gameObject;
             bulle.transform.Find("-- G --").gameObject.SetActive(false);
-            if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomY2;
-            } else {
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH2;
-            }
         } else {
             blocNomUtilisé = bulle.transform.Find("-- G --").gameObject;
             bulle.transform.Find("-- D --").gameObject.SetActive(false);
-            if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai){
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomY1;
-            } else {
-                blocNomUtilisé.transform.Find("le nom").gameObject.GetComponent<Image>().sprite = décoration.nomH1;
-            }
         }
 
         if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
@@ -575,7 +612,6 @@ public class DialcodePrinted : MonoBehaviour{
 
         if (fragmentDeDialogue[position].nom.Length > 0){
             espaceNom.gameObject.SetActive(true);
-            blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(true);
             espaceNom.text = fragmentDeDialogue[position].nom;
 
             if (imageDialogue != null){
@@ -587,7 +623,6 @@ public class DialcodePrinted : MonoBehaviour{
             }
         } else {
             espaceNom.gameObject.SetActive(false);
-            blocNomUtilisé.transform.Find("le nom").gameObject.SetActive(false);
             espaceImage.gameObject.SetActive(false);
         }
 
@@ -751,11 +786,6 @@ public class Décoration{
     public Sprite boutGaucheRose;
     public Sprite centreRose;
     public Sprite boutDroiteRose;
-
-    public Sprite nomY1;
-    public Sprite nomY2;
-    public Sprite nomH1;
-    public Sprite nomH2;
     public Sprite spritePointExclamatif;
     public Sprite spritePointIntérogatif;
 }

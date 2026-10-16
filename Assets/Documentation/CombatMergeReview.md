@@ -12,7 +12,7 @@
 - Replace the combat wheel's 1 ms PressAndRepeat interaction with one Press interaction in both the input asset and generated wrapper.
 - Subscribe input callbacks only while the component is enabled.
 - Enable compact portraits and give zero-sized image roots a visible minimum size.
-- Copy reward content through a wrapper with the first template's coordinate system, preserving each background's authored rectangle.
+- Bind the authored Slot1/2/3/YoKaiSlot hierarchy on both result screens without cloning or moving backgrounds.
 - Preserve the initial team order for rewards independently of combat wheel rotations.
 
 ## Validation
@@ -23,4 +23,4 @@ These checks do not execute Unity Play Mode. Before merging, verify single press
 
 ## Commit boundaries
 
-Exports, NuGet package caches, IDE files, generated font assets and unrelated project settings are excluded. Existing index entries outside this scope remain staged. No push or merge is performed.
+Exports, NuGet package caches, IDE files, generated font assets and unrelated project settings are excluded. Existing index entries outside this scope remain staged. See MergeMain.md for the subsequent main integration and the Unity checks required before the PR.

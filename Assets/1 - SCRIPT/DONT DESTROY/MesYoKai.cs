@@ -119,6 +119,18 @@ public class MesYoKai : MonoBehaviour{
         return maListe2;
     }
     public void AjouterUnYoKai(int ID2, int niveau2, string personalité2, string surnom2, int xp2){
+        if (niveau2 < 1) {
+            niveau2 = 1;
+        } else if (niveau2 > 99) {
+            niveau2 = 99;
+        }
+        if (surnom2 == "") {
+            YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(ID2);
+            if (yokai != null) {
+                surnom2 = yokai.nom;
+            }
+        }
+
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         NewDataCenter.Instance.SauvegarderINT("IDdeMesYoKai", 1);
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_ID",ID2.ToString());
@@ -140,6 +152,42 @@ public class MesYoKai : MonoBehaviour{
             instance.surnom = surnom2;
             instance.RecalculerStats();
         }
+    }
+    
+    public void AbendonYoKai(int idEquipe){
+        int indexYoKai = maListe.FindIndex(yokai => yokai.IDUnique == idEquipe);
+        if (indexYoKai < 0){
+            Debug.LogError("Impossible d'abandonner le yo-kai : ID invalide ("+idEquipe+").");
+            return;
+        }
+
+        maListe.RemoveAt(indexYoKai);
+        yoKaiDeMonEquipe.RemoveAll(id => id == idEquipe);
+
+        for (int i = indexYoKai; i < maListe.Count; i++){
+            YoKaiActif yokai = maListe[i];
+            yokai.IDUnique = i;
+            NewDataCenter.Instance.SauvegarderSTR(i+"_ID", yokai.ID.ToString());
+            NewDataCenter.Instance.SauvegarderSTR(i+"_niveau", yokai.niveau.ToString());
+            NewDataCenter.Instance.SauvegarderSTR(i+"_xp", yokai.xp.ToString());
+            NewDataCenter.Instance.SauvegarderSTR(i+"_personalité", yokai.personnalité.ToString());
+            NewDataCenter.Instance.SauvegarderSTR(i+"_surnom", yokai.surnom);
+        }
+
+        for (int i = 0; i < yoKaiDeMonEquipe.Count; i++){
+            if (yoKaiDeMonEquipe[i] > idEquipe){
+                yoKaiDeMonEquipe[i]--;
+            }
+        }
+
+        NewDataCenter.Instance.SauvegarderSTR("IDdeMesYoKai", maListe.Count.ToString());
+
+        string équipe = "";
+        foreach (int id in yoKaiDeMonEquipe){
+            équipe += id.ToString()+"%";
+        }
+        NewDataCenter.Instance.SauvegarderSTR("yoKaiDansEquipe", équipe, "équipe.json");
+        SauvegarderLesPositonDesYokai();
     }
     private void ChargerLesYoKai(){
         maListe.Clear();

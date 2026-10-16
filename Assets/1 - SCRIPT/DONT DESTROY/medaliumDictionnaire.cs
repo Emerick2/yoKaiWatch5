@@ -19,6 +19,7 @@ public class medaliumDictionnaire : MonoBehaviour{
 
     /*[HideInInspector]*/
     [SerializeField] private List<YoKai> dictionnaire;
+    private readonly Dictionary<int, YoKai> _yokaiById = new Dictionary<int, YoKai>();
 
     public bool chargementFini = true;
     public int MAX = 905;
@@ -39,11 +40,13 @@ public class medaliumDictionnaire : MonoBehaviour{
     }
 
    public YoKai ServantYoKai(int ID) {
-        foreach (YoKai item in dictionnaire){
-            if (item.ID == ID){
-                return item;
-            }
+        if (dictionnaire == null) dictionnaire = new List<YoKai>();
+        if (_yokaiById.TryGetValue(ID, out YoKai cached)) return cached;
+        foreach (YoKai item in dictionnaire)
+        {
+            if (item != null && item.ID == ID) { _yokaiById[ID] = item; return item; }
         }
+
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/yokai_data/" + ID.ToString());
 
         if (targetFile != null) {
@@ -61,6 +64,7 @@ public class medaliumDictionnaire : MonoBehaviour{
             }
             yoKai.voiceClip = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.nom));
             dictionnaire.Add(yoKai);
+            _yokaiById[ID] = yoKai;
         
             return yoKai;
         } else {
@@ -75,6 +79,7 @@ public class medaliumDictionnaire : MonoBehaviour{
         if (data == null) return yoKai;
 
         yoKai.nom = data.Nom;
+        yoKai.englishName = data.nom_anglais;
         yoKai.Description = data.Description;
         yoKai.Force = LireEntier(data.Force);
         yoKai.Vitesse = LireEntier(data.Vitesse);
@@ -109,6 +114,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     private sealed class YoKaiJsonData
     {
         public string Nom;
+        public string nom_anglais;
         public string Tribue;
         public string Rang;
         public string PV;
@@ -226,6 +232,18 @@ public class medaliumDictionnaire : MonoBehaviour{
             default:
                 return Element.Neutre;
         }
+    }
+
+
+    public YoKai TrouverUnYoKaiParSonNomAnglais(string nom_anglais){
+        for (int i = 1; i <= MAX; i++){
+            YoKai yoKaiTrouver = ServantYoKai(i);
+            if (yoKaiTrouver != null && yoKaiTrouver.englishName == nom_anglais){
+                return yoKaiTrouver;
+            }
+        }
+
+        return null;
     }
 }
 

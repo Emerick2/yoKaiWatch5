@@ -2,6 +2,8 @@
 public class Food_tampons {
     public int id = 1;
     public string name = "";
+    public string englishName;
+    public string nom_anglais;
     public string type = "";
     public string imageUrl = "";
     public string effect = "";

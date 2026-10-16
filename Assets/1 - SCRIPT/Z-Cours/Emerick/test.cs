@@ -11,11 +11,17 @@ public class test : MonoBehaviour{
     public RectTransform pos;
     public TextMeshProUGUI texte;
     public Vector3 position;
+    public bool onADitBonjour = false;
 
     void Start(){
-        image.sprite = monSprite;
-        texte.text = "ee";
-        image.rectTransform.position = position;
+        // image.sprite = monSprite;
+        // texte.text = "ee";
+        // image.rectTransform.position = position;
 
+        if (onADitBonjour == false) {
+            Debug.Log("Bonjour, je suis Noko !");
+            onADitBonjour = true;
+        }
+        // medaliumDictionnaire._instance.ServantYoKai(id);
     }
 }

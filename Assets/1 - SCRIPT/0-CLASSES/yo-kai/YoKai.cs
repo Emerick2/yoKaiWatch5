@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using YKW.Core.Commun;
 using YKW.Core.YoKai.Enums;
 using YKW.Core.YoKai.Struct;
@@ -18,6 +19,7 @@ namespace YKW.Core.YoKai.Class
         [ClampMin(0)] public int ID;
 
         public string nom;
+        [FormerlySerializedAs("nom_anglais")] public string englishName;
         public string Description;
         public Rang rang;
         public Tribue tribue;
@@ -73,6 +75,7 @@ namespace YKW.Core.YoKai.Class
 
             ID = source.ID;
             nom = source.nom;
+            englishName = source.englishName;
             Description = source.Description;
             rang = source.rang;
             tribue = source.tribue;

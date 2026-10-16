@@ -6,6 +6,7 @@ namespace YKW.Core.Item.Class
     public class Item
     {
         public string nom;
+        public string englishName;
         public Sprite image;
         [TextArea(3, 5)] public string description;
         public float prixAchat;

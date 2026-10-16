@@ -65,6 +65,7 @@ public class Item : MonoBehaviour
             Nouriture nourriture = new Nouriture
             {
                 nom = data.name,
+                englishName = string.IsNullOrEmpty(data.englishName) ? data.nom_anglais : data.englishName,
                 description = data.description,
                 image = ChargerSprite(data.imageUrl),
                 prixAchat = LirePrix(data.purchasePrice, 1f),
@@ -90,6 +91,7 @@ public class Item : MonoBehaviour
             Équipement équipement = new Équipement
             {
                 nom = data.name,
+                englishName = string.IsNullOrEmpty(data.englishName) ? data.nom_anglais : data.englishName,
                 description = data.description,
                 image = ChargerSprite(data.imageUrl),
                 prixAchat = LirePrix(data.purchasePrice, 1f),
@@ -108,6 +110,7 @@ public class Item : MonoBehaviour
             Annimal animal = new Annimal
             {
                 nom = data.name,
+                englishName = string.IsNullOrEmpty(data.englishName) ? data.nom_anglais : data.englishName,
                 description = data.description,
                 image = ChargerSprite(data.imageUrl),
                 prixAchat = LirePrix(data.purchasePrice, 1f),
@@ -254,5 +257,32 @@ public class Item : MonoBehaviour
 
         Annimal animal = listeDesAnnimaux.Find(item => item.nom == nom);
         return animal?.image;
+    }
+
+    public Nouriture FindFoodWithEnglishName(string englishName){
+        foreach (Nouriture item in listeDesNouritures){
+            if (!string.IsNullOrEmpty(englishName) && string.Equals(item.englishName, englishName, StringComparison.OrdinalIgnoreCase)){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Équipement FindEquipmentWithEnglishName(string englishName){
+        foreach (Équipement item in listeDesÉquipements){
+            if (!string.IsNullOrEmpty(englishName) && string.Equals(item.englishName, englishName, StringComparison.OrdinalIgnoreCase)){
+                return item;
+            }
+        }
+        return null;
+    }
+
+    public Annimal FindAnimalWithEnglishName(string englishName){
+        foreach (Annimal item in listeDesAnnimaux){
+            if (!string.IsNullOrEmpty(englishName) && string.Equals(item.englishName, englishName, StringComparison.OrdinalIgnoreCase)){
+                return item;
+            }
+        }
+        return null;
     }
 }

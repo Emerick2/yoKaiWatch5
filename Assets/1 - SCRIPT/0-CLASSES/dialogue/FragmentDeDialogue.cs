@@ -25,6 +25,8 @@ public class FragmentDeDialogue{
     public string imageDePresentationPath;
     [System.NonSerialized] private Sprite _imageRuntime;
     [System.NonSerialized] private Sprite _imageDePresentationRuntime;
+    public bool ilDevientNotreAmi = true;
+    public string surnomYoKai = "";
 
     public Sprite image {
         get {

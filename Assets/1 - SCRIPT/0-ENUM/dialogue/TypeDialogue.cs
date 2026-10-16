@@ -12,5 +12,6 @@ public enum TypeDialogue{
     nul,
     quete,
     infoQuest,
-    variable
+    variable,
+    amiYoKai
 }
