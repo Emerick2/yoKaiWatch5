@@ -2,6 +2,11 @@
 name: Unity Personal License Test
 
 on:
+  push:
+    branches:
+      - CICD/unity-build-packaging-automation
+    paths:
+      - ".github/workflows/unity-license-test.yml"
   workflow_dispatch:
 
 permissions:
