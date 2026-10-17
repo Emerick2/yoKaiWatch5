@@ -315,11 +315,26 @@ jobs:
         shell: bash
         run: unity license status || true
 
+
+      # Activate on Linux, Windows and macOS
       - name: Activate Unity Personal
         shell: pwsh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
-          ./ .github/scripts/unity-license.ps1
-        # Replaced by the corrected invocation below.
+          & "./.github/scripts/unity-license.ps1" -Action activate
+
+        # Always return the license, even after a failed build
+        - name: Return Unity Personal
+        if: always()
+        shell: pwsh
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          & "./.github/scripts/unity-license.ps1" -Action return
+
 
       # ------------------------------------------
       # OPTIONAL TESTS
