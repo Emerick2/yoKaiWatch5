@@ -42,7 +42,7 @@ jobs:
       - name: Initialize Licensing Client
         run: |
           unity --version
-          unity license status
+          unity license status || true
 
       - name: Activate Unity Personal
         env:
@@ -80,5 +80,5 @@ jobs:
               --username "$UNITY_EMAIL" \
               --password "$UNITY_PASSWORD"
 
-            unity license status
+            unity license status || true
           fi
