@@ -325,17 +325,6 @@ jobs:
         run: |
           & "./.github/scripts/unity-license.ps1" -Action activate
 
-        # Always return the license, even after a failed build
-        - name: Return Unity Personal
-        if: always()
-        shell: pwsh
-        env:
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        run: |
-          & "./.github/scripts/unity-license.ps1" -Action return
-
-
       # ------------------------------------------
       # OPTIONAL TESTS
       # ------------------------------------------
