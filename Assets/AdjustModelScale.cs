@@ -1,9 +1,5 @@
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 public class AdjustModelScale : MonoBehaviour 
 {
     public bool refresh;
@@ -20,10 +16,12 @@ public class AdjustModelScale : MonoBehaviour
         if (gameObject.name != lastKnownName) {
             Debug.Log($"[Rename] Le GameObject a été renommé dans OnValidate : '{lastKnownName}' -> '{gameObject.name}'");
             lastKnownName = gameObject.name;
-            GererTexture(true);
         }
 
         ChargerTaille();
+    }
+
+    private void Start() {
         GererTexture(true);
     }
 

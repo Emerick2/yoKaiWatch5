@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using YKW.Core.Item.Class;
 using UnityEngine.UI;
 using TMPro;
 
@@ -35,7 +36,7 @@ public class BoutiqueDialcode : MonoBehaviour{
         if (initialisationTotal){
             cible = 0;
             pointLePlusHautVisible = 0;
-            itemScript = Item._instance;
+            itemScript = Item.Instance;
 
             if (itemScript == null){
                 yield break;
@@ -198,15 +199,11 @@ public class BoutiqueDialcode : MonoBehaviour{
         blocInformation.Find("Spécial alliment").gameObject.SetActive(true);
 
         string texteAmi = "";
-        if (Item._instance.listeDesEffetsNouritures != null && élément.IdEffetSiSurAmi >= 0 && élément.IdEffetSiSurAmi < Item._instance.listeDesEffetsNouritures.Count){
-            texteAmi = Item._instance.listeDesEffetsNouritures[élément.IdEffetSiSurAmi].description;
-        }
+        texteAmi = Item.Instance.ObtenirDescriptionEffetAllie(élément);
         blocInformation.Find("Spécial alliment/ami").GetComponent<TextMeshProUGUI>().text = texteAmi;
 
         string texteEnnemi = "";
-        if (Item._instance.listeDesEffetsNouritures != null && élément.IdEffetSurSiSurEnnemie >= 0 && élément.IdEffetSurSiSurEnnemie < Item._instance.listeDesEffetsNouritures.Count){
-            texteEnnemi = Item._instance.listeDesEffetsNouritures[élément.IdEffetSurSiSurEnnemie].description;
-        }
+        texteEnnemi = Item.Instance.ObtenirDescriptionEffetEnnemi(élément);
         blocInformation.Find("Spécial alliment/Ennemie").GetComponent<TextMeshProUGUI>().text = texteEnnemi;
     }
 

@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using StructureYoKaiCombat = YKW.Core.YoKai.Class.YoKaiCombat;
+using YoKaiEspece = YKW.Core.YoKai.Class.YoKai;
 
 public class Cible : MonoBehaviour{
-    [HideInInspector] public GestionnaireCombat gestionnaireCombat;
+    [HideInInspector] public CombatManager CombatManager;
     public List<GameObject> yoKaiGameObjects;
     public Sprite imageSélection;
     public Sprite imageNonSélection;
@@ -31,9 +33,9 @@ public class Cible : MonoBehaviour{
     }
 
     public void Initialisation(){
-        imageElement.gameObject.SetActive(false);
-        imageEstUnAmi.gameObject.SetActive(false);
-        texteAlliment.gameObject.SetActive(false);
+        if (imageElement != null) imageElement.gameObject.SetActive(false);
+        if (imageEstUnAmi != null) imageEstUnAmi.gameObject.SetActive(false);
+        if (texteAlliment != null) texteAlliment.gameObject.SetActive(false);
         transform.position = positionInitial;
     }
 
@@ -48,79 +50,73 @@ public class Cible : MonoBehaviour{
             transform.Translate(directionBas * vitesseCible * Time.deltaTime);
         }
 
-        // for (int i = 0; i < pointDeCibleEnnemies.Count; i++) {
-        //     if (pointDeCibleEnnemies[i] != null) {
-        //         RectTransform rectCible = GetComponent<RectTransform>();
-        //         RectTransform rectEnnemi = pointDeCibleEnnemies[i].GetComponent<RectTransform>();
-
-        //         float distance = Vector2.Distance(rectCible.anchoredPosition, rectEnnemi.anchoredPosition);
-
-        //         if (distance < 50f) {
-        //             if (cibleVisée != i) {
-        //                 cibleVisée = i;
-        //                 Debug.Log("Yo-Kai UI visé, index numéro : " + cibleVisée);
-                        
-        //                 // MettreAJourInfosUI(cibleVisée); 
-        //             }
-        //             break; 
-        //         }
-        //     }
-        // }
     }
 
     void OnTriggerEnter(Collider other){
+        if (CombatManager == null || yoKaiGameObjects == null) return;
         GameObject parent = EstValide(other.gameObject);
         if (parent != null){
-            Debug.Log("ici");
-            GetComponent<SpriteRenderer>().sprite = imageSélection;
-            int IDTrouvé = 0;
-            for (int i = 0; i < gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain.Count; i++){
-                if (gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[i].gameObjectSurLaScène == parent){
+            SpriteRenderer cursorSprite = GetComponent<SpriteRenderer>();
+            if (cursorSprite != null) cursorSprite.sprite = imageSélection;
+            int IDTrouvé = -1;
+            for (int i = 0; i < CombatManager.listeYoKaiEnnemieSurLeTerrain.Count; i++){
+                if (CombatManager.listeYoKaiEnnemieSurLeTerrain[i].gameObjectSurLaScène == parent){
                     IDTrouvé = i;
+                    break;
                 }
             }
+            if (IDTrouvé < 0 || IDTrouvé >= CombatManager.listeYoKaiEnnemieSurLeTerrain.Count ||
+                MesYoKai.Instance == null || MesYoKai.Instance.maListe == null ||
+                medaliumDictionnaire._instance == null) return;
+            StructureYoKaiCombat enemy = CombatManager.listeYoKaiEnnemieSurLeTerrain[IDTrouvé];
+            if (enemy == null) return;
             bool estAmi = false;
             for (int i = 0; i < MesYoKai.Instance.maListe.Count; i++){
-                if (gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID ==  MesYoKai.Instance.maListe[i].ID){
+                if (MesYoKai.Instance.maListe[i] != null && enemy.ID == MesYoKai.Instance.maListe[i].ID){
                     estAmi = true;
                     break;
                 }
             }
-            if (estAmi){
+            if (imageEstUnAmi != null && estAmi){
                 imageEstUnAmi.sprite = ouiIlEstUnAmi;
-            } else {
+            } else if (imageEstUnAmi != null){
                 imageEstUnAmi.sprite = nonIlEstPasUnAmi;
             }
-            imageEstUnAmi.transform.localScale = new Vector3(1,1,1);
-            texteAlliment.text = medaliumDictionnaire._instance.ServantYoKai(gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID).platPréféré.ToString();
+            if (imageEstUnAmi != null) imageEstUnAmi.transform.localScale = Vector3.one;
+            YoKaiEspece species = medaliumDictionnaire._instance.ServantYoKai(enemy.ID);
+            if (species == null) return;
+            if (texteAlliment != null) texteAlliment.text = species.platPréféré.ToString();
 
-            imageElement.sprite = new ServantImage().ReadImage_Element(medaliumDictionnaire._instance.ServantYoKai(gestionnaireCombat.listeYoKaiEnnemieSurLeTerrain[IDTrouvé].ID).monElement);
-            imageElement.transform.localScale = new Vector3(1,1,1);
-
-            imageElement.gameObject.SetActive(true);
-            imageEstUnAmi.gameObject.SetActive(true);
-            texteAlliment.gameObject.SetActive(true);
+            if (imageElement != null)
+            {
+                imageElement.sprite = new ServantImage().ReadImage_Element(species.monElement);
+                imageElement.transform.localScale = Vector3.one;
+                imageElement.gameObject.SetActive(true);
+            }
+            if (imageEstUnAmi != null) imageEstUnAmi.gameObject.SetActive(true);
+            if (texteAlliment != null) texteAlliment.gameObject.SetActive(true);
             // Debug.Log(IDTrouvé);
         }
     }
     void OnTriggerExit(Collider other){
         GameObject parent = EstValide(other.gameObject);
         if (parent != null){
-            GetComponent<SpriteRenderer>().sprite = imageNonSélection;
-            imageElement.gameObject.SetActive(false);
-            imageEstUnAmi.gameObject.SetActive(false);
-            texteAlliment.gameObject.SetActive(false);
+            SpriteRenderer cursorSprite = GetComponent<SpriteRenderer>();
+            if (cursorSprite != null) cursorSprite.sprite = imageNonSélection;
+            if (imageElement != null) imageElement.gameObject.SetActive(false);
+            if (imageEstUnAmi != null) imageEstUnAmi.gameObject.SetActive(false);
+            if (texteAlliment != null) texteAlliment.gameObject.SetActive(false);
         }
     }
 
     private GameObject EstValide(GameObject gameObjectAAnalyser){
-        if (yoKaiGameObjects.Contains(gameObjectAAnalyser)){
+        if (yoKaiGameObjects != null && yoKaiGameObjects.Contains(gameObjectAAnalyser)){
             return gameObjectAAnalyser;
         }
         Transform parentTransform = gameObjectAAnalyser.transform.parent;
         
         while (parentTransform != null){
-            if (yoKaiGameObjects.Contains(parentTransform.gameObject)){
+            if (yoKaiGameObjects != null && yoKaiGameObjects.Contains(parentTransform.gameObject)){
                 return parentTransform.gameObject;
             }
             parentTransform = parentTransform.parent;

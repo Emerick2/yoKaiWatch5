@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -447,7 +448,7 @@ public class GestionnaireMenu : MonoBehaviour{
         int index = -1;
         string foundOp = null;
         foreach (string op in ops){
-            index = atom.IndexOf(op);
+            index = atom.IndexOf(op, StringComparison.Ordinal);
             if (index >= 0){
                 foundOp = op;
                 break;

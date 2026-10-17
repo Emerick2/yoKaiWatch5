@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using YKW.Core.YoKai.Enums;
 using UnityEngine;
+using YKW.Core.YoKai.Class;
 
 public class MesYoKai : MonoBehaviour{
     private static MesYoKai _instance;
 
-    public List<ListeDeMesYoKai> maListe = new List<ListeDeMesYoKai>();
+    public List<YoKaiActif> maListe = new List<YoKaiActif>();
     public List<int> yoKaiDeMonEquipe = new List<int>();
 
     /*[HideInInspector]*/ public bool yoKaiDeMonEquipeChargé = false;
@@ -24,6 +26,7 @@ public class MesYoKai : MonoBehaviour{
     private void Awake(){
         if (_instance == null){
             _instance = this;
+            if (transform.parent != null) transform.SetParent(null, true);
             DontDestroyOnLoad(gameObject);
         }else{
             Destroy(gameObject);
@@ -36,16 +39,20 @@ public class MesYoKai : MonoBehaviour{
     void Start(){
         ChargerLesYoKai();
         ChargerMonEquipe();
-        AjouterUnYoKai(6,2,"","",0);
-        AjouterUnYoKai(12,8,"","",0);
     }
     public void ChargerMonEquipe(){
         string listeDesID = NewDataCenter.Instance.Lire("yoKaiDansEquipe", "équipe.json");
         string listeDesPosition = NewDataCenter.Instance.Lire("yoKaiDansEquipePosition", "équipe.json");
 
         yoKaiDeMonEquipe.Clear();
-        yoKaiDeMonEquipe = TransformerUneListeStringEnUneListeInt(listeDesID);
-        List<int> lesPositions = TransformerUneListeStringEnUneListeInt(listeDesPosition);
+        // NewDataCenter returns "0" for a missing key. Treat that default as
+        // an empty team; a real team containing roster index 0 is stored as "0%".
+        yoKaiDeMonEquipe = string.IsNullOrWhiteSpace(listeDesID) || listeDesID.Trim() == "0"
+            ? new List<int>()
+            : TransformerUneListeStringEnUneListeInt(listeDesID);
+        List<int> lesPositions = yoKaiDeMonEquipe.Count == 0
+            ? new List<int>()
+            : TransformerUneListeStringEnUneListeInt(listeDesPosition);
         //avent tous :
         // 1 - vérifier que le nombre est sufisant :
         if (yoKaiDeMonEquipe.Count != lesPositions.Count){
@@ -118,9 +125,9 @@ public class MesYoKai : MonoBehaviour{
             niveau2 = 99;
         }
         if (surnom2 == "") {
-            MedaliumNonPersonel yokai = medaliumDictionnaire._instance.ServantYoKai(ID2);
+            YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(ID2);
             if (yokai != null) {
-                surnom2 = yokai.Nom;
+                surnom2 = yokai.nom;
             }
         }
 
@@ -132,15 +139,18 @@ public class MesYoKai : MonoBehaviour{
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_personalité",personalité2);
         NewDataCenter.Instance.SauvegarderSTR(monIDActuel.ToString()+"_surnom",surnom2);
 
-        maListe.Add(new ListeDeMesYoKai());
+        maListe.Add(new YoKaiActif());
         Debug.Log("ajoute un yo-kai");
         if(monIDActuel < maListe.Count){
-            maListe[monIDActuel].IDUnique=monIDActuel;
-            maListe[monIDActuel].ID=ID2;
-            maListe[monIDActuel].niveau=niveau2;
-            maListe[monIDActuel].xp=xp2;
-            maListe[monIDActuel].personnalité=TrouverMaPersonalité(personalité2);
-            maListe[monIDActuel].surnom=surnom2;
+            YoKaiActif instance = maListe[monIDActuel];
+            instance.CopierEspeceDepuis(medaliumDictionnaire._instance.ServantYoKai(ID2));
+            instance.AttribuerIV();
+            instance.IDUnique = monIDActuel;
+            instance.niveau = Mathf.Clamp(niveau2, 1, 99);
+            instance.xp = xp2;
+            instance.personnalité = TrouverMaPersonalité(personalité2);
+            instance.surnom = surnom2;
+            instance.RecalculerStats();
         }
     }
     
@@ -155,7 +165,7 @@ public class MesYoKai : MonoBehaviour{
         yoKaiDeMonEquipe.RemoveAll(id => id == idEquipe);
 
         for (int i = indexYoKai; i < maListe.Count; i++){
-            ListeDeMesYoKai yokai = maListe[i];
+            YoKaiActif yokai = maListe[i];
             yokai.IDUnique = i;
             NewDataCenter.Instance.SauvegarderSTR(i+"_ID", yokai.ID.ToString());
             NewDataCenter.Instance.SauvegarderSTR(i+"_niveau", yokai.niveau.ToString());
@@ -184,13 +194,17 @@ public class MesYoKai : MonoBehaviour{
         int monIDActuel = int.Parse(NewDataCenter.Instance.Lire("IDdeMesYoKai"));
         for (int i = 0; i < monIDActuel; i++){
             if (int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID")) > 0){
-                maListe.Add(new ListeDeMesYoKai());
+                maListe.Add(new YoKaiActif());
                 maListe[i].IDUnique = i;
                 maListe[i].ID  =  int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_ID"));// renvoie une erreur "out of range exeption"
                 maListe[i].niveau=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_niveau"));
                 maListe[i].xp=int.Parse(NewDataCenter.Instance.Lire(i.ToString()+"_xp"));
-                maListe[i].personnalité  =  TrouverMaPersonalité(NewDataCenter.Instance.Lire(i.ToString()+"_personalité"));
-                maListe[i].surnom      =    NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
+                maListe[i].CopierEspeceDepuis(medaliumDictionnaire._instance.ServantYoKai(maListe[i].ID));
+                maListe[i].AttribuerIV();
+                maListe[i].IDUnique = i;
+                maListe[i].personnalité = TrouverMaPersonalité(NewDataCenter.Instance.Lire(i.ToString()+"_personalité"));
+                maListe[i].surnom = NewDataCenter.Instance.Lire(i.ToString()+"_surnom");
+                maListe[i].RecalculerStats();
             }
         }
         yoKaiDeMonEquipeChargé=true;
@@ -224,13 +238,3 @@ public class MesYoKai : MonoBehaviour{
     }
 }
 
-[System.Serializable]
-public class ListeDeMesYoKai{//maListe
-    public int IDUnique;
-    public int ID;
-    public string surnom;
-    public int niveau;
-    public int xp;
-    public Personalité personnalité;
-    [Range(0,5)] public int positionRoue;
-}

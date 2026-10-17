@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.YoKai.Class;
+using YKW.Core.BingoKai.Data;
 
 public class BingoKai : MonoBehaviour{
-    public PossibilitéDesPièce maPièce;
+    public BingoKaiCoinData maPièce;
     public List<GameObject> listeBoulle = new List<GameObject>();
     private bool autorisationDeContinuer1 = true;
     private bool autorisationDeContinuer2 = true;
@@ -65,11 +67,10 @@ public class BingoKai : MonoBehaviour{
                 NewDataCenter.Instance.SauvegarderINT(cadeauObjet,1);
             }
         }else{
-            MedaliumNonPersonel leYoKai = medaliumDictionnaire._instance.ServantYoKai(cadeauYoKai);
             TV = medaliumDictionnaire._instance.InstantiateYoKai(cadeauYoKai.ToString());
             TV.transform.position = positionDeUnModèle3D.position;
 
-            MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", leYoKai.Nom, 0);
+            MesYoKai.Instance.AjouterUnYoKai(cadeauYoKai, 1, "", medaliumDictionnaire._instance.ServantYoKai(cadeauYoKai).nom, 0);
         }
         autorisationDeContinuer2 = true;
     }
@@ -93,36 +94,24 @@ public class BingoKai : MonoBehaviour{
         boutonE.SetActive(true);
     }
     public void ChoisirUnCadeau(){
-        UnDesPrix leLotsDePrix;
+        BingoKaiPrizeData leLotsDePrix;
 
         int random = Random.Range(0,100);
-        if (random <= probabilitéDeBoulle0){ numéroDeLaBoule=0;leLotsDePrix=maPièce.prix1;}
-        else if (random <= probabilitéDeBoulle1){ numéroDeLaBoule=1;leLotsDePrix=maPièce.prix1;}
-        else if (random <= probabilitéDeBoulle2){ numéroDeLaBoule=2;leLotsDePrix=maPièce.prix2;}
-        else if (random <= probabilitéDeBoulle3){ numéroDeLaBoule=3;leLotsDePrix=maPièce.prix3;}
-        else{ numéroDeLaBoule=4;leLotsDePrix=maPièce.prix4;}
+        if (random <= probabilitéDeBoulle0){ numéroDeLaBoule=0;leLotsDePrix=maPièce.firstPrize;}
+        else if (random <= probabilitéDeBoulle1){ numéroDeLaBoule=1;leLotsDePrix=maPièce.firstPrize;}
+        else if (random <= probabilitéDeBoulle2){ numéroDeLaBoule=2;leLotsDePrix=maPièce.secondPrize;}
+        else if (random <= probabilitéDeBoulle3){ numéroDeLaBoule=3;leLotsDePrix=maPièce.thirdPrize;}
+        else{ numéroDeLaBoule=4;leLotsDePrix=maPièce.defaultPrize;}
 
         if (Random.Range(0,100) <= probabilitéDeTombéSurUnYoKai) seCadeauEstUnObjet = false;
         else seCadeauEstUnObjet=true;
 
         if (seCadeauEstUnObjet){
-            cadeauObjet = leLotsDePrix.objetPrix[Random.Range(0,leLotsDePrix.objetPrix.Count)];
+            cadeauObjet = leLotsDePrix.itemNames[Random.Range(0,leLotsDePrix.itemNames.Count)];
         }else{
-            cadeauYoKai = leLotsDePrix.yoKaiPrix[Random.Range(0,leLotsDePrix.yoKaiPrix.Count)];
+            cadeauYoKai = leLotsDePrix.yokaiIds[Random.Range(0,leLotsDePrix.yokaiIds.Count)];
         }
     }
-}
-[System.Serializable]
-public class PossibilitéDesPièce{
-    public UnDesPrix prix1;
-    public UnDesPrix prix2;
-    public UnDesPrix prix3;
-    public UnDesPrix prix4;
-}
-[System.Serializable]
-public class UnDesPrix{
-    public List<string> objetPrix = new List<string>();
-    public List<int> yoKaiPrix = new List<int>();
 }
 //entrée de la boulle
 //sortie de la boulle

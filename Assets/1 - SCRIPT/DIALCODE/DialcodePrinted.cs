@@ -7,6 +7,8 @@ quand on dit non à un choix, ça enregistre 0 sinon si ces oui, se sera 1
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.Item.Enum;
+using YKW.Core.Item.Class;
 using UnityEngine.UI;
 using TMPro;
 
@@ -114,8 +116,8 @@ public class DialcodePrinted : MonoBehaviour{
                     } else if(cibleChoixBoutique1 == 1){
                         choixEnCoursBoutique2 = true;
                         List<int> listeDesIDNouriturePossédé = new List<int>();
-                        for (int i = 0; i < Item._instance.listeDesNouritures.Count; i++){
-                            if (int.TryParse(NewDataCenter.Instance.Lire(Item._instance.listeDesNouritures[i].nom), out int quantite) && quantite > 0){
+                        for (int i = 0; i < Item.Instance.listeDesNouritures.Count; i++){
+                            if (int.TryParse(NewDataCenter.Instance.Lire(Item.Instance.listeDesNouritures[i].nom), out int quantite) && quantite > 0){
                                 listeDesIDNouriturePossédé.Add(i);
                             }
                         }
@@ -168,7 +170,7 @@ public class DialcodePrinted : MonoBehaviour{
         }
         FragmentDeDialogue fragment = fragmentDeDialogue[position];
         if (fragment == null) return;
-        if (fragment.type == TypeDialogue.cadeau && fragment.IdÉlément >= Item._instance.listeDesNouritures.Count) {
+        if (fragment.type == TypeDialogue.cadeau && fragment.IdÉlément >= Item.Instance.listeDesNouritures.Count) {
             Debug.LogError("ID d'item invalide !");
             return;
         }
@@ -178,24 +180,24 @@ public class DialcodePrinted : MonoBehaviour{
         
         if ((fragment.quiJeSuis == QuiJeSuis.yokai || fragment.quiJeSuis == QuiJeSuis.héroYoKai) && fragment.IdÉlément > 0){
             if (string.IsNullOrEmpty(fragment.nom)) {
-                fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).Nom;
+                fragment.nom = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).nom;
             }
             if (fragment.image == null && string.IsNullOrEmpty(fragment.imagePath)) {
-                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).faceImage;
+                fragment.image = medaliumDictionnaire._instance.ServantYoKai(fragment.IdÉlément).imageFace;
             }
         }
 
         if (fragment.type == TypeDialogue.cadeau || fragment.type == TypeDialogue.volDiscret || fragment.type == TypeDialogue.donDiscret || fragment.type == TypeDialogue.vol){
             if (fragment.quantitée <= 0) fragment.quantitée = 1;
             if (fragment.typeObjet == CatégorieItem.Nouriture){
-                fragment.nom = Item._instance.listeDesNouritures[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesNouritures[fragment.IdÉlément].image;
+                fragment.nom = Item.Instance.listeDesNouritures[fragment.IdÉlément].nom;
+                fragment.image = Item.Instance.listeDesNouritures[fragment.IdÉlément].image;
             } else if (fragment.typeObjet == CatégorieItem.Equipement){
-                fragment.nom = Item._instance.listeDesÉquipements[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesÉquipements[fragment.IdÉlément].sprite;
+                fragment.nom = Item.Instance.listeDesÉquipements[fragment.IdÉlément].nom;
+                fragment.image = Item.Instance.listeDesÉquipements[fragment.IdÉlément].image;
             } else if (fragment.typeObjet == CatégorieItem.Animal){
-                fragment.nom = Item._instance.listeDesAnnimaux[fragment.IdÉlément].nom;
-                fragment.image = Item._instance.listeDesAnnimaux[fragment.IdÉlément].image;
+                fragment.nom = Item.Instance.listeDesAnnimaux[fragment.IdÉlément].nom;
+                fragment.image = Item.Instance.listeDesAnnimaux[fragment.IdÉlément].image;
             }
         }
         //la je m'ocupe des id pour écrire le nom et l'image
@@ -320,15 +322,15 @@ public class DialcodePrinted : MonoBehaviour{
             quantitée*=100;
         }
         if (type != TypeDialogue.amiYoKai) {
-            if (typeObjet == CatégorieItem.Nouriture && Item._instance.listeDesNouritures.Count > IdÉlément){
-                nom = Item._instance.listeDesNouritures[IdÉlément]?.nom;
-                image = Item._instance.listeDesNouritures[IdÉlément]?.image;
-            } else if (typeObjet == CatégorieItem.Equipement && Item._instance.listeDesÉquipements.Count > IdÉlément){
-                nom = Item._instance.listeDesÉquipements[IdÉlément]?.nom;
-                image = Item._instance.listeDesÉquipements[IdÉlément]?.sprite;
-            } else if (typeObjet == CatégorieItem.Animal && Item._instance.listeDesAnnimaux.Count > IdÉlément){
-                nom = Item._instance.listeDesAnnimaux[IdÉlément]?.nom;
-                image = Item._instance.listeDesAnnimaux[IdÉlément]?.image;
+            if (typeObjet == CatégorieItem.Nouriture && Item.Instance.listeDesNouritures.Count > IdÉlément){
+                nom = Item.Instance.listeDesNouritures[IdÉlément]?.nom;
+                image = Item.Instance.listeDesNouritures[IdÉlément]?.image;
+            } else if (typeObjet == CatégorieItem.Equipement && Item.Instance.listeDesÉquipements.Count > IdÉlément){
+                nom = Item.Instance.listeDesÉquipements[IdÉlément]?.nom;
+                image = Item.Instance.listeDesÉquipements[IdÉlément]?.image;
+            } else if (typeObjet == CatégorieItem.Animal && Item.Instance.listeDesAnnimaux.Count > IdÉlément){
+                nom = Item.Instance.listeDesAnnimaux[IdÉlément]?.nom;
+                image = Item.Instance.listeDesAnnimaux[IdÉlément]?.image;
             }
         }
 
@@ -382,12 +384,12 @@ public class DialcodePrinted : MonoBehaviour{
                 Action();
             }
         } else if (type == TypeDialogue.amiYoKai){
-            MedaliumNonPersonel yokai = medaliumDictionnaire._instance.ServantYoKai(IdÉlément);
+            YKW.Core.YoKai.Class.YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(IdÉlément);
             AudioClip audioClip = null;
             if (yokai != null) {
-                nom = yokai.Nom;
-                image = yokai.médaillon;
-                audioClip = yokai.Bruit;
+                nom = yokai.nom;
+                image = yokai.imageMédaillon;
+                audioClip = yokai.voiceClip;
             }
 
             if (ilDevientNotreAmi) {
@@ -569,7 +571,7 @@ public class DialcodePrinted : MonoBehaviour{
                     Destroy(audioPrecedent);
                 }
                 listeIdParler.Add(id);
-                AudioClip song = medaliumDictionnaire._instance.ServantYoKai(id).Bruit;
+                AudioClip song = medaliumDictionnaire._instance.ServantYoKai(id).voiceClip;
                 if (song != null){
                     GestionnaireMusique._Komasan.JouerUnEffetSonore(song, false);
                 }
@@ -787,4 +789,3 @@ public class Décoration{
     public Sprite spritePointExclamatif;
     public Sprite spritePointIntérogatif;
 }
-

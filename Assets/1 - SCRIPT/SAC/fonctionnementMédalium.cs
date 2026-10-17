@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using YKW.Core.YoKai.Class;
 
 public class FonctionnementMédalium : MonoBehaviour{
     public Text texteDuNuméro;
@@ -36,7 +37,7 @@ public class FonctionnementMédalium : MonoBehaviour{
                 lesIdAInséré.Add(i);
             }
         }else{
-            foreach (ListeDeMesYoKai item in mesYoKai.maListe){
+            foreach (YoKaiActif item in mesYoKai.maListe){
                 lesIdAInséré.Add(item.ID);
             }
         }
@@ -67,7 +68,7 @@ public class FonctionnementMédalium : MonoBehaviour{
             }
         }
     }
-    public MedaliumNonPersonel CeluiSurQuiJeSuis(){
+    public YoKai CeluiSurQuiJeSuis(){
         return médailum.ServantYoKai(lesIdAInséré[IDTotal]);
     }
     public int IDDeCeluiSurQuiJeSuis(){
@@ -145,7 +146,7 @@ public class FonctionnementMédalium : MonoBehaviour{
             espaceDesMédailles[i].transform.Find("numéro").GetComponent<Image>().sprite = imageDesNuméro[i];
             if (lesIdAInséré.Count > IDTotal+i){
                 espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(true);
-                espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite =  médailum.ServantYoKai(lesIdAInséré[IDTotal+i]).médaillon;
+                espaceDesMédailles[i].transform.Find("médaille").GetComponent<Image>().sprite =  médailum.ServantYoKai(lesIdAInséré[IDTotal+i]).imageMédaillon;
             }else {
                 espaceDesMédailles[i].transform.Find("médaille").gameObject.SetActive(false);
             }
@@ -158,9 +159,9 @@ public class FonctionnementMédalium : MonoBehaviour{
         if (lesIdAInséré.Count > IDTotal){
             blocInformatif.SetActive(true);
             // ici la blague est que google collecte plein d'information personnel (voir ma vidéo sur le sujet) et donc commme cette variable à plein d'information sur le yo-kai en question c'est google !
-            MedaliumNonPersonel google = médailum.ServantYoKai(lesIdAInséré[IDTotal]);
-            blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.médaillon;
-            blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.Nom;
+            YoKai google = médailum.ServantYoKai(lesIdAInséré[IDTotal]);
+            blocInformatif.transform.Find("icône").GetComponent<Image>().sprite = google.imageMédaillon;
+            blocInformatif.transform.Find("nom").GetComponent<Text>().text = google.nom;
             if (cesLeMédalium) blocInformatif.transform.Find("description").GetComponent<Text>().text = google.Description;
 
             blocInformatif.transform.Find("tribu").GetComponent<Image>().sprite = new ServantImage().ReadImage_Tribue(google.tribue);

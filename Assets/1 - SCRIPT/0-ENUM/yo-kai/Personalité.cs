@@ -1,10 +1,13 @@
-public enum Personalité{
-    Sérieux,
-    Ferme,
-    Détendu,
-    Frivole,
-    Distrait,
-    Maladroit
+namespace YKW.Core.YoKai.Enums
+{
+    public enum Personalité{
+        Sérieux,
+        Ferme,
+        Détendu,
+        Frivole,
+        Distrait,
+        Maladroit
+    }
 }
 
 // public enum Personnalité{

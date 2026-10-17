@@ -10,15 +10,16 @@ using Newtonsoft.Json;
 using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Unity.VisualScripting;
+using YKW.Core.YoKai.Enums;
+using YKW.Core.YoKai.Class;
 
 public class medaliumDictionnaire : MonoBehaviour{
     public static medaliumDictionnaire _instance;
     public Sprite imageDeUneMédailleInconnue;
 
     /*[HideInInspector]*/
-    [SerializeField] private List<MedaliumNonPersonel> dictionnaire;
-    private readonly Dictionary<int, MedaliumNonPersonel> dictionnaireParId = new Dictionary<int, MedaliumNonPersonel>();
+    [SerializeField] private List<YoKai> dictionnaire;
+    private readonly Dictionary<int, YoKai> _yokaiById = new Dictionary<int, YoKai>();
 
     public bool chargementFini = true;
     public int MAX = 905;
@@ -30,7 +31,7 @@ public class medaliumDictionnaire : MonoBehaviour{
     private void Awake(){
         if (_instance == null){
             _instance = this;
-            InitialiserCache();
+            if (transform.parent != null) transform.SetParent(null, true);
             DontDestroyOnLoad(gameObject);
         }
         else{
@@ -38,48 +39,96 @@ public class medaliumDictionnaire : MonoBehaviour{
         }
     }
 
-    private void InitialiserCache(){
-        if (dictionnaire == null){
-            dictionnaire = new List<MedaliumNonPersonel>();
-        }
-
-        foreach (MedaliumNonPersonel yoKai in dictionnaire){
-            if (yoKai != null){
-                dictionnaireParId[yoKai.ID] = yoKai;
-            }
-        }
-    }
-
-   public MedaliumNonPersonel ServantYoKai(int ID) {
-        if (dictionnaireParId.TryGetValue(ID, out MedaliumNonPersonel yoKaiEnCache)){
-            return yoKaiEnCache;
+   public YoKai ServantYoKai(int ID) {
+        if (dictionnaire == null) dictionnaire = new List<YoKai>();
+        if (_yokaiById.TryGetValue(ID, out YoKai cached)) return cached;
+        foreach (YoKai item in dictionnaire)
+        {
+            if (item != null && item.ID == ID) { _yokaiById[ID] = item; return item; }
         }
 
         TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/yokai_data/" + ID.ToString());
 
         if (targetFile != null) {
-            MedaliumNonPersonel yoKai = JsonUtility.FromJson<MedaliumNonPersonel>(targetFile.text);
+            YoKaiJsonData data = JsonUtility.FromJson<YoKaiJsonData>(targetFile.text);
+            YoKai yoKai = ConstruireYoKai(data);
             yoKai.ID = ID;
-            yoKai.faceImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.Nom));
-            yoKai.médaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.Nom));
-            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.Nom));
-            if (yoKai.médaillon == null) {
-                yoKai.médaillon = yoKai.faceRondImage;
+            yoKai.imageFace = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.nom));
+            yoKai.imageMédaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.nom));
+            yoKai.faceRondImage = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/face/" + MakeAnUrl(yoKai.nom));
+            if (yoKai.imageMédaillon == null) {
+                yoKai.imageMédaillon = yoKai.faceRondImage;
             }
-            if (yoKai.médaillon == null) {
-                yoKai.médaillon = yoKai.faceImage;
+            if (yoKai.imageMédaillon == null) {
+                yoKai.imageMédaillon = yoKai.imageFace;
             }
-            yoKai.Bruit = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.Nom));
-            yoKai.tribue = AjouterUneTribue(yoKai.Tribue);
-            yoKai.rang = AjouterUnRang(yoKai.Rang);
+            yoKai.voiceClip = Resources.Load<AudioClip>("yo-kai-API/song/yo-kai-song/" + MakeAnUrl(yoKai.nom));
             dictionnaire.Add(yoKai);
-            dictionnaireParId[ID] = yoKai;
+            _yokaiById[ID] = yoKai;
         
             return yoKai;
         } else {
             Debug.LogError("Fichier JSON introuvable pour l'ID : " + ID);
             return null;
         }
+    }
+
+    private static YoKai ConstruireYoKai(YoKaiJsonData data)
+    {
+        YoKai yoKai = new YoKai();
+        if (data == null) return yoKai;
+
+        yoKai.nom = data.Nom;
+        yoKai.englishName = data.nom_anglais;
+        yoKai.Description = data.Description;
+        yoKai.Force = LireEntier(data.Force);
+        yoKai.Vitesse = LireEntier(data.Vitesse);
+        yoKai.Esprit = LireEntier(data.Esprit);
+        yoKai.Défense = LireEntier(data.Défense);
+        yoKai.PV = LireEntier(data.PV);
+        yoKai.rare = string.Equals(data.rarite, "Rare", StringComparison.OrdinalIgnoreCase);
+        yoKai.tribue = LireEnum(data.Tribue, Tribue.Bienveillant);
+        yoKai.rang = LireEnum(data.Rang, Rang.E);
+        yoKai.technique = LireEnum(data.Technique, Technique.Feu);
+        yoKai.talent = LireEnum(data.talent, Talent.Absorption);
+        yoKai.type = LireEnum(data.Type, YKW.Core.YoKai.Enums.Type.Attaque);
+        yoKai.platPréféré = LireEnum(data.nourriture, PlatPréféré.Riz);
+        yoKai.monElement = LireEnum(data.élément, Element.Neutre);
+        yoKai.phrasesNourriture = new Dictionary<string, string>();
+        return yoKai;
+    }
+
+    private static int LireEntier(string valeur)
+    {
+        return int.TryParse(valeur, NumberStyles.Integer, CultureInfo.InvariantCulture, out int résultat)
+            ? résultat
+            : 0;
+    }
+
+    private static T LireEnum<T>(string valeur, T valeurParDéfaut) where T : struct
+    {
+        return Enum.TryParse(valeur, true, out T résultat) ? résultat : valeurParDéfaut;
+    }
+
+    [Serializable]
+    private sealed class YoKaiJsonData
+    {
+        public string Nom;
+        public string nom_anglais;
+        public string Tribue;
+        public string Rang;
+        public string PV;
+        public string Force;
+        public string Vitesse;
+        public string Esprit;
+        public string Défense;
+        public string Description;
+        public string nourriture;
+        public string élément;
+        public string Technique;
+        public string Type;
+        public string talent;
+        public string rarite;
     }
 
     public static string MakeAnUrl(object valeur){
@@ -101,79 +150,35 @@ public class medaliumDictionnaire : MonoBehaviour{
     }
 
     public GameObject InstantiateYoKai(string ID){
-        TextAsset targetFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
-
-        if (targetFile == null) {
-            Debug.LogError("Le fichier JSON 'yokai_assets_mapping' est introuvable dans Resources/yo-kai-API/data/_3D/");
+        TextAsset mappingFile = Resources.Load<TextAsset>("yo-kai-API/data/_3D/yokai_assets_mapping");
+        if (mappingFile == null) {
+            Debug.LogError("Yo-kai model mapping was not found.", this);
             return null;
         }
-
-        if (targetFile != null) {
-            var allData = JsonConvert.DeserializeObject<Dictionary<string, Yokai_assets_mapping>>(targetFile.text);
-
-            if (allData.ContainsKey(ID)) {
-                Yokai_assets_mapping map = allData[ID];
-                GameObject modelFile = Resources.Load<GameObject>("yo-kai-API/data/_3D/models/"+map.modelFile.Replace(".fbx",""));
-                List<Sprite> textureFiles = new List<Sprite>();
-                foreach (string item in map.textureFiles){
-                    textureFiles.Add(Resources.Load<Sprite>("yo-kai-API/data/_3D/textures/"+item.Replace(".png","")));
-                }
-                GameObject TV = Instantiate(modelFile);
-
-
-                Renderer renderer = TV.GetComponentInChildren<Renderer>();
-                if (renderer != null && map.textureFiles.Length > 0) {
-                    Material[] mats = renderer.materials;
-
-                    for (int i = 0; i < map.textureFiles.Length; i++) {
-                        if (i >= mats.Length) break;
-
-                        string texPath = "yo-kai-API/data/_3D/textures/" + map.textureFiles[i].Replace(".png", "");
-                        Texture2D tex = Resources.Load<Texture2D>(texPath);
-
-                        if (tex != null) {
-                            mats[i].mainTexture = tex;
-                        }
-                    }
-                    
-                    renderer.materials = mats;
-                }
-
-                TV.AddComponent<MakeATexture>();
-                TV.AddComponent<MakeAShader>();
-                return TV;
-            } else {
-                Debug.Log("Modèle non trouvé");
-            }
+        var mappings = JsonConvert.DeserializeObject<Dictionary<string, YoKaiModele3D>>(mappingFile.text);
+        if (mappings == null || !mappings.TryGetValue(ID, out YoKaiModele3D mapping) || mapping == null) {
+            Debug.LogError("No model mapping exists for Yo-kai " + ID, this);
+            return null;
         }
-        return null;
+        string modelPath = "yo-kai-API/data/_3D/models/" + System.IO.Path.GetFileNameWithoutExtension(mapping.modelFile);
+        GameObject prefab = Resources.Load<GameObject>(modelPath);
+        if (prefab == null) {
+            Debug.LogError("Yo-kai model was not found: " + modelPath, this);
+            return null;
+        }
+        GameObject actor = Instantiate(prefab);
+        MakeAShader shader = actor.GetComponent<MakeAShader>();
+        if (shader == null) shader = actor.AddComponent<MakeAShader>();
+        shader.choixForcer = true;
+        shader.forcerToonShader = true;
+        shader.forcerUnlitShader = false;
+        shader.ApplyYokaiShader();
+        MakeATexture textures = actor.GetComponent<MakeATexture>();
+        if (textures == null) textures = actor.AddComponent<MakeATexture>();
+        textures.Initialize(mapping);
+        return actor;
     }
 
-    public Tribue AjouterUneTribue(string nomDeLaTribue){
-        if (nomDeLaTribue != null && nomDeLaTribue.Length > 0){
-            nomDeLaTribue = nomDeLaTribue.ToLower();
-            nomDeLaTribue = nomDeLaTribue.Replace("mystérieux","mystérieu");
-            nomDeLaTribue = nomDeLaTribue.Replace("insaisisables","insaisissable");
-            
-            nomDeLaTribue = char.ToUpper(nomDeLaTribue[0]) + nomDeLaTribue.Substring(1);
-            if (Enum.IsDefined(typeof(Tribue), nomDeLaTribue)){
-                return (Tribue)Enum.Parse(typeof(Tribue), nomDeLaTribue);
-            }
-            Debug.Log("La tribue "+nomDeLaTribue+" n'as pas été trouver...");
-        }
-        return Tribue.Bienveillant;
-    }
-    public Rang AjouterUnRang(string nomDuRang){
-        if (nomDuRang != null && nomDuRang.Length > 0){
-            nomDuRang = nomDuRang[nomDuRang.Length-1].ToString();
-            nomDuRang = nomDuRang.ToUpper();
-            if (Enum.IsDefined(typeof(Rang), nomDuRang)){
-                return (Rang)Enum.Parse(typeof(Rang), nomDuRang);
-            }
-            Debug.Log("Le rang "+nomDuRang+" n'as pas été trouver...");
-        }
-        return Rang.E;
-    }
     public Element ObtenirElementDeLaTechnique(Technique technique){
         switch (technique){
             // FEU
@@ -230,10 +235,10 @@ public class medaliumDictionnaire : MonoBehaviour{
     }
 
 
-    public MedaliumNonPersonel TrouverUnYoKaiParSonNomAnglais(string nom_anglais){
+    public YoKai TrouverUnYoKaiParSonNomAnglais(string nom_anglais){
         for (int i = 1; i <= MAX; i++){
-            MedaliumNonPersonel yoKaiTrouver = ServantYoKai(i);
-            if (yoKaiTrouver != null && yoKaiTrouver.nom_anglais == nom_anglais){
+            YoKai yoKaiTrouver = ServantYoKai(i);
+            if (yoKaiTrouver != null && yoKaiTrouver.englishName == nom_anglais){
                 return yoKaiTrouver;
             }
         }
@@ -242,48 +247,6 @@ public class medaliumDictionnaire : MonoBehaviour{
     }
 }
 
-[System.Serializable]
-public class Yokai_assets_mapping{
-    public string modelFile;
-    public string[] textureFiles;
-}
-
-[System.Serializable]
-public class MedaliumNonPersonel{
-    public int ID;
-    public Sprite médaillon;
-    public Sprite faceImage;
-    public Sprite faceRondImage;
-    public bool rare;
-    public string Nom;
-    public string nom_anglais;
-    public string Description;
-    public GameObject yoKai;
-    public Tribue tribue;
-    public Rang rang;
-    public Personalité personalité;
-    public Talent talent;
-    public Technique technique;
-    public PlatPréféré platPréféré;
-    public Type type;
-    public Ammultime amultime;
-    public Envoutement envoutement;
-    public int Force;
-    public int Vitesse;
-    public int Esprit;
-    public int Défense;// IL faut le rensaigner dans le CSV
-    public int PV;
-    public string nomDeMonSquellette;
-    public Dictionary<string, string> phrasesNourriture = new Dictionary<string, string>{};
-
-    [Header("Affinités Élémentaires")]
-    public Element elementFaiblesse;    // L'élément qui fait mal (x2 ou x1.5)
-    public Element elementResistance;   // L'élément qui fait moins mal (x0.5)
-    public Element monElement;
-    public AudioClip Bruit;
-    public string Tribue;
-    public string Rang;
-}
 public static class EnumExtensions{
     public static string GetDescription(this Enum value){
         FieldInfo field = value.GetType().GetField(value.ToString());
@@ -291,30 +254,6 @@ public static class EnumExtensions{
         return attribute == null ? value.ToString() : attribute.Description;
     }
 }
-[System.Serializable]
-public class Ammultime{
-    public string nomDeAmultime;
-    [Range(0,5)] public int multiplicationDeLaPuissance;
-    public CatégorieÂmultime catégorieÂmultime;
-
-    /*
-    public bool amultimeDeSoin;
-    public bool amultimeDeAttaque;
-    public bool amultimeEnvoutement;//pas encor fini
-    [Header("Paramètres à rensegner si c'est une ammultime de soin :")]
-    public bool soigneUniquementLeLanceur;
-    public bool soigneUniquementLeYoKaiÀSaDroite;
-    public bool soigneUniquementLesDeuxYoKaiAutoursDeLui;
-    public bool soingneTousLesYoKaiDeLaRanger;
-    [Range(0,100)] public int pourcentageDeSoitRendu; 
-    [Header("Paramètres à rensegner si c'est une ammultime d'attaque :")]
-    [Range(0,5)] public int multiplicationDeLaForceParRapportAUneAttaqueNormal;
-    [Range(0,3)] public int nombreDeAnnemieToucher;
-    //[Header("Paramètres à rensegner si c'est une ammultime d'envoutement (ce n'est pas fini désolé) :")]
-    */
-}
-
-
 /*
 talant*
 attaque 

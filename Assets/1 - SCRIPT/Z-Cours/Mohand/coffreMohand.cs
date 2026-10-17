@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using YKW.Core.Item.Enum;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
 
@@ -10,19 +11,19 @@ public class coffreMohand : MonoBehaviour
     [Min(0)]public int id_nourriture;
     private bool joueur_dedans = false;
     private DialcodePrinted dialcodePrinted;
-    public bool estClické;
-    public bool estRécuperee;
-    public string clé;
+    public bool estClickÃ©;
+    public bool estRÃ©cuperee;
+    public string clÃ©;
     public AudioClip musique;
 
 
     void Start()
     {
         dialcodePrinted = DialcodePrinted.Instance;
-        clé = transform.position.x.ToString() + "-" + transform.position.x.ToString() + "-" + SceneManager.GetActiveScene().name;
-        if (NewDataCenter.Instance.Lire(clé) != "0")
+        clÃ© = transform.position.x.ToString() + "-" + transform.position.x.ToString() + "-" + SceneManager.GetActiveScene().name;
+        if (NewDataCenter.Instance.Lire(clÃ©) != "0")
         {
-            estRécuperee = true;
+            estRÃ©cuperee = true;
             GetComponent<Animator>().SetTrigger("Ouverture de Coffre");
 
 
@@ -37,21 +38,21 @@ public class coffreMohand : MonoBehaviour
 
 
     void Update(){
-        if(joueur_dedans==true && Input.GetButtonDown("A") && estRécuperee == false)
+        if(joueur_dedans==true && Input.GetButtonDown("A") && estRÃ©cuperee == false)
         {
-            if (estClické)
+            if (estClickÃ©)
             {
                 dialcodePrinted.Fermeture(false);
-                estRécuperee = true;
+                estRÃ©cuperee = true;
 
             }
             else
             {
                 GetComponent<Animator>().SetTrigger("Ouverture de Coffre");
                 
-                dialcodePrinted.RecevoirUnCadeau(TypeDialogue.cadeau, 1, CatégorieItem.Nouriture, 0, null, "", false);
-                estClické = true;
-                NewDataCenter.Instance.SauvegarderSTR(clé, "1");
+                dialcodePrinted.RecevoirUnCadeau(TypeDialogue.cadeau, 1, CatÃ©gorieItem.Nouriture, 0, null, "", false);
+                estClickÃ© = true;
+                NewDataCenter.Instance.SauvegarderSTR(clÃ©, "1");
                 GestionnaireMusique._Komasan.ChangerLaMusique(musique, false);
             }
 

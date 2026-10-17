@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using System;
+using YKW.Core.YoKai.Class;
 
 public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
     public TextMeshProUGUI textArgent;
@@ -107,7 +108,7 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
             lesEspaceYoKai[i].SetActive(false);
             for (int j = 0; j < MesYoKai.Instance.yoKaiDeMonEquipe.Count; j++){
                 if (MesYoKai.Instance.maListe.Count > MesYoKai.Instance.yoKaiDeMonEquipe[j]) {
-                    ListeDeMesYoKai yoKai = MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]];
+                    YoKaiActif yoKai = MesYoKai.Instance.maListe[MesYoKai.Instance.yoKaiDeMonEquipe[j]];
                     yoKai.positionRoue %= lesEspaceYoKai.Count;
                     if (yoKai.positionRoue<0){
                         yoKai.positionRoue=0;
@@ -120,11 +121,11 @@ public class écrireLesPetitesValeursDuMenu : MonoBehaviour{
         }
     }
 
-    void PlacerUnYoKai(ListeDeMesYoKai yoKai, GameObject blocDePostionUI){
+    void PlacerUnYoKai(YoKaiActif yoKai, GameObject blocDePostionUI){
         blocDePostionUI.SetActive(true);
-        MedaliumNonPersonel informationGénéral = medaliumDictionnaire._instance.ServantYoKai(yoKai.ID);
+        YoKai informationGénéral = medaliumDictionnaire._instance.ServantYoKai(yoKai.ID);
 
-        blocDePostionUI.transform.Find("bloc image/médaillon").gameObject.GetComponent<Image>().sprite=informationGénéral.médaillon;
+        blocDePostionUI.transform.Find("bloc image/médaillon").gameObject.GetComponent<Image>().sprite=informationGénéral.imageMédaillon;
         blocDePostionUI.transform.Find("Niveau").gameObject.GetComponent<TextMeshProUGUI>().text=yoKai.niveau.ToString();
         blocDePostionUI.transform.Find("bloc nom/nom").gameObject.GetComponent<TextMeshProUGUI>().text=yoKai.surnom;
         blocDePostionUI.transform.Find("bloc info/nombre max vie").gameObject.GetComponent<TextMeshProUGUI>().text=(informationGénéral.PV*yoKai.niveau).ToString();

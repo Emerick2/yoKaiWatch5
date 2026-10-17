@@ -1,98 +1,127 @@
-Shader "TSF/Base1" 
+Shader "TSF/Base1"
 {
-    Properties 
+    Properties
     {
-		[MaterialToggle(_TEX_ON)] _DetailTex ("Enable Detail texture", Float) = 0 	//1
-		_MainTex ("Detail", 2D) = "white" {}        								//2
-		_ToonShade ("Shade", 2D) = "white" {}  										//3
-		[MaterialToggle(_COLOR_ON)] _TintColor ("Enable Color Tint", Float) = 0 	//4
-		_Color ("Base Color", Color) = (1,1,1,1)									//5	
-		[MaterialToggle(_VCOLOR_ON)] _VertexColor ("Enable Vertex Color", Float) = 0//6        
-		_Brightness ("Brightness 1 = neutral", Float) = 1.0							//7	
+        [Toggle(_TEX_ON)] _DetailTex ("Enable Detail texture", Float) = 0
+        _MainTex ("Detail", 2D) = "white" {}
+        _ToonShade ("Shade", 2D) = "white" {}
+        [Toggle(_COLOR_ON)] _TintColor ("Enable Color Tint", Float) = 0
+        _Color ("Base Color", Color) = (1,1,1,1)
+        [Toggle(_VCOLOR_ON)] _VertexColor ("Enable Vertex Color", Float) = 0
+        _Brightness ("Brightness 1 = neutral", Float) = 1.0
     }
-   
-    Subshader 
+
+    SubShader
     {
-    	Tags { "RenderType"="Opaque" }
-		LOD 250
-    	ZWrite On
-	   	Cull Back
-		Lighting Off
-		Fog { Mode Off }
-		
-        Pass 
+        Tags
+        {
+            "RenderType" = "Opaque"
+            "Queue" = "Geometry"
+            "RenderPipeline" = "UniversalPipeline"
+        }
+
+        LOD 250
+        ZWrite On
+        Cull Back
+
+        Pass
         {
             Name "BASE"
-            CGPROGRAM
-                #pragma vertex vert
-                #pragma fragment frag
-                #pragma fragmentoption ARB_precision_hint_fastest
-                #include "UnityCG.cginc"
-                #pragma glsl_no_auto_normalization
-                #pragma multi_compile _TEX_OFF _TEX_ON
-                #pragma multi_compile _COLOR_OFF _COLOR_ON
+            Tags { "LightMode" = "UniversalForwardOnly" }
 
-                
-                #if _TEX_ON
-                sampler2D _MainTex;
-				half4 _MainTex_ST;
-				#endif
-				
-                struct appdata_base0 
-				{
-					float4 vertex : POSITION;
-					float3 normal : NORMAL;
-					float4 texcoord : TEXCOORD0;
-				};
-				
-                 struct v2f 
-                 {
-                    float4 pos : SV_POSITION;
-                    #if _TEX_ON
-                    half2 uv : TEXCOORD0;
-                    #endif
-                    half2 uvn : TEXCOORD1;
-                 };
-               
-                v2f vert (appdata_base0 v)
-                {
-                    v2f o;
-                    o.pos = UnityObjectToClipPos ( v.vertex );
-                    float3 normalP = normalize(v.normal);
-                    float3 n = UnityObjectToWorldNormal(normalP);
-                    float2 uvM = mul((float3x3)UNITY_MATRIX_V, n).xy;
-                    uvM = ( uvM * float2(0.5, 0.5) ) + float2(0.5, 0.5);
-                    o.uvn = uvM;
-                     #if _TEX_ON
-                    o.uv = TRANSFORM_TEX ( v.texcoord, _MainTex );
-                    #endif
-                    return o;
-                }
+            HLSLPROGRAM
+            #pragma target 2.0
+            #pragma vertex vert
+            #pragma fragment frag
 
-              	sampler2D _ToonShade;
-                fixed _Brightness;
-                
-                #if _COLOR_ON
-                fixed4 _Color;
+            #pragma shader_feature_local _TEX_ON
+            #pragma shader_feature_local _COLOR_ON
+            #pragma shader_feature_local _VCOLOR_ON
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
+
+            TEXTURE2D(_ToonShade);
+            SAMPLER(sampler_ToonShade);
+
+            CBUFFER_START(UnityPerMaterial)
+                float4 _MainTex_ST;
+                float4 _ToonShade_ST;
+                half4 _Color;
+                half _Brightness;
+                half _DetailTex;
+                half _TintColor;
+                half _VertexColor;
+            CBUFFER_END
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                half3 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
+                half4 color : COLOR;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+                float2 shadeUV : TEXCOORD0;
+
+                #if defined(_TEX_ON)
+                    float2 detailUV : TEXCOORD1;
                 #endif
-                
-                fixed4 frag (v2f i) : COLOR
-                {
-					#if _COLOR_ON
-					fixed4 toonShade = tex2D( _ToonShade, i.uvn )*_Color;
-					#else
-					fixed4 toonShade = tex2D( _ToonShade, i.uvn );
-					#endif
-					
-					#if _TEX_ON
-					fixed4 detail = tex2D ( _MainTex, i.uv );
-					return  toonShade * detail*_Brightness;
-					#else
-					return  toonShade * _Brightness;
-					#endif
-                }
-            ENDCG
+
+                #if defined(_VCOLOR_ON)
+                    half4 color : COLOR;
+                #endif
+            };
+
+            Varyings vert(Attributes IN)
+            {
+                Varyings OUT;
+
+                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+
+                // Reproduce the original shader's view-space normal lookup.
+                half3 normalWS = TransformObjectToWorldNormal(IN.normalOS);
+                half3 normalVS = TransformWorldToViewDir(normalWS, true);
+                OUT.shadeUV = normalVS.xy * 0.5h + 0.5h;
+
+                #if defined(_TEX_ON)
+                    OUT.detailUV = TRANSFORM_TEX(IN.uv, _MainTex);
+                #endif
+
+                #if defined(_VCOLOR_ON)
+                    OUT.color = IN.color;
+                #endif
+
+                return OUT;
+            }
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                half4 result = SAMPLE_TEXTURE2D(_ToonShade, sampler_ToonShade, IN.shadeUV);
+
+                #if defined(_COLOR_ON)
+                    result *= _Color;
+                #endif
+
+                #if defined(_TEX_ON)
+                    result *= SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.detailUV);
+                #endif
+
+                #if defined(_VCOLOR_ON)
+                    result *= IN.color;
+                #endif
+
+                result *= _Brightness;
+                return result;
+            }
+            ENDHLSL
         }
     }
-    Fallback "Legacy Shaders/Diffuse"
+
+    Fallback Off
 }

@@ -605,7 +605,7 @@ public class DialcodeV4 : EditorWindow{
                 string assetPath = AssetDatabase.GetAssetPath(nouveauSprite);
                 
                 if (assetPath.Contains("/Resources/")) {
-                    int index = assetPath.IndexOf("/Resources/") + 11;
+                    int index = assetPath.IndexOf("/Resources/", StringComparison.CurrentCulture) + 11;
                     string relativePath = assetPath.Substring(index);
                     
                     int dotIndex = relativePath.LastIndexOf('.');

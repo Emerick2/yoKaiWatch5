@@ -1,4 +1,3 @@
-using System.Data;
 using UnityEngine;
 
 public class MakeAShader : MonoBehaviour{
@@ -20,9 +19,10 @@ public class MakeAShader : MonoBehaviour{
                 ApplyCharacterShader();
             }
         } else {
-            int ID = int.Parse(System.Text.RegularExpressions.Regex.Match(gameObject.name, @"\d+").Value);
+            string identifier = System.Text.RegularExpressions.Regex.Match(gameObject.name, @"\d+").Value;
+            int id = int.TryParse(identifier, out int parsedId) ? parsedId : 0;
 
-            if (ID != 0 && gameObject.name.Contains("y")){   
+            if (id != 0 && gameObject.name.Contains("y")){
                 ApplyYokaiShader();
             } else {
                 ApplyCharacterShader();
@@ -31,44 +31,54 @@ public class MakeAShader : MonoBehaviour{
     }
 
     public void ApplyYokaiShader() {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-
-        foreach (Renderer renderer in renderers) {
+        Shader shader = Shader.Find("TSF/BaseOutline1");
+        if (shader == null) {
+            Debug.LogError("Yo-kai shader TSF/BaseOutline1 was not found.", this);
+            return;
+        }
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true)) {
             Material[] materials = renderer.materials;
-
-            for (int i = 0; i < materials.Length; i++) {
-                Shader toonShader = Shader.Find("TSF/BaseOutline1");
-                
-                if (toonShader != null) {
-                    materials[i].shader = toonShader;
-                    materials[i].SetFloat("_TEX_ON", 1.0f);
-                    materials[i].EnableKeyword("_TEX_ON"); 
-                    materials[i].SetColor("_OutlineColor", outlineColor);
-                    materials[i].SetFloat("_Outline", outlineWidth);
-                } else {
-                    Debug.LogWarning("Shader 'TSF/BaseOutline1' non trouvé !");
-                }
+            foreach (Material material in materials) {
+                if (material == null) continue;
+                // URP imports use _BaseMap; TSF reads _MainTex. Preserve the
+                // texture before switching shaders rather than relying on mainTexture.
+                Texture texture = ReadMainTexture(material);
+                material.shader = shader;
+                if (texture != null) material.SetTexture("_MainTex", texture);
+                material.SetFloat("_DetailTex", 1f);
+                material.EnableKeyword("_TEX_ON");
+                material.SetColor("_OutlineColor", outlineColor);
+                material.SetFloat("_Outline", outlineWidth);
             }
             renderer.materials = materials;
         }
     }
 
     public void ApplyCharacterShader() {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-
-        foreach (Renderer renderer in renderers) {
+        Shader shader = Shader.Find("Universal Render Pipeline/Unlit");
+        if (shader == null) {
+            Debug.LogError("Character shader Universal Render Pipeline/Unlit was not found.", this);
+            return;
+        }
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true)) {
             Material[] materials = renderer.materials;
-
-            for (int i = 0; i < materials.Length; i++) {
-                Shader unlitShader = Shader.Find("Unlit/Texture");
-                
-                if (unlitShader != null) {
-                    materials[i].shader = unlitShader;
-                } else {
-                    Debug.LogWarning("Shader 'Unlit/Texture' non trouvé !");
-                }
+            foreach (Material material in materials) {
+                if (material == null) continue;
+                Texture texture = ReadMainTexture(material);
+                Color color = material.HasProperty("_BaseColor") ? material.GetColor("_BaseColor")
+                    : material.HasProperty("_Color") ? material.GetColor("_Color") : Color.white;
+                material.shader = shader;
+                if (texture != null) material.SetTexture("_BaseMap", texture);
+                material.SetColor("_BaseColor", color);
             }
             renderer.materials = materials;
         }
+    }
+
+    private static Texture ReadMainTexture(Material material) {
+        Texture texture = material.mainTexture;
+        if (texture == null && material.HasProperty("_BaseMap")) texture = material.GetTexture("_BaseMap");
+        if (texture == null && material.HasProperty("_MainTex")) texture = material.GetTexture("_MainTex");
+        return texture;
     }
 }

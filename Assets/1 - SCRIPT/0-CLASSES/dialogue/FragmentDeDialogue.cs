@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using YKW.Core.Item.Enum;
 
 [System.Serializable]
 public class FragmentDeDialogue{

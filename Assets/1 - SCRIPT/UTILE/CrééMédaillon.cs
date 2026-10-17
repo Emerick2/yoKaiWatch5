@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using YKW.Core.YoKai.Enums;
 using UnityEngine;
 using UnityEngine.UI;
+using YKW.Core.YoKai.Class;
 
 public class CrééMédaillon : MonoBehaviour{
     public Image espaceIcone;
@@ -24,7 +26,7 @@ public class CrééMédaillon : MonoBehaviour{
 
     public void Créé(int id){
         if (id >= 0 && id < medaliumDictionnaire._instance.MAX){
-            MedaliumNonPersonel yokai = medaliumDictionnaire._instance.ServantYoKai(id);
+            YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(id);
             espaceIcone.sprite = yokai.faceRondImage;
             espaceRare.enabled = yokai.rare;
 

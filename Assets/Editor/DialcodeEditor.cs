@@ -3,6 +3,7 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
 using System;
+using YKW.Core.Item.Enum;
 
 public class DialcodeEditor : EditorWindow{
     private PNJDialcode selectedPNJ;

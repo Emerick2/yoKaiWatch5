@@ -1,15 +1,12 @@
 using UnityEngine;
+using YKW.Core.Item.Enum;
 
-[System.Serializable]
-public class Nouriture{
-    public string nom;
-    public Sprite image;
-    [TextArea(3, 5)] public string description;
-    public float prixAchat;
-    public float prixVente;
-    [Min(0)] public int IdEffetSurSiSurEnnemie;
-    [Min(0)] public int IdEffetSiSurAmi;
-    public string allyEffect;
-    public string enemyEffect;
-    public string englishName;
+namespace YKW.Core.Item.Class
+{
+    [System.Serializable]
+    public class Nouriture : Item
+    {
+        public EffetNourritureAllie effetAlié;
+        public EffetNourritureEnnemi effetEnemi;
+    }
 }

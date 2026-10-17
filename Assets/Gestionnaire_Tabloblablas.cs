@@ -26,10 +26,10 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
         texteIndice1.text = indice1;
         texteIndice2.text = indice2;
         texteIndice3.text = indice3;
-        MedaliumNonPersonel medalium = medaliumDictionnaire._instance.ServantYoKai(ID_Yokai);
+        YKW.Core.YoKai.Class.YoKai medalium = medaliumDictionnaire._instance.ServantYoKai(ID_Yokai);
         if (nomYokai != null && medalium != null) {
-            nomYokai.text = medalium.Nom;
-            nomYokaiTexte = medalium.Nom;
+            nomYokai.text = medalium.nom;
+            nomYokaiTexte = medalium.nom;
         }
 
     }

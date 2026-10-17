@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using YKW.Core.YoKai.Enums;
 using UnityEngine;
+using YKW.Core.YoKai.Class;
 //using System.ComponentModel;
 
 
 public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
-    public List<YoKai> yoKai;
+    public List<YoKaiApparition> yoKai;
     private medaliumDictionnaire médalium;
     [Range(0,100)]public int probabilitéDeAparitionYoKai = 70;
 
@@ -17,7 +19,7 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
             composant.leLieuEstVide = true;
             if (probabilitéDeAparitionYoKai <= Random.Range(0,100)){
                 bool STOP = false;
-                foreach (YoKai yoKaii in yoKai){
+                foreach (YoKaiApparition yoKaii in yoKai){
                     if (Random.Range(0, 100) >= yoKaii.probabilitéDeApparition && STOP == false){
                         STOP = true;
                         composant.leLieuEstVide = false;
@@ -27,7 +29,7 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
             }
         }
     }
-    void ComplétéUnYoKai(trouverUnYoKai composant, YoKai yoKaiRandom){
+    void ComplétéUnYoKai(trouverUnYoKai composant, YoKaiApparition yoKaiRandom){
         if (yoKaiRandom == null || yoKaiRandom.leYoKai == null){
             Debug.LogError("yoKaiRandom ou yoKaiRandom.leYoKai est null !");
             return;
@@ -54,13 +56,4 @@ public class PersonnageAléatoireDeLaZonne : MonoBehaviour{
         composant.rang = r;
         composant.niveauDuYoKaiPrésent = Random.Range(yoKaiRandom.niveauMinimum, yoKaiRandom.niveauMaximum);
     }
-}
-
-[System.Serializable]
-public class YoKai{
-    [PrefabOnlyInPath("Assets/Resources/tousLesYoKai")]
-    public GameObject leYoKai;
-    [Range(0,100)] public int probabilitéDeApparition;
-    [Range(1,100)] public int niveauMinimum;
-    [Range(1,100)] public int niveauMaximum;
 }

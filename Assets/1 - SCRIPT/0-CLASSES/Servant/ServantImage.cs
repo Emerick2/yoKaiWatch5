@@ -1,4 +1,6 @@
+using YKW.Core.YoKai.Enums;
 using UnityEngine;
+using YKW.Core.Item.Enum;
 
 [System.Serializable] 
 public class ServantImage{
