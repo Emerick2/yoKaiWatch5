@@ -1,0 +1,79 @@
+
+name: Unity Personal License Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unity-personal-license
+  cancel-in-progress: false
+
+jobs:
+  licensing:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    env:
+      UNITY_NO_CLI_INVOKED_TELEMETRY: "1"
+
+    steps:
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            ca-certificates curl unzip \
+            libicu74 libatomic1
+
+      - name: Install Unity CLI
+        run: |
+          curl -fsSL \
+            https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.sh \
+            | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Initialize Licensing Client
+        run: |
+          unity --version
+          unity license status
+
+      - name: Activate Unity Personal
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          set +x
+
+          CLIENT="$HOME/.config/unityhub/external-modules/licensingClient/Unity.Licensing.Client"
+
+          test -x "$CLIENT"
+
+          "$CLIENT" \
+            --activate-all \
+            --include-personal \
+            --username "$UNITY_EMAIL" \
+            --password "$UNITY_PASSWORD"
+
+          unity license status
+
+      - name: Return Unity License
+        if: always()
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          set +x
+
+          CLIENT="$HOME/.config/unityhub/external-modules/licensingClient/Unity.Licensing.Client"
+
+          if [[ -x "$CLIENT" ]]; then
+            "$CLIENT" \
+              --deactivate-all \
+              --username "$UNITY_EMAIL" \
+              --password "$UNITY_PASSWORD"
+
+            unity license status
+          fi
