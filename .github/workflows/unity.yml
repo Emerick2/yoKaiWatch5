@@ -1,0 +1,527 @@
+
+name: Unity CI/CD
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Platforms"
+        type: choice
+        required: true
+        default: all
+        options:
+          - all
+          - linux
+          - windows
+          - macos
+
+      publication:
+        description: "Publication"
+        type: choice
+        required: true
+        default: artifact
+        options:
+          - artifact
+          - prerelease
+          - release
+
+      run_tests:
+        description: "Run EditMode tests"
+        type: boolean
+        default: true
+
+  # Temporary trigger for the CI branch.
+  # No modification to main required.
+  push:
+    branches:
+      - CICD/unity-build-packaging-automation
+    paths:
+      - ".github/workflows/unity.yml"
+      - ".github/scripts/unity-license.ps1"
+      - "Assets/Editor/CI/UnityIconExporter.cs"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: unity-personal-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  UNITY_CLI_CHANNEL: beta
+  UNITY_NO_CLI_INVOKED_TELEMETRY: "1"
+  UNITY_NON_INTERACTIVE: "1"
+
+jobs:
+  # ------------------------------------------
+  # PROJECT METADATA AND DYNAMIC MATRIX
+  # ------------------------------------------
+  prepare:
+    name: Prepare build matrix
+    runs-on: ubuntu-24.04
+
+    outputs:
+      matrix: ${{ steps.meta.outputs.matrix }}
+      game_name: ${{ steps.meta.outputs.game_name }}
+      game_slug: ${{ steps.meta.outputs.game_slug }}
+      version: ${{ steps.meta.outputs.version }}
+      tag: ${{ steps.meta.outputs.tag }}
+      editor: ${{ steps.meta.outputs.editor }}
+      publication: ${{ steps.meta.outputs.publication }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read project metadata
+        id: meta
+        shell: bash
+        env:
+          SELECTED_PLATFORM: ${{ inputs.platform }}
+          SELECTED_PUBLICATION: ${{ inputs.publication }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import unicodedata
+          from pathlib import Path
+
+          settings = Path("ProjectSettings/ProjectSettings.asset")
+          version_file = Path("ProjectSettings/ProjectVersion.txt")
+
+          if not settings.is_file() or not version_file.is_file():
+              raise SystemExit("Unity project settings missing")
+
+          data = settings.read_text(encoding="utf-8")
+          editor_data = version_file.read_text(encoding="utf-8")
+
+          def read_key(text, key):
+              found = re.search(
+                  rf"(?m)^\s*{re.escape(key)}:\s*(.*?)\s*$",
+                  text
+              )
+              if not found:
+                  raise SystemExit(f"Missing setting: {key}")
+              raw = found.group(1).strip()
+              if raw.startswith('"') and raw.endswith('"'):
+                  return json.loads(raw)
+              if raw.startswith("'") and raw.endswith("'"):
+                  return raw[1:-1].replace("''", "'")
+              return raw
+
+          name = read_key(data, "productName")
+          version = read_key(data, "bundleVersion")
+          editor = read_key(editor_data, "m_EditorVersion")
+
+          if not name or "\n" in name or "\r" in name:
+              raise SystemExit("Invalid productName")
+
+          if not re.fullmatch(
+              r"[0-9]+\.[0-9]+\.[0-9]+"
+              r"(?:-[0-9A-Za-z.-]+)?",
+              version
+          ):
+              raise SystemExit(f"Invalid version: {version}")
+
+          if not re.fullmatch(
+              r"[0-9]+\.[0-9]+\.[0-9]+[abfcp][0-9]+",
+              editor
+          ):
+              raise SystemExit(f"Invalid Editor version: {editor}")
+
+          slug = unicodedata.normalize("NFKD", name)
+          slug = slug.encode("ascii", "ignore").decode()
+          slug = re.sub(r"[^a-z0-9]+", "-", slug.lower())
+          slug = slug.strip("-")
+
+          if not slug:
+              raise SystemExit("Could not generate product slug")
+
+          publication = (
+              os.getenv("SELECTED_PUBLICATION") or "artifact"
+          )
+          selection = (
+              os.getenv("SELECTED_PLATFORM") or "linux"
+          )
+
+          if publication not in (
+              "artifact", "prerelease", "release"
+          ):
+              raise SystemExit("Invalid publication mode")
+
+          platforms = {
+              "linux": {
+                  "id": "linux",
+                  "runner": "ubuntu-24.04",
+                  "target": "StandaloneLinux64",
+                  "module": "linux-il2cpp",
+                  "extension": ".x86_64"
+              },
+              "windows": {
+                  "id": "windows",
+                  "runner": "windows-2022",
+                  "target": "StandaloneWindows64",
+                  "module": "windows-il2cpp",
+                  "extension": ".exe"
+              },
+              "macos": {
+                  "id": "macos",
+                  "runner": "macos-15-intel",
+                  "target": "StandaloneOSX",
+                  "module": "mac-il2cpp",
+                  "extension": ".app"
+              }
+          }
+
+          if selection == "all":
+              matrix = list(platforms.values())
+          elif selection in platforms:
+              matrix = [platforms[selection]]
+          else:
+              raise SystemExit("Invalid platform selection")
+
+          tag = f"v{version}"
+          if publication == "prerelease":
+              tag += (
+                  f"-rc.{os.environ['GITHUB_RUN_NUMBER']}"
+                  f".{os.environ['GITHUB_RUN_ATTEMPT']}"
+              )
+
+          values = {
+              "game_name": name,
+              "game_slug": slug,
+              "version": version,
+              "editor": editor,
+              "tag": tag,
+              "publication": publication,
+              "matrix": json.dumps(matrix, separators=(",", ":"))
+          }
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              for key, value in values.items():
+                  f.write(f"{key}={value}\n")
+
+          print(json.dumps(values, indent=2))
+          PY
+
+      - name: Reject existing release or tag
+        if: steps.meta.outputs.publication != 'artifact'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "$TAG" \
+            --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists: $TAG"
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin \
+            "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists: $TAG"
+            exit 1
+          fi
+
+  # ------------------------------------------
+  # BUILD MATRIX
+  # ------------------------------------------
+  build:
+    name: Build ${{ matrix.id }}
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+
+    env:
+      GAME_NAME: ${{ needs.prepare.outputs.game_name }}
+      GAME_SLUG: ${{ needs.prepare.outputs.game_slug }}
+      GAME_VERSION: ${{ needs.prepare.outputs.version }}
+      UNITY_EDITOR_VERSION: ${{ needs.prepare.outputs.editor }}
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Linux prerequisites
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            ca-certificates curl unzip \
+            libicu74 libatomic1 \
+            libgtk-3-0 libnss3 \
+            libasound2t64 libglu1-mesa \
+            libxcursor1 libxi6 libxrandr2
+
+      - name: Install Unity CLI (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.sh \
+            -o "$RUNNER_TEMP/install-unity.sh"
+
+          bash "$RUNNER_TEMP/install-unity.sh"
+
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.unity/bin" >> "$GITHUB_PATH"
+
+      - name: Install Unity CLI (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $installer = Join-Path $env:RUNNER_TEMP "install-unity.ps1"
+
+          Invoke-WebRequest `
+            -Uri "https://public-cdn.cloud.unity3d.com/hub/prod/cli/install.ps1" `
+            -OutFile $installer
+
+          & $installer -Target latest
+
+          "$env:LOCALAPPDATA\Unity\bin" |
+            Out-File -FilePath $env:GITHUB_PATH -Append
+
+      - name: Verify Unity CLI
+        shell: bash
+        run: unity --version
+
+      # The Editor version comes from ProjectVersion.txt.
+      - name: Install Editor and build support
+        shell: bash
+        run: |
+          unity install "$UNITY_EDITOR_VERSION" \
+            --module "${{ matrix.module }}" \
+            --yes \
+            --accept-eula \
+            --non-interactive
+
+      - name: Initialize Licensing Client
+        shell: bash
+        run: unity license status || true
+
+      - name: Activate Unity Personal
+        shell: pwsh
+        run: |
+          ./ .github/scripts/unity-license.ps1
+        # Replaced by the corrected invocation below.
+
+      # ------------------------------------------
+      # OPTIONAL TESTS
+      # ------------------------------------------
+      - name: Run EditMode tests
+        if: inputs.run_tests == true
+        shell: bash
+        run: |
+          mkdir -p TestResults ci-logs
+
+          unity test . \
+            --editor-version "$UNITY_EDITOR_VERSION" \
+            --mode EditMode \
+            --report-format junit \
+            --output "TestResults/editmode-${{ matrix.id }}.xml" \
+            --timeout 1200 \
+            --format github
+
+      - name: Upload test results
+        if: always() && inputs.run_tests == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: tests-${{ matrix.id }}
+          path: TestResults/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # ------------------------------------------
+      # PLAYER BUILD
+      # ------------------------------------------
+      - name: Build Unity Player
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          OUTPUT="Build/${{ matrix.id }}/${GAME_SLUG}${{ matrix.extension }}"
+
+          mkdir -p "$(dirname "$OUTPUT")" ci-logs
+
+          unity build . \
+            --editor-version "$UNITY_EDITOR_VERSION" \
+            --target "${{ matrix.target }}" \
+            --output-path "$OUTPUT" \
+            --timeout 7200 \
+            --log-file "ci-logs/build-${{ matrix.id }}.log" \
+            --format github
+
+      - name: Package Linux AppImage
+        if: matrix.id == 'linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p AppDir/usr/bin dist tools
+
+          cp -a Build/linux/. AppDir/usr/bin/
+
+          chmod +x "AppDir/usr/bin/${GAME_SLUG}.x86_64"
+
+          # Exported by the existing UnityIconExporter.cs
+          test -s Build/ci-icon.png
+
+          cp Build/ci-icon.png "AppDir/${GAME_SLUG}.png"
+          ln -s "${GAME_SLUG}.png" AppDir/.DirIcon
+
+          printf \
+            '[Desktop Entry]\nType=Application\nName=%s\nExec=AppRun\nIcon=%s\nCategories=Game;\nTerminal=false\n' \
+            "$GAME_NAME" "$GAME_SLUG" \
+            > "AppDir/${GAME_SLUG}.desktop"
+
+          cat > AppDir/AppRun <<EOF
+          #!/bin/sh
+          HERE="\$(CDPATH= cd -- "\$(dirname -- "\$0")" && pwd)"
+          cd "\$HERE/usr/bin"
+          exec "./${GAME_SLUG}.x86_64" "\$@"
+          EOF
+
+          chmod +x AppDir/AppRun
+
+          curl -fL --retry 3 \
+            "https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage" \
+            -o tools/appimagetool
+
+          chmod +x tools/appimagetool
+
+          ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 \
+            tools/appimagetool \
+            AppDir \
+            "dist/${GAME_SLUG}-v${GAME_VERSION}-linux-x86_64.AppImage"
+
+      - name: Package Windows ZIP
+        if: matrix.id == 'windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist |
+            Out-Null
+
+          $archive = "dist/$($env:GAME_SLUG)-v$($env:GAME_VERSION)-windows-x64.zip"
+
+          Compress-Archive `
+            -Path "Build/windows/*" `
+            -DestinationPath $archive `
+            -CompressionLevel Optimal
+
+      - name: Package macOS App
+        if: matrix.id == 'macos'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist
+
+          ditto -c -k --sequesterRsrc --keepParent \
+            "Build/macos/${GAME_SLUG}.app" \
+            "dist/${GAME_SLUG}-v${GAME_VERSION}-macos.zip"
+
+      - name: Upload distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-${{ matrix.id }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Editor logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.id }}
+          path: ci-logs/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Return the license even after a failed build.
+      - name: Return Unity Personal
+        if: always()
+        shell: pwsh
+        run: |
+          & ./.github/scripts/unity-license.ps1 -Action return
+
+  # ------------------------------------------
+  # RELEASE / PRERELEASE
+  # ------------------------------------------
+  publish:
+    name: Publish GitHub Release
+    needs: [prepare, build]
+    if: needs.prepare.outputs.publication != 'artifact'
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GAME_NAME: ${{ needs.prepare.outputs.game_name }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+      PUBLICATION: ${{ needs.prepare.outputs.publication }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download distribution assets
+        uses: actions/download-artifact@v4
+        with:
+          pattern: distribution-*
+          path: dist
+          merge-multiple: true
+
+      - name: Publish GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          files=(dist/*)
+          if (( ${#files[@]} == 0 )); then
+            echo "No distribution files"
+            exit 1
+          fi
+
+          if gh release view "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists"
+            exit 1
+          fi
+
+          if git ls-remote --exit-code --tags origin \
+            "refs/tags/$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Tag already exists"
+            exit 1
+          fi
+
+          FLAGS=()
+          if [[ "$PUBLICATION" == "prerelease" ]]; then
+            FLAGS+=(--prerelease --latest=false)
+          fi
+
+          gh release create "$RELEASE_TAG" "${files[@]}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "$GAME_NAME $RELEASE_TAG" \
+            --generate-notes \
+            "${FLAGS[@]}"
