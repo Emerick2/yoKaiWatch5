@@ -1,79 +1,221 @@
-using UnityEngine;
+
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
-public class PlaceLesApplicationsSac : MonoBehaviour{
+public class PlaceLesApplicationsSac : MonoBehaviour
+{
+    [Header("Menu")]
     public écrireLesPetitesValeursDuMenu menu;
+
+    [Header("Prefab / Modèle")]
     public GameObject blocOrigine;
-    public List<Sprite> listeImageApplication = new List<Sprite>();
-    public List<GameObject> lesLieux = new List<GameObject>();
-    [HideInInspector]public int cible;
+
+    [Header("Applications")]
+    public List<Sprite> listeImageApplication = new();
+    public List<GameObject> lesLieux = new();
+
+    [Header("Sélection")]
     public Sprite spriteVisé;
     public Sprite spriteNonVisé;
+
+    [HideInInspector]
+    public int cible;
+
+    [SerializeField, Min(1)]
     private int nombreApplicationParEtage = 3;
-    void Start(){
+
+    private void Start()
+    {
         Initialisation();
     }
 
-    void Initialisation(){
-        if (menu != null){
-            for (int i = 0; i < listeImageApplication.Count; i++){
-                bool delet = true;
-                for (int j = 0; j < menu.applicationMenus.Count; j++){
-                    if (menu.applicationMenus[j].sprite == listeImageApplication[i]){
-                        delet = false;
-                        break;
-                    }
-                }
-                if (delet){
-                    listeImageApplication.RemoveAt(i);
-                    i--;
-                }
-            }
+    private void Initialisation()
+    {
+        if (blocOrigine == null)
+        {
+            Debug.LogError(
+                "[Applications] blocOrigine n'est pas assigné !",
+                this
+            );
+            return;
         }
-        for (int i = 0; i < listeImageApplication.Count; i++){
-            GameObject TV = Instantiate(blocOrigine);
-            TV.transform.Find("icone").GetComponent<Image>().sprite = listeImageApplication[i];
-            TV.transform.parent = transform;
-            TV.transform.localScale = new Vector3(1,1,1);
-            lesLieux.Add(TV);
-        }
-        Destroy(blocOrigine);
-        ChangerPositionCurseur(0);
-    }
 
-    void Update(){
-        if (Input.GetButtonDown("right")){
-            ChangerPositionCurseur((cible+1)%lesLieux.Count);
-        }
-        else if (Input.GetButtonDown("left")){
-            cible -= 1;
-            if (cible < 0){
-                cible = lesLieux.Count+cible;
-            }
-            ChangerPositionCurseur(cible);
-        } else if (Input.GetButtonDown("down")){
-            ChangerPositionCurseur((cible+nombreApplicationParEtage)%lesLieux.Count);
-        }
-        else if (Input.GetButtonDown("up")){
-            cible -= nombreApplicationParEtage;
-            if (cible < 0){
-                cible = lesLieux.Count+cible;
-            }
-            ChangerPositionCurseur(cible);
-        } 
-    }
+        lesLieux.Clear();
 
-    void ChangerPositionCurseur(int position){
-        cible = position;
-        if (cible > lesLieux.Count){
-            cible = lesLieux.Count-1;
-        } else if (cible < 0){
+        if (blocOrigine.scene.IsValid())
+        {
+            blocOrigine.SetActive(false);
+        }
+
+        int index = 0;
+
+        foreach (Sprite sprite in listeImageApplication)
+        {
+            if (sprite == null)
+                continue;
+
+            // Vérifier si l'application est autorisée
+            if (!ApplicationDisponible(sprite))
+                continue;
+
+            // Générer directement sous le parent UI
+            GameObject instance = Instantiate(
+                blocOrigine,
+                transform,
+                false
+            );
+
+            instance.name = $"Application_{index}_{sprite.name}";
+
+            // IMPORTANT : activer l'objet cloné
+            instance.SetActive(true);
+
+            // Récupérer et activer son icône
+            Transform icone = instance.transform.Find("icone");
+
+            if (icone != null)
+            {
+                icone.gameObject.SetActive(true);
+
+                Image image = icone.GetComponent<Image>();
+
+                if (image != null)
+                {
+                    image.enabled = true;
+                    image.sprite = sprite;
+                }
+                else
+                {
+                    Debug.LogWarning(
+                        $"[Applications] Image absente sur {icone.name}",
+                        instance
+                    );
+                }
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"[Applications] Enfant 'icone' introuvable dans {instance.name}",
+                    instance
+                );
+            }
+
+            // Activer également l'image de fond
+            Image fond = instance.GetComponent<Image>();
+
+            if (fond != null)
+                fond.enabled = true;
+
+            // Sélection par clic si un Button est présent
+            Button bouton = instance.GetComponent<Button>();
+
+            if (bouton != null)
+            {
+                int position = index;
+
+                bouton.interactable = true;
+                bouton.onClick.AddListener(
+                    () => ChangerPositionCurseur(position)
+                );
+            }
+
+            lesLieux.Add(instance);
+            index++;
+        }
+
+        // Sélectionner la première application
+        if (lesLieux.Count > 0)
+        {
+            ChangerPositionCurseur(0);
+        }
+        else
+        {
             cible = 0;
+            Debug.LogWarning(
+                "[Applications] Aucune application générée.",
+                this
+            );
         }
-        foreach (GameObject item in lesLieux){
-            item.GetComponent<Image>().sprite = spriteNonVisé;
+
+        Debug.Log(
+            $"[Applications] {lesLieux.Count} applications générées.",
+            this
+        );
+    }
+
+    private bool ApplicationDisponible(Sprite sprite)
+    {
+        // Sans menu, toutes les applications sont affichées
+        if (menu == null || menu.applicationMenus == null)
+            return true;
+
+        for (int i = 0; i < menu.applicationMenus.Count; i++)
+        {
+            if (menu.applicationMenus[i].sprite == sprite)
+                return true;
         }
-        lesLieux[cible].GetComponent<Image>().sprite = spriteVisé;
+
+        return false;
+    }
+
+    private void Update()
+    {
+        if (lesLieux.Count == 0)
+            return;
+
+        if (Input.GetButtonDown("right"))
+        {
+            ChangerPositionCurseur(cible + 1);
+        }
+        else if (Input.GetButtonDown("left"))
+        {
+            ChangerPositionCurseur(cible - 1);
+        }
+        else if (Input.GetButtonDown("down"))
+        {
+            ChangerPositionCurseur(
+                cible + nombreApplicationParEtage
+            );
+        }
+        else if (Input.GetButtonDown("up"))
+        {
+            ChangerPositionCurseur(
+                cible - nombreApplicationParEtage
+            );
+        }
+    }
+
+    public void ChangerPositionCurseur(int position)
+    {
+        if (lesLieux.Count == 0)
+            return;
+
+        // Bouclage correct, même avec peu d'applications
+        cible = ((position % lesLieux.Count)
+                 + lesLieux.Count) % lesLieux.Count;
+
+        // Désélectionner tous les objets
+        foreach (GameObject objet in lesLieux)
+        {
+            if (objet == null)
+                continue;
+
+            Image image = objet.GetComponent<Image>();
+
+            if (image != null)
+                image.sprite = spriteNonVisé;
+        }
+
+        // Sélectionner l'application ciblée
+        GameObject selection = lesLieux[cible];
+
+        if (selection != null)
+        {
+            Image image = selection.GetComponent<Image>();
+
+            if (image != null)
+                image.sprite = spriteVisé;
+        }
     }
 }
