@@ -6,6 +6,7 @@ using UnityEngine.Video;
 using YKW.Core.Item.Class;
 using YKW.Core.YoKai.Class;
 using YKW.Core.BingoKai.Data;
+using YKW.Core.Item.Enum;
 
 public class BingoKai2 : MonoBehaviour {
     private DialcodePrinted dialcode;
@@ -42,6 +43,7 @@ public class BingoKai2 : MonoBehaviour {
     public int tauxPremierPrix = 10;
     public int tauxSecondPrix = 45;
     public int tauxTroisièmePrix = 80;
+    private int _yokaiDiscussion = 0;
 
     public List<PièceBingoKai> listePièceBingoKai = new List<PièceBingoKai>{
         new PièceBingoKai{ id = 0, nom_anglais = "Red_Coin" },
@@ -131,6 +133,32 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void Update() {
+        if (_yokaiDiscussion != 0){
+            if (Input.GetButtonDown("A")){
+                YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir);
+                if (_yokaiDiscussion == 1) {
+                    // Devient ton ami
+                    // texte de "je veux être ton ami"
+                    string friendSentence = "Merci de m'avoir libéré, devenons ami !";
+                    if (yokai.phrasesNourriture != null && yokai.phrasesNourriture.TryGetValue("Devient ton ami", out string customPhrase) && !string.IsNullOrEmpty(customPhrase)) {
+                        friendSentence = yokai.phrasesNourriture["Devient ton ami"];
+                    }
+                    AfficherTexte(friendSentence);
+                    _yokaiDiscussion = 2;
+                } else if (_yokaiDiscussion == 2) {
+                    // texte qui montre qu'il devient ami
+                    dialcode.RecevoirUnCadeau(TypeDialogue.amiYoKai, 1, CatégorieItem.YoKai, yokaiQuiVasSortir, null, yokai.nom, false, yokai.nom, true);
+                    _yokaiDiscussion = 3;
+                } else {
+                    // texte : "Le Yo-kai x a été ajouté au Médallium des Yo-kai !"
+                    // <color=#3462C2></color>
+                    AfficherTexte("Le Yo-kai "+yokai.nom+" a été ajouté au Médallium des Yo-kai !");
+                    _yokaiDiscussion = 0;
+                }
+            }
+            return;
+        }
+
         if (inTheZone && Input.GetButtonDown("up") && étape == 3){
             dialcode.positionChoix = (dialcode.positionChoix+1)%2;
             dialcode.ChangerPositionChoix();
@@ -375,11 +403,12 @@ public class BingoKai2 : MonoBehaviour {
 
         dialcode.Ouverture();
         AfficherTexte("Le Yo-kai " + medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).nom + " est sorti !");
+        _yokaiDiscussion = 1;
         // Debug.Log(medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).phrasesNourriture["Devient ton ami"]);
         // Debug.Log(medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).keys);
-        var keys = medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).phrasesNourriture;
-        Debug.Log(keys);
-        Debug.Log(keys.Count);
+        // var keys = medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).phrasesNourriture;
+        // Debug.Log(keys);
+        // Debug.Log(keys.Count);
 
         étapeAfficherTexteYokaiSortie = 1;
         Input.ResetInputAxes();
