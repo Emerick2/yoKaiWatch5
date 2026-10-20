@@ -179,7 +179,7 @@ public class BingoKai2 : MonoBehaviour {
             } else if (Input.GetButtonDown("left")){
                 ChangerLaCible(cible, ((cible-1)%listeObjets.Count+listeObjets.Count)%listeObjets.Count);
             }
-            if (Input.GetButtonDown("B") && étape == 3){
+            if (Input.GetButtonDown("B") && attenteDuChoixDeLaPièce){
                 Exit();
             }
             if (Input.GetButtonDown("A")){
@@ -214,9 +214,12 @@ public class BingoKai2 : MonoBehaviour {
             if (inTheZone && Input.GetButtonDown("A")){
                 switch (étape){
                     case 0 :
-                        dialcode.Ouverture();
-                        AfficherTexte("Utilise des pièces pour obtenir des Yo-kai ou des objets au Bingo-kai !");
-                        étape++;    
+                        if (mouvementDuJoueur.droitDeMarcher) {
+                            mouvementDuJoueur.droitDeMarcher = false;
+                            dialcode.Ouverture();
+                            AfficherTexte("Utilise des pièces pour obtenir des Yo-kai ou des objets au Bingo-kai !");
+                            étape++;    
+                        }
                         break;
 
                     case 1 :
@@ -241,7 +244,6 @@ public class BingoKai2 : MonoBehaviour {
                             PlacerIcone();
                             if (canevasBingoKai != null) canevasBingoKai.SetActive(true);
                             canevaBingoKaiOuvert = true;
-                            mouvementDuJoueur.droitDeMarcher = false;
                         }
                         break;
                 }                
@@ -372,11 +374,11 @@ public class BingoKai2 : MonoBehaviour {
         videoPlayer.clip = videoBingoKai;
         videoPlayer.Play();
 
-        Debug.Log("Lancement de la vidéo...");
+        // Lancement de la vidéo...
     }
 
     void FaireVideoCapsule(UnityEngine.Video.VideoPlayer source) {
-        Debug.Log("La vidéo est terminée !");
+        // La vidéo est terminée !
         videoPlayer.loopPointReached -= FaireVideoCapsule;
         
         if (yokaiQuiVasSortir > 0){
@@ -404,11 +406,6 @@ public class BingoKai2 : MonoBehaviour {
         dialcode.Ouverture();
         AfficherTexte("Le Yo-kai " + medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).nom + " est sorti !");
         _yokaiDiscussion = 1;
-        // Debug.Log(medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).phrasesNourriture["Devient ton ami"]);
-        // Debug.Log(medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).keys);
-        // var keys = medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).phrasesNourriture;
-        // Debug.Log(keys);
-        // Debug.Log(keys.Count);
 
         étapeAfficherTexteYokaiSortie = 1;
         Input.ResetInputAxes();
@@ -419,12 +416,19 @@ public class BingoKai2 : MonoBehaviour {
         if (gameObjectYoKaiBingoKaiSupr != null) {
             Destroy(gameObjectYoKaiBingoKaiSupr);
         }
-        Sprite objet = Item.Instance.GetSpriteByName(nomObjetQuiVasSortir);
+        Sprite objet = Item.Instance?.GetSpriteByName(nomObjetQuiVasSortir);
         if (objet == null){
             Debug.Log("L'objet est null !");
         } else {
-            imageObjet.sprite = objet;
-            imageObjet.gameObject.SetActive(true);
+            if (imageObjet == null){
+                Debug.LogWarning("La variable 'imageObjet' est null");
+            } else {
+                imageObjet.sprite = objet;
+                imageObjet.gameObject.SetActive(true);
+            }
+        }
+        if (panelGain == null) {
+            Debug.LogWarning("La variable 'panelGain' est null");
         }
         panelGain.SetActive(true);
         afficherTexteYokaiSortie = true;
