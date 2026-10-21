@@ -149,8 +149,8 @@ public class BingoKai2 : MonoBehaviour {
                     // Devient ton ami
                     // texte de "je veux être ton ami"
                     string friendSentence = "Merci de m'avoir libéré, devenons ami !";
-                    if (yokai.phrasesNourriture != null && yokai.phrasesNourriture.TryGetValue("Devient ton ami", out string customPhrase) && !string.IsNullOrEmpty(customPhrase)) {
-                        friendSentence = yokai.phrasesNourriture["Devient ton ami"];
+                    if (yokai.phrases_nourriture != null && yokai.phrases_nourriture.TryGetValue("Devient ton ami", out string customPhrase) && !string.IsNullOrEmpty(customPhrase)) {
+                        friendSentence = yokai.phrases_nourriture["Devient ton ami"];
                     }
                     AfficherTexte(friendSentence, yokai.nom);
                     _yokaiDiscussion = 2;

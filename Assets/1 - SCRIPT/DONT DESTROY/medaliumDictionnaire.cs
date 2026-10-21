@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using System.Reflection;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Text;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -52,6 +53,7 @@ public class medaliumDictionnaire : MonoBehaviour{
         if (targetFile != null) {
             YoKaiJsonData data = JsonUtility.FromJson<YoKaiJsonData>(targetFile.text);
             YoKai yoKai = ConstruireYoKai(data);
+            yoKai.phrases_nourriture = LirePhrasesNourriture(targetFile.text);
             yoKai.ID = ID;
             yoKai.imageFace = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/picture/" + MakeAnUrl(yoKai.nom));
             yoKai.imageMédaillon = Resources.Load<Sprite>("yo-kai-API/img/yo-kai_img/medals/" + MakeAnUrl(yoKai.nom));
@@ -94,8 +96,16 @@ public class medaliumDictionnaire : MonoBehaviour{
         yoKai.type = LireEnum(data.Type, YKW.Core.YoKai.Enums.Type.Attaque);
         yoKai.platPréféré = LireEnum(data.nourriture, PlatPréféré.Riz);
         yoKai.monElement = LireEnum(data.élément, Element.Neutre);
-        yoKai.phrasesNourriture = new Dictionary<string, string>();
+        yoKai.phrases_nourriture = new Dictionary<string, string>();
         return yoKai;
+    }
+
+    private static Dictionary<string, string> LirePhrasesNourriture(string json)
+    {
+        JToken phrases = JObject.Parse(json)["phrases_nourriture"];
+        return phrases != null
+            ? phrases.ToObject<Dictionary<string, string>>()
+            : new Dictionary<string, string>();
     }
 
     private static int LireEntier(string valeur)

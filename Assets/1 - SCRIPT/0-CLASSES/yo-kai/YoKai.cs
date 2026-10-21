@@ -62,7 +62,7 @@ namespace YKW.Core.YoKai.Class
 
         // Unity ne sérialise PAS les Dictionary<> nativement ; cette API est
         // préservée pour le code existant, mais pas persistée dans les assets.
-        public Dictionary<string, string> phrasesNourriture;
+        public Dictionary<string, string> phrases_nourriture;
 
         /// <summary>
         /// Copie les données d'espèce vers une instance possédée / de combat.
@@ -105,7 +105,7 @@ namespace YKW.Core.YoKai.Class
             nomDeMonSquellette = source.nomDeMonSquellette;
             modele3D = source.modele3D;
             yoKai = source.yoKai;
-            phrasesNourriture = source.phrasesNourriture;
+            phrases_nourriture = source.phrases_nourriture;
         }
     }
 }
