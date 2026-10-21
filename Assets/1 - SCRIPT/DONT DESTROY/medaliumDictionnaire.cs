@@ -176,6 +176,8 @@ public class medaliumDictionnaire : MonoBehaviour{
         MakeATexture textures = actor.GetComponent<MakeATexture>();
         if (textures == null) textures = actor.AddComponent<MakeATexture>();
         textures.Initialize(mapping);
+
+        actor.AddComponent<AddAnimator>();
         return actor;
     }
 

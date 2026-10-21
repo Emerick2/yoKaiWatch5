@@ -45,6 +45,11 @@ public class BingoKai2 : MonoBehaviour {
     public int tauxTroisièmePrix = 80;
     private int _yokaiDiscussion = 0;
 
+    private TextAsset jsonBingoKai;
+    private readonly Dictionary<int, BingoKaiCoinData> cacheDonnées = new Dictionary<int, BingoKaiCoinData>();
+    private string texteEnCours;
+
+
     public List<PièceBingoKai> listePièceBingoKai = new List<PièceBingoKai>{
         new PièceBingoKai{ id = 0, nom_anglais = "Red_Coin" },
         new PièceBingoKai{ id = 1, nom_anglais = "Yellow_Coin" },
@@ -119,9 +124,9 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void InitialisationBingoKai(){
+        int ancienneCible = cible;
         cible = 0;
-        AfficherLesPrixDuBingoKai();
-        ChangerLaCible(cible, cible);
+        ChangerLaCible(ancienneCible, 0);
         if (panelGain != null) panelGain.SetActive(false);
         if (imageObjet != null) imageObjet.gameObject.SetActive(false);
 
@@ -133,6 +138,8 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void Update() {
+        if (Input.GetButtonDown("A") && TerminerAffichageSiEnCours()) return;
+
         if (_yokaiDiscussion != 0){
             if (Input.GetButtonDown("A")){
                 YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir);
@@ -236,11 +243,11 @@ public class BingoKai2 : MonoBehaviour {
                         dialcode.Fermeture(false);
                         étape = 0;
                         if (dialcode.positionChoix == 0){
-                            InitialisationBingoKai();
-                            attenteDuChoixDeLaPièce = true;
-                            Input.ResetInputAxes();
                             PlacerIcone();
+                            InitialisationBingoKai();
+                            Input.ResetInputAxes();
                             if (canevasBingoKai != null) canevasBingoKai.SetActive(true);
+                            attenteDuChoixDeLaPièce = true;
                             canevaBingoKaiOuvert = true;
                         }
                         break;
@@ -249,24 +256,39 @@ public class BingoKai2 : MonoBehaviour {
         }
     }
 
+    BingoKaiCoinData ChargerLesDonnéesBingoKai(int position) {
+        if (position < 0 || position >= listePièceBingoKai.Count || medaliumDictionnaire._instance == null) return null;
+        if (cacheDonnées.TryGetValue(position, out var données)) return données;
+
+        if (jsonBingoKai == null) jsonBingoKai = Resources.Load<TextAsset>("bingo-kai/yokaiWatch3_bingoKai");
+        if (jsonBingoKai == null) return null;
+
+        données = BingoKaiCoinData.FromJson(jsonBingoKai.text, listePièceBingoKai[position].nom_anglais, "Granval",
+            englishName => medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(englishName)?.ID);
+        cacheDonnées[position] = données;
+        return données;
+    }
+
     void AfficherTexte(string texte, string nom){
         dialcode.OuvertureFenêtre(dialcode.bulle);
-        dialcode.name = nom;
-        if (coroutineApparitionLettre == null){
-            coroutineApparitionLettre = StartCoroutine(dialcode.PrintSentence(texte, FinCoroutineAppartionLettre));
-        } else {
-            StopCoroutine(coroutineApparitionLettre);
-            étape++;
-            coroutineApparitionLettre = null;
-            if (dialcode.espaceDialogue != null) {
-                dialcode.espaceDialogue.text = texte;
-            }
-        }   
+        texteEnCours = texte;
+        if (coroutineApparitionLettre != null) StopCoroutine(coroutineApparitionLettre);
+        FragmentDeDialogue nouveauFragmentDeDialogue = new FragmentDeDialogue();
+        nouveauFragmentDeDialogue.nom = nom;
+        coroutineApparitionLettre = StartCoroutine(dialcode.PrintSentence(texte, FinCoroutineAppartionLettre, nouveauFragmentDeDialogue));
     }
 
     public void FinCoroutineAppartionLettre(){
         étape++;
         coroutineApparitionLettre = null;
+    }
+
+    bool TerminerAffichageSiEnCours(){
+        if (coroutineApparitionLettre == null) return false;
+        StopCoroutine(coroutineApparitionLettre);
+        if (dialcode.espaceDialogue != null) dialcode.espaceDialogue.text = texteEnCours;
+        FinCoroutineAppartionLettre();
+        return true;
     }
 
     public void Exit(){
@@ -316,6 +338,8 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void PlacerIcone(){
+        if (listeObjets.Count == listePièceBingoKai.Count && listeObjets[0] != null) return;
+
         listeObjets.Clear();
         exemple = null;
         foreach (Transform child in contentViewport.transform) {
@@ -327,12 +351,8 @@ public class BingoKai2 : MonoBehaviour {
             }
         }
         foreach (PièceBingoKai piece in listePièceBingoKai) {
-            GameObject nouvellePièce = Instantiate(exemple);
+            GameObject nouvellePièce = Instantiate(exemple, contentViewport.transform, false);
             nouvellePièce.SetActive(true);
-            nouvellePièce.transform.parent = contentViewport.transform;
-            
-            Vector3 objectScale = Vector3.one;
-            nouvellePièce.transform.localScale = objectScale;
 
             Image imgComp = nouvellePièce.GetComponent<Image>();
             if (imgComp != null && piece.sprite != null){
@@ -534,16 +554,6 @@ public class BingoKai2 : MonoBehaviour {
             ?? Item.Instance.FindAnimalWithEnglishName(englishName)?.nom
             ?? englishName;
     }
-
-    BingoKaiCoinData ChargerLesDonnéesBingoKai(int position)
-    {
-        if (position < 0 || position >= listePièceBingoKai.Count || medaliumDictionnaire._instance == null) return null;
-        TextAsset jsonFile = Resources.Load<TextAsset>("bingo-kai/yokaiWatch3_bingoKai");
-        if (jsonFile == null) return null;
-        return BingoKaiCoinData.FromJson(jsonFile.text, listePièceBingoKai[position].nom_anglais, "Granval",
-            englishName => medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(englishName)?.ID);
-    }
-
 }
 
 

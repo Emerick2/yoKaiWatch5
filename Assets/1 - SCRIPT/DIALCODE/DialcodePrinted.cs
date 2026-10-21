@@ -552,8 +552,12 @@ public class DialcodePrinted : MonoBehaviour{
         peutCliquer = true;
     }
 
-    public IEnumerator PrintSentence(string sentence, Action maFonctionEnParametre = null){
-        AjouterLeNomEtImagePersonnage();
+    public IEnumerator PrintSentence(string sentence, Action maFonctionEnParametre = null, FragmentDeDialogue nouveauFragmentDeDialogue = null){
+        if (nouveauFragmentDeDialogue == null){
+            AjouterLeNomEtImagePersonnage(fragmentDeDialogue[position]);
+        } else {
+            AjouterLeNomEtImagePersonnage(nouveauFragmentDeDialogue);
+        }
         TextMeshProUGUI espace = espaceDialogue;
         espace.text = "";
         for (int i = 0; i < sentence.Length; i++){
@@ -566,9 +570,9 @@ public class DialcodePrinted : MonoBehaviour{
         maFonctionEnParametre?.Invoke();
     }
 
-    void AjouterLeNomEtImagePersonnage(){
-        if (yoKaiSonVoix && (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai)){
-            int id = fragmentDeDialogue[position].IdÉlément;
+    void AjouterLeNomEtImagePersonnage(FragmentDeDialogue f){
+        if (yoKaiSonVoix && (f.quiJeSuis == QuiJeSuis.héroYoKai || f.quiJeSuis == QuiJeSuis.yokai)){
+            int id = f.IdÉlément;
             if (id > 0 && !listeIdParler.Contains(id)){
                 if (audioPrecedent != null){
                     Destroy(audioPrecedent);
@@ -581,7 +585,7 @@ public class DialcodePrinted : MonoBehaviour{
             }
         }
 
-        if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héro || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
+        if (f.quiJeSuis == QuiJeSuis.héro || f.quiJeSuis == QuiJeSuis.héroYoKai){
             blocNomUtilisé = bulle.transform.Find("-- D --").gameObject;
             bulle.transform.Find("-- G --").gameObject.SetActive(false);
         } else {
@@ -589,7 +593,7 @@ public class DialcodePrinted : MonoBehaviour{
             bulle.transform.Find("-- D --").gameObject.SetActive(false);
         }
 
-        if (fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.yokai || fragmentDeDialogue[position].quiJeSuis == QuiJeSuis.héroYoKai){
+        if (f.quiJeSuis == QuiJeSuis.yokai || f.quiJeSuis == QuiJeSuis.héroYoKai){
             bulle.transform.Find("boutDroit").GetComponent<Image>().sprite = décoration.boutDroiteGris;
             bulle.transform.Find("intérieur").GetComponent<Image>().sprite = décoration.centreGris;
             bulle.transform.Find("boutGauche").GetComponent<Image>().sprite = décoration.boutGaucheGris;
@@ -608,14 +612,14 @@ public class DialcodePrinted : MonoBehaviour{
             Debug.LogWarning("Un des espaces nécessaires est manquant");
         }
 
-        Sprite imageDialogue = fragmentDeDialogue[position].image;
-        if (imageDialogue == null && !string.IsNullOrEmpty(fragmentDeDialogue[position].imagePath)) {
-            imageDialogue = Resources.Load<Sprite>(fragmentDeDialogue[position].imagePath);
+        Sprite imageDialogue = f.image;
+        if (imageDialogue == null && !string.IsNullOrEmpty(f.imagePath)) {
+            imageDialogue = Resources.Load<Sprite>(f.imagePath);
         }
 
-        if (fragmentDeDialogue[position].nom.Length > 0){
+        if (f.nom.Length > 0){
             espaceNom.gameObject.SetActive(true);
-            espaceNom.text = fragmentDeDialogue[position].nom;
+            espaceNom.text = f.nom;
 
             if (imageDialogue != null){
                 espaceImage.gameObject.SetActive(true);
@@ -629,9 +633,9 @@ public class DialcodePrinted : MonoBehaviour{
             espaceImage.gameObject.SetActive(false);
         }
 
-        Sprite imagePresentation = fragmentDeDialogue[position].imageDePrésentation;
-        if (imagePresentation == null && !string.IsNullOrEmpty(fragmentDeDialogue[position].imageDePresentationPath)) {
-            imagePresentation = Resources.Load<Sprite>(fragmentDeDialogue[position].imageDePresentationPath);
+        Sprite imagePresentation = f.imageDePrésentation;
+        if (imagePresentation == null && !string.IsNullOrEmpty(f.imageDePresentationPath)) {
+            imagePresentation = Resources.Load<Sprite>(f.imageDePresentationPath);
         }
 
         if (imagePresentation != null){
