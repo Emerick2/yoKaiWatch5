@@ -49,7 +49,6 @@ public class BingoKai2 : MonoBehaviour {
     private readonly Dictionary<int, BingoKaiCoinData> cacheDonnées = new Dictionary<int, BingoKaiCoinData>();
     private string texteEnCours;
 
-
     public List<PièceBingoKai> listePièceBingoKai = new List<PièceBingoKai>{
         new PièceBingoKai{ id = 0, nom_anglais = "Red_Coin" },
         new PièceBingoKai{ id = 1, nom_anglais = "Yellow_Coin" },
@@ -117,6 +116,9 @@ public class BingoKai2 : MonoBehaviour {
         new PièceBingoKai{ id = 63, nom_anglais = "Ultra_Light_Blue_Coin" },
         new PièceBingoKai{ id = 64, nom_anglais = "_3DS_Coin" }
     };
+
+    [Header("Phase de test")]
+    public bool skipItem = true;
 
     void Start(){
         dialcode = DialcodePrinted.Instance;
@@ -379,27 +381,44 @@ public class BingoKai2 : MonoBehaviour {
     void UtilisationDeLaPièce(int numéroPièce) {
         yokaiQuiVasSortir = 0;
         nomObjetQuiVasSortir = "";
-        
-        if (lesDonnéesBingoKai == null) return;
+
+        if (lesDonnéesBingoKai == null) { attenteDuChoixDeLaPièce = true; return; }
+
         int roll = Random.Range(1, 101);
         BingoKaiPrizeData prize = roll <= tauxPremierPrix ? lesDonnéesBingoKai.firstPrize
             : roll <= tauxSecondPrix ? lesDonnéesBingoKai.secondPrize
             : roll <= tauxTroisièmePrix ? lesDonnéesBingoKai.thirdPrize : lesDonnéesBingoKai.defaultPrize;
-        if (prize == null || prize.Count == 0) prize = lesDonnéesBingoKai.defaultPrize;
-        if (prize == null || prize.Count == 0) return;
-        int rewardIndex = Random.Range(0, prize.Count);
-        if (rewardIndex < prize.yokaiIds.Count) yokaiQuiVasSortir = prize.yokaiIds[rewardIndex];
-        else nomObjetQuiVasSortir = ResolveItemName(prize.itemNames[rewardIndex - prize.yokaiIds.Count]);
+
+        if (skipItem) {
+            if (prize == null || prize.yokaiIds.Count == 0) prize = TrouverPalierAvecYoKai();
+            if (prize == null) { attenteDuChoixDeLaPièce = true; return; }
+            yokaiQuiVasSortir = prize.yokaiIds[Random.Range(0, prize.yokaiIds.Count)];
+        } else {
+            if (prize == null || prize.Count == 0) prize = lesDonnéesBingoKai.defaultPrize;
+            if (prize == null || prize.Count == 0) { attenteDuChoixDeLaPièce = true; return; }
+            int rewardIndex = Random.Range(0, prize.Count);
+            if (rewardIndex < prize.yokaiIds.Count) yokaiQuiVasSortir = prize.yokaiIds[rewardIndex];
+            else nomObjetQuiVasSortir = ResolveItemName(prize.itemNames[rewardIndex - prize.yokaiIds.Count]);
+        }
 
         videoPlayer.gameObject.SetActive(true);
-
         videoPlayer.loopPointReached -= FaireVideoCapsule;
         videoPlayer.loopPointReached += FaireVideoCapsule;
-        
         videoPlayer.clip = videoBingoKai;
         videoPlayer.Play();
+    }
 
-        // Lancement de la vidéo...
+    BingoKaiPrizeData TrouverPalierAvecYoKai() {
+        BingoKaiPrizeData[] paliers = {
+            lesDonnéesBingoKai.defaultPrize,
+            lesDonnéesBingoKai.thirdPrize,
+            lesDonnéesBingoKai.secondPrize,
+            lesDonnéesBingoKai.firstPrize
+        };
+        foreach (BingoKaiPrizeData p in paliers) {
+            if (p != null && p.yokaiIds.Count > 0) return p;
+        }
+        return null;
     }
 
     void FaireVideoCapsule(UnityEngine.Video.VideoPlayer source) {
