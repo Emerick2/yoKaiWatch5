@@ -143,7 +143,7 @@ public class BingoKai2 : MonoBehaviour {
                     if (yokai.phrasesNourriture != null && yokai.phrasesNourriture.TryGetValue("Devient ton ami", out string customPhrase) && !string.IsNullOrEmpty(customPhrase)) {
                         friendSentence = yokai.phrasesNourriture["Devient ton ami"];
                     }
-                    AfficherTexte(friendSentence);
+                    AfficherTexte(friendSentence, yokai.nom);
                     _yokaiDiscussion = 2;
                 } else if (_yokaiDiscussion == 2) {
                     // texte qui montre qu'il devient ami
@@ -152,7 +152,7 @@ public class BingoKai2 : MonoBehaviour {
                 } else {
                     // texte : "Le Yo-kai x a été ajouté au Médallium des Yo-kai !"
                     // <color=#3462C2></color>
-                    AfficherTexte("Le Yo-kai "+yokai.nom+" a été ajouté au Médallium des Yo-kai !");
+                    AfficherTexte("Le Yo-kai "+yokai.nom+" a été ajouté au Médallium des Yo-kai !", "");
                     _yokaiDiscussion = 0;
                 }
             }
@@ -217,14 +217,12 @@ public class BingoKai2 : MonoBehaviour {
                         if (mouvementDuJoueur.droitDeMarcher) {
                             mouvementDuJoueur.droitDeMarcher = false;
                             dialcode.Ouverture();
-                            AfficherTexte("Utilise des pièces pour obtenir des Yo-kai ou des objets au Bingo-kai !");
-                            étape++;    
+                            AfficherTexte("Utilise des pièces pour obtenir des Yo-kai ou des objets au Bingo-kai !", "");  
                         }
                         break;
 
                     case 1 :
-                        AfficherTexte("Activer la manivelle au Bingo-kai ?");
-                        étape++;    
+                        AfficherTexte("Activer la manivelle au Bingo-kai ?", "");
                         break;
 
                     case 2 :
@@ -251,17 +249,24 @@ public class BingoKai2 : MonoBehaviour {
         }
     }
 
-    void AfficherTexte(string texte){
+    void AfficherTexte(string texte, string nom){
         dialcode.OuvertureFenêtre(dialcode.bulle);
+        dialcode.name = nom;
         if (coroutineApparitionLettre == null){
-            coroutineApparitionLettre = StartCoroutine(dialcode.PrintSentence(texte));
+            coroutineApparitionLettre = StartCoroutine(dialcode.PrintSentence(texte, FinCoroutineAppartionLettre));
         } else {
             StopCoroutine(coroutineApparitionLettre);
+            étape++;
             coroutineApparitionLettre = null;
             if (dialcode.espaceDialogue != null) {
                 dialcode.espaceDialogue.text = texte;
             }
         }   
+    }
+
+    public void FinCoroutineAppartionLettre(){
+        étape++;
+        coroutineApparitionLettre = null;
     }
 
     public void Exit(){
@@ -404,7 +409,7 @@ public class BingoKai2 : MonoBehaviour {
         afficherTexteYokaiSortie = true;
 
         dialcode.Ouverture();
-        AfficherTexte("Le Yo-kai " + medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).nom + " est sorti !");
+        AfficherTexte("Le Yo-kai " + medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir).nom + " est sorti !", "");
         _yokaiDiscussion = 1;
 
         étapeAfficherTexteYokaiSortie = 1;
@@ -434,7 +439,7 @@ public class BingoKai2 : MonoBehaviour {
         afficherTexteYokaiSortie = true;
 
         dialcode.Ouverture();
-        AfficherTexte("Tu as obtenu : " + nomObjetQuiVasSortir + " !");
+        AfficherTexte("Tu as obtenu : " + nomObjetQuiVasSortir + " !", "");
 
         étapeAfficherTexteYokaiSortie = 1;
         Input.ResetInputAxes();

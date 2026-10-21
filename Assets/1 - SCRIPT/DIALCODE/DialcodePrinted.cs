@@ -11,6 +11,7 @@ using YKW.Core.Item.Enum;
 using YKW.Core.Item.Class;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class DialcodePrinted : MonoBehaviour{
     public List<GameObject> listeObjetACacherPendantDialogue;
@@ -551,7 +552,7 @@ public class DialcodePrinted : MonoBehaviour{
         peutCliquer = true;
     }
 
-    public IEnumerator PrintSentence(string sentence){
+    public IEnumerator PrintSentence(string sentence, Action maFonctionEnParametre = null){
         AjouterLeNomEtImagePersonnage();
         TextMeshProUGUI espace = espaceDialogue;
         espace.text = "";
@@ -561,6 +562,8 @@ public class DialcodePrinted : MonoBehaviour{
         }
         position++;
         coroutineApparitionLettre = null;
+        
+        maFonctionEnParametre?.Invoke();
     }
 
     void AjouterLeNomEtImagePersonnage(){
