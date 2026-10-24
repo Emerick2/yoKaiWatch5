@@ -294,6 +294,8 @@ public class DialcodePrinted : MonoBehaviour{
             position++;
             AvancerJusqueAuProchainDialogue();
             if (position < fragmentDeDialogue.Count) Action();
+        } else if (fragment.type == TypeDialogue.variable){
+            
         } else {
             position++;
             AvancerJusqueAuProchainDialogue();
