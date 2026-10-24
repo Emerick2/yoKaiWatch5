@@ -39,13 +39,68 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
     {
         
         réponse = texte_entrée.text;
-        if(réponse == nomYokaiTexte)
-        {
-            Debug.Log("bravo");
-        }
+    
 
-        Debug.Log(réponse);
+        
     }
     
+
+    public void ValiderReponse()
+    {
+        réponse = texte_entrée.text;
+        Debug.Log(UniformiserTexte(réponse));
+        Debug.Log(UniformiserTexte(nomYokaiTexte));
+        if (UniformiserTexte(réponse) == UniformiserTexte(nomYokaiTexte))
+        {
+            Debug.Log("validation");
+
+        }
+        else
+        {
+            Debug.Log("incorrect");
+        } 
+        
+        
+    }
+
+    string UniformiserTexte(string nom)
+    {
+        nom = nom.ToLower();
+        nom = nom.Replace(" ", "");
+        nom = nom.Trim();
+        return nom;
+    }
+
+
+    string FonctionA()
+    {
+        string text = "text";
+        return text;
+    }
+
+    string FonctionB()
+    {
+        string text = "text";
+        return text + FonctionA();
+    }
+
+    string C(string text)
+    {
+        text = "text";
+        return text * 2;
+    }
+
+     int D()
+     { 
+        int monNombre = 1;
+        for(int i = 0; i < 5; i++)
+        {
+            monNombre+=i;
+        }
+
+        return monNombre;
+     }
+
+
 
 }
