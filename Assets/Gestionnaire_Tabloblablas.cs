@@ -84,12 +84,6 @@ public class Gestionnaire_Tabloblablas : MonoBehaviour
         return text + FonctionA();
     }
 
-    string C(string text)
-    {
-        text = "text";
-        return text * 2;
-    }
-
      int D()
      { 
         int monNombre = 1;
