@@ -543,6 +543,13 @@ public class DialcodeV4 : EditorWindow{
                 f.quantitée = AjoutNombre("Son niveau ?", f.quantitée);
                 // f.ilDevientNotreAmi = AjouterUnBool("Il devient notre amis ?", f.ilDevientNotreAmi); // Pour le moment, cette fonctionnalité est masquée pour simplifier Dialcode.
                 break;
+            case TypeDialogue.redonnerLesPv:
+                f.donnerTousPvPourTousLesYoKai = AjouterUnBool("Est ce que tu veux donner les pv à tous les yo kai", f.donnerTousPvPourTousLesYoKai);
+                if(f.donnerTousPvPourTousLesYoKai == false){
+                    f.combienDePv = AjouterQuantitée("Combien en nombre de pv veut tu soigner tes yo kai", f.combienDePv);
+                }
+                break;
+
         }
     }
 
