@@ -32,15 +32,19 @@ public class YoKaiWhantFight : MonoBehaviour{
 
     void OnTriggerEnter(Collider other){
         if (other.CompareTag("Player")){
-            PlayerPositionLocally._instance.idYokai1 = idYokai1;
-            PlayerPositionLocally._instance.niveauYokai1 = niveauYokai1;
-            PlayerPositionLocally._instance.idYokai2 = idYokai2;
-            PlayerPositionLocally._instance.niveauYokai2 = niveauYokai2;
-            PlayerPositionLocally._instance.idYokai3 = idYokai3;
-            PlayerPositionLocally._instance.niveauYokai3 = niveauYokai3;
-
-            PlayerPositionLocally._instance.StoreThePlayerPositionLocally(false);
-            StartCoroutine(PlayerPositionLocally._instance.Teleport("Combat2", true, gameObject));
+            StartAFight(true);
         }
+    }
+
+    public void StartAFight(bool withMiniGame){
+        PlayerPositionLocally._instance.idYokai1 = idYokai1;
+        PlayerPositionLocally._instance.niveauYokai1 = niveauYokai1;
+        PlayerPositionLocally._instance.idYokai2 = idYokai2;
+        PlayerPositionLocally._instance.niveauYokai2 = niveauYokai2;
+        PlayerPositionLocally._instance.idYokai3 = idYokai3;
+        PlayerPositionLocally._instance.niveauYokai3 = niveauYokai3;
+
+        PlayerPositionLocally._instance.StoreThePlayerPositionLocally(false);
+        StartCoroutine(PlayerPositionLocally._instance.Teleport("Combat2", true, gameObject));
     }
 }

@@ -66,10 +66,7 @@ public class AdjustModelScale : MonoBehaviour
             Vector3 modelSize = totalBounds.Value.size;
 
             if (modelSize.x < minSizeThreshold) {
-                Debug.Log($"[Action] Le modèle est trop petit ({modelSize.x} < {minSizeThreshold}). Passage au scale 10, 10, 10.");
                 transform.localScale = new Vector3(100f, 100f, 100f);
-            } else {
-                Debug.Log($"[Action] Taille globale correcte ({modelSize.x} >= {minSizeThreshold}). Aucun changement.");
             }
         }
     }
