@@ -27,6 +27,8 @@ public class FragmentDeDialogue{
     [System.NonSerialized] private Sprite _imageDePresentationRuntime;
     public bool ilDevientNotreAmi = true;
     public string surnomYoKai = "";
+    public bool donnerTousPvPourTousLesYoKai = true;
+    public int combienDePv = 0;
 
     public Sprite image {
         get {
