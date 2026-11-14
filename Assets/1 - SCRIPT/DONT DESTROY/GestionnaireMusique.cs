@@ -1,85 +1,179 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Audio;
 
-public class GestionnaireMusique : MonoBehaviour{
+public class GestionnaireMusique : MonoBehaviour
+{
     public static GestionnaireMusique _Komasan;
+
+    [Header("Musique")]
     public AudioClip musiqueDeFond;
+
     private AudioClip musiqueEnMémoire;
     private AudioSource audioSource;
-    private List<GameObject> listeObjetMusique = new List<GameObject>();
     private bool laMusiqueVientDuLecteurMP3;
 
+    [Header("Audio Mixer")]
+    [SerializeField] private AudioMixerGroup groupeMusique;
+    [SerializeField] private AudioMixerGroup groupeEffetsSonores;
+
+    [Header("Interface")]
     public GameObject blocMusique;
     public TextMeshProUGUI nomMusique;
-    
-    private void Awake(){
-        if (_Komasan == null){
-            _Komasan = this;
-            DontDestroyOnLoad(gameObject);
-        }else{
+
+    private readonly List<GameObject> listeObjetMusique = new();
+
+    private void Awake()
+    {
+        if (_Komasan != null && _Komasan != this)
+        {
             Destroy(gameObject);
+            return;
         }
+
+        _Komasan = this;
+        DontDestroyOnLoad(gameObject);
 
         audioSource = GetComponent<AudioSource>();
-        if (musiqueDeFond != null){
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        // Routage automatique vers le groupe Music
+        if (groupeMusique != null)
+            audioSource.outputAudioMixerGroup = groupeMusique;
+
+        if (musiqueDeFond != null)
             ChangerLaMusique(musiqueDeFond, true);
-        }
     }
-    void Start(){
-        NettoyerLaListe();
+
+    private void Start()
+    {
+        StartCoroutine(NettoyerLaListe());
         Ecrire();
     }
-    void Update(){
-        if (!audioSource.isPlaying && musiqueEnMémoire != null){
-            ChangerLaMusique(musiqueEnMémoire,true);
+
+    private void Update()
+    {
+        if (!audioSource.isPlaying && musiqueEnMémoire != null)
+        {
+            AudioClip musiquePrecedente = musiqueEnMémoire;
+            musiqueEnMémoire = null;
+
+            ChangerLaMusique(musiquePrecedente, true);
         }
     }
 
-    void Ecrire(){
-        if (blocMusique != null){
-            if (laMusiqueVientDuLecteurMP3){
-                blocMusique.SetActive(true);
-                if (nomMusique != null && audioSource.clip != null) nomMusique.text = audioSource.clip.name;
-            } else {
-                blocMusique.SetActive(false);
-            }
+    private void Ecrire()
+    {
+        if (blocMusique == null)
+            return;
+
+        blocMusique.SetActive(laMusiqueVientDuLecteurMP3);
+
+        if (laMusiqueVientDuLecteurMP3 &&
+            nomMusique != null &&
+            audioSource.clip != null)
+        {
+            nomMusique.text = audioSource.clip.name;
         }
     }
-    public void ChangerLaMusique(AudioClip nomMusique, bool répété, bool vientDuLecteurMP3 = false,bool remaitreLeThèmePrincipale = false){
-        if (remaitreLeThèmePrincipale){
+
+    public void ChangerLaMusique(
+        AudioClip nomMusique,
+        bool répété,
+        bool vientDuLecteurMP3 = false,
+        bool remaitreLeThèmePrincipale = false)
+    {
+        if (remaitreLeThèmePrincipale)
             nomMusique = musiqueDeFond;
-        }
+
+        if (audioSource == null || nomMusique == null)
+            return;
+
         laMusiqueVientDuLecteurMP3 = vientDuLecteurMP3;
-        if (audioSource == null || nomMusique == null) return;
-        if (!répété){
-            musiqueEnMémoire=audioSource.clip;
+
+        if (!répété)
+        {
+            musiqueEnMémoire = audioSource.clip;
         }
+        else
+        {
+            musiqueEnMémoire = null;
+        }
+
         audioSource.clip = nomMusique;
         audioSource.loop = répété;
         audioSource.Play();
+
         Ecrire();
     }
-    public void JouerUnEffetSonore(AudioClip nomMusique, bool répété){
-        if (audioSource == null || nomMusique == null) return;
-        GameObject TV = new GameObject();
-        AudioSource source = TV.AddComponent<AudioSource>();
+
+    public void JouerUnEffetSonore(AudioClip nomMusique, bool répété)
+    {
+        if (nomMusique == null)
+            return;
+
+        GameObject objetSon = new GameObject(
+            $"SFX_{nomMusique.name}"
+        );
+
+        objetSon.transform.SetParent(transform);
+
+        AudioSource source = objetSon.AddComponent<AudioSource>();
+
         source.clip = nomMusique;
         source.loop = répété;
+        source.playOnAwake = false;
+        source.spatialBlend = 0f;
+
+        // Routage automatique vers le groupe SFX
+        if (groupeEffetsSonores != null)
+            source.outputAudioMixerGroup = groupeEffetsSonores;
+
         source.Play();
-        listeObjetMusique.Add(TV);
+
+        listeObjetMusique.Add(objetSon);
     }
-    IEnumerator NettoyerLaListe(){
-        while (true){
+
+    private IEnumerator NettoyerLaListe()
+    {
+        while (true)
+        {
             yield return new WaitForSeconds(2f);
-            foreach (GameObject item in listeObjetMusique){
-                if (!item.GetComponent<AudioSource>().isPlaying){
-                    listeObjetMusique.Remove(item);
-                    Destroy(item);
+
+            for (int i = listeObjetMusique.Count - 1; i >= 0; i--)
+            {
+                GameObject objet = listeObjetMusique[i];
+
+                if (objet == null)
+                {
+                    listeObjetMusique.RemoveAt(i);
+                    continue;
+                }
+
+                AudioSource source = objet.GetComponent<AudioSource>();
+
+                if (source == null || !source.isPlaying)
+                {
+                    listeObjetMusique.RemoveAt(i);
+                    Destroy(objet);
                 }
             }
         }
+    }
+
+    public void ArreterTousLesEffetsSonores()
+    {
+        foreach (GameObject objet in listeObjetMusique)
+        {
+            if (objet != null)
+                Destroy(objet);
+        }
+
+        listeObjetMusique.Clear();
     }
 }
