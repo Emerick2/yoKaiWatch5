@@ -47,7 +47,10 @@ public class BingoKai2 : MonoBehaviour {
 
     private TextAsset jsonBingoKai;
     private readonly Dictionary<int, BingoKaiCoinData> cacheDonnées = new Dictionary<int, BingoKaiCoinData>();
+    private bool préchargementLancé = false;
+    private string texteJson;
     private string texteEnCours;
+    private readonly Dictionary<int, Sprite> cacheSpritesYoKai = new Dictionary<int, Sprite>();
 
     public List<PièceBingoKai> listePièceBingoKai = new List<PièceBingoKai>{
         new PièceBingoKai{ id = 0, nom_anglais = "Red_Coin" },
@@ -137,6 +140,20 @@ public class BingoKai2 : MonoBehaviour {
         }
         attenteDuChoixDeLaPièce = true;
         canevaBingoKaiOuvert = false;
+
+        // if (videoPlayer != null && videoBingoKai != null){
+        //     videoPlayer.playOnAwake = false;
+        //     videoPlayer.clip = videoBingoKai;
+        //     videoPlayer.Prepare();
+        // }
+        PréparerVidéo(videoBingoKai);
+    }
+    void PréparerVidéo(VideoClip videoClip){
+        if (videoPlayer == null || videoClip == null) return;
+        if (!videoPlayer.gameObject.activeInHierarchy) return;
+        videoPlayer.playOnAwake = false;
+        videoPlayer.clip = videoClip;
+        videoPlayer.Prepare();
     }
 
     void Update() {
@@ -251,10 +268,49 @@ public class BingoKai2 : MonoBehaviour {
                             if (canevasBingoKai != null) canevasBingoKai.SetActive(true);
                             attenteDuChoixDeLaPièce = true;
                             canevaBingoKaiOuvert = true;
+                        } else {
+                            mouvementDuJoueur.droitDeMarcher = true;
                         }
                         break;
                 }                
             }
+        }
+    }
+    void AnnulerTirage(string raison){
+       Debug.LogError("BingoKai : tirage annulé – " + raison);
+        if (videoPlayer != null){
+            videoPlayer.loopPointReached -= FaireVideoCapsule;
+            videoPlayer.loopPointReached -= ApparitionYoKai;
+            videoPlayer.loopPointReached -= ApparitionObjet;
+            videoPlayer.Stop();
+            videoPlayer.gameObject.SetActive(false);
+        }
+        if (panelGain != null) panelGain.SetActive(false);
+        attenteDuChoixDeLaPièce = true;
+    }
+
+    IEnumerator Précharger(){
+        PlacerIcone();
+        yield return null;
+        for (int i = 0; i < listePièceBingoKai.Count; i++){
+            ChargerLesDonnéesBingoKai(i);
+            yield return null;
+        }
+    }
+
+    Sprite SpriteDuYoKai(int speciesId){
+        if (cacheSpritesYoKai.TryGetValue(speciesId, out Sprite s)) return s;
+        YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
+        s = yokai != null ? yokai.imageMédaillon : null;
+        if (s != null) cacheSpritesYoKai[speciesId] = s;
+        return s;
+    }
+
+    void AfficherPalier(List<Image> images, BingoKaiPrizeData palier){
+        for (int i = 0; i < images.Count; i++){
+            Sprite s = (palier != null && i < palier.yokaiIds.Count) ? SpriteDuYoKai(palier.yokaiIds[i]) : null;
+            if (s != null) images[i].sprite = s;
+            images[i].gameObject.SetActive(s != null);
         }
     }
 
@@ -262,10 +318,13 @@ public class BingoKai2 : MonoBehaviour {
         if (position < 0 || position >= listePièceBingoKai.Count || medaliumDictionnaire._instance == null) return null;
         if (cacheDonnées.TryGetValue(position, out var données)) return données;
 
-        if (jsonBingoKai == null) jsonBingoKai = Resources.Load<TextAsset>("bingo-kai/yokaiWatch3_bingoKai");
-        if (jsonBingoKai == null) return null;
+        if (texteJson == null) {
+            TextAsset asset = Resources.Load<TextAsset>("bingo-kai/yokaiWatch3_bingoKai");
+            if (asset == null) return null;
+            texteJson = asset.text;
+        }
 
-        données = BingoKaiCoinData.FromJson(jsonBingoKai.text, listePièceBingoKai[position].nom_anglais, "Granval",
+        données = BingoKaiCoinData.FromJson(texteJson, listePièceBingoKai[position].nom_anglais, "Granval",
             englishName => medaliumDictionnaire._instance.TrouverUnYoKaiParSonNomAnglais(englishName)?.ID);
         cacheDonnées[position] = données;
         return données;
@@ -294,11 +353,12 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     public void Exit(){
+        Debug.Log("Exit() appelé depuis :\n" + System.Environment.StackTrace);
         if (canevasBingoKai != null) canevasBingoKai.SetActive(false);
+        if (imageObjet != null) imageObjet.gameObject.SetActive(false);
         canevaBingoKaiOuvert = false;
-        imageObjet.gameObject.SetActive(false);
-        mouvementDuJoueur.droitDeMarcher = true;
         étape = 0;
+        mouvementDuJoueur.droitDeMarcher = true;
     }
 
     void ComplétéListePièce(){
@@ -330,6 +390,10 @@ public class BingoKai2 : MonoBehaviour {
     void OnCollisionEnter(Collision other) {
         if (other.transform.CompareTag("Player")){
             inTheZone = true;
+            if (!préchargementLancé && medaliumDictionnaire._instance != null){
+                préchargementLancé = true;
+                StartCoroutine(Précharger());
+            }
         }
     }
 
@@ -381,6 +445,7 @@ public class BingoKai2 : MonoBehaviour {
     void UtilisationDeLaPièce(int numéroPièce) {
         yokaiQuiVasSortir = 0;
         nomObjetQuiVasSortir = "";
+        if (videoPlayer == null || videoBingoKai == null){ AnnulerTirage("vidéo manquante"); return; }
 
         if (lesDonnéesBingoKai == null) { attenteDuChoixDeLaPièce = true; return; }
 
@@ -404,7 +469,7 @@ public class BingoKai2 : MonoBehaviour {
         videoPlayer.gameObject.SetActive(true);
         videoPlayer.loopPointReached -= FaireVideoCapsule;
         videoPlayer.loopPointReached += FaireVideoCapsule;
-        videoPlayer.clip = videoBingoKai;
+        if (videoPlayer.clip != videoBingoKai) videoPlayer.clip = videoBingoKai;
         videoPlayer.Play();
     }
 
@@ -422,6 +487,8 @@ public class BingoKai2 : MonoBehaviour {
     }
 
     void FaireVideoCapsule(UnityEngine.Video.VideoPlayer source) {
+        if (videoCapsuleRouge == null){ AnnulerTirage("videoCapsuleRouge manquante"); return; }
+
         // La vidéo est terminée !
         videoPlayer.loopPointReached -= FaireVideoCapsule;
         
@@ -440,7 +507,11 @@ public class BingoKai2 : MonoBehaviour {
         if (gameObjectYoKaiBingoKaiSupr != null) {
             Destroy(gameObjectYoKaiBingoKaiSupr);
         }
-        gameObjectYoKaiBingoKaiSupr = medaliumDictionnaire._instance.InstantiateYoKai(yokaiQuiVasSortir.ToString());
+        YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(yokaiQuiVasSortir);
+        GameObject instance = medaliumDictionnaire._instance.InstantiateYoKai(yokaiQuiVasSortir.ToString());
+        if (yokai == null || instance == null){ AnnulerTirage("Yo-kai introuvable, ID " + yokaiQuiVasSortir); return; }
+        gameObjectYoKaiBingoKaiSupr = instance;
+
         gameObjectYoKaiBingoKaiSupr.transform.position = positionYoKaiCaméra.transform.position;
         gameObjectYoKaiBingoKaiSupr.transform.rotation = positionYoKaiCaméra.transform.rotation;
         ChangerLayerRecursif(gameObjectYoKaiBingoKaiSupr, 10);
@@ -494,75 +565,11 @@ public class BingoKai2 : MonoBehaviour {
 
     void AfficherLesPrixDuBingoKai(){
         lesDonnéesBingoKai = ChargerLesDonnéesBingoKai(cible);
-
-        if (lesDonnéesBingoKai != null) {
-            // -------- PREMIER PRIX --------
-            for (int i = 0; i < listeImagePremierPrix.Count; i++) {
-                if (lesDonnéesBingoKai.firstPrize.yokaiIds.Count > i){
-                    listeImagePremierPrix[i].gameObject.SetActive(true);
-                    int speciesId = lesDonnéesBingoKai.firstPrize.yokaiIds[i];
-                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
-                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
-                    if (image != null) {
-                        listeImagePremierPrix[i].sprite = image;
-                    } else {
-                        listeImagePremierPrix[i].gameObject.SetActive(false);
-                    }
-                } else {
-                    listeImagePremierPrix[i].gameObject.SetActive(false);
-                }
-            }
-            // -------- DEUXIÈME PRIX --------
-            for (int i = 0; i < listeImageDeuxièmePrix.Count; i++) {
-                if (lesDonnéesBingoKai.secondPrize.yokaiIds.Count > i){
-                    listeImageDeuxièmePrix[i].gameObject.SetActive(true);
-                    int speciesId = lesDonnéesBingoKai.secondPrize.yokaiIds[i];
-                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
-                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
-                    if (image != null) {
-                        listeImageDeuxièmePrix[i].sprite = image;
-                    } else {
-                        listeImageDeuxièmePrix[i].gameObject.SetActive(false);
-                    }
-                } else {
-                    listeImageDeuxièmePrix[i].gameObject.SetActive(false);
-                }
-            }
-            // -------- TROISIÈME PRIX --------
-            for (int i = 0; i < listeImageTroisièmePrix.Count; i++) {
-                if (lesDonnéesBingoKai.thirdPrize.yokaiIds.Count > i){
-                    listeImageTroisièmePrix[i].gameObject.SetActive(true);
-                    int speciesId = lesDonnéesBingoKai.thirdPrize.yokaiIds[i];
-                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
-                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
-                    if (image != null) {
-                        listeImageTroisièmePrix[i].sprite = image;
-                    } else {
-                        listeImageTroisièmePrix[i].gameObject.SetActive(false);
-                    }
-                } else {
-                    listeImageTroisièmePrix[i].gameObject.SetActive(false);
-                }
-            }
-            // -------- DERNIER PRIX --------
-            for (int i = 0; i < listeImageDernierPrix.Count; i++) {
-                if (lesDonnéesBingoKai.defaultPrize.yokaiIds.Count > i){
-                    listeImageDernierPrix[i].gameObject.SetActive(true);
-                    int speciesId = lesDonnéesBingoKai.defaultPrize.yokaiIds[i];
-                    YoKai yokai = medaliumDictionnaire._instance.ServantYoKai(speciesId);
-                    Sprite image = yokai != null ? yokai.imageMédaillon : null;
-                    if (image != null) {
-                        listeImageDernierPrix[i].sprite = image;
-                    } else {
-                        listeImageDernierPrix[i].gameObject.SetActive(false);
-                    }
-                } else {
-                    listeImageDernierPrix[i].gameObject.SetActive(false);
-                }
-            }
-            // ----------------
-
-        }
+        if (lesDonnéesBingoKai == null) return;
+        AfficherPalier(listeImagePremierPrix,    lesDonnéesBingoKai.firstPrize);
+        AfficherPalier(listeImageDeuxièmePrix,   lesDonnéesBingoKai.secondPrize);
+        AfficherPalier(listeImageTroisièmePrix,  lesDonnéesBingoKai.thirdPrize);
+        AfficherPalier(listeImageDernierPrix,    lesDonnéesBingoKai.defaultPrize);
     }
 
     private static string ResolveItemName(string englishName)
